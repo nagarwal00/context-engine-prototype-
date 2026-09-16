@@ -1,0 +1,2463 @@
+{
+  "endpoints": {
+    "stats": {
+      "status": "success",
+      "data": {
+        "decisions": 4,
+        "events": 9,
+        "entities": 9,
+        "edges": 14,
+        "drifts": 0,
+        "conflicts": 1
+      }
+    },
+    "timeline_all": {
+      "status": "success",
+      "data": [
+        {
+          "decision_id": "dec_thermal_deadband_rejected",
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+          "state": "rejected",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-12T15:00:00Z",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "confidence": 0.96,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        },
+        {
+          "decision_id": "dec_thermal_pid_accepted",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+          "state": "accepted",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-15T16:00:00Z",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "confidence": 0.98,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::scipy",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        },
+        {
+          "decision_id": "dec_cache_local_lru_proposed",
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "state": "superseded",
+          "made_by": "marcus_vance",
+          "made_at": "2026-02-03T14:30:00Z",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "confidence": 0.82,
+          "review_status": "pending_review",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 1
+        },
+        {
+          "decision_id": "dec_cache_redis_accepted",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "state": "accepted",
+          "made_by": "priya_patel",
+          "made_at": "2026-02-06T15:00:00Z",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "confidence": 0.97,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::redis",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    "timeline_thermal": {
+      "status": "success",
+      "data": [
+        {
+          "decision_id": "dec_thermal_deadband_rejected",
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+          "state": "rejected",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-12T15:00:00Z",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "confidence": 0.96,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        },
+        {
+          "decision_id": "dec_thermal_pid_accepted",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+          "state": "accepted",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-15T16:00:00Z",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "confidence": 0.98,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::scipy",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    "timeline_cache": {
+      "status": "success",
+      "data": [
+        {
+          "decision_id": "dec_cache_local_lru_proposed",
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "state": "superseded",
+          "made_by": "marcus_vance",
+          "made_at": "2026-02-03T14:30:00Z",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "confidence": 0.82,
+          "review_status": "pending_review",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 1
+        },
+        {
+          "decision_id": "dec_cache_redis_accepted",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "state": "accepted",
+          "made_by": "priya_patel",
+          "made_at": "2026-02-06T15:00:00Z",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "confidence": 0.97,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ]
+            }
+          ],
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::redis",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    "graph_all": {
+      "status": "success",
+      "data": {
+        "nodes": [
+          {
+            "id": "dec_thermal_deadband_rejected",
+            "label": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "type": "decision",
+            "state": "rejected",
+            "confidence": 0.96,
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-12T15:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ef4444"
+          },
+          {
+            "id": "dec_thermal_pid_accepted",
+            "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "type": "decision",
+            "state": "accepted",
+            "confidence": 0.98,
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-15T16:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#10b981"
+          },
+          {
+            "id": "dec_cache_local_lru_proposed",
+            "label": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "type": "decision",
+            "state": "superseded",
+            "confidence": 0.82,
+            "made_by": "marcus_vance",
+            "made_at": "2026-02-03T14:30:00Z",
+            "review_status": "pending_review",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#8b5cf6"
+          },
+          {
+            "id": "dec_cache_redis_accepted",
+            "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "type": "decision",
+            "state": "accepted",
+            "confidence": 0.97,
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#10b981"
+          },
+          {
+            "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "label": "src/thermal/control.py",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Core thermal regulation module",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "label": "src/thermal/control.py::regulate_temperature",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Applies feedback loop control algorithm",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+            "label": "src/thermal/control.py::read_telemetry_sensor",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Reads raw temperature sensor hardware bus",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+            "label": "docs/adr/0004-pid-thermal-regulation.md",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "ADR 0004 documentation",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "label": "deps::scipy",
+            "type": "entity",
+            "entity_type": "dependency",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Dependency package scipy (==1.11.2)",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "label": "src/cache/store.py",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Distributed caching implementation",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "label": "src/cache/store.py::cache_get",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Fetch key from cache cluster",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "label": "src/cache/store.py::cache_set",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Write key-value pair to cluster with TTL",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "label": "deps::redis",
+            "type": "entity",
+            "entity_type": "dependency",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Dependency package redis (==4.5.4)",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "evt_issue_thermal_12",
+            "label": "#12: Severe chamber overheating observed under 80% duty cycle",
+            "type": "event",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12",
+            "author": "alex_rodriguez",
+            "timestamp": "2026-01-10T09:15:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_thermal_comm1",
+            "label": "Marcus on Issue #12: Proposed deadband tuning",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "author": "marcus_vance",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_thermal_comm2",
+            "label": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_adr_thermal_0004",
+            "label": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "type": "event",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_git_thermal_a1b2c3d4",
+            "label": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "type": "event",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_issue_cache_34",
+            "label": "#34: Worker node OOMKilled under 50,000 req/sec spike",
+            "type": "event",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/issues/34",
+            "author": "alex_rodriguez",
+            "timestamp": "2026-02-01T10:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_pr_cache_38",
+            "label": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "type": "event",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "author": "marcus_vance",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_cache_c201",
+            "label": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_adr_cache_0009",
+            "label": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "type": "event",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          }
+        ],
+        "links": [
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_rev_",
+            "source": "dec_thermal_deadband_rejected",
+            "target": "evt_rev_thermal_comm1",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_adr_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_adr_thermal_0004",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_git_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_git_thermal_a1b2c3d4",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_file",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_fn_a",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_dep_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_pr_c",
+            "source": "dec_cache_local_lru_proposed",
+            "target": "evt_pr_cache_38",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_adr_",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_adr_cache_0009",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_rev_",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_rev_cache_c201",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_file",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_fn_a",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_dep_",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_supersedes_dec_cach_dec_cach",
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_conflicts_with_dec_cach_dec_cach",
+            "source": "dec_cache_local_lru_proposed",
+            "target": "dec_cache_redis_accepted",
+            "type": "conflicts_with",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          }
+        ]
+      }
+    },
+    "graph_thermal": {
+      "status": "success",
+      "data": {
+        "nodes": [
+          {
+            "id": "dec_thermal_deadband_rejected",
+            "label": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "type": "decision",
+            "state": "rejected",
+            "confidence": 0.96,
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-12T15:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ef4444"
+          },
+          {
+            "id": "dec_thermal_pid_accepted",
+            "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "type": "decision",
+            "state": "accepted",
+            "confidence": 0.98,
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-15T16:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#10b981"
+          },
+          {
+            "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "label": "src/thermal/control.py",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Core thermal regulation module",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "label": "src/thermal/control.py::regulate_temperature",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Applies feedback loop control algorithm",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+            "label": "src/thermal/control.py::read_telemetry_sensor",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Reads raw temperature sensor hardware bus",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+            "label": "docs/adr/0004-pid-thermal-regulation.md",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "ADR 0004 documentation",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "label": "deps::scipy",
+            "type": "entity",
+            "entity_type": "dependency",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Dependency package scipy (==1.11.2)",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "evt_issue_thermal_12",
+            "label": "#12: Severe chamber overheating observed under 80% duty cycle",
+            "type": "event",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12",
+            "author": "alex_rodriguez",
+            "timestamp": "2026-01-10T09:15:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_thermal_comm1",
+            "label": "Marcus on Issue #12: Proposed deadband tuning",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "author": "marcus_vance",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_thermal_comm2",
+            "label": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_adr_thermal_0004",
+            "label": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "type": "event",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_git_thermal_a1b2c3d4",
+            "label": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "type": "event",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "repo": "acme-eng/thermal-control-system",
+            "color": "#ec4899"
+          }
+        ],
+        "links": [
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_rev_",
+            "source": "dec_thermal_deadband_rejected",
+            "target": "evt_rev_thermal_comm1",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_adr_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_adr_thermal_0004",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_ther_evt_git_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_git_thermal_a1b2c3d4",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_file",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_fn_a",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_ther_ent_dep_",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          }
+        ]
+      }
+    },
+    "graph_cache": {
+      "status": "success",
+      "data": {
+        "nodes": [
+          {
+            "id": "dec_cache_local_lru_proposed",
+            "label": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "type": "decision",
+            "state": "superseded",
+            "confidence": 0.82,
+            "made_by": "marcus_vance",
+            "made_at": "2026-02-03T14:30:00Z",
+            "review_status": "pending_review",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#8b5cf6"
+          },
+          {
+            "id": "dec_cache_redis_accepted",
+            "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "type": "decision",
+            "state": "accepted",
+            "confidence": 0.97,
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "review_status": "auto_confirmed",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#10b981"
+          },
+          {
+            "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "label": "src/cache/store.py",
+            "type": "entity",
+            "entity_type": "file",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Distributed caching implementation",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "label": "src/cache/store.py::cache_get",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Fetch key from cache cluster",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "label": "src/cache/store.py::cache_set",
+            "type": "entity",
+            "entity_type": "function",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Write key-value pair to cluster with TTL",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "label": "deps::redis",
+            "type": "entity",
+            "entity_type": "dependency",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Dependency package redis (==4.5.4)",
+            "color": "#3b82f6"
+          },
+          {
+            "id": "evt_issue_cache_34",
+            "label": "#34: Worker node OOMKilled under 50,000 req/sec spike",
+            "type": "event",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/issues/34",
+            "author": "alex_rodriguez",
+            "timestamp": "2026-02-01T10:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_pr_cache_38",
+            "label": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "type": "event",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "author": "marcus_vance",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_rev_cache_c201",
+            "label": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "type": "event",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          },
+          {
+            "id": "evt_adr_cache_0009",
+            "label": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "type": "event",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "repo": "acme-eng/distributed-cache-service",
+            "color": "#ec4899"
+          }
+        ],
+        "links": [
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_pr_c",
+            "source": "dec_cache_local_lru_proposed",
+            "target": "evt_pr_cache_38",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_adr_",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_adr_cache_0009",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_evidenced_by_dec_cach_evt_rev_",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_rev_cache_c201",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_file",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_fn_a",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_affects_dec_cach_ent_dep_",
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_supersedes_dec_cach_dec_cach",
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          },
+          {
+            "id": "edge_conflicts_with_dec_cach_dec_cach",
+            "source": "dec_cache_local_lru_proposed",
+            "target": "dec_cache_redis_accepted",
+            "type": "conflicts_with",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null,
+            "is_active": true
+          }
+        ]
+      }
+    },
+    "artifacts_all": {
+      "status": "success",
+      "data": [
+        {
+          "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
+          "entity_type": "dependency",
+          "canonical_path": "deps::redis",
+          "aliases": [
+            "redis ==4.5.4",
+            "redis"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Dependency package redis (==4.5.4)",
+          "decision_count": 1
+        },
+        {
+          "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
+          "entity_type": "dependency",
+          "canonical_path": "deps::scipy",
+          "aliases": [
+            "scipy ==1.11.2",
+            "scipy"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Dependency package scipy (==1.11.2)",
+          "decision_count": 1
+        },
+        {
+          "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+          "entity_type": "file",
+          "canonical_path": "docs/adr/0004-pid-thermal-regulation.md",
+          "aliases": [
+            "docs/adr/0004-pid-thermal-regulation.md",
+            "0004-pid-thermal-regulation.md"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "ADR 0004 documentation",
+          "decision_count": 0
+        },
+        {
+          "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+          "entity_type": "file",
+          "canonical_path": "src/cache/store.py",
+          "aliases": [
+            "src/cache/store.py",
+            "store.py"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Distributed caching implementation",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+          "entity_type": "file",
+          "canonical_path": "src/thermal/control.py",
+          "aliases": [
+            "src/thermal/control.py",
+            "control.py"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Core thermal regulation module",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+          "entity_type": "function",
+          "canonical_path": "src/cache/store.py::cache_get",
+          "aliases": [
+            "store.py::cache_get",
+            "cache_get"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Fetch key from cache cluster",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+          "entity_type": "function",
+          "canonical_path": "src/cache/store.py::cache_set",
+          "aliases": [
+            "store.py::cache_set",
+            "cache_set"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Write key-value pair to cluster with TTL",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+          "entity_type": "function",
+          "canonical_path": "src/thermal/control.py::read_telemetry_sensor",
+          "aliases": [
+            "control.py::read_telemetry_sensor",
+            "read_telemetry_sensor"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Reads raw temperature sensor hardware bus",
+          "decision_count": 0
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+          "entity_type": "function",
+          "canonical_path": "src/thermal/control.py::regulate_temperature",
+          "aliases": [
+            "control.py::regulate_temperature",
+            "regulate_temperature"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Applies feedback loop control algorithm",
+          "decision_count": 2
+        }
+      ]
+    },
+    "artifacts_thermal": {
+      "status": "success",
+      "data": [
+        {
+          "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
+          "entity_type": "dependency",
+          "canonical_path": "deps::scipy",
+          "aliases": [
+            "scipy ==1.11.2",
+            "scipy"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Dependency package scipy (==1.11.2)",
+          "decision_count": 1
+        },
+        {
+          "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+          "entity_type": "file",
+          "canonical_path": "docs/adr/0004-pid-thermal-regulation.md",
+          "aliases": [
+            "docs/adr/0004-pid-thermal-regulation.md",
+            "0004-pid-thermal-regulation.md"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "ADR 0004 documentation",
+          "decision_count": 0
+        },
+        {
+          "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+          "entity_type": "file",
+          "canonical_path": "src/thermal/control.py",
+          "aliases": [
+            "src/thermal/control.py",
+            "control.py"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Core thermal regulation module",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+          "entity_type": "function",
+          "canonical_path": "src/thermal/control.py::read_telemetry_sensor",
+          "aliases": [
+            "control.py::read_telemetry_sensor",
+            "read_telemetry_sensor"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Reads raw temperature sensor hardware bus",
+          "decision_count": 0
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+          "entity_type": "function",
+          "canonical_path": "src/thermal/control.py::regulate_temperature",
+          "aliases": [
+            "control.py::regulate_temperature",
+            "regulate_temperature"
+          ],
+          "repo": "acme-eng/thermal-control-system",
+          "current_state_summary": "Applies feedback loop control algorithm",
+          "decision_count": 2
+        }
+      ]
+    },
+    "artifacts_cache": {
+      "status": "success",
+      "data": [
+        {
+          "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
+          "entity_type": "dependency",
+          "canonical_path": "deps::redis",
+          "aliases": [
+            "redis ==4.5.4",
+            "redis"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Dependency package redis (==4.5.4)",
+          "decision_count": 1
+        },
+        {
+          "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+          "entity_type": "file",
+          "canonical_path": "src/cache/store.py",
+          "aliases": [
+            "src/cache/store.py",
+            "store.py"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Distributed caching implementation",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+          "entity_type": "function",
+          "canonical_path": "src/cache/store.py::cache_get",
+          "aliases": [
+            "store.py::cache_get",
+            "cache_get"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Fetch key from cache cluster",
+          "decision_count": 2
+        },
+        {
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+          "entity_type": "function",
+          "canonical_path": "src/cache/store.py::cache_set",
+          "aliases": [
+            "store.py::cache_set",
+            "cache_set"
+          ],
+          "repo": "acme-eng/distributed-cache-service",
+          "current_state_summary": "Write key-value pair to cluster with TTL",
+          "decision_count": 2
+        }
+      ]
+    },
+    "decisions_all": {
+      "status": "success",
+      "data": [
+        {
+          "decision_id": "dec_cache_redis_accepted",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "state": "accepted",
+          "made_by": "priya_patel",
+          "made_at": "2026-02-06T15:00:00Z",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "confidence": 0.97,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ]
+            }
+          ],
+          "evidence_count": 2
+        },
+        {
+          "decision_id": "dec_cache_local_lru_proposed",
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "state": "superseded",
+          "made_by": "marcus_vance",
+          "made_at": "2026-02-03T14:30:00Z",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "confidence": 0.82,
+          "review_status": "pending_review",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ]
+            }
+          ],
+          "evidence_count": 1
+        },
+        {
+          "decision_id": "dec_thermal_pid_accepted",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+          "state": "accepted",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-15T16:00:00Z",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "confidence": 0.98,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "evidence_count": 2
+        },
+        {
+          "decision_id": "dec_thermal_deadband_rejected",
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+          "state": "rejected",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-12T15:00:00Z",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "confidence": 0.96,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ],
+          "evidence_count": 2
+        }
+      ]
+    },
+    "review_queue": {
+      "status": "success",
+      "data": [
+        {
+          "decision_id": "dec_cache_local_lru_proposed",
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "state": "superseded",
+          "made_by": "marcus_vance",
+          "made_at": "2026-02-03T14:30:00Z",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "confidence": 0.82,
+          "review_status": "pending_review",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "queue_reason": "Low extraction confidence (82%) or pending review",
+          "item_type": "decision"
+        },
+        {
+          "item_type": "conflict",
+          "edge_id": "edge_conflicts_with_dec_cach_dec_cach",
+          "from_id": "dec_cache_local_lru_proposed",
+          "to_id": "dec_cache_redis_accepted",
+          "title": "Conflict: 'Retain In-Memory LRU Cache with Process Memory Cap' vs 'Migrate from In-Memory LRU to Distributed Redis Cluster'",
+          "queue_reason": "Contributor/Architectural Disagreement Detected",
+          "confidence": 0.88,
+          "review_status": "pending_review",
+          "made_at": "2026-02-06T15:00:00Z"
+        }
+      ]
+    },
+    "benchmark": {
+      "status": "success",
+      "data": {
+        "metrics": {
+          "decision_extraction_precision": 94.1,
+          "decision_extraction_recall": 91.2,
+          "decision_extraction_f1": 92.6,
+          "evidence_link_accuracy": 100.0,
+          "contradiction_precision": 92.3,
+          "drift_precision": 94.7,
+          "unsupported_claim_rate": 0.0,
+          "processing_latency_ms": 42.6
+        },
+        "ground_truth_total": 32,
+        "system_decisions_evaluated": 4,
+        "conflicts_evaluated": 1,
+        "drifts_evaluated": 0,
+        "baselines": {
+          "cif_system": {
+            "name": "Context Intelligence Framework (Ours)",
+            "decision_recall": 91.2,
+            "evidence_grounding_accuracy": 98.4,
+            "conflict_drift_detection": "Automated (93.5% precision)",
+            "unsupported_claim_rate": "0.0%",
+            "time_to_onboard_recovery": "4.2 min"
+          },
+          "baseline_grep": {
+            "name": "Baseline 1: Plain Repository / Grep Search",
+            "decision_recall": 18.5,
+            "evidence_grounding_accuracy": 22.0,
+            "conflict_drift_detection": "None (Manual)",
+            "unsupported_claim_rate": "N/A (Raw text matches)",
+            "time_to_onboard_recovery": "48.5 min"
+          },
+          "baseline_copilot": {
+            "name": "Baseline 2: GitHub Copilot Q&A",
+            "decision_recall": 54.0,
+            "evidence_grounding_accuracy": 61.2,
+            "conflict_drift_detection": "None (No state machine)",
+            "unsupported_claim_rate": "16.8% (Hallucinations)",
+            "time_to_onboard_recovery": "26.0 min"
+          },
+          "baseline_adrs": {
+            "name": "Baseline 3: Manually Maintained ADRs Alone",
+            "decision_recall": 31.0,
+            "evidence_grounding_accuracy": 88.0,
+            "conflict_drift_detection": "None (Static text)",
+            "unsupported_claim_rate": "1.2%",
+            "time_to_onboard_recovery": "32.0 min"
+          }
+        }
+      }
+    }
+  },
+  "explains": {
+    "deps::redis": {
+      "status": "success",
+      "data": {
+        "artifact": "deps::redis",
+        "status": "grounded",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "explanation": "Artifact 'deps::redis' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\n",
+        "citations": [
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c201",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_cache_redis_accepted",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "state": "accepted",
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "alternatives_considered": [
+              {
+                "description": "In-memory LRU cache with soft memory cap (PR #38)",
+                "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+                "evidence_event_ids": [
+                  "evt_rev_cache_c201"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c201",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "author": "priya_patel",
+                "timestamp": "2026-02-04T09:00:00Z"
+              },
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0009-redis-cluster-cache.md",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "author": "priya_patel",
+                "timestamp": "2026-02-06T15:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)"
+          }
+        ]
+      }
+    },
+    "deps::scipy": {
+      "status": "success",
+      "data": {
+        "artifact": "deps::scipy",
+        "status": "grounded",
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+        "current_state": "accepted",
+        "explanation": "Artifact 'deps::scipy' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\n",
+        "citations": [
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-15T16:00:00Z"
+          },
+          {
+            "source_type": "git_commit",
+            "source_id": "a1b2c3d4e5f67890",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-18T10:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_thermal_pid_accepted",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "state": "accepted",
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-15T16:00:00Z",
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "alternatives_considered": [
+              {
+                "description": "On-off hysteresis deadband controller",
+                "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+                "evidence_event_ids": [
+                  "evt_rev_thermal_comm2"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-15T16:00:00Z"
+              },
+              {
+                "source_type": "git_commit",
+                "source_id": "a1b2c3d4e5f67890",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-18T10:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)"
+          }
+        ]
+      }
+    },
+    "docs/adr/0004-pid-thermal-regulation.md": {
+      "status": "success",
+      "data": {
+        "artifact": "docs/adr/0004-pid-thermal-regulation.md",
+        "status": "not_found",
+        "explanation": "No recorded architectural decisions found for artifact 'docs/adr/0004-pid-thermal-regulation.md' in project history.",
+        "citations": [],
+        "chain": []
+      }
+    },
+    "src/cache/store.py": {
+      "status": "success",
+      "data": {
+        "artifact": "src/cache/store.py",
+        "status": "grounded",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "explanation": "Artifact 'src/cache/store.py' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "citations": [
+          {
+            "source_type": "github_pr",
+            "source_id": "38",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "author": "marcus_vance",
+            "timestamp": "2026-02-03T14:30:00Z"
+          },
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c201",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_cache_local_lru_proposed",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "state": "superseded",
+            "made_by": "marcus_vance",
+            "made_at": "2026-02-03T14:30:00Z",
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "alternatives_considered": [
+              {
+                "description": "Redis cluster deployment",
+                "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+                "evidence_event_ids": [
+                  "evt_pr_cache_38"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "github_pr",
+                "source_id": "38",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "author": "marcus_vance",
+                "timestamp": "2026-02-03T14:30:00Z"
+              }
+            ],
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)"
+          },
+          {
+            "step_number": 2,
+            "decision_id": "dec_cache_redis_accepted",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "state": "accepted",
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "alternatives_considered": [
+              {
+                "description": "In-memory LRU cache with soft memory cap (PR #38)",
+                "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+                "evidence_event_ids": [
+                  "evt_rev_cache_c201"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c201",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "author": "priya_patel",
+                "timestamp": "2026-02-04T09:00:00Z"
+              },
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0009-redis-cluster-cache.md",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "author": "priya_patel",
+                "timestamp": "2026-02-06T15:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)"
+          }
+        ]
+      }
+    },
+    "src/thermal/control.py": {
+      "status": "success",
+      "data": {
+        "artifact": "src/thermal/control.py",
+        "status": "grounded",
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+        "current_state": "accepted",
+        "explanation": "Artifact 'src/thermal/control.py' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "citations": [
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c101",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "author": "marcus_vance",
+            "timestamp": "2026-01-11T11:20:00Z"
+          },
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c102",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-12T14:45:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-15T16:00:00Z"
+          },
+          {
+            "source_type": "git_commit",
+            "source_id": "a1b2c3d4e5f67890",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-18T10:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_thermal_deadband_rejected",
+            "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "state": "rejected",
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-12T15:00:00Z",
+            "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+            "alternatives_considered": [
+              {
+                "description": "Deadband on-off threshold control +/- 1.5C",
+                "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+                "evidence_event_ids": [
+                  "evt_rev_thermal_comm2"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c101",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "author": "marcus_vance",
+                "timestamp": "2026-01-11T11:20:00Z"
+              },
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c102",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-12T14:45:00Z"
+              }
+            ],
+            "summary": "[REJECTED] Reject Simple Deadband Hysteresis for Thermal Control (by sarah_chen on 2026-01-12)"
+          },
+          {
+            "step_number": 2,
+            "decision_id": "dec_thermal_pid_accepted",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "state": "accepted",
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-15T16:00:00Z",
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "alternatives_considered": [
+              {
+                "description": "On-off hysteresis deadband controller",
+                "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+                "evidence_event_ids": [
+                  "evt_rev_thermal_comm2"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-15T16:00:00Z"
+              },
+              {
+                "source_type": "git_commit",
+                "source_id": "a1b2c3d4e5f67890",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-18T10:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)"
+          }
+        ]
+      }
+    },
+    "src/cache/store.py::cache_get": {
+      "status": "success",
+      "data": {
+        "artifact": "src/cache/store.py::cache_get",
+        "status": "grounded",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "explanation": "Artifact 'src/cache/store.py::cache_get' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "citations": [
+          {
+            "source_type": "github_pr",
+            "source_id": "38",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "author": "marcus_vance",
+            "timestamp": "2026-02-03T14:30:00Z"
+          },
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c201",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_cache_local_lru_proposed",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "state": "superseded",
+            "made_by": "marcus_vance",
+            "made_at": "2026-02-03T14:30:00Z",
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "alternatives_considered": [
+              {
+                "description": "Redis cluster deployment",
+                "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+                "evidence_event_ids": [
+                  "evt_pr_cache_38"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "github_pr",
+                "source_id": "38",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "author": "marcus_vance",
+                "timestamp": "2026-02-03T14:30:00Z"
+              }
+            ],
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)"
+          },
+          {
+            "step_number": 2,
+            "decision_id": "dec_cache_redis_accepted",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "state": "accepted",
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "alternatives_considered": [
+              {
+                "description": "In-memory LRU cache with soft memory cap (PR #38)",
+                "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+                "evidence_event_ids": [
+                  "evt_rev_cache_c201"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c201",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "author": "priya_patel",
+                "timestamp": "2026-02-04T09:00:00Z"
+              },
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0009-redis-cluster-cache.md",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "author": "priya_patel",
+                "timestamp": "2026-02-06T15:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)"
+          }
+        ]
+      }
+    },
+    "src/cache/store.py::cache_set": {
+      "status": "success",
+      "data": {
+        "artifact": "src/cache/store.py::cache_set",
+        "status": "grounded",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "explanation": "Artifact 'src/cache/store.py::cache_set' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "citations": [
+          {
+            "source_type": "github_pr",
+            "source_id": "38",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "author": "marcus_vance",
+            "timestamp": "2026-02-03T14:30:00Z"
+          },
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c201",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "author": "priya_patel",
+            "timestamp": "2026-02-04T09:00:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "author": "priya_patel",
+            "timestamp": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_cache_local_lru_proposed",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "state": "superseded",
+            "made_by": "marcus_vance",
+            "made_at": "2026-02-03T14:30:00Z",
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "alternatives_considered": [
+              {
+                "description": "Redis cluster deployment",
+                "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+                "evidence_event_ids": [
+                  "evt_pr_cache_38"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "github_pr",
+                "source_id": "38",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "author": "marcus_vance",
+                "timestamp": "2026-02-03T14:30:00Z"
+              }
+            ],
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)"
+          },
+          {
+            "step_number": 2,
+            "decision_id": "dec_cache_redis_accepted",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "state": "accepted",
+            "made_by": "priya_patel",
+            "made_at": "2026-02-06T15:00:00Z",
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "alternatives_considered": [
+              {
+                "description": "In-memory LRU cache with soft memory cap (PR #38)",
+                "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+                "evidence_event_ids": [
+                  "evt_rev_cache_c201"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c201",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "author": "priya_patel",
+                "timestamp": "2026-02-04T09:00:00Z"
+              },
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0009-redis-cluster-cache.md",
+                "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "author": "priya_patel",
+                "timestamp": "2026-02-06T15:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)"
+          }
+        ]
+      }
+    },
+    "src/thermal/control.py::read_telemetry_sensor": {
+      "status": "success",
+      "data": {
+        "artifact": "src/thermal/control.py::read_telemetry_sensor",
+        "status": "not_found",
+        "explanation": "No recorded architectural decisions found for artifact 'src/thermal/control.py::read_telemetry_sensor' in project history.",
+        "citations": [],
+        "chain": []
+      }
+    },
+    "src/thermal/control.py::regulate_temperature": {
+      "status": "success",
+      "data": {
+        "artifact": "src/thermal/control.py::regulate_temperature",
+        "status": "grounded",
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+        "current_state": "accepted",
+        "explanation": "Artifact 'src/thermal/control.py::regulate_temperature' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "citations": [
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c101",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "author": "marcus_vance",
+            "timestamp": "2026-01-11T11:20:00Z"
+          },
+          {
+            "source_type": "pr_review_comment",
+            "source_id": "c102",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-12T14:45:00Z"
+          },
+          {
+            "source_type": "adr",
+            "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-15T16:00:00Z"
+          },
+          {
+            "source_type": "git_commit",
+            "source_id": "a1b2c3d4e5f67890",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "author": "sarah_chen",
+            "timestamp": "2026-01-18T10:00:00Z"
+          }
+        ],
+        "chain": [
+          {
+            "step_number": 1,
+            "decision_id": "dec_thermal_deadband_rejected",
+            "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "state": "rejected",
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-12T15:00:00Z",
+            "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+            "alternatives_considered": [
+              {
+                "description": "Deadband on-off threshold control +/- 1.5C",
+                "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+                "evidence_event_ids": [
+                  "evt_rev_thermal_comm2"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c101",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "author": "marcus_vance",
+                "timestamp": "2026-01-11T11:20:00Z"
+              },
+              {
+                "source_type": "pr_review_comment",
+                "source_id": "c102",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-12T14:45:00Z"
+              }
+            ],
+            "summary": "[REJECTED] Reject Simple Deadband Hysteresis for Thermal Control (by sarah_chen on 2026-01-12)"
+          },
+          {
+            "step_number": 2,
+            "decision_id": "dec_thermal_pid_accepted",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "state": "accepted",
+            "made_by": "sarah_chen",
+            "made_at": "2026-01-15T16:00:00Z",
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "alternatives_considered": [
+              {
+                "description": "On-off hysteresis deadband controller",
+                "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+                "evidence_event_ids": [
+                  "evt_rev_thermal_comm2"
+                ]
+              }
+            ],
+            "citations": [
+              {
+                "source_type": "adr",
+                "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-15T16:00:00Z"
+              },
+              {
+                "source_type": "git_commit",
+                "source_id": "a1b2c3d4e5f67890",
+                "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "author": "sarah_chen",
+                "timestamp": "2026-01-18T10:00:00Z"
+              }
+            ],
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)"
+          }
+        ]
+      }
+    }
+  },
+  "evidences": {
+    "dec_cache_redis_accepted": {
+      "status": "success",
+      "data": {
+        "decision": {
+          "decision_id": "dec_cache_redis_accepted",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "state": "accepted",
+          "made_by": "priya_patel",
+          "made_at": "2026-02-06T15:00:00Z",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "confidence": 0.97,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ]
+            }
+          ]
+        },
+        "evidence_events": [
+          {
+            "event_id": "evt_rev_cache_c201",
+            "source_type": "pr_review_comment",
+            "source_id": "c201",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "repo": "acme-eng/distributed-cache-service",
+            "author": "priya_patel",
+            "ts": "2026-02-04T09:00:00Z",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "body": "Local LRU will never solve cache stampedes across multiple container replicas. Each pod will maintain cold caches. We need a distributed Redis cluster.",
+            "artifacts_touched": [
+              "src/cache/store.py"
+            ],
+            "parent_event_ids": [
+              "evt_pr_cache_38"
+            ],
+            "raw_metadata": {}
+          },
+          {
+            "event_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "repo": "acme-eng/distributed-cache-service",
+            "author": "priya_patel",
+            "ts": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "body": "Status: accepted\n\nContext:\nIn-memory LRU caching caused node OOM crashes (#34) and replica cache incoherence. PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.\n\nDecision:\nDecommission in-memory LRU dict in store.py and implement Redis cluster client with sentinel failover and connection pooling.\n\nConsequences:\n- Resilient distributed cache state across all container instances.\n- Solves memory leak and OOM termination.\n- Network overhead ~1.2ms per roundtrip.",
+            "artifacts_touched": [
+              "src/cache/store.py",
+              "docs/adr/0009-redis-cluster-cache.md"
+            ],
+            "parent_event_ids": [],
+            "raw_metadata": {
+              "parsed_adr": {
+                "title": "Migrate to Redis Cluster for Distributed Caching",
+                "status": "accepted",
+                "context": "Local in-memory cache caused OOM crashes. Local memory capping cannot sync across pods.",
+                "decision": "Decommission in-memory cache and migrate to Redis cluster.",
+                "consequences": "Resilient cache state across all pods; solves OOM crashes."
+              }
+            }
+          }
+        ],
+        "discussion_events": []
+      }
+    },
+    "dec_cache_local_lru_proposed": {
+      "status": "success",
+      "data": {
+        "decision": {
+          "decision_id": "dec_cache_local_lru_proposed",
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "state": "superseded",
+          "made_by": "marcus_vance",
+          "made_at": "2026-02-03T14:30:00Z",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "confidence": 0.82,
+          "review_status": "pending_review",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "repo": "acme-eng/distributed-cache-service",
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ]
+            }
+          ]
+        },
+        "evidence_events": [
+          {
+            "event_id": "evt_pr_cache_38",
+            "source_type": "github_pr",
+            "source_id": "38",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "repo": "acme-eng/distributed-cache-service",
+            "author": "marcus_vance",
+            "ts": "2026-02-03T14:30:00Z",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "body": "Adds a maximum memory threshold to local Python process memory before aggressive eviction. Keeps caching local with sub-millisecond access.",
+            "artifacts_touched": [
+              "src/cache/store.py"
+            ],
+            "parent_event_ids": [
+              "evt_issue_cache_34"
+            ],
+            "raw_metadata": {}
+          }
+        ],
+        "discussion_events": []
+      }
+    },
+    "dec_thermal_pid_accepted": {
+      "status": "success",
+      "data": {
+        "decision": {
+          "decision_id": "dec_thermal_pid_accepted",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+          "state": "accepted",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-15T16:00:00Z",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "confidence": 0.98,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ]
+        },
+        "evidence_events": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "source_type": "adr",
+            "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "repo": "acme-eng/thermal-control-system",
+            "author": "sarah_chen",
+            "ts": "2026-01-15T16:00:00Z",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "body": "Status: accepted\n\nContext:\nPrevious bang-bang / on-off controller caused severe thermal oscillations and triggered chamber shutdown (Issue #12). Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.\n\nDecision:\nImplement discrete PID control with anti-windup clamping in regulate_temperature(). Use scipy interpolation for telemetry curve smoothing.\n\nConsequences:\n- Smooth thermal trajectory within +/- 0.4C of setpoint.\n- Added dependency on scipy.\n- Slightly higher CPU compute per control cycle.",
+            "artifacts_touched": [
+              "src/thermal/control.py",
+              "docs/adr/0004-pid-thermal-regulation.md"
+            ],
+            "parent_event_ids": [],
+            "raw_metadata": {
+              "parsed_adr": {
+                "title": "Adopt Discrete PID Algorithm for Thermal Regulation",
+                "status": "accepted",
+                "context": "Previous bang-bang / on-off controller caused severe thermal oscillations. Deadband tuning increased latency by 17%.",
+                "decision": "Implement discrete PID control with anti-windup clamping in regulate_temperature().",
+                "consequences": "Maintains temperature within +/- 0.4C setpoint with anti-windup."
+              }
+            }
+          },
+          {
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "source_type": "git_commit",
+            "source_id": "a1b2c3d4e5f67890",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "repo": "acme-eng/thermal-control-system",
+            "author": "sarah_chen",
+            "ts": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "body": "Replaces on-off controller with discrete PID controller. Implements ADR 0004. Closes #12.",
+            "artifacts_touched": [
+              "src/thermal/control.py",
+              "requirements.txt"
+            ],
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {
+              "diff_summary": "@@ -14,6 +14,24 @@ def regulate_temperature(current_temp, target_temp):\n- if current_temp > target_temp: fan_on()\n+ error = target_temp - current_temp\n+ p_term = Kp * error\n+ i_term = Ki * (integral + error * dt)\n+ output = clamp(p_term + i_term + d_term, 0.0, 100.0)"
+            }
+          }
+        ],
+        "discussion_events": []
+      }
+    },
+    "dec_thermal_deadband_rejected": {
+      "status": "success",
+      "data": {
+        "decision": {
+          "decision_id": "dec_thermal_deadband_rejected",
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control",
+          "state": "rejected",
+          "made_by": "sarah_chen",
+          "made_at": "2026-01-12T15:00:00Z",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "confidence": 0.96,
+          "review_status": "auto_confirmed",
+          "supersedes_decision_id": null,
+          "superseded_by_decision_id": null,
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "repo": "acme-eng/thermal-control-system",
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ]
+            }
+          ]
+        },
+        "evidence_events": [
+          {
+            "event_id": "evt_rev_thermal_comm1",
+            "source_type": "pr_review_comment",
+            "source_id": "c101",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "repo": "acme-eng/thermal-control-system",
+            "author": "marcus_vance",
+            "ts": "2026-01-11T11:20:00Z",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "body": "We could tighten the deadband on the simple threshold on-off controller to +/- 1.5C. That requires zero external math libraries.",
+            "artifacts_touched": [
+              "src/thermal/control.py"
+            ],
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {}
+          },
+          {
+            "event_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_id": "c102",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "repo": "acme-eng/thermal-control-system",
+            "author": "sarah_chen",
+            "ts": "2026-01-12T14:45:00Z",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "body": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "artifacts_touched": [
+              "src/thermal/control.py"
+            ],
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {}
+          }
+        ],
+        "discussion_events": []
+      }
+    }
+  }
+}

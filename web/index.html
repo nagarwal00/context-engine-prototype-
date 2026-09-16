@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Intelligence Framework — Living Decision History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Navigation Bar -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand-logo">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <div class="brand-text">
+            <span class="brand-title">Context Intelligence</span>
+            <span class="brand-subtitle">Living Decision History</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <div class="repo-selector-wrapper">
+          <label for="repo-select">Repository:</label>
+          <select id="repo-select" onchange="app.switchRepo(this.value)">
+            <option value="">All Pilot Repositories (Unified Graph)</option>
+            <option value="acme-eng/thermal-control-system">acme-eng/thermal-control-system</option>
+            <option value="acme-eng/distributed-cache-service">acme-eng/distributed-cache-service</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div class="stats-badge" id="header-stats">
+          <span class="stat-pill"><span class="dot accepted"></span> <span id="stat-decisions">--</span> Decisions</span>
+          <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
+          <span class="stat-pill alert" id="stat-review-pill"><span class="dot review"></span> <span id="stat-review-count">--</span> Queue Items</span>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="app.reseedData()">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Reset Demo
+        </button>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <!-- Sidebar Navigation -->
+      <aside class="app-sidebar">
+        <nav class="nav-menu">
+          <div class="nav-section-label">CORE VIEWS (§11)</div>
+          <a class="nav-item active" data-surface="timeline" onclick="app.navigate('timeline')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Project Timeline</span>
+          </a>
+          <a class="nav-item" data-surface="graph" onclick="app.navigate('graph')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Context Graph</span>
+          </a>
+          <a class="nav-item" data-surface="code" onclick="app.navigate('code')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Code-Context View</span>
+          </a>
+          <a class="nav-item" data-surface="decisions" onclick="app.navigate('decisions')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Decision Explorer</span>
+          </a>
+          <a class="nav-item" data-surface="evidence" onclick="app.navigate('evidence')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <span>Evidence Panel</span>
+          </a>
+          <a class="nav-item" data-surface="review" onclick="app.navigate('review')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            <span>Review Queue</span>
+            <span class="badge-count" id="sidebar-review-badge">0</span>
+          </a>
+
+          <div class="nav-section-label">DEMO & EVALUATION (§12)</div>
+          <a class="nav-item" data-surface="onboarding" onclick="app.navigate('onboarding')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>Onboarding Tour</span>
+          </a>
+          <a class="nav-item" data-surface="drift-test" onclick="app.navigate('drift-test')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Live CI Drift Check</span>
+          </a>
+          <a class="nav-item" data-surface="benchmark" onclick="app.navigate('benchmark')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            <span>Metrics & Baselines</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="scope-notice">
+            <span class="scope-tag">17-Week Capstone</span>
+            <p>Evaluating multi-source reasoning, code-level provenance, and drift detection.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Surface Container -->
+      <main class="surface-container">
+        
+        <!-- SURFACE 1: Project Timeline -->
+        <section id="surface-timeline" class="surface-view active">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Project Timeline</h1>
+              <p class="view-desc">Horizontal chronological view of decision milestones, state changes, and ADR adoptions.</p>
+            </div>
+            <div class="filter-group">
+              <button class="filter-btn active" onclick="app.filterTimelineState('all')">All</button>
+              <button class="filter-btn" onclick="app.filterTimelineState('accepted')">Accepted</button>
+              <button class="filter-btn" onclick="app.filterTimelineState('superseded')">Superseded</button>
+              <button class="filter-btn" onclick="app.filterTimelineState('rejected')">Rejected</button>
+            </div>
+          </div>
+          <div class="timeline-wrapper" id="timeline-container">
+            <!-- Timeline items injected here -->
+          </div>
+        </section>
+
+        <!-- SURFACE 2: Context Graph -->
+        <section id="surface-graph" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Temporal Context Graph</h1>
+              <p class="view-desc">Interactive node-link graph connecting Decisions, Code Artifacts, and Evidence Events with time-bounded edges.</p>
+            </div>
+            <div class="graph-legend">
+              <span class="legend-item"><span class="legend-dot decision-acc"></span> Accepted</span>
+              <span class="legend-item"><span class="legend-dot decision-rej"></span> Rejected</span>
+              <span class="legend-item"><span class="legend-dot decision-sup"></span> Superseded</span>
+              <span class="legend-item"><span class="legend-dot entity"></span> Code Entity</span>
+              <span class="legend-item"><span class="legend-dot event"></span> Evidence Event</span>
+              <span class="legend-item"><span class="legend-line conflict"></span> Conflict/Drift</span>
+            </div>
+          </div>
+          <div class="graph-viewport-card">
+            <svg id="graph-svg" class="graph-svg" width="100%" height="600"></svg>
+            <div id="graph-node-details" class="graph-details-overlay hidden">
+              <!-- Node inspector details -->
+            </div>
+          </div>
+        </section>
+
+        <!-- SURFACE 3: Code-Context View -->
+        <section id="surface-code" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Code-Context View</h1>
+              <p class="view-desc">Select any code artifact (file or AST-level function) to inspect its full grounded decision chain: "Why does this look like this?"</p>
+            </div>
+          </div>
+          <div class="code-context-split">
+            <div class="artifact-nav-pane">
+              <h3 class="pane-subtitle">Resolved Code Artifacts</h3>
+              <div class="artifact-list" id="code-artifact-list">
+                <!-- Injected artifact tree items -->
+              </div>
+            </div>
+            <div class="artifact-explanation-pane">
+              <div id="explanation-container">
+                <div class="placeholder-state">Select an artifact on the left to inspect its decision chain.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- SURFACE 4: Decision Explorer -->
+        <section id="surface-decisions" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Decision Explorer</h1>
+              <p class="view-desc">Faceted search across all reconstructed decisions with state history, alternatives considered, and confidence scores.</p>
+            </div>
+            <div class="search-box">
+              <input type="text" id="decision-search-input" placeholder="Search decisions by title or rationale..." oninput="app.searchDecisions(this.value)">
+            </div>
+          </div>
+          <div class="faceted-tabs">
+            <button class="facet-tab active" onclick="app.filterDecisionsByState('all')">All Decisions</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('accepted')">Accepted</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('superseded')">Superseded</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('rejected')">Rejected</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('proposed')">Proposed</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('unresolved')">Unresolved</button>
+          </div>
+          <div class="decisions-grid" id="decisions-container">
+            <!-- Decision cards injected here -->
+          </div>
+        </section>
+
+        <!-- SURFACE 5: Evidence Panel -->
+        <section id="surface-evidence" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Evidence Panel</h1>
+              <p class="view-desc">Direct inspectability of supporting citations. Every decision is tied to immutable, clickable source URLs.</p>
+            </div>
+            <div class="decision-picker-wrapper">
+              <label for="evidence-decision-select">Decision:</label>
+              <select id="evidence-decision-select" onchange="app.loadEvidenceForDecision(this.value)">
+                <!-- Decision options injected here -->
+              </select>
+            </div>
+          </div>
+          <div class="evidence-content" id="evidence-container">
+            <!-- Supporting citations and discussion items injected here -->
+          </div>
+        </section>
+
+        <!-- SURFACE 6: Review Queue -->
+        <section id="surface-review" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Human Review Queue</h1>
+              <p class="view-desc">Triage queue for low-confidence candidate extractions (&lt; 0.90), contributor disagreements, and code-level drift candidates.</p>
+            </div>
+          </div>
+          <div class="review-queue-list" id="review-queue-container">
+            <!-- Review cards injected here -->
+          </div>
+        </section>
+
+        <!-- EXTRA SURFACE: Onboarding Mode -->
+        <section id="surface-onboarding" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Onboarding Mode: Architectural Guided Tour</h1>
+              <p class="view-desc">Curated walkthrough for new contributors to recover the "Why" behind core subsystems in minutes, not weeks.</p>
+            </div>
+          </div>
+          <div class="onboarding-cards" id="onboarding-tour-container">
+            <!-- Guided tour cards injected here -->
+          </div>
+        </section>
+
+        <!-- EXTRA SURFACE: Live CI Drift Check -->
+        <section id="surface-drift-test" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Live CI Code-Level Drift Tester</h1>
+              <p class="view-desc">Simulate a Pull Request or Git Commit diff against the repository. Watch the system evaluate recent accepted decisions and flag violations in real-time.</p>
+            </div>
+          </div>
+          <div class="drift-tester-card">
+            <div class="form-row">
+              <label>Select Preset Scenario to Test:</label>
+              <div class="preset-buttons">
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('thermal_revert')">Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('cache_memory')">Scenario 2: Cache Violation (In-Memory Dict vs Redis)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 3: Consistent Code (Normal Refactor)</button>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="drift-diff-input">Code Diff (Unified Diff format):</label>
+              <textarea id="drift-diff-input" class="code-textarea" rows="8"></textarea>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" onclick="app.executeDriftCheck()">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Run CI Drift Detection Pass
+              </button>
+            </div>
+            <div id="drift-result-display" class="drift-results-wrapper hidden">
+              <!-- Drift results injected here -->
+            </div>
+          </div>
+        </section>
+
+        <!-- EXTRA SURFACE: Metrics & Baselines (§12) -->
+        <section id="surface-benchmark" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Evaluation Metrics & Baseline Benchmark</h1>
+              <p class="view-desc">Live evaluation against 32 manually labeled ground truth decisions across both pilot repositories per Section 12.</p>
+            </div>
+          </div>
+          <div class="benchmark-grid" id="benchmark-container">
+            <!-- Benchmark metrics cards and comparative table injected here -->
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Review Queue Action Modal -->
+  <div id="review-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Review Queue Action</h3>
+        <button class="modal-close" onclick="app.closeReviewModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Form elements injected here -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <!-- Action buttons injected here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="static_data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

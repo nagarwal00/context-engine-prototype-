@@ -1,0 +1,161 @@
+# Complete GitHub Deployment Guide
+
+This guide walks you through the complete process of organizing, committing, and deploying the **Context Intelligence Framework** to **GitHub** and **GitHub Pages** with live interactive functionality — with **no external hosting or third-party services** (no Vercel, no Netlify, no Heroku).
+
+---
+
+## 1. Project File Organization
+
+The project is organized into clean separation between backend engines, the web application, deployment workflows, and documentation:
+
+```text
+SE_project/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml              # Automated GitHub Pages CI/CD deployment workflow
+├── .gitignore                      # Excludes Python bytecode, caches, and temp files
+├── DEPLOYMENT.md                   # This step-by-step deployment guide
+├── readme.md                       # Main project overview and demonstration guide
+├── task.md                         # Project milestones and development task checklist
+├── server.py                       # Native Python HTTP server for local development
+├── run_demo.py                     # 21-feature automated verification test runner
+│
+├── backend/                        # Core Python Engine & Logic
+│   ├── __init__.py
+│   ├── api.py                      # REST API router for local server
+│   ├── db.py                       # SQLite database interface & mechanical invariants
+│   ├── models.py                   # Data models (Event, Decision, Entity, Edge)
+│   ├── seed_data.py                # Deterministic seed data generator (thermal & cache)
+│   ├── engine/
+│   │   ├── drift_detector.py       # Code-level AST and diff drift analyzer
+│   │   ├── entity_res.py           # Entity resolution & Python AST function extractor
+│   │   ├── explanation.py          # Evidence-grounded rationale synthesis
+│   │   ├── graph.py                # Temporal Context Graph builder
+│   │   └── reconciliation.py       # Disagreement and conflict detector
+│   ├── evaluation/
+│   │   └── benchmark.py            # Evaluation against 3 baseline systems
+│   └── ingestion/
+│       ├── adr_adapter.py          # Architectural Decision Record parser
+│       ├── git_adapter.py          # Git commit and PR metadata collector
+│       └── identity.py             # Developer alias & identity resolver
+│
+├── web/                            # Source Frontend Files (Used by server.py)
+│   ├── index.html                  # Semantic UI with all 6 surfaces & modals
+│   ├── style.css                   # Polished dark-mode design system & animations
+│   ├── app.js                      # UI controller + hybrid Local/GitHub Pages API adapter
+│   └── static_data.js              # Seed dataset allowing standalone client-side execution
+│
+└── docs/                           # GitHub Pages Static Distribution Directory
+    ├── index.html                  # Web entry point for GitHub Pages
+    ├── style.css                   # Stylesheet for GitHub Pages
+    ├── app.js                      # Application controller for GitHub Pages
+    └── static_data.js              # Standalone data store for GitHub Pages
+```
+
+---
+
+## 2. Why & How It Deploys to GitHub Pages
+
+GitHub Pages natively serves **static assets** (HTML, CSS, JavaScript) directly from your repository for free. It does not run continuous Python server processes in the cloud.
+
+To make the application fully interactive on GitHub Pages without sacrificing local Python server capabilities, we implemented a **Hybrid API Layer** in `web/app.js`:
+
+1. **When running locally (`localhost` / `127.0.0.1`):**  
+   The frontend automatically connects to your local Python server (`server.py`) and queries SQLite.
+2. **When running on GitHub Pages (`*.github.io`):**  
+   The frontend seamlessly uses the embedded client-side engine (`static_data.js`), enabling:
+   - Full navigation across all 6 core surfaces.
+   - Interactive SVG Context Graph exploration.
+   - Live Human Review Queue actions (**Confirm**, **Correct**, **Reject**).
+   - Live CI Code Drift Checker with all 3 test presets.
+   - Decision state filtering and keyword search.
+
+---
+
+## 3. Step-by-Step Deployment Steps
+
+### Step 1: Open Command Prompt or Terminal
+Navigate to your project directory:
+```cmd
+cd C:\Users\HP\Desktop\SE_project
+```
+
+---
+
+### Step 2: Initialize Git and Make the Initial Commit
+Run the following commands in order:
+
+```cmd
+git init
+git add .
+git commit -m "Initial commit: Context Intelligence Framework with GitHub Pages deployment"
+```
+
+---
+
+### Step 3: Create a New Repository on GitHub
+1. Log in to your GitHub account: [https://github.com](https://github.com).
+2. In the top right corner, click the **`+`** icon and select **New repository**.
+3. Fill in the repository details:
+   - **Repository name:** `context-intelligence-framework` (or any name you prefer).
+   - **Description:** `Living Decision History Prototype with Temporal Context Graph`.
+   - **Visibility:** Choose **Public** (required for free GitHub Pages).
+   - **Initialize with README / .gitignore:** **Leave UNCHECKED** (we already have both).
+4. Click **Create repository**.
+
+---
+
+### Step 4: Link Your Local Code and Push to GitHub
+Copy your repository URL from GitHub (e.g. `https://github.com/<YOUR_USERNAME>/<YOUR_REPO_NAME>.git`).
+
+In your Command Prompt, run:
+```cmd
+git branch -M main
+git remote add origin https://github.com/<YOUR_USERNAME>/<YOUR_REPO_NAME>.git
+git push -u origin main
+```
+*(Replace `<YOUR_USERNAME>` and `<YOUR_REPO_NAME>` with your actual GitHub username and repository name).*
+
+---
+
+### Step 5: Enable GitHub Pages
+
+You can choose either of the two native methods below. **Method A is recommended** as it is completely automated.
+
+#### Method A: Using GitHub Actions (Recommended)
+1. On your GitHub repository page, click the **Settings** tab (the gear icon at the top).
+2. In the left sidebar, click **Pages** (under "Code and automation").
+3. Under **Build and deployment** > **Source**, change the dropdown from *Deploy from a branch* to **GitHub Actions**.
+4. That's it! The pre-configured workflow at `.github/workflows/deploy.yml` will automatically build and deploy your site whenever code is pushed to `main`.
+5. Click the **Actions** tab at the top to watch the deployment run (takes ~30-45 seconds).
+
+#### Method B: Deploy from Branch (1-Click Alternative)
+1. On your GitHub repository page, click **Settings** > **Pages**.
+2. Under **Build and deployment** > **Source**, keep **Deploy from a branch**.
+3. Under **Branch**:
+   - Select **`main`** from the branch dropdown.
+   - Select **`/docs`** from the folder dropdown (NOT `/ (root)`).
+4. Click **Save**.
+
+---
+
+### Step 6: Access Your Live Deployed Website!
+Once the deployment finishes (usually within 1 minute), GitHub Pages will give you a public URL:
+
+👉 **`https://<YOUR_USERNAME>.github.io/<YOUR_REPO_NAME>/`**
+
+You can paste this link in your README or share it directly with your professor or evaluators. Anyone in the world can open the link in their browser and interact with the full prototype with zero setup!
+
+---
+
+## 4. How to Update the Live Site Later
+
+Whenever you edit files in the future, push the updates to GitHub with these 3 simple commands:
+
+```cmd
+git add .
+git commit -m "Update project features"
+git push
+```
+
+GitHub Pages will automatically update within seconds!
