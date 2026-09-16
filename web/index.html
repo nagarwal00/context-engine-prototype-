@@ -43,7 +43,15 @@
           <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
           <span class="stat-pill alert" id="stat-review-pill"><span class="dot review"></span> <span id="stat-review-count">--</span> Queue Items</span>
         </div>
-        <button class="btn btn-secondary btn-sm" onclick="app.reseedData()">
+        <button class="btn btn-primary btn-sm" onclick="app.openAddRepoModal()" title="Ingest any public or private GitHub repository">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add Repo
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="app.emptyDashboard()" title="Wipe all decisions to start with an empty dashboard">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Empty
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="app.reseedData()" title="Restore pilot repository demo data">
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
           Reset Demo
         </button>
@@ -304,6 +312,56 @@
       </div>
       <div class="modal-footer" id="modal-footer">
         <!-- Action buttons injected here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Add GitHub Repository Ingestion Modal -->
+  <div id="add-repo-modal" class="modal-backdrop hidden">
+    <div class="modal-card" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3>Connect & Ingest GitHub Repository</h3>
+        <button class="modal-close" onclick="app.closeAddRepoModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="add-repo-modal-body">
+        <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5;">
+          Enter any public or private GitHub repository. The system will fetch commits, PR discussions, and issues, parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
+        </p>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+            GitHub Repository (owner/repo or URL):
+          </label>
+          <input type="text" id="ingest-repo-input" placeholder="e.g. pallets/flask or https://github.com/my-org/my-project" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+        </div>
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+            Personal Access Token (Optional - recommended for private repos or >60 req/hr):
+          </label>
+          <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+        </div>
+        <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 16px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
+            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #3b82f6;">
+            Start with Empty Dashboard (Wipe pilot sample data)
+          </label>
+        </div>
+
+        <!-- Live Progress Status Log -->
+        <div id="ingest-progress-box" class="hidden" style="background: #090d14; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; margin-top: 12px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <div class="spinner-sm" id="ingest-spinner"></div>
+            <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #38bdf8;">Ingesting repository...</span>
+          </div>
+          <div id="ingest-log-messages" style="font-size: 0.78rem; color: #94a3b8; font-family: monospace; max-height: 120px; overflow-y: auto; line-height: 1.6;">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" id="add-repo-modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAddRepoModal()">Cancel</button>
+        <button class="btn btn-primary" id="btn-start-ingest" onclick="app.submitIngestRepo()">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Ingest & Extract Context
+        </button>
       </div>
     </div>
   </div>

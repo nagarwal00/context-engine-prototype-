@@ -188,6 +188,14 @@ class APIHandler:
                 }
             }
 
+        # 10. Distinct Repositories
+        elif path == "/api/repos":
+            with self.db.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT DISTINCT repo FROM events WHERE repo IS NOT NULL AND repo != ''")
+                repos = [r["repo"] for r in cursor.fetchall()]
+            return {"status": "success", "data": repos}
+
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
     def handle_post(self, path: str, body: Dict[str, Any]) -> Dict[str, Any]:
@@ -261,5 +269,32 @@ class APIHandler:
         elif path == "/api/reseed":
             stats = populate_seed_data(self.db)
             return {"status": "success", "message": "Pilot database reseeded successfully", "stats": stats}
+
+        # 4. Ingest Custom Live GitHub Repository
+        elif path == "/api/ingest-repo":
+            repo_input = body.get("repo", "")
+            token = body.get("token")
+            clear_first = body.get("clear_existing", False)
+            max_commits = int(body.get("max_commits", 25))
+            max_issues = int(body.get("max_issues", 15))
+
+            try:
+                from backend.ingestion.live_github import LiveGitHubIngestor
+                ingestor = LiveGitHubIngestor(self.db, token=token)
+                stats = ingestor.ingest_custom_repository(
+                    raw_repo_input=repo_input,
+                    clear_existing=clear_first,
+                    max_commits=max_commits,
+                    max_issues=max_issues
+                )
+                return {"status": "success", "message": f"Successfully ingested {stats['repo']}!", "data": stats}
+            except Exception as e:
+                return {"status": "error", "message": str(e)}
+
+        # 5. Clear Database (Empty Canvas)
+        elif path == "/api/clear-db":
+            from backend.ingestion.live_github import LiveGitHubIngestor
+            LiveGitHubIngestor(self.db).clear_database()
+            return {"status": "success", "message": "Dashboard database cleared successfully. Ready for custom repository."}
 
         return {"status": "error", "message": f"Unknown POST endpoint {path}"}
