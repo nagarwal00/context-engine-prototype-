@@ -113,6 +113,23 @@ class ADRAdapter:
         self.db.upsert_event(event)
         return event
 
+    def parse_adr_markdown(
+        self,
+        repo: str,
+        file_path: str,
+        markdown_content: str,
+        author: str = "architect",
+        timestamp: str = "2026-01-15T12:00:00Z"
+    ) -> Event:
+        """Helper alias for ingesting ADR markdown content."""
+        return self.ingest_adr_file(
+            repo=repo,
+            file_path=file_path,
+            raw_markdown=markdown_content,
+            author_raw=author,
+            timestamp=timestamp
+        )
+
     def ingest_doc_file(
         self,
         repo: str,

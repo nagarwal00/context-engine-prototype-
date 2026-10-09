@@ -1,9 +1,14 @@
 # Python bytecode and caches
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 *.so
 .pytest_cache/
+
+# Backups
+backups/
+
 
 # Local databases & test runs (seed data automatically regenerates)
 *.db-journal

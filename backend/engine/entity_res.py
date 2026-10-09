@@ -21,15 +21,16 @@ class EntityResolver:
             clean = clean[2:]
         return clean
 
-    def resolve_file_entity(self, repo: str, file_path: str, summary: Optional[str] = None) -> Entity:
-        norm_path = self.normalize_path(file_path)
+    def resolve_file_entity(self, repo: str, file_path: Optional[str] = None, summary: Optional[str] = None, canonical_path: Optional[str] = None) -> Entity:
+        actual_path = file_path or canonical_path or "unknown_file"
+        norm_path = self.normalize_path(actual_path)
         entity_id = f"ent_file_{repo.replace('/', '_')}_{norm_path.replace('/', '_').replace('.', '_')}"
         
         entity = Entity(
             entity_id=entity_id,
             entity_type="file",
             canonical_path=norm_path,
-            aliases=[file_path, os.path.basename(file_path)],
+            aliases=[actual_path, os.path.basename(actual_path)],
             repo=repo,
             current_state_summary=summary or f"Source file {norm_path}"
         )
@@ -45,7 +46,7 @@ class EntityResolver:
         try:
             tree = ast.parse(code_str)
             for node in ast.walk(tree):
-                if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     results.append((node.name, node.lineno, getattr(node, "end_lineno", node.lineno)))
         except Exception:
             # Fallback regex if syntax error
@@ -53,14 +54,26 @@ class EntityResolver:
                 results.append((m.group(1), 1, 1))
         return results
 
+    def parse_python_ast_functions(self, code_str: str, file_path: str = "") -> List[Dict[str, Any]]:
+        """
+        Parses Python code AST to return list of dicts with function names and line numbers.
+        """
+        results = []
+        raw_fns = self.extract_functions_from_python_code(code_str)
+        for name, start, end in raw_fns:
+            results.append({"name": name, "lineno": start, "end_lineno": end})
+        return results
+
     def resolve_function_entity(
         self,
         repo: str,
-        file_path: str,
-        function_name: str,
-        summary: Optional[str] = None
+        file_path: Optional[str] = None,
+        function_name: str = "",
+        summary: Optional[str] = None,
+        canonical_path: Optional[str] = None
     ) -> Entity:
-        norm_path = self.normalize_path(file_path)
+        actual_path = file_path or canonical_path or "unknown_file"
+        norm_path = self.normalize_path(actual_path)
         canonical = f"{norm_path}::{function_name}"
         entity_id = f"ent_fn_{repo.replace('/', '_')}_{canonical.replace('/', '_').replace('::', '_').replace('.', '_')}"
 
@@ -68,7 +81,7 @@ class EntityResolver:
             entity_id=entity_id,
             entity_type="function",
             canonical_path=canonical,
-            aliases=[f"{os.path.basename(file_path)}::{function_name}", function_name],
+            aliases=[f"{os.path.basename(actual_path)}::{function_name}", function_name],
             repo=repo,
             current_state_summary=summary or f"Function {function_name} in {norm_path}"
         )

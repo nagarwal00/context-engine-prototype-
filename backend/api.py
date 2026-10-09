@@ -192,7 +192,15 @@ class APIHandler:
         elif path == "/api/repos":
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT DISTINCT repo FROM events WHERE repo IS NOT NULL AND repo != ''")
+                cursor.execute("""
+                    SELECT DISTINCT repo FROM (
+                        SELECT repo FROM decisions WHERE repo IS NOT NULL AND repo != ''
+                        UNION
+                        SELECT repo FROM events WHERE repo IS NOT NULL AND repo != ''
+                        UNION
+                        SELECT repo FROM entities WHERE repo IS NOT NULL AND repo != ''
+                    ) ORDER BY repo ASC
+                """)
                 repos = [r["repo"] for r in cursor.fetchall()]
             return {"status": "success", "data": repos}
 

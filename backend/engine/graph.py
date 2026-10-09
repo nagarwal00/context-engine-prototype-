@@ -13,23 +13,29 @@ class TemporalGraph:
 
     def add_edge(
         self,
-        edge_type: str,
-        from_id: str,
-        from_type: str,
-        to_id: str,
-        to_type: str,
-        valid_from: str,
-        valid_to: Optional[str] = None
+        edge_or_type: Any = None,
+        from_id: Optional[str] = None,
+        from_type: Optional[str] = None,
+        to_id: Optional[str] = None,
+        to_type: Optional[str] = None,
+        valid_from: Optional[str] = None,
+        valid_to: Optional[str] = None,
+        edge_type: Optional[str] = None
     ) -> Edge:
-        edge_id = f"edge_{edge_type}_{from_id[:8]}_{to_id[:8]}"
+        if isinstance(edge_or_type, Edge):
+            self.db.upsert_edge(edge_or_type)
+            return edge_or_type
+
+        actual_type = edge_type or edge_or_type or "related_to"
+        edge_id = f"edge_{actual_type}_{str(from_id)[:16]}_{str(to_id)[:16]}"
         edge = Edge(
             edge_id=edge_id,
-            edge_type=edge_type,
+            edge_type=actual_type,
             from_id=from_id,
-            from_type=from_type,
+            from_type=from_type or "unknown",
             to_id=to_id,
-            to_type=to_type,
-            valid_from=valid_from,
+            to_type=to_type or "unknown",
+            valid_from=valid_from or "2026-01-01T00:00:00Z",
             valid_to=valid_to
         )
         self.db.upsert_edge(edge)

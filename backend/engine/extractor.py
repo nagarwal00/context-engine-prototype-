@@ -55,7 +55,7 @@ class DecisionExtractor:
                     })
 
                 dec = Decision(
-                    decision_id=f"dec_{repo.replace('/', '_')}_{ev.event_id[:12]}",
+                    decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{ev.source_id.replace('/', '_').replace('.', '_')}",
                     title=title.replace("ADR:", "").strip(),
                     state=status if status in ("proposed", "accepted", "rejected", "superseded") else "accepted",
                     made_by=ev.author,
@@ -92,7 +92,7 @@ class DecisionExtractor:
                             })
 
                     dec = Decision(
-                        decision_id=f"dec_{repo.replace('/', '_')}_{ev.event_id[:12]}",
+                        decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{ev.source_id.replace('/', '_').replace('.', '_')}",
                         title=title[:80],
                         state="accepted" if "merged" in str(ev.raw_metadata.get("merged_at", "")) or ev.source_type == "github_pr" else "proposed",
                         made_by=ev.author,
@@ -110,7 +110,7 @@ class DecisionExtractor:
         # If no explicit decision could be grounded with evidence, mark unresolved
         if not extracted and events:
             unres_dec = Decision(
-                decision_id=f"dec_{repo.replace('/', '_')}_unres_{events[0].event_id[:8]}",
+                decision_id=f"dec_{repo.replace('/', '_')}_unres_{events[0].source_id.replace('/', '_')}",
                 title=f"Unresolved Decision for {bundle_name}",
                 state="unresolved",
                 made_by="system",

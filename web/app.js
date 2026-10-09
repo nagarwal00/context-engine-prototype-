@@ -123,6 +123,9 @@ const app = {
     const btn = document.getElementById('btn-start-ingest');
 
     progressBox.classList.remove('hidden');
+    titleEl.textContent = 'Ingesting repository...';
+    titleEl.style.color = '#38bdf8';
+    logBox.innerHTML = '';
     btn.disabled = true;
 
     const addLog = (msg) => {
@@ -134,7 +137,16 @@ const app = {
 
     addLog(`Connecting to repository '${rawRepo}'...`);
     addLog(`Fetching commit logs, author identities, and code diffs...`);
-    addLog(`Scanning PR discussions, issues, and parent linkages...`);
+    
+    // Progress pulse timer while network request completes
+    let step = 0;
+    const progressInterval = setInterval(() => {
+      step++;
+      if (step === 1) addLog(`Scanning issues, PR discussions, and parent linkages...`);
+      else if (step === 2) addLog(`Parsing Python AST functions and dependency trees...`);
+      else if (step === 3) addLog(`Synthesizing architectural decisions & confidence scoring...`);
+      else if (step === 4) addLog(`Building temporal context graph edges & evidence chains...`);
+    }, 1800);
 
     try {
       const json = await this.apiFetch('/api/ingest-repo', {
@@ -146,30 +158,34 @@ const app = {
           clear_existing: clearExisting,
           max_commits: 25,
           max_issues: 15
-        })
+        }),
+        timeoutMs: 60000
       });
 
-      if (json.status === 'success') {
-        const stats = json.data;
+      clearInterval(progressInterval);
+
+      if (json && json.status === 'success') {
+        const stats = json.data || {};
         titleEl.textContent = 'Context Extraction Complete!';
         titleEl.style.color = '#10b981';
-        addLog(`Ingested ${stats.commits_ingested} commits and ${stats.issues_ingested + (stats.prs_ingested || 0)} issues/PRs.`);
-        addLog(`Extracted ${stats.entities_created} code entities (including AST functions).`);
-        addLog(`Synthesized ${stats.decisions_extracted} grounded architectural decisions.`);
-        addLog(`Constructed ${stats.edges_created} temporal graph edges.`);
+        addLog(`Ingested ${stats.commits_ingested || 0} commits and ${(stats.issues_ingested || 0) + (stats.prs_ingested || 0)} issues/PRs.`);
+        addLog(`Extracted ${stats.entities_created || 0} code entities (including AST functions).`);
+        addLog(`Synthesized ${stats.decisions_extracted || 0} grounded architectural decisions.`);
+        addLog(`Constructed ${stats.edges_created || 0} temporal graph edges.`);
 
         setTimeout(async () => {
           this.closeAddRepoModal();
           await this.loadRepositoriesList();
-          this.switchRepo(stats.repo);
-        }, 1400);
+          this.switchRepo(stats.repo || rawRepo);
+        }, 1200);
       } else {
         titleEl.textContent = 'Ingestion Error';
         titleEl.style.color = '#ef4444';
-        addLog(`Error: ${json.message}`);
+        addLog(`Error: ${json ? json.message : 'Unknown server error'}`);
         btn.disabled = false;
       }
     } catch (e) {
+      clearInterval(progressInterval);
       titleEl.textContent = 'Ingestion Error';
       titleEl.style.color = '#ef4444';
       addLog(`Error: ${e.message}`);
@@ -964,14 +980,22 @@ const app = {
     if (isLocalServer) {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        const timeoutMs = options.timeoutMs || 45000;
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         const res = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
           return await res.json();
+        } else {
+          try {
+            const errData = await res.json();
+            return errData;
+          } catch (err) {
+            return { status: 'error', message: `Server error HTTP ${res.status}` };
+          }
         }
       } catch (e) {
-        console.warn('Backend server offline or unreachable; using client-side engine:', e.message);
+        console.warn('Backend server error or offline; falling back to client-side engine:', e.message);
       }
     }
     return this.clientMockApi(url, options);

@@ -887,6 +887,7 @@ body {
   z-index: 100;
 }
 .modal-backdrop.hidden { display: none; }
+.hidden { display: none !important; }
 
 .modal-card {
   width: 540px;

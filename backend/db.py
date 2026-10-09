@@ -261,10 +261,28 @@ class Database:
 
             # Update decision_artifacts links
             cursor.execute("DELETE FROM decision_artifacts WHERE decision_id = ?", (decision.decision_id,))
-            for ent_id in decision.artifacts_affected:
-                cursor.execute("""
-                INSERT OR IGNORE INTO decision_artifacts (decision_id, entity_id) VALUES (?, ?)
-                """, (decision.decision_id, ent_id))
+            for ent_ref in decision.artifacts_affected:
+                # Check if ent_ref is already an entity_id or a canonical_path
+                cursor.execute(
+                    "SELECT entity_id FROM entities WHERE entity_id = ? OR (canonical_path = ? AND repo = ?)",
+                    (ent_ref, ent_ref, decision.repo)
+                )
+                row = cursor.fetchone()
+                if row:
+                    actual_entity_id = row["entity_id"]
+                    cursor.execute("""
+                    INSERT OR IGNORE INTO decision_artifacts (decision_id, entity_id) VALUES (?, ?)
+                    """, (decision.decision_id, actual_entity_id))
+                else:
+                    # Auto-create entity for referenced path if not already registered
+                    auto_id = f"ent_file_{decision.repo.replace('/', '_')}_{ent_ref.replace('/', '_').replace('.', '_').replace(':', '_')}"
+                    cursor.execute("""
+                    INSERT OR IGNORE INTO entities (entity_id, entity_type, canonical_path, aliases, repo, current_state_summary)
+                    VALUES (?, ?, ?, '[]', ?, ?)
+                    """, (auto_id, 'file' if '::' not in ent_ref else 'function', ent_ref, decision.repo, f"Referenced artifact {ent_ref}"))
+                    cursor.execute("""
+                    INSERT OR IGNORE INTO decision_artifacts (decision_id, entity_id) VALUES (?, ?)
+                    """, (decision.decision_id, auto_id))
 
             # Record state history if provided or new
             for sh in decision.state_history:
@@ -282,6 +300,10 @@ class Database:
 
             conn.commit()
             return decision.decision_id
+
+    def upsert_decision(self, decision: Decision) -> str:
+        """Alias for save_decision."""
+        return self.save_decision(decision)
 
     def upsert_edge(self, edge: Edge) -> str:
         with self.get_connection() as conn:
