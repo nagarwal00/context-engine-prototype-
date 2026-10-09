@@ -12,6 +12,8 @@ backups/
 
 # Local databases & test runs (seed data automatically regenerates)
 *.db-journal
+test_suite.db
+
 
 # Environments
 env/

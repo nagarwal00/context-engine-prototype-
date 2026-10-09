@@ -5,6 +5,7 @@ Implements concrete DDL schema from Section 13 and invariants from Section 5.2.
 import sqlite3
 import json
 import os
+from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from backend.models import Event, Decision, Entity, Edge, Identity
 
@@ -15,11 +16,16 @@ class Database:
         self.db_path = db_path
         self._init_schema()
 
-    def get_connection(self) -> sqlite3.Connection:
+    @contextmanager
+    def get_connection(self):
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
-        return conn
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
     def _init_schema(self):
         with self.get_connection() as conn:
