@@ -61,8 +61,12 @@ class DriftDetector:
                     ORDER BY d.made_at DESC LIMIT 3
                     """, (ent_id,))
                     rejected_decisions = [dict(r) for r in cursor.fetchall()]
-
-                    diff_lower = diff_text.lower()
+                    added_lines = []
+                    for line in diff_text.splitlines():
+                        s = line.strip()
+                        if s.startswith('+') and not s.startswith('+++'):
+                            added_lines.append(s[1:])
+                    diff_lower = "\n".join(added_lines).lower() if added_lines else diff_text.lower()
 
                     # Drift Rule 1: Re-introduction of a rejected pattern
                     for rej in rejected_decisions:

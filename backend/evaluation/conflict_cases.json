@@ -1,0 +1,128 @@
+[
+  {
+    "id": "conf_01",
+    "repo": "acme-eng/thermal-control-system",
+    "entity_id": "ent_fn_thermal_regulate",
+    "decision_1": {
+      "id": "dec_c1_a",
+      "title": "Adopt closed-loop PID control algorithm",
+      "rationale": "PID regulation eliminates chamber oscillation",
+      "made_by": "sarah_chen"
+    },
+    "decision_2": {
+      "id": "dec_c1_b",
+      "title": "Use bang-bang hysteresis controller",
+      "rationale": "Simpler on-off switching logic",
+      "made_by": "marcus_vance"
+    },
+    "expected": "conflict"
+  },
+  {
+    "id": "conf_02",
+    "repo": "acme-eng/distributed-cache-service",
+    "entity_id": "ent_fn_cache_store",
+    "decision_1": {
+      "id": "dec_c2_a",
+      "title": "Migrate to distributed Redis cluster",
+      "rationale": "Avoid local out of memory crashes",
+      "made_by": "elena_rostova"
+    },
+    "decision_2": {
+      "id": "dec_c2_b",
+      "title": "Implement fast in-memory LRU cache dictionary",
+      "rationale": "Avoid network latency of external cache",
+      "made_by": "dev_contributor_99"
+    },
+    "expected": "conflict"
+  },
+  {
+    "id": "conf_03",
+    "repo": "acme-eng/thermal-control-system",
+    "entity_id": "ent_fn_thermal_sensor",
+    "decision_1": {
+      "id": "dec_c3_a",
+      "title": "Add moving average noise filter to sensor",
+      "rationale": "Smooth temperature readings over 5 samples",
+      "made_by": "sarah_chen"
+    },
+    "decision_2": {
+      "id": "dec_c3_b",
+      "title": "Calibrate sensor ADC zero offset",
+      "rationale": "Adjust sensor baseline voltage",
+      "made_by": "alex_rodriguez"
+    },
+    "expected": "ok"
+  },
+  {
+    "id": "conf_04",
+    "repo": "acme-eng/distributed-cache-service",
+    "entity_id": "ent_file_cache_metrics",
+    "decision_1": {
+      "id": "dec_c4_a",
+      "title": "Use async event loop for telemetry",
+      "rationale": "Non-blocking background metric emission",
+      "made_by": "elena_rostova"
+    },
+    "decision_2": {
+      "id": "dec_c4_b",
+      "title": "Synchronous blocking telemetry flusher",
+      "rationale": "Guaranteed sync delivery on crash",
+      "made_by": "david_kim"
+    },
+    "expected": "conflict"
+  },
+  {
+    "id": "conf_05",
+    "repo": "acme-eng/thermal-control-system",
+    "entity_id": "ent_file_thermal_config",
+    "decision_1": {
+      "id": "dec_c5_a",
+      "title": "Configure 100ms PID sampling interval",
+      "rationale": "Sufficient frequency for chamber thermal mass",
+      "made_by": "sarah_chen"
+    },
+    "decision_2": {
+      "id": "dec_c5_b",
+      "title": "Add emergency shutdown temperature threshold 95C",
+      "rationale": "Safety cutoff limit",
+      "made_by": "sarah_chen"
+    },
+    "expected": "ok"
+  },
+  {
+    "id": "conf_06",
+    "repo": "acme-eng/distributed-cache-service",
+    "entity_id": "ent_file_cache_network",
+    "decision_1": {
+      "id": "dec_c6_a",
+      "title": "Switch client connection to websocket stream",
+      "rationale": "Real-time cache invalidation broadcast",
+      "made_by": "elena_rostova"
+    },
+    "decision_2": {
+      "id": "dec_c6_b",
+      "title": "Maintain HTTP polling for invalidation",
+      "rationale": "Simpler client implementation without persistent socket",
+      "made_by": "marcus_vance"
+    },
+    "expected": "conflict"
+  },
+  {
+    "id": "conf_07",
+    "repo": "acme-eng/distributed-cache-service",
+    "entity_id": "ent_file_cache_config",
+    "decision_1": {
+      "id": "dec_c7_a",
+      "title": "Set Redis connection pool max_size to 50",
+      "rationale": "Accommodate peak request spikes",
+      "made_by": "elena_rostova"
+    },
+    "decision_2": {
+      "id": "dec_c7_b",
+      "title": "Set Redis socket timeout to 2.5 seconds",
+      "rationale": "Prevent worker pool exhaustion",
+      "made_by": "david_kim"
+    },
+    "expected": "ok"
+  }
+]

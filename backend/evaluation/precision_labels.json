@@ -1,0 +1,50 @@
+[
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Added password hashing",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  },
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Added gunicorn for deployment",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  },
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Added README",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  },
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Added requirements.txt",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  },
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  },
+  {
+    "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+    "repo": "nagarwal00/Placement-Tracker",
+    "title": "Added PostgreSQL",
+    "state": "accepted",
+    "correct": null,
+    "note": ""
+  }
+]

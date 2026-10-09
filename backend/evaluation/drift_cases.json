@@ -1,0 +1,162 @@
+[
+  {
+    "id": "drift_01",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -45,3 +45,4 @@\n-    return pid_controller.compute_output(current_temp, target_temp)\n+    # Quick fix for thermal jitter\n+    if current_temp > 80.0:\n+        return 0.0 # threshold on_off bang-bang fallback",
+    "expected": "violation",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_02",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -20,2 +20,4 @@\n+    # Refactor PID coefficients logging\n+    logger.info(f\"PID gains: kp={pid_gain_p}, ki={integral_gain}\")\n+    return pid_controller.compute_output(current_temp, target_temp)",
+    "expected": "ok",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_03",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -50,4 +50,3 @@\n-    # Hysteresis loop\n-    if current_temp > threshold_high:\n-        heater_off()\n+    heater_power = pid_controller.calculate_step(error, dt)",
+    "expected": "ok",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_04",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -10,3 +10,4 @@\n-    heater_level = pid_gain * error\n+    # Reverting to simple hysteresis thresholding\n+    heater_level = 100 if current_temp < 60 else 0",
+    "expected": "violation",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_05",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -30,2 +30,3 @@\n+    # Reintroducing bang-bang control loop\n+    switch_state = on_off_relay(temp_reading)",
+    "expected": "violation",
+    "decision_id": "dec_thermal_bangbang_02"
+  },
+  {
+    "id": "drift_06",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -15,3 +15,2 @@\n+    # Clean up telemetry documentation\n+    # Note: bang-bang hysteresis was decommissioned in ADR 0004\n     pass",
+    "expected": "ok",
+    "decision_id": "dec_thermal_bangbang_02"
+  },
+  {
+    "id": "drift_07",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -40,3 +40,3 @@\n-    return redis_client.get(cache_key)\n+    dict_cache = {}\n+    return dict_cache.get(cache_key)",
+    "expected": "violation",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_08",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -12,2 +12,4 @@\n+    # Add redis cluster timeout handling\n+    val = redis_client.get(key, socket_timeout=2.0)\n+    return val",
+    "expected": "ok",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_09",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -55,3 +55,4 @@\n-    return redis_pool.execute_command('GET', key)\n+    # Emergency bypass to local cache\n+    local_cache = {}\n+    return local_cache.get(key)",
+    "expected": "violation",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_10",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -1,4 +1,4 @@\n-# In-memory dictionary cache was replaced by Redis in ADR 0001\n+# Refactored Redis connection pool configuration\n import redis",
+    "expected": "ok",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_11",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -80,3 +80,4 @@\n+    # Reverting to in-memory cache implementation\n+    cache_store = {}\n+    return cache_store",
+    "expected": "violation",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_12",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/sensor.py"],
+    "diff_text": "@@ -5,2 +5,3 @@\n+    # Filter sensor noise before passing to PID\n+    raw_val = read_raw_adc()\n+    return moving_average(raw_val)",
+    "expected": "ok",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_13",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -90,3 +90,4 @@\n-    return compute_pid_output(temp)\n+    # Simple on_off threshold controller\n+    return 1 if temp < 50 else 0",
+    "expected": "violation",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_14",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/config.py"],
+    "diff_text": "@@ -10,2 +10,3 @@\n+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')\n+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))",
+    "expected": "ok",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_15",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -100,4 +100,3 @@\n-    output = pid.step(measurement)\n+    # Replace PID with static hysteresis\n+    if measurement < setpoint - 5:\n+        output = 100",
+    "expected": "violation",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_16",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -25,2 +25,3 @@\n+    # Update PID derivative filter time constant\n+    pid.set_derivative_filter(alpha=0.1)",
+    "expected": "ok",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_17",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -60,2 +60,3 @@\n+    # Fallback to local in-memory structure\n+    dict_cache = {}\n+    dict_cache[key] = val",
+    "expected": "violation",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_18",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -33,2 +33,3 @@\n+    # Verify redis pipeline batching\n+    pipe = redis_client.pipeline()\n+    pipe.set(key, val)",
+    "expected": "ok",
+    "decision_id": "dec_cache_redis_01"
+  },
+  {
+    "id": "drift_19",
+    "repo": "acme-eng/thermal-control-system",
+    "files": ["src/thermal/control.py"],
+    "diff_text": "@@ -70,3 +70,4 @@\n-    control_signal = pid.update(error)\n+    # Use on_off threshold mode\n+    control_signal = 50.0 if error > 0 else 0.0",
+    "expected": "violation",
+    "decision_id": "dec_thermal_pid_01"
+  },
+  {
+    "id": "drift_20",
+    "repo": "acme-eng/distributed-cache-service",
+    "files": ["src/cache/store.py"],
+    "diff_text": "@@ -4,2 +4,3 @@\n+    # Redis key TTL expiration parameter update\n+    redis_client.setex(key, 3600, value)",
+    "expected": "ok",
+    "decision_id": "dec_cache_redis_01"
+  }
+]

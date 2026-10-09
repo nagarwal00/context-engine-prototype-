@@ -847,39 +847,85 @@ const app = {
   },
 
   // =========================================================================
-  // EXTRA: Evaluation Benchmark (§12)
+  // EXTRA: Evaluation Benchmark (§12 & METRICS.md)
   // =========================================================================
   async loadBenchmarkData() {
     const container = document.getElementById('benchmark-container');
     try {
       const json = await this.apiFetch('/api/benchmark');
-      const { metrics, baselines } = json.data;
+      const { metrics, baselines, ground_truth_total, matched_gt_count, details } = json.data;
+
+      const fmtPct = (val) => (typeof val === 'number' ? `${val}%` : (val || 'Not Measured'));
+      const fmtVal = (val, unit = '') => (typeof val === 'number' ? `${val}${unit}` : (val || 'Not Measured'));
+
+      let baselineRows = '';
+      if (baselines) {
+        // CIF System summary row
+        baselineRows += `
+          <tr class="highlight-row">
+            <td><strong>Context Intelligence Framework (Ours)</strong></td>
+            <td>${fmtPct(metrics.decision_extraction_recall)}</td>
+            <td>${fmtPct(metrics.evidence_link_accuracy)}</td>
+            <td>${fmtPct(metrics.drift_precision)} (Drift Precision)</td>
+            <td style="color: #10b981; font-weight: 700;">${fmtPct(metrics.unsupported_claim_rate)}</td>
+            <td><span class="badge" style="background:#10b981; color:#fff;">Live Computed</span></td>
+          </tr>
+        `;
+
+        for (const [key, b] of Object.entries(baselines)) {
+          if (!b) continue;
+          const statusBadge = b.status === 'measured' 
+            ? `<span class="badge" style="background:#3b82f6; color:#fff;">Measured</span>` 
+            : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
+          baselineRows += `
+            <tr>
+              <td><strong>${b.name || key}</strong></td>
+              <td>${fmtPct(b.decision_recall)}</td>
+              <td>${fmtPct(b.evidence_grounding_accuracy || b.evidence_link_accuracy)}</td>
+              <td>${b.conflict_drift_detection || 'None (Unstructured)'}</td>
+              <td style="${b.hallucination_rate ? 'color: #ef4444;' : ''}">${fmtPct(b.hallucination_rate || b.unsupported_claim_rate)}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        }
+      }
 
       container.innerHTML = `
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <strong style="color: #60a5fa;">Synthetic Pilot Benchmark (Smoke Test)</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+              Evaluated on synthetic pilot repositories (<code>acme-eng/thermal-control-system</code>, <code>acme-eng/distributed-cache-service</code>).
+              Matched <strong>${matched_gt_count || 0}</strong> of <strong>${ground_truth_total || 0}</strong> ground truth decisions.
+            </p>
+          </div>
+          <span class="badge" style="background: #2563eb; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
+        </div>
+
         <div class="benchmark-metrics-cards">
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.decision_extraction_accuracy || metrics.decision_extraction_f1}%</div>
-            <div class="metric-lbl">Extraction F1 Score</div>
+            <div class="metric-val">${fmtPct(metrics.decision_extraction_recall)}</div>
+            <div class="metric-lbl">Decision Recall</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.evidence_link_accuracy}%</div>
-            <div class="metric-lbl">Evidence Link Accuracy</div>
+            <div class="metric-val">${fmtPct(metrics.evidence_link_accuracy)}</div>
+            <div class="metric-lbl">Evidence Link Validity</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.drift_precision}%</div>
+            <div class="metric-val">${fmtPct(metrics.drift_precision)}</div>
             <div class="metric-lbl">Drift Precision</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val" style="color: #10b981;">${metrics.unsupported_claim_rate}%</div>
+            <div class="metric-val" style="color: #10b981;">${fmtPct(metrics.unsupported_claim_rate)}</div>
             <div class="metric-lbl">Unsupported Claim Rate</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.processing_latency_ms} ms</div>
-            <div class="metric-lbl">Processing Latency</div>
+            <div class="metric-val">${fmtVal(metrics.processing_latency_ms, ' ms')}</div>
+            <div class="metric-lbl">Median Latency</div>
           </div>
         </div>
 
-        <h3 style="font-size: 1.15rem; margin-bottom: 14px;">Comparative Benchmark Against 3 Practical Baselines (Section 12.3)</h3>
+        <h3 style="font-size: 1.15rem; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -887,43 +933,12 @@ const app = {
               <th>Decision Recall</th>
               <th>Evidence Grounding</th>
               <th>Contradiction & Drift</th>
-              <th>Unsupported Claims</th>
-              <th>Onboarding Recovery</th>
+              <th>Unsupported / Hallucinated</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="highlight-row">
-              <td><strong>Context Intelligence Framework (Ours)</strong></td>
-              <td>${baselines.cif_system.decision_recall}%</td>
-              <td>${baselines.cif_system.evidence_grounding_accuracy}%</td>
-              <td>${baselines.cif_system.conflict_drift_detection}</td>
-              <td style="color: #10b981; font-weight: 700;">${baselines.cif_system.unsupported_claim_rate}</td>
-              <td>${baselines.cif_system.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_grep.name}</td>
-              <td>${baselines.baseline_grep.decision_recall}%</td>
-              <td>${baselines.baseline_grep.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_grep.conflict_drift_detection}</td>
-              <td>${baselines.baseline_grep.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_grep.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_copilot.name}</td>
-              <td>${baselines.baseline_copilot.decision_recall}%</td>
-              <td>${baselines.baseline_copilot.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_copilot.conflict_drift_detection}</td>
-              <td style="color: #ef4444;">${baselines.baseline_copilot.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_copilot.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_adrs.name}</td>
-              <td>${baselines.baseline_adrs.decision_recall}%</td>
-              <td>${baselines.baseline_adrs.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_adrs.conflict_drift_detection}</td>
-              <td>${baselines.baseline_adrs.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_adrs.time_to_onboard_recovery}</td>
-            </tr>
+            ${baselineRows}
           </tbody>
         </table>
       `;
