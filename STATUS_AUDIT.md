@@ -108,4 +108,16 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   6. `tools/ci_check.py` exit codes: `0` = complete and clean, `1` = violations, `2` = incomplete.
   7. Verification: `tests/test_drift_errors.py` (3 tests pass). All 51 suite tests pass, 21 demo checks pass.
 
+### Step 1.5 (P1-c) — Correct Temporal Defaults
+- Status: **RESOLVED**
+- Files: `backend/engine/graph.py`, `backend/engine/drift_detector.py`, `tools/repair_edge_validity.py`, `tests/test_graph_temporal.py`
+- Resolution:
+  1. Removed fixed default placeholder timestamp `2026-01-01T00:00:00Z` from `add_edge`.
+  2. Made `valid_from` required in `TemporalGraph.add_edge()` and on `Edge` models.
+  3. Added strict ISO-8601 validation; verified `valid_to >= valid_from` (raising `ValueError` if `valid_to < valid_from`).
+  4. Created `tools/repair_edge_validity.py` (dry-run by default, `--apply` to write with automatic pre-modification backup).
+  5. Inspected `context_intelligence.db` and `whybench.db`: found 0 placeholder edges in active databases.
+  6. Verification: `tests/test_graph_temporal.py` (6 tests pass).
+
+
 

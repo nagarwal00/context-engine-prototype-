@@ -196,7 +196,10 @@ class DriftDetector:
             "errors": errors
         }
 
-    def _record_drift_edge(self, entity_id: str, decision_id: str):
+    def _record_drift_edge(self, entity_id: str, decision_id: str, valid_from: Optional[str] = None):
+        if not valid_from:
+            from datetime import datetime, timezone
+            valid_from = datetime.now(timezone.utc).isoformat()
         edge_id = f"edge_drift_{entity_id[:8]}_{decision_id[:8]}"
         edge = Edge(
             edge_id=edge_id,
@@ -204,7 +207,8 @@ class DriftDetector:
             from_id=entity_id,
             from_type="entity",
             to_id=decision_id,
-            to_type="decision"
+            to_type="decision",
+            valid_from=valid_from
         )
         self.db.upsert_edge(edge)
 

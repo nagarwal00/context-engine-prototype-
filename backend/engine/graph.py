@@ -2,10 +2,25 @@
 Temporal Context Graph Engine (Section 7.2 & 7.3)
 Manages time-bounded edges, graph traversal, and canonical graph query execution.
 """
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Set
 import json
 from backend.models import Edge, Decision, Entity, Event
 from backend.db import Database
+
+
+def _parse_iso(ts: str, field_name: str = "timestamp") -> datetime:
+    if not ts or not isinstance(ts, str):
+        raise ValueError(f"{field_name} must be a non-empty ISO-8601 string")
+    clean_ts = ts.strip().replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(clean_ts)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return dt
+    except Exception as e:
+        raise ValueError(f"Invalid ISO-8601 {field_name} '{ts}': {e}") from e
+
 
 class TemporalGraph:
     def __init__(self, db: Database):
@@ -23,8 +38,25 @@ class TemporalGraph:
         edge_type: Optional[str] = None
     ) -> Edge:
         if isinstance(edge_or_type, Edge):
-            self.db.upsert_edge(edge_or_type)
-            return edge_or_type
+            edge = edge_or_type
+            if not edge.valid_from:
+                raise ValueError("valid_from is required for Edge")
+            dt_from = _parse_iso(edge.valid_from, "valid_from")
+            if edge.valid_to:
+                dt_to = _parse_iso(edge.valid_to, "valid_to")
+                if dt_to < dt_from:
+                    raise ValueError(f"valid_to ({edge.valid_to}) must be >= valid_from ({edge.valid_from})")
+            self.db.upsert_edge(edge)
+            return edge
+
+        if not valid_from:
+            raise ValueError("valid_from is required for add_edge")
+
+        dt_from = _parse_iso(valid_from, "valid_from")
+        if valid_to:
+            dt_to = _parse_iso(valid_to, "valid_to")
+            if dt_to < dt_from:
+                raise ValueError(f"valid_to ({valid_to}) must be >= valid_from ({valid_from})")
 
         actual_type = edge_type or edge_or_type or "related_to"
         edge_id = f"edge_{actual_type}_{str(from_id)[:16]}_{str(to_id)[:16]}"
@@ -35,7 +67,7 @@ class TemporalGraph:
             from_type=from_type or "unknown",
             to_id=to_id,
             to_type=to_type or "unknown",
-            valid_from=valid_from or "2026-01-01T00:00:00Z",
+            valid_from=valid_from,
             valid_to=valid_to
         )
         self.db.upsert_edge(edge)
