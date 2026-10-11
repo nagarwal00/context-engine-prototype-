@@ -11,8 +11,11 @@ backups/
 
 
 # Local databases & test runs (seed data automatically regenerates)
+*.db
 *.db-journal
 test_suite.db
+whybench.db
+
 
 
 # Environments

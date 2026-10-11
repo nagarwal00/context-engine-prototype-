@@ -148,5 +148,11 @@ To make this project realistic, we built two real software engineering stories i
 **Q: How do you prevent the system from lying or hallucinating?**  
 > *"We enforce a strict database invariant: every decision must have at least one verified evidence pointer with a clickable URL. If the system cannot find evidence, it is forced to return 'unresolved'. When explaining code, facts come strictly from graph citations."*
 
+**Q: How does the decision extraction pipeline work?**  
+> *"The extractor uses deterministic heuristic pattern matching (with conventional commit filtering) and an optional LLM-assisted extractor behind a standard interface. Any candidate decision must pass a strict Grounding Validator: all cited event IDs must exist in the bundle, and at least 50% of the rationale content words must appear in the cited source text. Otherwise, the decision is downgraded to 'unresolved' and routed to the Human Review Queue."*
+
+**Q: How does GitHub Pages work compared to the full backend engine?**  
+> *"GitHub Pages serves static web assets and reads a frozen, deterministic JSON snapshot (`static_data.js`) compiled directly from the Python API via `tools/build_static.py`. When run with `python server.py` or via Docker, the web application connects to the live Python REST API. A mode badge in the top navigation bar dynamically shows whether the dashboard is running on the 'Live engine' or 'Static snapshot'."*
+
 **Q: What is the Human Review Queue for?**  
 > *"In real engineering, automated tools cannot be 100% trusted blindly. When an extraction has low confidence, or when two developers submit conflicting proposals, or when code drifts from a decision, the system places it into the Review Queue. Human engineers can Confirm, Correct, Merge, or Reject the record."*

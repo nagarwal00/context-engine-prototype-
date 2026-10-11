@@ -128,7 +128,32 @@ class DriftDetector:
                             detected_drifts.append(drift_record)
                             self._record_drift_edge(ent_id, acc["decision_id"])
 
+        # Section 5.3: Evaluate active Decision Guard Rules against diff
+        try:
+            active_rules = self.db.get_guard_rules(status="active")
+            if active_rules:
+                from backend.engine.guard_rules import check_diff_against_guard_rules
+                rule_violations = check_diff_against_guard_rules(active_rules, changed_files, diff_text)
+                for v in rule_violations:
+                    detected_drifts.append({
+                        "drift_type": "guard_rule_violation",
+                        "rule_id": v["rule_id"],
+                        "entity_id": v["file"],
+                        "canonical_path": v["file"],
+                        "decision_id": v["decision_id"],
+                        "decision_title": v["citation"],
+                        "violating_diff_snippet": v["line"],
+                        "reason": v["message"],
+                        "confidence": 1.0,
+                        "commit_or_pr_id": commit_or_pr_id,
+                        "author": author,
+                        "citation": v["citation"]
+                    })
+        except Exception:
+            pass
+
         return detected_drifts
+
 
     def _record_drift_edge(self, entity_id: str, decision_id: str):
         edge_id = f"edge_drift_{entity_id[:8]}_{decision_id[:8]}"

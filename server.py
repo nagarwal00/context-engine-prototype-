@@ -1,6 +1,13 @@
 """
 Context Intelligence Framework - Web Server
-Runs the prototype backend and serves the interactive frontend on http://127.0.0.1:8080
+Runs the prototype backend and serves the interactive frontend.
+
+Environment variables (all optional):
+  PORT            - TCP port to listen on (default: 8080)
+  CIF_BIND        - Set to "0.0.0.0" to bind on all interfaces (default: 127.0.0.1)
+  CIF_DB_PATH     - Path to the SQLite database file (default: context_intelligence.db next to this file)
+  CIF_WEBHOOK_SECRET - HMAC secret for GitHub webhook verification
+  GITHUB_TOKEN    - Personal access token for GitHub API calls
 """
 import http.server
 import json
@@ -11,8 +18,13 @@ from backend.db import Database
 from backend.api import APIHandler
 from backend.seed_data import populate_seed_data
 
-PORT = 8080
+# Configurable via environment (Phase 8.2)
+PORT = int(os.environ.get("PORT", "8080"))
+BIND_HOST = os.environ.get("CIF_BIND", "127.0.0.1")
+_default_db = os.path.join(os.path.dirname(__file__), "context_intelligence.db")
+DB_PATH = os.environ.get("CIF_DB_PATH", _default_db)
 WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
+
 
 class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -32,13 +44,22 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path.startswith("/api/"):
             content_len = int(self.headers.get("Content-Length", 0))
-            body_bytes = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            raw_body = self.rfile.read(content_len) if content_len > 0 else b"{}"
             try:
-                body_json = json.loads(body_bytes.decode("utf-8"))
+                body_json = json.loads(raw_body.decode("utf-8"))
             except Exception:
                 body_json = {}
-            res = self.server.api_handler.handle_post(parsed.path, body_json)
-            self._send_json(res)
+
+            # Route webhook separately (needs raw bytes for HMAC)
+            if parsed.path == "/api/webhook/github":
+                headers_dict = {k: v for k, v in self.headers.items()}
+                result, status_code = self.server.api_handler.handle_webhook(
+                    parsed.path, headers_dict, raw_body, body_json
+                )
+                self._send_json(result, status=status_code)
+            else:
+                res = self.server.api_handler.handle_post(parsed.path, body_json)
+                self._send_json(res)
         else:
             self.send_error(404, "Endpoint not found")
 
@@ -49,7 +70,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Hub-Signature-256, X-GitHub-Event")
         self.end_headers()
         self.wfile.write(body)
 
@@ -57,12 +78,13 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Hub-Signature-256, X-GitHub-Event")
         self.end_headers()
 
     def log_message(self, format, *args):
         # Quiet standard output
         pass
+
 
 # Ensure stdout is utf-8 compatible on Windows
 if hasattr(sys.stdout, "reconfigure"):
@@ -71,12 +93,13 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
+
 def run():
     print("=" * 70)
     print("  Context Intelligence Framework -- Living Decision History Prototype")
     print("=" * 70)
-    
-    db = Database()
+
+    db = Database(DB_PATH)
     # Check if database has decisions; if not, seed it
     with db.get_connection() as conn:
         cnt = conn.execute("SELECT COUNT(*) as c FROM decisions").fetchone()["c"]
@@ -89,12 +112,12 @@ def run():
 
     api_handler = APIHandler(db)
 
-    server_address = ("127.0.0.1", PORT)
+    server_address = (BIND_HOST, PORT)
     httpd = http.server.ThreadingHTTPServer(server_address, ContextIntelligenceServer)
     httpd.api_handler = api_handler
 
-    print(f"\n[SERVER LIVE] Prototype is live and running at: http://127.0.0.1:{PORT}/")
-    print(f"[*] Serving all 6 UI surfaces, interactive Context Graph, and Review Queue.")
+    print(f"\n[SERVER LIVE] Prototype is live and running at: http://{BIND_HOST}:{PORT}/")
+    print(f"[*] Serving all 9 UI surfaces, interactive Context Graph, and Review Queue.")
     print(f"[*] Press Ctrl+C to terminate.\n")
 
     try:
@@ -102,6 +125,7 @@ def run():
     except KeyboardInterrupt:
         print("\n[*] Shutting down server.")
         httpd.server_close()
+
 
 if __name__ == "__main__":
     run()

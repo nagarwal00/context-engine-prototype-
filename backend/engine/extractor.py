@@ -3,10 +3,61 @@ Decision Extraction Pipeline (Section 6.4)
 Extracts candidate decisions from bundles of related events.
 Enforces that every rationale and alternative links strictly to concrete event IDs.
 """
-from typing import List, Dict, Any, Optional
+import os
 import re
+from typing import List, Dict, Any, Optional
 from backend.models import Decision, Event
 from backend.db import Database
+
+
+TRIVIAL_COMMIT_PATTERNS = [
+    r"^added\s+(readme|license|\.gitignore|requirements\.txt|deps|assets|images)$",
+    r"^updated\s+(readme|license|\.gitignore|docs|comments)$",
+    r"^fix(?:ed)?\s+(?:typo|lint|formatting|indentation|whitespace)",
+    r"^merge\s+(?:branch|pull\s+request|remote-tracking)",
+    r"^initial\s+commit",
+    r"^bump\s+(?:version|dependency|deps|\w+)",
+    r"^chore(?:\(.*\))?:?\s*(?:bump|format|typo|lint|cleanup)"
+]
+
+IGNORED_NON_CODE_ARTIFACTS = {
+    "readme.md", "license", "license.md", ".gitignore", "package-lock.json",
+    "yarn.lock", "poetry.lock", "gemfile.lock", "cargo.lock", ".prettierrc", ".eslintrc"
+}
+
+def is_decision_candidate(event: Event) -> bool:
+    """
+    Pre-filters events to reject trivial commits, typos, and non-architectural noise.
+    ADR events are always accepted as authoritative decision candidates.
+    """
+    if event.source_type in ("adr", "github_adr"):
+        return True
+
+    title = (event.title or "").strip().lower()
+    body = (event.body or "").strip().lower()
+
+    # Reject trivial commit messages matching known patterns
+    for pattern in TRIVIAL_COMMIT_PATTERNS:
+        if re.search(pattern, title, re.IGNORECASE):
+            return False
+
+    # Check if event touches only non-architectural documentation/lockfiles
+    if event.artifacts_touched:
+        non_doc_artifacts = [
+            a for a in event.artifacts_touched 
+            if os.path.basename(a).lower() not in IGNORED_NON_CODE_ARTIFACTS and not a.endswith((".md", ".txt", ".lock"))
+        ]
+        # If artifacts are listed but none are source code / config, reject unless body has explicit decision markers
+        if not non_doc_artifacts:
+            decision_markers = ["decided to", "we should use", "opted for", "agreed to", "instead of", "replaces"]
+            if not any(m in body for m in decision_markers):
+                return False
+
+    # Reject short empty messages without body content
+    if len(title) < 5 and len(body) < 15:
+        return False
+
+    return True
 
 class DecisionExtractor:
     def __init__(self, db: Database):
@@ -27,9 +78,14 @@ class DecisionExtractor:
         if not events:
             return extracted
 
+        # Filter out trivial non-decision events
+        candidate_events = [e for e in events if is_decision_candidate(e)]
+        if not candidate_events:
+            return extracted
+
         # Collect text and event maps
-        event_map = {e.event_id: e for e in events}
-        all_text = "\n".join([f"[{e.source_type} {e.source_id}] {e.title or ''}: {e.body}" for e in events])
+        event_map = {e.event_id: e for e in candidate_events}
+        events = candidate_events
 
         # Heuristic/Pattern extraction for decision signals (e.g. ADRs, PR closures, explicit statements)
         for ev in events:

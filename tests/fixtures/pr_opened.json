@@ -1,0 +1,43 @@
+{
+  "action": "opened",
+  "number": 42,
+  "pull_request": {
+    "id": 123456789,
+    "number": 42,
+    "title": "feat: add on_off_relay thermal control fallback",
+    "state": "open",
+    "head": {
+      "sha": "abc123def456",
+      "ref": "feature/thermal-fallback",
+      "repo": {
+        "full_name": "acme-eng/thermal-control-system",
+        "clone_url": "https://github.com/acme-eng/thermal-control-system.git"
+      }
+    },
+    "base": {
+      "sha": "def456abc789",
+      "ref": "main",
+      "repo": {
+        "full_name": "acme-eng/thermal-control-system",
+        "clone_url": "https://github.com/acme-eng/thermal-control-system.git"
+      }
+    },
+    "diff_url": "https://github.com/acme-eng/thermal-control-system/pull/42.diff",
+    "url": "https://api.github.com/repos/acme-eng/thermal-control-system/pulls/42",
+    "html_url": "https://github.com/acme-eng/thermal-control-system/pull/42",
+    "comments_url": "https://api.github.com/repos/acme-eng/thermal-control-system/issues/42/comments",
+    "user": {
+      "login": "dev-bob",
+      "id": 9876
+    }
+  },
+  "repository": {
+    "id": 111222333,
+    "full_name": "acme-eng/thermal-control-system",
+    "html_url": "https://github.com/acme-eng/thermal-control-system"
+  },
+  "sender": {
+    "login": "dev-bob",
+    "id": 9876
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "benchmark": "WhyBench",
+  "split": "dev",
+  "date": "2026-10-10T00:52:58.053973",
+  "extractor_mode": "heuristic",
+  "questions_evaluated": 9,
+  "standard_questions": 7,
+  "refusal_questions": 2,
+  "metrics": {
+    "decision_recall": 42.9,
+    "state_accuracy": 100.0,
+    "refusal_accuracy": 100.0
+  },
+  "baselines": {
+    "baseline_keyword": {
+      "name": "Baseline A: Keyword Search (Grep/BM25)",
+      "status": "measured",
+      "decision_recall": 77.8,
+      "found_count": 7,
+      "total_count": 9,
+      "top_k": 5
+    },
+    "baseline_docs_only": {
+      "name": "Baseline B: Documentation/ADRs Only",
+      "status": "measured",
+      "decision_recall": 33.3,
+      "found_count": 3,
+      "total_count": 9,
+      "top_k": 5
+    },
+    "baseline_llm": {
+      "name": "Baseline C: Plain LLM Q&A",
+      "status": "not measured",
+      "decision_recall": "not measured",
+      "evidence_grounding_accuracy": "not measured",
+      "note": "Requires CIF_LLM_API_KEY and CIF_LLM_MODEL environment variables"
+    },
+    "baseline_copilot": {
+      "name": "Baseline D: GitHub Copilot",
+      "status": "not measured",
+      "decision_recall": "not measured",
+      "hallucination_rate": "not measured",
+      "evaluated_samples": 0
+    }
+  },
+  "question_results": [
+    {
+      "id": "WB_PAY_01",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why did payment-core migrate from Braintree to Stripe Payment Intents API?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0001-stripe-payment-migration_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_PAY_02",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How were Stripe API 429 rate limits resolved under flash sale load?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_03",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why were fixed 500ms sleep retries rejected for Stripe API calls?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_07",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why does payment-core store raw unencrypted credit card CVVs in local memory cache?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CH_01",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor choose KVM dirty ring buffer over userfaultfd for live migration?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_live-migration_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CH_02",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why was synchronous balloon deflation rejected in virtio-balloon?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_06",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why does Cloud Hypervisor disable ACPI power management tables?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CLI_01",
+      "repo": "cli/cli",
+      "question": "Why does GitHub CLI store OAuth credentials in native OS keyrings instead of plaintext config files?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cli_cli_adr_docs_rfc_001-keyring-credentials_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CLI_02",
+      "repo": "cli/cli",
+      "question": "Why was custom symmetric key encryption rejected for storing gh credentials?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    }
+  ]
+}

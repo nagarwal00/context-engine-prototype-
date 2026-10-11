@@ -116,3 +116,20 @@ class Identity:
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+@dataclass
+class GuardRule:
+    """Section 5.1 Decision Guard Rule (Novelty Feature)"""
+    rule_id: str = field(default_factory=generate_uuid)
+    decision_id: str = ""
+    rule_type: str = "forbid_import" # forbid_import | require_import | forbid_pattern | config_value
+    params: Dict[str, Any] = field(default_factory=dict)
+    status: str = "proposed" # proposed | active | disabled
+    created_by: str = "system"
+    created_at: str = field(default_factory=current_iso)
+    approved_by: Optional[str] = None
+    approved_at: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+

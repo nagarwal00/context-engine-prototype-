@@ -15,6 +15,7 @@ from backend.engine.drift_detector import DriftDetector
 def populate_seed_data(db: Database):
     # Clear existing data for a clean, deterministic run
     with db.get_connection() as conn:
+        conn.execute("DELETE FROM guard_rules")
         conn.execute("DELETE FROM state_history")
         conn.execute("DELETE FROM edges")
         conn.execute("DELETE FROM decision_evidence")
@@ -339,6 +340,12 @@ Consequences:
         to_type="decision",
         valid_from=dec_redis.made_at
     )
+
+    # Propose Decision Guard Rules (Section 5 Novelty Feature)
+    from backend.engine.guard_rules import propose_rules_from_decision
+    for d in [dec_deadband, dec_pid, dec_lru_cap, dec_redis]:
+        for rule in propose_rules_from_decision(d):
+            db.upsert_guard_rule(rule)
 
     # =========================================================================
     # CONTROLLED DRIFT SCENARIO (Section 8.3 & Milestone 3)

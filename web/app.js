@@ -644,50 +644,125 @@ const app = {
   },
 
   // =========================================================================
-  // SURFACE 6: Review Queue & Triage Modal (§10)
+  // SURFACE 6: Review Queue & Triage Modal (§10 & Section 5 Guard Rules)
   // =========================================================================
   async loadReviewQueue() {
     const container = document.getElementById('review-queue-container');
     container.innerHTML = '<div class="loading-state">Checking review queue items...</div>';
 
     try {
-      const json = await this.apiFetch('/api/review-queue');
-      const items = json.data || [];
+      const [reviewJson, rulesJson] = await Promise.all([
+        this.apiFetch('/api/review-queue'),
+        this.apiFetch('/api/guard-rules')
+      ]);
+
+      const items = reviewJson.data || [];
+      const rules = rulesJson.data || [];
 
       document.getElementById('stat-review-count').textContent = items.length;
       document.getElementById('sidebar-review-badge').textContent = items.length;
 
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="placeholder-state" style="border-left: 4px solid var(--status-accepted); padding: 18px;">
-            ✓ All extractions confirmed! No pending conflicts or drift items in the queue.
+      let html = '';
+
+      // Section A: Decision Guard Rules
+      if (rules.length > 0) {
+        html += `
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <h3 style="font-size: 1.1rem; color: #60a5fa; margin: 0;">Decision Guard Rules (Automated CI Enforcement)</h3>
+              <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Novelty Feature</span>
+            </div>
+            <div style="display: grid; gap: 12px;">
+              ${rules.map(r => `
+                <div class="review-item-card" style="border-left: 3px solid ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#6b7280')};">
+                  <div style="flex: 1;">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                      <span class="review-reason-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">${r.rule_type}</span>
+                      <span class="badge" style="background: ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${r.status.toUpperCase()}</span>
+                    </div>
+                    <h4 style="font-size: 0.95rem; margin: 4px 0;">Rule <code>${r.rule_id}</code></h4>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin: 4px 0;">
+                      Governed by: <strong>${r.decision_title || r.decision_id}</strong>
+                    </p>
+                    <pre style="background: #0b0f17; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">${JSON.stringify(r.params, null, 2)}</pre>
+                  </div>
+                  <div class="review-actions">
+                    ${r.status !== 'active' ? `<button class="btn btn-primary btn-sm" onclick="app.approveGuardRule('${r.rule_id}')">Approve (Enforce in CI)</button>` : ''}
+                    ${r.status !== 'disabled' ? `<button class="btn btn-secondary btn-sm" onclick="app.disableGuardRule('${r.rule_id}')">Disable</button>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
-        return;
       }
 
-      container.innerHTML = items.map(item => {
-        const id = item.decision_id || item.edge_id;
-        return `
-          <div class="review-item-card">
-            <div style="flex: 1;">
-              <span class="review-reason-tag">${item.queue_reason}</span>
-              <h3 style="font-size: 1.05rem; margin: 6px 0;">${item.title}</h3>
-              <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${item.rationale || 'Flagged for human arbitration per Section 10.'}</p>
-              <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
-                Confidence: <strong>${Math.round(item.confidence * 100)}%</strong> • Status: <code>${item.review_status}</code>
-              </div>
-            </div>
-            <div class="review-actions">
-              <button class="btn btn-primary btn-sm" onclick="app.triggerReviewAction('confirm', '${id}', '${item.item_type}')">Confirm</button>
-              <button class="btn btn-secondary btn-sm" onclick="app.openCorrectModal('${id}', '${item.item_type}', '${escape(item.title)}')">Correct</button>
-              <button class="btn btn-danger btn-sm" onclick="app.triggerReviewAction('reject', '${id}', '${item.item_type}')">Reject</button>
-            </div>
+      // Section B: Standard Review Queue Items
+      if (items.length === 0 && rules.length === 0) {
+        html += `
+          <div class="placeholder-state" style="border-left: 4px solid var(--status-accepted); padding: 18px;">
+            ✓ All extractions confirmed! No pending conflicts, drift items, or proposed rules in the queue.
           </div>
         `;
-      }).join('');
+      } else if (items.length > 0) {
+        html += `
+          <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Candidate Decisions & Contradictions for Arbitration</h3>
+          <div style="display: grid; gap: 12px;">
+            ${items.map(item => {
+              const id = item.decision_id || item.edge_id;
+              return `
+                <div class="review-item-card">
+                  <div style="flex: 1;">
+                    <span class="review-reason-tag">${item.queue_reason}</span>
+                    <h3 style="font-size: 1.05rem; margin: 6px 0;">${item.title}</h3>
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${item.rationale || 'Flagged for human arbitration per Section 10.'}</p>
+                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
+                      Confidence: <strong>${Math.round(item.confidence * 100)}%</strong> • Status: <code>${item.review_status}</code>
+                    </div>
+                  </div>
+                  <div class="review-actions">
+                    <button class="btn btn-primary btn-sm" onclick="app.triggerReviewAction('confirm', '${id}', '${item.item_type}')">Confirm</button>
+                    <button class="btn btn-secondary btn-sm" onclick="app.openCorrectModal('${id}', '${item.item_type}', '${escape(item.title)}')">Correct</button>
+                    <button class="btn btn-danger btn-sm" onclick="app.triggerReviewAction('reject', '${id}', '${item.item_type}')">Reject</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
     } catch (e) {
       container.innerHTML = `Error: ${e.message}`;
+    }
+  },
+
+  async approveGuardRule(ruleId) {
+    try {
+      const json = await this.apiFetch('/api/guard-rules/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule_id: ruleId })
+      });
+      alert(`Guard Rule '${ruleId}' is now ACTIVE and will be enforced on incoming pull requests.`);
+      this.loadReviewQueue();
+    } catch (e) {
+      alert(`Approval error: ${e.message}`);
+    }
+  },
+
+  async disableGuardRule(ruleId) {
+    try {
+      const json = await this.apiFetch('/api/guard-rules/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule_id: ruleId })
+      });
+      alert(`Guard Rule '${ruleId}' has been disabled.`);
+      this.loadReviewQueue();
+    } catch (e) {
+      alert(`Disable error: ${e.message}`);
     }
   },
 
@@ -770,7 +845,7 @@ const app = {
   },
 
   // =========================================================================
-  // EXTRA: Live CI Drift Checker (§8.3)
+  // EXTRA: Live CI Drift Checker (§8.3 & Section 5.4)
   // =========================================================================
   loadDriftPreset(scenario) {
     const input = document.getElementById('drift-diff-input');
@@ -794,10 +869,18 @@ const app = {
 +    # Store items in raw local dictionary cache instead of Redis
 +    local_cache = {}
 +    return local_cache.get(key)`;
+    } else if (scenario === 'guard_rule_violation') {
+      input.value = `diff --git a/src/payments/service.py b/src/payments/service.py
+--- a/src/payments/service.py
++++ b/src/payments/service.py
+@@ -1,5 +1,6 @@
++import sticky_sessions
+ from stripe import PaymentIntent`;
     } else if (scenario === 'clean_change') {
       input.value = `diff --git a/src/thermal/control.py b/src/thermal/control.py
 --- a/src/thermal/control.py
 +++ b/src/thermal/control.py
+
 @@ -30,3 +30,4 @@
 +    # Normal refactoring: improve variable documentation
 +    # Maintains established PID control loop`;
@@ -1000,6 +1083,7 @@ const app = {
         const res = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
+          this._updateModeBadge(true);
           return await res.json();
         } else {
           try {
@@ -1011,10 +1095,30 @@ const app = {
         }
       } catch (e) {
         console.warn('Backend server error or offline; falling back to client-side engine:', e.message);
+        this._updateModeBadge(false);
       }
+    } else {
+      // GitHub Pages or non-local: always static
+      this._updateModeBadge(false);
     }
     return this.clientMockApi(url, options);
   },
+
+  // Phase 8.3: Update the Live engine / Static snapshot mode badge
+  _modeBadgeSet: false,
+  _updateModeBadge(isLive) {
+    const badge = document.getElementById('engine-mode-badge');
+    if (!badge) return;
+    badge.classList.remove('live', 'static');
+    if (isLive) {
+      badge.classList.add('live');
+      badge.textContent = '\u2b24 Live engine';
+    } else {
+      badge.classList.add('static');
+      badge.textContent = '\u2b24 Static snapshot';
+    }
+  },
+
 
   getStoredState() {
     if (!this._stateCache) {

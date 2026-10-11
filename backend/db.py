@@ -5,9 +5,10 @@ Implements concrete DDL schema from Section 13 and invariants from Section 5.2.
 import sqlite3
 import json
 import os
+from datetime import datetime
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
-from backend.models import Event, Decision, Entity, Edge, Identity
+from backend.models import Event, Decision, Entity, Edge, Identity, GuardRule
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "context_intelligence.db")
 
@@ -136,6 +137,22 @@ class Database:
                 changed_at TEXT NOT NULL,
                 changed_by TEXT NOT NULL,
                 notes TEXT,
+                FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE
+            );
+            """)
+
+            # 9. Decision Guard Rules Table (Section 5.1 Novelty)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS guard_rules (
+                rule_id TEXT PRIMARY KEY,
+                decision_id TEXT NOT NULL,
+                rule_type TEXT NOT NULL CHECK (rule_type IN ('forbid_import', 'require_import', 'forbid_pattern', 'config_value')),
+                params_json TEXT NOT NULL,
+                status TEXT NOT NULL CHECK (status IN ('proposed', 'active', 'disabled')),
+                created_by TEXT,
+                created_at TEXT,
+                approved_by TEXT,
+                approved_at TEXT,
                 FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE
             );
             """)
@@ -291,17 +308,31 @@ class Database:
                     """, (decision.decision_id, auto_id))
 
             # Record state history if provided or new
-            for sh in decision.state_history:
+            if decision.state_history:
+                for sh in decision.state_history:
+                    cursor.execute("""
+                    INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """, (
+                        sh.get("history_id", f"sh_{decision.decision_id}_{sh.get('changed_at')}"),
+                        decision.decision_id,
+                        sh.get("state", decision.state),
+                        sh.get("changed_at", decision.made_at),
+                        sh.get("changed_by", decision.made_by or "system"),
+                        sh.get("notes", "")
+                    ))
+            else:
+                hist_id = f"hist_{decision.decision_id}_{decision.state}"
                 cursor.execute("""
-                INSERT OR IGNORE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
                 VALUES (?, ?, ?, ?, ?, ?)
                 """, (
-                    sh.get("history_id", f"sh_{decision.decision_id}_{sh.get('changed_at')}"),
+                    hist_id,
                     decision.decision_id,
-                    sh.get("state", decision.state),
-                    sh.get("changed_at", decision.made_at),
-                    sh.get("changed_by", "system"),
-                    sh.get("notes", "")
+                    decision.state,
+                    decision.made_at,
+                    decision.made_by or "system",
+                    decision.rationale or f"State recorded as {decision.state}"
                 ))
 
             conn.commit()
@@ -431,10 +462,17 @@ class Database:
                 ev["parent_event_ids"] = json.loads(ev["parent_event_ids"]) if ev["parent_event_ids"] else []
                 ev["raw_metadata"] = json.loads(ev["raw_metadata"]) if ev["raw_metadata"] else {}
 
+            # State transitions history (Section 5.2 / Section 4.1)
+            cursor.execute("""
+            SELECT * FROM state_history WHERE decision_id = ? ORDER BY changed_at ASC
+            """, (decision_id,))
+            state_history = [dict(r) for r in cursor.fetchall()]
+
             return {
                 "decision": decision,
                 "evidence_events": evidence_events,
-                "discussion_events": discussion_events
+                "discussion_events": discussion_events,
+                "state_history": state_history
             }
 
     def query_timeline_slice(self, repo: Optional[str] = None, start_time: Optional[str] = None, end_time: Optional[str] = None) -> List[Dict[str, Any]]:
@@ -477,3 +515,77 @@ class Database:
 
                 decisions.append(d)
             return decisions
+
+    # --- Guard Rules Methods (Section 5.1 Novelty) ---
+
+    def upsert_guard_rule(self, rule: GuardRule) -> str:
+        """Upserts a decision guard rule."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO guard_rules (
+                rule_id, decision_id, rule_type, params_json, status,
+                created_by, created_at, approved_by, approved_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(rule_id) DO UPDATE SET
+                rule_type=excluded.rule_type,
+                params_json=excluded.params_json,
+                status=excluded.status,
+                approved_by=excluded.approved_by,
+                approved_at=excluded.approved_at;
+            """, (
+                rule.rule_id,
+                rule.decision_id,
+                rule.rule_type,
+                json.dumps(rule.params),
+                rule.status,
+                rule.created_by,
+                rule.created_at,
+                rule.approved_by,
+                rule.approved_at
+            ))
+            conn.commit()
+            return rule.rule_id
+
+    def get_guard_rules(self, decision_id: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Queries guard rules with optional filtering by decision_id or status."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            query = "SELECT gr.*, d.title as decision_title, d.repo as repo FROM guard_rules gr JOIN decisions d ON gr.decision_id = d.decision_id WHERE 1=1"
+            params = []
+            if decision_id:
+                query += " AND gr.decision_id = ?"
+                params.append(decision_id)
+            if status:
+                query += " AND gr.status = ?"
+                params.append(status)
+
+            query += " ORDER BY gr.created_at DESC"
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            rules = []
+            for r in rows:
+                item = dict(r)
+                item["params"] = json.loads(item["params_json"]) if item["params_json"] else {}
+                rules.append(item)
+            return rules
+
+    def update_guard_rule_status(self, rule_id: str, status: str, approved_by: Optional[str] = None) -> bool:
+        """Updates the status of a guard rule (e.g. approve -> active, disable -> disabled)."""
+        if status not in ("proposed", "active", "disabled"):
+            raise ValueError(f"Invalid guard rule status: '{status}'")
+
+        approved_at = datetime.now().isoformat() + "Z" if status == "active" else None
+
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            UPDATE guard_rules SET
+                status = ?,
+                approved_by = COALESCE(?, approved_by),
+                approved_at = COALESCE(?, approved_at)
+            WHERE rule_id = ?
+            """, (status, approved_by, approved_at, rule_id))
+            conn.commit()
+            return cursor.rowcount > 0
+

@@ -38,6 +38,8 @@
       </div>
 
       <div class="header-right">
+        <!-- Phase 8.3: Live engine / Static snapshot mode badge -->
+        <span class="mode-badge" id="engine-mode-badge" title="Live engine: API calls succeed. Static snapshot: using frozen data.">⬤ Checking…</span>
         <div class="stats-badge" id="header-stats">
           <span class="stat-pill"><span class="dot accepted"></span> <span id="stat-decisions">--</span> Decisions</span>
           <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
@@ -264,7 +266,8 @@
               <div class="preset-buttons">
                 <button class="btn btn-secondary" onclick="app.loadDriftPreset('thermal_revert')">Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)</button>
                 <button class="btn btn-secondary" onclick="app.loadDriftPreset('cache_memory')">Scenario 2: Cache Violation (In-Memory Dict vs Redis)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 3: Consistent Code (Normal Refactor)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('guard_rule_violation')">Scenario 3: Guard Rule Violation (Forbidden Import)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 4: Consistent Code (Normal Refactor)</button>
               </div>
             </div>
             <div class="form-row">

@@ -50,7 +50,7 @@ This document tracks all tasks, milestones, and deliverables for the **Context I
   - [x] Review Queue triage API: confirm, reject, merge, correct.
   - [x] Ingestion trigger & live drift check API endpoints.
   - [x] Standalone zero-dependency Python server ([`server.py`](file:///c:/Users/HP/Desktop/SE_project/server.py)).
-- [x] **Task 3.2: Interactive Hosted Web Application (All 6 Surfaces + Onboarding + CI Tester)**
+- [x] **Task 3.2: Interactive Hosted Web Application (All 9 Surfaces)**
   - [x] Surface 1: **Project Timeline** (interactive chronological milestone view) ([`web/index.html`](file:///c:/Users/HP/Desktop/SE_project/web/index.html)).
   - [x] Surface 2: **Context Graph** (visual node-link interactive graph with color-coded edge types).
   - [x] Surface 3: **Code-Context View** (file/function tree with direct "Why does this exist?" decision chains).
@@ -58,14 +58,16 @@ This document tracks all tasks, milestones, and deliverables for the **Context I
   - [x] Surface 5: **Evidence Panel** (deep citation inspector with clickable `source_url` links).
   - [x] Surface 6: **Review Queue** (human review actions: confirm, reject, merge, correct).
   - [x] Surface 7: **Onboarding Tour** (curated walkthrough for new team members).
-  - [x] Surface 8: **Live CI Drift Tester** (interactive unified diff simulation).
-  - [x] Surface 9: **Evaluation Dashboard** (live benchmark metrics vs 3 baselines).
+  - [x] Surface 8: **Live CI Drift Tester** (interactive unified diff simulation & Decision Guard Rules).
+  - [x] Surface 9: **Evaluation Dashboard** (live benchmark metrics vs computed baselines).
   - [x] Responsive dark-mode styling and modern typography ([`web/style.css`](file:///c:/Users/HP/Desktop/SE_project/web/style.css)).
   - [x] Frontend dynamic controller and SVG canvas renderer ([`web/app.js`](file:///c:/Users/HP/Desktop/SE_project/web/app.js)).
 - [x] **Task 3.3: Evaluation Pipeline & Baseline Comparison**
-  - [x] Automated benchmark metrics calculation: Precision 94.1%, Recall 91.2%, F1 92.6%, Evidence Accuracy 98.4%, Drift Precision 93.5%, Unsupported Claims 0.0%, Latency 42.6 ms ([`backend/evaluation/benchmark.py`](file:///c:/Users/HP/Desktop/SE_project/backend/evaluation/benchmark.py)).
-  - [x] Benchmark comparison against Baselines (Keyword/Grep search, Copilot Q&A, Manual ADRs).
+  - [x] Automated benchmark metrics calculation computed from reproducible data without literals (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
+  - [x] Benchmark comparison against Baselines (Keyword token search, Docs-only search, Plain LLM, Copilot Q&A).
+  - [x] WhyBench real-world corpus evaluation across 61 questions (30.8% test recall, 100% state accuracy, 100% refusal accuracy).
 - [x] **Task 3.4: Comprehensive Documentation & Delivery**
   - [x] Generated `explanation.md` detailing architecture, schema, graph algorithms, and drift detection ([`explanation.md`](file:///c:/Users/HP/Desktop/SE_project/explanation.md)).
   - [x] Generated `readme.md` with step-by-step setup, installation, and live demo script for professors ([`readme.md`](file:///c:/Users/HP/Desktop/SE_project/readme.md)).
+  - [x] Documented limitations, benchmark boundaries, and pilot scope in [`LIMITATIONS.md`](file:///c:/Users/HP/Desktop/SE_project/LIMITATIONS.md).
   - [x] Automated verification suite passing 100% of checks ([`run_demo.py`](file:///c:/Users/HP/Desktop/SE_project/run_demo.py)).

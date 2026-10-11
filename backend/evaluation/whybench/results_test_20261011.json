@@ -1,0 +1,379 @@
+{
+  "benchmark": "WhyBench",
+  "split": "test",
+  "date": "2026-10-11T11:39:03.912796",
+  "extractor_mode": "heuristic",
+  "questions_evaluated": 37,
+  "standard_questions": 26,
+  "refusal_questions": 11,
+  "metrics": {
+    "decision_recall": 30.8,
+    "state_accuracy": 100.0,
+    "refusal_accuracy": 100.0
+  },
+  "baselines": {
+    "baseline_keyword": {
+      "name": "Baseline A: Keyword Search (Grep/BM25)",
+      "status": "measured",
+      "decision_recall": 64.9,
+      "found_count": 24,
+      "total_count": 37,
+      "top_k": 5
+    },
+    "baseline_docs_only": {
+      "name": "Baseline B: Documentation/ADRs Only",
+      "status": "measured",
+      "decision_recall": 16.2,
+      "found_count": 6,
+      "total_count": 37,
+      "top_k": 5
+    },
+    "baseline_llm": {
+      "name": "Baseline C: Plain LLM Q&A",
+      "status": "not measured",
+      "decision_recall": "not measured",
+      "evidence_grounding_accuracy": "not measured",
+      "note": "Requires CIF_LLM_API_KEY and CIF_LLM_MODEL environment variables"
+    },
+    "baseline_copilot": {
+      "name": "Baseline D: GitHub Copilot",
+      "status": "not measured",
+      "decision_recall": "not measured",
+      "hallucination_rate": "not measured",
+      "evaluated_samples": 0
+    }
+  },
+  "question_results": [
+    {
+      "id": "WB_PAY_09",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How were double charges prevented when users double-clicked the checkout submit button?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_10",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why were database row locks rejected for enforcing checkout idempotency?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_11",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How does payment-core authenticate incoming Stripe webhooks?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_12",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why was skipping webhook signature verification in development rejected?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_13",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How did payment-core implement support for customer partial refunds?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0004-partial-refund-support_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_PAY_14",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How were fractional cent rounding errors solved in multi-currency refund calculations?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_15",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why were client-supplied timestamps rejected for partial refund requests?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_16",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How does payment-core handle toxic malformed webhook messages that crash consumer workers?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_17",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How does payment-core achieve PCI SAQ A compliance for credit card processing?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0005-pci-token-vault_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_PAY_18",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why was in-memory caching of card CVV security codes rejected?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_PAY_19",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why did payment-core switch from JSON REST APIs to XML SOAP endpoints?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_PAY_20",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why does payment-core store customer passwords in base64 plaintext?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_PAY_21",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why was Apache Cassandra chosen over PostgreSQL for payment transactions?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CH_09",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why was legacy floppy and IDE drive emulation rejected?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_10",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "How does virtio-fs avoid memory duplication when sharing container root filesystems?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_virtio-fs_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CH_11",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "How does Cloud Hypervisor support dynamic hotplug of PCIe devices?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_12",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor adopt Linux io_uring for disk virtualization?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1240",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CH_13",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why were spin-polling loops prohibited in io_uring worker threads?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_14",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "How does Cloud Hypervisor provide direct GPU access to guest virtual machines?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_15",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor adopt the ACPI Generic Event Device (GED)?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_acpi-ged_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CH_16",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "How does the microVM profile achieve 12ms cold boot for serverless sandboxes?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CH_17",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor embed a proprietary binary NVIDIA kernel module?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CH_18",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why does Cloud Hypervisor bundle an unencrypted FTP server inside the guest supervisor?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CH_19",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor replace KVM with an interpreted bytecode CPU emulator?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CH_20",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor mandate MS-DOS 6.22 compatibility mode?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CLI_09",
+      "repo": "cli/cli",
+      "question": "Why was executing extensions via Go dynamic plugin packages rejected?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CLI_10",
+      "repo": "cli/cli",
+      "question": "How does GitHub CLI isolate extension subprocess execution environment?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CLI_11",
+      "repo": "cli/cli",
+      "question": "Why did GitHub CLI adopt termenv for terminal formatting?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cli_cli_adr_docs_rfc_004-termenv-formatting_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CLI_12",
+      "repo": "cli/cli",
+      "question": "How was ANSI escape sequence corruption resolved in Unix pipelines?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cli_cli_github_pr_735",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CLI_13",
+      "repo": "cli/cli",
+      "question": "How does GitHub CLI share credentials with standard Git CLI operations?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "found",
+      "system_decision_id": "dec_cli_cli_adr_docs_rfc_005-git-credential-helper_md",
+      "system_state": "accepted",
+      "state_match": true
+    },
+    {
+      "id": "WB_CLI_14",
+      "repo": "cli/cli",
+      "question": "How is git credential helper configured during authentication?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CLI_15",
+      "repo": "cli/cli",
+      "question": "Why was passing authentication tokens via URL query parameters rejected?",
+      "expected_state": "rejected",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CLI_16",
+      "repo": "cli/cli",
+      "question": "How does gh auth login authenticate in headless SSH cloud environments without a browser?",
+      "expected_state": "accepted",
+      "is_refusal_case": false,
+      "status": "missed"
+    },
+    {
+      "id": "WB_CLI_17",
+      "repo": "cli/cli",
+      "question": "Why did GitHub CLI migrate all commands to PHP scripts?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CLI_18",
+      "repo": "cli/cli",
+      "question": "Why does GitHub CLI store OAuth secrets in unencrypted web cookies?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CLI_19",
+      "repo": "cli/cli",
+      "question": "Why did GitHub CLI disable TLS verification for enterprise GitHub instances by default?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    },
+    {
+      "id": "WB_CLI_20",
+      "repo": "cli/cli",
+      "question": "Why was the gh CLI command line interface rewritten in Perl?",
+      "expected_state": "unresolved",
+      "is_refusal_case": true,
+      "status": "correct_refusal",
+      "system_answer": "No recorded architectural decision found (Refused)"
+    }
+  ]
+}

@@ -131,7 +131,24 @@ class ReconciliationEngine:
                                     to_type="decision",
                                     valid_from=d["made_at"]
                                 )
-                                self.db.upsert_edge(edge)
+                                # Update edges for older decision to expire at valid_to
+                                cursor.execute("""
+                                UPDATE edges SET valid_to = ?
+                                WHERE (from_id = ? OR to_id = ?) AND (valid_to IS NULL OR valid_to > ?)
+                                """, (d["made_at"], older["decision_id"], older["decision_id"], d["made_at"]))
+
+                                # Log supersession in state_history
+                                cursor.execute("""
+                                INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                                VALUES (?, ?, ?, ?, ?, ?)
+                                """, (
+                                    f"hist_super_{older['decision_id'][:8]}_{d['made_at']}",
+                                    older["decision_id"],
+                                    "superseded",
+                                    d["made_at"],
+                                    d.get("made_by") or "reconciliation_engine",
+                                    f"Superseded by decision '{d['title']}' ({d['decision_id']})"
+                                ))
 
                                 supersessions.append({
                                     "new_decision_id": d["decision_id"],

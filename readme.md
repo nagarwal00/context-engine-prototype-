@@ -84,7 +84,7 @@ You will see:
 [OK] Existing database loaded with decisions.
 
 [SERVER LIVE] Prototype is live and running at: http://127.0.0.1:8080/
-[*] Serving all 6 UI surfaces, interactive Context Graph, and Review Queue.
+[*] Serving all 9 UI surfaces, interactive Context Graph, and Review Queue.
 ```
 
 ### Step 2: Open Your Browser
@@ -100,7 +100,7 @@ You will see the full interactive dark-mode dashboard!
 This repository is pre-configured to deploy directly on GitHub Pages with **zero extra services or paid hosting**:
 - **Automatic GitHub Pages workflow:** `.github/workflows/deploy.yml` deploys the web interface automatically on every push.
 - **Classic Branch deployment:** The `docs/` folder contains the static distribution for 1-click branch deployment.
-- **Client-Side Data Engine:** All 6 UI surfaces, interactive graph, CI drift checking, and review actions work 100% in the browser on GitHub Pages.
+- **Client-Side Data Engine:** All 9 UI surfaces, interactive graph, CI drift checking, and review actions work 100% in the browser on GitHub Pages.
 
 See [DEPLOYMENT.md](file:///c:/Users/HP/Desktop/SE_project/DEPLOYMENT.md) for full step-by-step instructions.
 
@@ -124,7 +124,7 @@ python run_demo.py
 5. **Conflict Test:** It checks that when Marcus and Priya disagree, the system spots the conflict.
 6. **Drift Test:** It feeds a bad code change into the system and checks that the system catches the violation.
 7. **Anti-Lying Test:** It asks about a fake file that does not exist. It verifies that the system honestly says *"No decision found"* rather than making up a fake story.
-8. **Scorecard:** It calculates our accuracy scores (92.6% accuracy, 0.0% unsupported claims).
+8. **Scorecard:** It calculates computed accuracy and grounding metrics from real data (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
 
 ---
 
@@ -189,24 +189,30 @@ When demoing this project to your professor, follow these 8 simple steps:
 
 ---
 
-### 🖥️ Step 6: Live CI Code-Drift Check (The Impressive Demo!)
+### 🖥️ Step 6: Live CI Code-Drift Check & Decision Guard Rules (The Headline Novelty!)
 - **Action:** Click **Live CI Drift Check** in the left sidebar.
 - **Action:** Click the button that says **Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)**.
 - **Action:** Click **Run CI Drift Detection Pass**.
-- **What happens on screen:** A red warning banner immediately pops up!
+- **What happens on screen:** A red warning banner immediately pops up flagging both historical drift and active Guard Rule violations!
 - **What to say:**
   > *"This simulates a developer opening a new Pull Request. In this scenario, a developer tried to delete the PID math and put back the old ON/OFF switch.*  
-  > *Our system analyzed the diff against historical decisions, caught the violation in real time, warned the team that it reintroduces a previously rejected approach, and sent an alert to the Review Queue!"*
-- **Action:** Click **Scenario 3: Consistent Code** and run it to show that normal code changes pass with a green checkmark.
+  > *Our system analyzed the diff against historical decisions and active Guard Rules, caught the violation in real time, warned the team that it reintroduces a previously rejected approach, and linked directly to the evidence trail in the Review Queue!"*
+- **Action:** Click **Scenario 3: Consistent Code** and run it to show that normal code changes pass cleanly.
 
 ---
 
 ### 🖥️ Step 7: Evaluation Metrics & Comparison Table
 - **Action:** Click **Metrics & Baselines** in the left sidebar.
-- **What is on screen:** 5 metric cards and a comparison table.
+- **What is on screen:** Metric cards, WhyBench real-world benchmark results, and a baseline comparison table.
 - **What to say:**
-  > *"To validate our capstone, we benchmarked our system against 32 ground-truth decisions and compared it to three common baselines: normal grep search, GitHub Copilot Q&A, and manual ADRs.*  
-  > *Our system achieved a 92.6% F1 accuracy score, 98.4% evidence link accuracy, and a 0.0% unsupported claim rate because all claims must be backed by graph citations."*
+  > *"To validate our capstone honestly, we evaluated the system on WhyBench across 61 real-world questions from open-source repositories (payment-core, cloud-hypervisor, cli/cli) and compared it to four baselines.*  
+  > *Our system achieved 100.0% State Accuracy and 100.0% Refusal Accuracy on unrecorded design areas. All metrics are computed by code from real data—none are hard-coded or fabricated (see `evaluation_results.md`)."*
+
+#### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
+If the professor challenges the project, say this:
+> 1. *"Docs-only search achieved only 16.2% recall on WhyBench because critical architectural rationale lives in PR discussions and issues, not static files—and READMEs cannot automatically block violating pull requests."*  
+> 2. *"General-purpose AI agents hallucinate plausible explanations without refusal guarantees, whereas our system achieved 100.0% refusal accuracy on false claims and requires explicit evidence citations."*  
+> 3. *"Most importantly, CIF turns architectural decisions into active CI Guard Rules that enforce rules on pull request diffs with 100.0% recall, preventing regressions automatically."*
 
 ---
 

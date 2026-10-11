@@ -1,0 +1,33 @@
+name: CIF Decision Guard Check
+
+on:
+  pull_request:
+    branches: ["main", "master"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  cif-guard:
+    name: CIF Decision Guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Need full history for git diff
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run CIF Decision Guard
+        id: cif_check
+        run: |
+          python tools/ci_check.py \
+            --base ${{ github.event.pull_request.base.sha }} \
+            --head ${{ github.sha }} \
+            --rules cif_rules.json
+        # Exit 1 on violations (script handles its own messaging)

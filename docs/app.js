@@ -644,50 +644,125 @@ const app = {
   },
 
   // =========================================================================
-  // SURFACE 6: Review Queue & Triage Modal (§10)
+  // SURFACE 6: Review Queue & Triage Modal (§10 & Section 5 Guard Rules)
   // =========================================================================
   async loadReviewQueue() {
     const container = document.getElementById('review-queue-container');
     container.innerHTML = '<div class="loading-state">Checking review queue items...</div>';
 
     try {
-      const json = await this.apiFetch('/api/review-queue');
-      const items = json.data || [];
+      const [reviewJson, rulesJson] = await Promise.all([
+        this.apiFetch('/api/review-queue'),
+        this.apiFetch('/api/guard-rules')
+      ]);
+
+      const items = reviewJson.data || [];
+      const rules = rulesJson.data || [];
 
       document.getElementById('stat-review-count').textContent = items.length;
       document.getElementById('sidebar-review-badge').textContent = items.length;
 
-      if (items.length === 0) {
-        container.innerHTML = `
-          <div class="placeholder-state" style="border-left: 4px solid var(--status-accepted); padding: 18px;">
-            ✓ All extractions confirmed! No pending conflicts or drift items in the queue.
+      let html = '';
+
+      // Section A: Decision Guard Rules
+      if (rules.length > 0) {
+        html += `
+          <div style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <h3 style="font-size: 1.1rem; color: #60a5fa; margin: 0;">Decision Guard Rules (Automated CI Enforcement)</h3>
+              <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Novelty Feature</span>
+            </div>
+            <div style="display: grid; gap: 12px;">
+              ${rules.map(r => `
+                <div class="review-item-card" style="border-left: 3px solid ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#6b7280')};">
+                  <div style="flex: 1;">
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
+                      <span class="review-reason-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">${r.rule_type}</span>
+                      <span class="badge" style="background: ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${r.status.toUpperCase()}</span>
+                    </div>
+                    <h4 style="font-size: 0.95rem; margin: 4px 0;">Rule <code>${r.rule_id}</code></h4>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin: 4px 0;">
+                      Governed by: <strong>${r.decision_title || r.decision_id}</strong>
+                    </p>
+                    <pre style="background: #0b0f17; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">${JSON.stringify(r.params, null, 2)}</pre>
+                  </div>
+                  <div class="review-actions">
+                    ${r.status !== 'active' ? `<button class="btn btn-primary btn-sm" onclick="app.approveGuardRule('${r.rule_id}')">Approve (Enforce in CI)</button>` : ''}
+                    ${r.status !== 'disabled' ? `<button class="btn btn-secondary btn-sm" onclick="app.disableGuardRule('${r.rule_id}')">Disable</button>` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
           </div>
         `;
-        return;
       }
 
-      container.innerHTML = items.map(item => {
-        const id = item.decision_id || item.edge_id;
-        return `
-          <div class="review-item-card">
-            <div style="flex: 1;">
-              <span class="review-reason-tag">${item.queue_reason}</span>
-              <h3 style="font-size: 1.05rem; margin: 6px 0;">${item.title}</h3>
-              <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${item.rationale || 'Flagged for human arbitration per Section 10.'}</p>
-              <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
-                Confidence: <strong>${Math.round(item.confidence * 100)}%</strong> • Status: <code>${item.review_status}</code>
-              </div>
-            </div>
-            <div class="review-actions">
-              <button class="btn btn-primary btn-sm" onclick="app.triggerReviewAction('confirm', '${id}', '${item.item_type}')">Confirm</button>
-              <button class="btn btn-secondary btn-sm" onclick="app.openCorrectModal('${id}', '${item.item_type}', '${escape(item.title)}')">Correct</button>
-              <button class="btn btn-danger btn-sm" onclick="app.triggerReviewAction('reject', '${id}', '${item.item_type}')">Reject</button>
-            </div>
+      // Section B: Standard Review Queue Items
+      if (items.length === 0 && rules.length === 0) {
+        html += `
+          <div class="placeholder-state" style="border-left: 4px solid var(--status-accepted); padding: 18px;">
+            ✓ All extractions confirmed! No pending conflicts, drift items, or proposed rules in the queue.
           </div>
         `;
-      }).join('');
+      } else if (items.length > 0) {
+        html += `
+          <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Candidate Decisions & Contradictions for Arbitration</h3>
+          <div style="display: grid; gap: 12px;">
+            ${items.map(item => {
+              const id = item.decision_id || item.edge_id;
+              return `
+                <div class="review-item-card">
+                  <div style="flex: 1;">
+                    <span class="review-reason-tag">${item.queue_reason}</span>
+                    <h3 style="font-size: 1.05rem; margin: 6px 0;">${item.title}</h3>
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${item.rationale || 'Flagged for human arbitration per Section 10.'}</p>
+                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
+                      Confidence: <strong>${Math.round(item.confidence * 100)}%</strong> • Status: <code>${item.review_status}</code>
+                    </div>
+                  </div>
+                  <div class="review-actions">
+                    <button class="btn btn-primary btn-sm" onclick="app.triggerReviewAction('confirm', '${id}', '${item.item_type}')">Confirm</button>
+                    <button class="btn btn-secondary btn-sm" onclick="app.openCorrectModal('${id}', '${item.item_type}', '${escape(item.title)}')">Correct</button>
+                    <button class="btn btn-danger btn-sm" onclick="app.triggerReviewAction('reject', '${id}', '${item.item_type}')">Reject</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
     } catch (e) {
       container.innerHTML = `Error: ${e.message}`;
+    }
+  },
+
+  async approveGuardRule(ruleId) {
+    try {
+      const json = await this.apiFetch('/api/guard-rules/approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule_id: ruleId })
+      });
+      alert(`Guard Rule '${ruleId}' is now ACTIVE and will be enforced on incoming pull requests.`);
+      this.loadReviewQueue();
+    } catch (e) {
+      alert(`Approval error: ${e.message}`);
+    }
+  },
+
+  async disableGuardRule(ruleId) {
+    try {
+      const json = await this.apiFetch('/api/guard-rules/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rule_id: ruleId })
+      });
+      alert(`Guard Rule '${ruleId}' has been disabled.`);
+      this.loadReviewQueue();
+    } catch (e) {
+      alert(`Disable error: ${e.message}`);
     }
   },
 
@@ -770,7 +845,7 @@ const app = {
   },
 
   // =========================================================================
-  // EXTRA: Live CI Drift Checker (§8.3)
+  // EXTRA: Live CI Drift Checker (§8.3 & Section 5.4)
   // =========================================================================
   loadDriftPreset(scenario) {
     const input = document.getElementById('drift-diff-input');
@@ -794,10 +869,18 @@ const app = {
 +    # Store items in raw local dictionary cache instead of Redis
 +    local_cache = {}
 +    return local_cache.get(key)`;
+    } else if (scenario === 'guard_rule_violation') {
+      input.value = `diff --git a/src/payments/service.py b/src/payments/service.py
+--- a/src/payments/service.py
++++ b/src/payments/service.py
+@@ -1,5 +1,6 @@
++import sticky_sessions
+ from stripe import PaymentIntent`;
     } else if (scenario === 'clean_change') {
       input.value = `diff --git a/src/thermal/control.py b/src/thermal/control.py
 --- a/src/thermal/control.py
 +++ b/src/thermal/control.py
+
 @@ -30,3 +30,4 @@
 +    # Normal refactoring: improve variable documentation
 +    # Maintains established PID control loop`;
@@ -847,39 +930,85 @@ const app = {
   },
 
   // =========================================================================
-  // EXTRA: Evaluation Benchmark (§12)
+  // EXTRA: Evaluation Benchmark (§12 & METRICS.md)
   // =========================================================================
   async loadBenchmarkData() {
     const container = document.getElementById('benchmark-container');
     try {
       const json = await this.apiFetch('/api/benchmark');
-      const { metrics, baselines } = json.data;
+      const { metrics, baselines, ground_truth_total, matched_gt_count, details } = json.data;
+
+      const fmtPct = (val) => (typeof val === 'number' ? `${val}%` : (val || 'Not Measured'));
+      const fmtVal = (val, unit = '') => (typeof val === 'number' ? `${val}${unit}` : (val || 'Not Measured'));
+
+      let baselineRows = '';
+      if (baselines) {
+        // CIF System summary row
+        baselineRows += `
+          <tr class="highlight-row">
+            <td><strong>Context Intelligence Framework (Ours)</strong></td>
+            <td>${fmtPct(metrics.decision_extraction_recall)}</td>
+            <td>${fmtPct(metrics.evidence_link_accuracy)}</td>
+            <td>${fmtPct(metrics.drift_precision)} (Drift Precision)</td>
+            <td style="color: #10b981; font-weight: 700;">${fmtPct(metrics.unsupported_claim_rate)}</td>
+            <td><span class="badge" style="background:#10b981; color:#fff;">Live Computed</span></td>
+          </tr>
+        `;
+
+        for (const [key, b] of Object.entries(baselines)) {
+          if (!b) continue;
+          const statusBadge = b.status === 'measured' 
+            ? `<span class="badge" style="background:#3b82f6; color:#fff;">Measured</span>` 
+            : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
+          baselineRows += `
+            <tr>
+              <td><strong>${b.name || key}</strong></td>
+              <td>${fmtPct(b.decision_recall)}</td>
+              <td>${fmtPct(b.evidence_grounding_accuracy || b.evidence_link_accuracy)}</td>
+              <td>${b.conflict_drift_detection || 'None (Unstructured)'}</td>
+              <td style="${b.hallucination_rate ? 'color: #ef4444;' : ''}">${fmtPct(b.hallucination_rate || b.unsupported_claim_rate)}</td>
+              <td>${statusBadge}</td>
+            </tr>
+          `;
+        }
+      }
 
       container.innerHTML = `
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <strong style="color: #60a5fa;">Synthetic Pilot Benchmark (Smoke Test)</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+              Evaluated on synthetic pilot repositories (<code>acme-eng/thermal-control-system</code>, <code>acme-eng/distributed-cache-service</code>).
+              Matched <strong>${matched_gt_count || 0}</strong> of <strong>${ground_truth_total || 0}</strong> ground truth decisions.
+            </p>
+          </div>
+          <span class="badge" style="background: #2563eb; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
+        </div>
+
         <div class="benchmark-metrics-cards">
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.decision_extraction_accuracy || metrics.decision_extraction_f1}%</div>
-            <div class="metric-lbl">Extraction F1 Score</div>
+            <div class="metric-val">${fmtPct(metrics.decision_extraction_recall)}</div>
+            <div class="metric-lbl">Decision Recall</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.evidence_link_accuracy}%</div>
-            <div class="metric-lbl">Evidence Link Accuracy</div>
+            <div class="metric-val">${fmtPct(metrics.evidence_link_accuracy)}</div>
+            <div class="metric-lbl">Evidence Link Validity</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.drift_precision}%</div>
+            <div class="metric-val">${fmtPct(metrics.drift_precision)}</div>
             <div class="metric-lbl">Drift Precision</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val" style="color: #10b981;">${metrics.unsupported_claim_rate}%</div>
+            <div class="metric-val" style="color: #10b981;">${fmtPct(metrics.unsupported_claim_rate)}</div>
             <div class="metric-lbl">Unsupported Claim Rate</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${metrics.processing_latency_ms} ms</div>
-            <div class="metric-lbl">Processing Latency</div>
+            <div class="metric-val">${fmtVal(metrics.processing_latency_ms, ' ms')}</div>
+            <div class="metric-lbl">Median Latency</div>
           </div>
         </div>
 
-        <h3 style="font-size: 1.15rem; margin-bottom: 14px;">Comparative Benchmark Against 3 Practical Baselines (Section 12.3)</h3>
+        <h3 style="font-size: 1.15rem; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -887,43 +1016,12 @@ const app = {
               <th>Decision Recall</th>
               <th>Evidence Grounding</th>
               <th>Contradiction & Drift</th>
-              <th>Unsupported Claims</th>
-              <th>Onboarding Recovery</th>
+              <th>Unsupported / Hallucinated</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="highlight-row">
-              <td><strong>Context Intelligence Framework (Ours)</strong></td>
-              <td>${baselines.cif_system.decision_recall}%</td>
-              <td>${baselines.cif_system.evidence_grounding_accuracy}%</td>
-              <td>${baselines.cif_system.conflict_drift_detection}</td>
-              <td style="color: #10b981; font-weight: 700;">${baselines.cif_system.unsupported_claim_rate}</td>
-              <td>${baselines.cif_system.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_grep.name}</td>
-              <td>${baselines.baseline_grep.decision_recall}%</td>
-              <td>${baselines.baseline_grep.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_grep.conflict_drift_detection}</td>
-              <td>${baselines.baseline_grep.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_grep.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_copilot.name}</td>
-              <td>${baselines.baseline_copilot.decision_recall}%</td>
-              <td>${baselines.baseline_copilot.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_copilot.conflict_drift_detection}</td>
-              <td style="color: #ef4444;">${baselines.baseline_copilot.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_copilot.time_to_onboard_recovery}</td>
-            </tr>
-            <tr>
-              <td>${baselines.baseline_adrs.name}</td>
-              <td>${baselines.baseline_adrs.decision_recall}%</td>
-              <td>${baselines.baseline_adrs.evidence_grounding_accuracy}%</td>
-              <td>${baselines.baseline_adrs.conflict_drift_detection}</td>
-              <td>${baselines.baseline_adrs.unsupported_claim_rate}</td>
-              <td>${baselines.baseline_adrs.time_to_onboard_recovery}</td>
-            </tr>
+            ${baselineRows}
           </tbody>
         </table>
       `;
@@ -985,6 +1083,7 @@ const app = {
         const res = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
+          this._updateModeBadge(true);
           return await res.json();
         } else {
           try {
@@ -996,10 +1095,30 @@ const app = {
         }
       } catch (e) {
         console.warn('Backend server error or offline; falling back to client-side engine:', e.message);
+        this._updateModeBadge(false);
       }
+    } else {
+      // GitHub Pages or non-local: always static
+      this._updateModeBadge(false);
     }
     return this.clientMockApi(url, options);
   },
+
+  // Phase 8.3: Update the Live engine / Static snapshot mode badge
+  _modeBadgeSet: false,
+  _updateModeBadge(isLive) {
+    const badge = document.getElementById('engine-mode-badge');
+    if (!badge) return;
+    badge.classList.remove('live', 'static');
+    if (isLive) {
+      badge.classList.add('live');
+      badge.textContent = '\u2b24 Live engine';
+    } else {
+      badge.classList.add('static');
+      badge.textContent = '\u2b24 Static snapshot';
+    }
+  },
+
 
   getStoredState() {
     if (!this._stateCache) {
