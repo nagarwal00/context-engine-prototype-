@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
   <title>Context Intelligence Framework — Living Decision History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,6 +45,9 @@
           <span class="stat-pill"><span class="dot accepted"></span> <span id="stat-decisions">--</span> Decisions</span>
           <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
           <span class="stat-pill alert" id="stat-review-pill"><span class="dot review"></span> <span id="stat-review-count">--</span> Queue Items</span>
+        </div>
+        <div class="auth-token-box" title="Authorization token (CIF_REVIEWER_TOKEN or CIF_ADMIN_TOKEN)">
+          <input type="password" id="auth-token-input" placeholder="Access token" class="auth-input-field" onchange="app.setAuthToken(this.value)" />
         </div>
         <button class="btn btn-primary btn-sm" onclick="app.openAddRepoModal()" title="Ingest any public or private GitHub repository">
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>

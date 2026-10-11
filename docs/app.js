@@ -1,8 +1,24 @@
 /**
- * Context Intelligence Framework - Frontend Application Controller
- * Handles interactive navigation across all 6 surfaces, SVG graph rendering,
- * live review queue actions, CI drift simulation, and evaluation metrics.
+ * HTML sanitization and safe URL resolution (P0-c / Step 1.3)
  */
+function esc(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function safeUrl(value) {
+  if (!value) return '#';
+  const str = String(value).trim();
+  if (/^https?:\/\//i.test(str)) {
+    return str;
+  }
+  return '#';
+}
 
 const app = {
   activeSurface: 'timeline',
@@ -73,7 +89,7 @@ const app = {
         const repos = json.data || [];
         let html = '<option value="">All Repositories (Unified View)</option>';
         repos.forEach(r => {
-          html += `<option value="${r}">${r}</option>`;
+          html += `<option value="${esc(r)}">${esc(r)}</option>`;
         });
         select.innerHTML = html;
         if (this.selectedRepo) {
@@ -97,8 +113,13 @@ const app = {
   },
 
   async emptyDashboard() {
-    if (confirm('Are you sure you want to empty the dashboard? This will wipe all current decisions, timeline cards, and graph nodes to give you a completely blank canvas.')) {
-      const json = await this.apiFetch('/api/clear-db', { method: 'POST' });
+    const confirmName = prompt('Enter exact database filename to confirm wipe:', 'context_intelligence.db');
+    if (confirmName) {
+      const json = await this.apiFetch('/api/clear-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: confirmName })
+      });
       alert(json.message);
       this.selectedRepo = '';
       await this.loadRepositoriesList();
@@ -210,7 +231,11 @@ const app = {
 
   async reseedData() {
     if (confirm('Reset pilot repositories to default seed state?')) {
-      const json = await this.apiFetch('/api/reseed', { method: 'POST' });
+      const json = await this.apiFetch('/api/reseed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: 'context_intelligence.db' })
+      });
       alert(json.message);
       this.init();
       this.navigate('timeline');
@@ -243,28 +268,28 @@ const app = {
 
       container.innerHTML = filtered.map(d => {
         const dateStr = d.made_at ? d.made_at.substring(0, 10) : 'Recent';
-        const artifactsStr = (d.affected_artifacts || []).map(a => `<span class="stat-pill">${a.canonical_path}</span>`).join(' ');
+        const artifactsStr = (d.affected_artifacts || []).map(a => `<span class="stat-pill">${esc(a.canonical_path)}</span>`).join(' ');
         
         return `
           <div class="timeline-card">
-            <div class="timeline-node-dot" style="background-color: ${this.getStateColor(d.state)}"></div>
+            <div class="timeline-node-dot" style="background-color: ${esc(this.getStateColor(d.state))}"></div>
             <div class="timeline-card-header">
-              <span class="status-tag ${d.state}">${d.state}</span>
-              <span class="timeline-date">${dateStr}</span>
+              <span class="status-tag ${esc(d.state)}">${esc(d.state)}</span>
+              <span class="timeline-date">${esc(dateStr)}</span>
             </div>
-            <h3 class="timeline-title">${d.title}</h3>
-            <p class="timeline-rationale">${d.rationale || 'No stated rationale.'}</p>
+            <h3 class="timeline-title">${esc(d.title)}</h3>
+            <p class="timeline-rationale">${esc(d.rationale || 'No stated rationale.')}</p>
             <div class="timeline-meta">
-              <span>Author: <strong>${d.made_by}</strong></span>
-              <span>Repo: <code>${d.repo}</code></span>
-              <span>Evidence Cites: <strong>${d.evidence_count}</strong></span>
+              <span>Author: <strong>${esc(d.made_by)}</strong></span>
+              <span>Repo: <code>${esc(d.repo)}</code></span>
+              <span>Evidence Cites: <strong>${esc(d.evidence_count)}</strong></span>
             </div>
             ${artifactsStr ? `<div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">${artifactsStr}</div>` : ''}
           </div>
         `;
       }).join('');
     } catch (e) {
-      container.innerHTML = `<div class="placeholder-state">Error loading timeline: ${e.message}</div>`;
+      container.innerHTML = `<div class="placeholder-state">Error loading timeline: ${esc(e.message)}</div>`;
     }
   },
 
@@ -292,7 +317,7 @@ const app = {
 
       this.renderSvgGraph(nodes, links);
     } catch (e) {
-      svg.innerHTML = `<text x="50%" y="50%" fill="#ef4444" text-anchor="middle">Error loading graph: ${e.message}</text>`;
+      svg.innerHTML = `<text x="50%" y="50%" fill="#ef4444" text-anchor="middle">Error loading graph: ${esc(e.message)}</text>`;
     }
   },
 
@@ -400,31 +425,39 @@ const app = {
 
     let content = `
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <span class="status-tag ${node.state || 'accepted'}">${node.type.toUpperCase()}</span>
-        <button onclick="document.getElementById('graph-node-details').classList.add('hidden')" style="background:none; border:none; color:#64748b; cursor:pointer;">✕</button>
+        <span class="status-tag ${esc(node.state || 'accepted')}">${esc(node.type.toUpperCase())}</span>
+        <button class="btn-graph-close" style="background:none; border:none; color:#64748b; cursor:pointer;">✕</button>
       </div>
-      <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${node.label}</h4>
+      <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${esc(node.label)}</h4>
     `;
 
     if (node.type === 'decision') {
+      const confStr = node.confidence !== undefined ? Math.round(node.confidence * 100) + '%' : 'N/A';
+      const madeAtStr = node.made_at ? node.made_at.substring(0, 10) : '';
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">State: <strong>${node.state}</strong> | Confidence: <strong>${Math.round(node.confidence * 100)}%</strong></p>
-        <p style="color: #cbd5e1; font-size: 0.82rem; margin-bottom: 12px;">Made by <strong>${node.made_by}</strong> on ${node.made_at.substring(0, 10)}</p>
-        <button class="btn btn-primary btn-sm" onclick="app.showDecisionEvidence('${node.id}')">View Evidence Trail</button>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">State: <strong>${esc(node.state)}</strong> | Confidence: <strong>${esc(confStr)}</strong></p>
+        <p style="color: #cbd5e1; font-size: 0.82rem; margin-bottom: 12px;">Made by <strong>${esc(node.made_by)}</strong> on ${esc(madeAtStr)}</p>
+        <button class="btn btn-primary btn-sm btn-graph-evidence" data-decision-id="${esc(node.id)}">View Evidence Trail</button>
       `;
     } else if (node.type === 'entity') {
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Entity Type: <code>${node.entity_type}</code></p>
-        <button class="btn btn-primary btn-sm" onclick="app.inspectArtifact('${node.label}')">Inspect Decision Chain</button>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Entity Type: <code>${esc(node.entity_type)}</code></p>
+        <button class="btn btn-primary btn-sm btn-graph-inspect" data-artifact-label="${esc(node.label)}">Inspect Decision Chain</button>
       `;
     } else if (node.type === 'event') {
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Source: <code>${node.source_type}</code></p>
-        <a href="${node.source_url}" target="_blank" class="citation-link">Open Source Link ↗</a>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Source: <code>${esc(node.source_type)}</code></p>
+        <a href="${safeUrl(node.source_url)}" target="_blank" class="citation-link">Open Source Link ↗</a>
       `;
     }
 
     details.innerHTML = content;
+    const closeBtn = details.querySelector('.btn-graph-close');
+    if (closeBtn) closeBtn.addEventListener('click', () => details.classList.add('hidden'));
+    const evBtn = details.querySelector('.btn-graph-evidence');
+    if (evBtn) evBtn.addEventListener('click', () => app.showDecisionEvidence(evBtn.dataset.decisionId));
+    const insBtn = details.querySelector('.btn-graph-inspect');
+    if (insBtn) insBtn.addEventListener('click', () => app.inspectArtifact(insBtn.dataset.artifactLabel));
   },
 
   // =========================================================================
@@ -440,17 +473,21 @@ const app = {
       this.cachedArtifacts = json.data || [];
 
       listEl.innerHTML = this.cachedArtifacts.map(a => `
-        <div class="artifact-item ${this.selectedArtifact === a.canonical_path ? 'active' : ''}" onclick="app.selectArtifact('${a.canonical_path}')">
-          <div class="artifact-path">${a.canonical_path}</div>
-          <span class="artifact-type-tag">${a.entity_type.toUpperCase()} • ${a.decision_count} Decisions</span>
+        <div class="artifact-item ${this.selectedArtifact === a.canonical_path ? 'active' : ''}" data-canonical-path="${esc(a.canonical_path)}">
+          <div class="artifact-path">${esc(a.canonical_path)}</div>
+          <span class="artifact-type-tag">${esc(a.entity_type.toUpperCase())} • ${esc(a.decision_count)} Decisions</span>
         </div>
       `).join('');
+
+      listEl.querySelectorAll('.artifact-item').forEach(el => {
+        el.addEventListener('click', () => app.selectArtifact(el.dataset.canonicalPath));
+      });
 
       if (!this.selectedArtifact && this.cachedArtifacts.length > 0) {
         this.selectArtifact(this.cachedArtifacts[0].canonical_path);
       }
     } catch (e) {
-      listEl.innerHTML = `Error: ${e.message}`;
+      listEl.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
   },
 
@@ -470,7 +507,7 @@ const app = {
       if (data.status === 'not_found') {
         expContainer.innerHTML = `
           <div class="placeholder-state" style="border-left: 4px solid var(--status-unresolved); padding: 16px;">
-            ${data.explanation}
+            ${esc(data.explanation)}
           </div>
         `;
         return;
@@ -479,21 +516,21 @@ const app = {
       let stepsHtml = (data.chain || []).map(step => `
         <div class="chain-step-card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span class="status-tag ${step.state}">${step.state}</span>
-            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">Step ${step.step_number}</span>
+            <span class="status-tag ${esc(step.state)}">${esc(step.state)}</span>
+            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">Step ${esc(step.step_number)}</span>
           </div>
-          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${step.title}</h4>
-          <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${step.rationale}</p>
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${esc(step.title)}</h4>
+          <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale)}</p>
           
           <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">
-            Decided by <strong>${step.made_by}</strong> on ${step.made_at.substring(0, 10)}
+            Decided by <strong>${esc(step.made_by)}</strong> on ${esc(step.made_at ? step.made_at.substring(0, 10) : '')}
           </div>
 
           ${(step.citations || []).length > 0 ? `
             <div class="citation-list">
               ${step.citations.map(c => `
-                <a href="${c.source_url}" target="_blank" class="citation-link" title="${c.title}">
-                  <span>[${c.source_type}]</span> ${c.source_id.substring(0, 12)} ↗
+                <a href="${safeUrl(c.source_url)}" target="_blank" class="citation-link" title="${esc(c.title)}">
+                  <span>[${esc(c.source_type)}]</span> ${esc(c.source_id ? c.source_id.substring(0, 12) : '')} ↗
                 </a>
               `).join('')}
             </div>
@@ -503,14 +540,14 @@ const app = {
 
       expContainer.innerHTML = `
         <div class="explanation-banner">
-          <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Why does <code>${canonicalPath}</code> look like this?</h3>
-          <p style="font-size: 0.9rem; color: #cbd5e1;">${data.explanation.replace(/\n\n/g, '<br><br>')}</p>
+          <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Why does <code>${esc(canonicalPath)}</code> look like this?</h3>
+          <p style="font-size: 0.9rem; color: #cbd5e1;">${esc(data.explanation).replace(/\n\n/g, '<br><br>')}</p>
         </div>
         <h4 style="font-size: 0.9rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 12px;">Grounded Decision Chain</h4>
         ${stepsHtml}
       `;
     } catch (e) {
-      expContainer.innerHTML = `Error explaining artifact: ${e.message}`;
+      expContainer.innerHTML = `<div class="placeholder-state">Error explaining artifact: ${esc(e.message)}</div>`;
     }
   },
 
@@ -540,28 +577,35 @@ const app = {
         return;
       }
 
-      container.innerHTML = this.cachedDecisions.map(d => `
+      container.innerHTML = this.cachedDecisions.map(d => {
+        const confStr = d.confidence ? Math.round(d.confidence * 100) + '% Conf' : '';
+        return `
         <div class="decision-card">
           <div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span class="status-tag ${d.state}">${d.state}</span>
-              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${d.confidence ? Math.round(d.confidence * 100) + '% Conf' : ''}</span>
+              <span class="status-tag ${esc(d.state)}">${esc(d.state)}</span>
+              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(confStr)}</span>
             </div>
-            <h3 class="decision-card-title">${d.title}</h3>
-            <p class="decision-card-rationale">${d.rationale || 'No extracted rationale.'}</p>
+            <h3 class="decision-card-title">${esc(d.title)}</h3>
+            <p class="decision-card-rationale">${esc(d.rationale || 'No extracted rationale.')}</p>
           </div>
           <div>
             <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 12px;">
-              Author: <strong>${d.made_by}</strong> • Evidence: <strong>${d.evidence_count}</strong>
+              Author: <strong>${esc(d.made_by)}</strong> • Evidence: <strong>${esc(d.evidence_count)}</strong>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="app.showDecisionEvidence('${d.decision_id}')">
+            <button class="btn btn-secondary btn-sm btn-show-evidence" data-decision-id="${esc(d.decision_id)}">
               Inspect Evidence Trail ↗
             </button>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
+
+      container.querySelectorAll('.btn-show-evidence').forEach(btn => {
+        btn.addEventListener('click', () => app.showDecisionEvidence(btn.dataset.decisionId));
+      });
     } catch (e) {
-      container.innerHTML = `Error: ${e.message}`;
+      container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
   },
 
@@ -587,7 +631,7 @@ const app = {
       await this.loadDecisions();
     }
     select.innerHTML = this.cachedDecisions.map(d => `
-      <option value="${d.decision_id}">${d.title} [${d.state}]</option>
+      <option value="${esc(d.decision_id)}">${esc(d.title)} [${esc(d.state)}]</option>
     `).join('');
 
     if (this.cachedDecisions.length > 0) {
@@ -622,24 +666,27 @@ const app = {
         return;
       }
 
-      container.innerHTML = allEvents.map(ev => `
+      container.innerHTML = allEvents.map(ev => {
+        const tsStr = ev.ts ? ev.ts.substring(0, 10) : '';
+        return `
         <div class="evidence-card">
           <div class="evidence-header">
-            <span class="source-badge">${ev.source_type.toUpperCase()}</span>
-            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${ev.ts.substring(0, 10)}</span>
+            <span class="source-badge">${esc(ev.source_type.toUpperCase())}</span>
+            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
           </div>
-          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${ev.title || ev.source_id}</h4>
-          <div class="evidence-body">${ev.body}</div>
+          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${esc(ev.title || ev.source_id)}</h4>
+          <div class="evidence-body">${esc(ev.body)}</div>
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${ev.author}</strong></span>
-            <a href="${ev.source_url}" target="_blank" class="citation-link">
+            <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author)}</strong></span>
+            <a href="${safeUrl(ev.source_url)}" target="_blank" class="citation-link">
               Open Verified Source URL ↗
             </a>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     } catch (e) {
-      container.innerHTML = `Error: ${e.message}`;
+      container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
   },
 
@@ -677,18 +724,18 @@ const app = {
                 <div class="review-item-card" style="border-left: 3px solid ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#6b7280')};">
                   <div style="flex: 1;">
                     <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
-                      <span class="review-reason-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">${r.rule_type}</span>
-                      <span class="badge" style="background: ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${r.status.toUpperCase()}</span>
+                      <span class="review-reason-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">${esc(r.rule_type)}</span>
+                      <span class="badge" style="background: ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${esc(r.status.toUpperCase())}</span>
                     </div>
-                    <h4 style="font-size: 0.95rem; margin: 4px 0;">Rule <code>${r.rule_id}</code></h4>
+                    <h4 style="font-size: 0.95rem; margin: 4px 0;">Rule <code>${esc(r.rule_id)}</code></h4>
                     <p style="font-size: 0.85rem; color: #94a3b8; margin: 4px 0;">
-                      Governed by: <strong>${r.decision_title || r.decision_id}</strong>
+                      Governed by: <strong>${esc(r.decision_title || r.decision_id)}</strong>
                     </p>
-                    <pre style="background: #0b0f17; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">${JSON.stringify(r.params, null, 2)}</pre>
+                    <pre style="background: #0b0f17; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">${esc(JSON.stringify(r.params, null, 2))}</pre>
                   </div>
                   <div class="review-actions">
-                    ${r.status !== 'active' ? `<button class="btn btn-primary btn-sm" onclick="app.approveGuardRule('${r.rule_id}')">Approve (Enforce in CI)</button>` : ''}
-                    ${r.status !== 'disabled' ? `<button class="btn btn-secondary btn-sm" onclick="app.disableGuardRule('${r.rule_id}')">Disable</button>` : ''}
+                    ${r.status !== 'active' ? `<button class="btn btn-primary btn-sm btn-approve-rule" data-rule-id="${esc(r.rule_id)}">Approve (Enforce in CI)</button>` : ''}
+                    ${r.status !== 'disabled' ? `<button class="btn btn-secondary btn-sm btn-disable-rule" data-rule-id="${esc(r.rule_id)}">Disable</button>` : ''}
                   </div>
                 </div>
               `).join('')}
@@ -710,20 +757,21 @@ const app = {
           <div style="display: grid; gap: 12px;">
             ${items.map(item => {
               const id = item.decision_id || item.edge_id;
+              const confStr = item.confidence !== undefined ? Math.round(item.confidence * 100) + '%' : '';
               return `
                 <div class="review-item-card">
                   <div style="flex: 1;">
-                    <span class="review-reason-tag">${item.queue_reason}</span>
-                    <h3 style="font-size: 1.05rem; margin: 6px 0;">${item.title}</h3>
-                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${item.rationale || 'Flagged for human arbitration per Section 10.'}</p>
+                    <span class="review-reason-tag">${esc(item.queue_reason)}</span>
+                    <h3 style="font-size: 1.05rem; margin: 6px 0;">${esc(item.title)}</h3>
+                    <p style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">${esc(item.rationale || 'Flagged for human arbitration per Section 10.')}</p>
                     <div style="font-size: 0.78rem; color: #64748b; margin-top: 8px;">
-                      Confidence: <strong>${Math.round(item.confidence * 100)}%</strong> • Status: <code>${item.review_status}</code>
+                      Confidence: <strong>${esc(confStr)}</strong> • Status: <code>${esc(item.review_status)}</code>
                     </div>
                   </div>
                   <div class="review-actions">
-                    <button class="btn btn-primary btn-sm" onclick="app.triggerReviewAction('confirm', '${id}', '${item.item_type}')">Confirm</button>
-                    <button class="btn btn-secondary btn-sm" onclick="app.openCorrectModal('${id}', '${item.item_type}', '${escape(item.title)}')">Correct</button>
-                    <button class="btn btn-danger btn-sm" onclick="app.triggerReviewAction('reject', '${id}', '${item.item_type}')">Reject</button>
+                    <button class="btn btn-primary btn-sm btn-queue-confirm" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Confirm</button>
+                    <button class="btn btn-secondary btn-sm btn-queue-correct" data-id="${esc(id)}" data-type="${esc(item.item_type)}" data-title="${esc(item.title)}">Correct</button>
+                    <button class="btn btn-danger btn-sm btn-queue-reject" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Reject</button>
                   </div>
                 </div>
               `;
@@ -733,8 +781,13 @@ const app = {
       }
 
       container.innerHTML = html;
+      container.querySelectorAll('.btn-approve-rule').forEach(b => b.addEventListener('click', () => app.approveGuardRule(b.dataset.ruleId)));
+      container.querySelectorAll('.btn-disable-rule').forEach(b => b.addEventListener('click', () => app.disableGuardRule(b.dataset.ruleId)));
+      container.querySelectorAll('.btn-queue-confirm').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('confirm', b.dataset.id, b.dataset.type)));
+      container.querySelectorAll('.btn-queue-correct').forEach(b => b.addEventListener('click', () => app.openCorrectModal(b.dataset.id, b.dataset.type, b.dataset.title)));
+      container.querySelectorAll('.btn-queue-reject').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('reject', b.dataset.id, b.dataset.type)));
     } catch (e) {
-      container.innerHTML = `Error: ${e.message}`;
+      container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
   },
 
@@ -783,14 +836,14 @@ const app = {
     }
   },
 
-  openCorrectModal(targetId, itemType, titleEscaped) {
+  openCorrectModal(targetId, itemType, title) {
     const modal = document.getElementById('review-modal');
     modal.classList.remove('hidden');
     document.getElementById('modal-title').textContent = `Correct Decision Record`;
     document.getElementById('modal-body').innerHTML = `
       <div style="margin-bottom: 14px;">
         <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Corrected Title:</label>
-        <input type="text" id="modal-correct-title" value="${unescape(titleEscaped)}" style="width: 100%; padding: 8px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 4px;">
+        <input type="text" id="modal-correct-title" value="${esc(title)}" style="width: 100%; padding: 8px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 4px;">
       </div>
       <div style="margin-bottom: 14px;">
         <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Corrected State:</label>
@@ -807,10 +860,16 @@ const app = {
       </div>
     `;
 
-    document.getElementById('modal-footer').innerHTML = `
-      <button class="btn btn-secondary" onclick="app.closeReviewModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="app.submitCorrection('${targetId}', '${itemType}')">Save Correction</button>
+    const footer = document.getElementById('modal-footer');
+    footer.innerHTML = `
+      <button class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button class="btn btn-primary btn-modal-save" data-target-id="${esc(targetId)}" data-item-type="${esc(itemType)}">Save Correction</button>
     `;
+    footer.querySelector('.btn-modal-cancel').addEventListener('click', () => app.closeReviewModal());
+    footer.querySelector('.btn-modal-save').addEventListener('click', (e) => {
+      const btn = e.currentTarget;
+      app.submitCorrection(btn.dataset.targetId, btn.dataset.itemType);
+    });
   },
 
   async submitCorrection(targetId, itemType) {
@@ -905,12 +964,13 @@ const app = {
 
       if (json.drift_detected) {
         const drift = json.results[0];
+        const confStr = drift.confidence ? Math.round(drift.confidence * 100) + '%' : '';
         resultDisplay.innerHTML = `
           <div class="drift-alert-box drift-found">
             <h4 style="font-size: 1.05rem; margin-bottom: 6px;">⚠️ CI Alert: Code-Level Architectural Drift Detected!</h4>
-            <p style="font-size: 0.88rem; line-height: 1.5; margin-bottom: 10px;">${drift.reason}</p>
+            <p style="font-size: 0.88rem; line-height: 1.5; margin-bottom: 10px;">${esc(drift.reason)}</p>
             <p style="font-size: 0.8rem; color: #fca5a5;">
-              Violated Decision: <strong>${drift.decision_title}</strong> (Confidence: ${Math.round(drift.confidence * 100)}%)<br>
+              Violated Decision: <strong>${esc(drift.decision_title)}</strong> (Confidence: ${esc(confStr)})<br>
               Action taken: Generated <code>drifts_from</code> edge and dispatched to Human Review Queue.
             </p>
           </div>
@@ -925,7 +985,7 @@ const app = {
         `;
       }
     } catch (e) {
-      resultDisplay.innerHTML = `Error checking drift: ${e.message}`;
+      resultDisplay.innerHTML = `<div class="placeholder-state">Error checking drift: ${esc(e.message)}</div>`;
     }
   },
 
@@ -947,10 +1007,10 @@ const app = {
         baselineRows += `
           <tr class="highlight-row">
             <td><strong>Context Intelligence Framework (Ours)</strong></td>
-            <td>${fmtPct(metrics.decision_extraction_recall)}</td>
-            <td>${fmtPct(metrics.evidence_link_accuracy)}</td>
-            <td>${fmtPct(metrics.drift_precision)} (Drift Precision)</td>
-            <td style="color: #10b981; font-weight: 700;">${fmtPct(metrics.unsupported_claim_rate)}</td>
+            <td>${esc(fmtPct(metrics.decision_extraction_recall))}</td>
+            <td>${esc(fmtPct(metrics.evidence_link_accuracy))}</td>
+            <td>${esc(fmtPct(metrics.drift_precision))} (Drift Precision)</td>
+            <td style="color: #10b981; font-weight: 700;">${esc(fmtPct(metrics.unsupported_claim_rate))}</td>
             <td><span class="badge" style="background:#10b981; color:#fff;">Live Computed</span></td>
           </tr>
         `;
@@ -962,11 +1022,11 @@ const app = {
             : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
           baselineRows += `
             <tr>
-              <td><strong>${b.name || key}</strong></td>
-              <td>${fmtPct(b.decision_recall)}</td>
-              <td>${fmtPct(b.evidence_grounding_accuracy || b.evidence_link_accuracy)}</td>
-              <td>${b.conflict_drift_detection || 'None (Unstructured)'}</td>
-              <td style="${b.hallucination_rate ? 'color: #ef4444;' : ''}">${fmtPct(b.hallucination_rate || b.unsupported_claim_rate)}</td>
+              <td><strong>${esc(b.name || key)}</strong></td>
+              <td>${esc(fmtPct(b.decision_recall))}</td>
+              <td>${esc(fmtPct(b.evidence_grounding_accuracy || b.evidence_link_accuracy))}</td>
+              <td>${esc(b.conflict_drift_detection || 'None (Unstructured)')}</td>
+              <td style="${b.hallucination_rate ? 'color: #ef4444;' : ''}">${esc(fmtPct(b.hallucination_rate || b.unsupported_claim_rate))}</td>
               <td>${statusBadge}</td>
             </tr>
           `;
@@ -979,7 +1039,7 @@ const app = {
             <strong style="color: #60a5fa;">Synthetic Pilot Benchmark (Smoke Test)</strong>
             <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
               Evaluated on synthetic pilot repositories (<code>acme-eng/thermal-control-system</code>, <code>acme-eng/distributed-cache-service</code>).
-              Matched <strong>${matched_gt_count || 0}</strong> of <strong>${ground_truth_total || 0}</strong> ground truth decisions.
+              Matched <strong>${esc(matched_gt_count || 0)}</strong> of <strong>${esc(ground_truth_total || 0)}</strong> ground truth decisions.
             </p>
           </div>
           <span class="badge" style="background: #2563eb; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
@@ -987,23 +1047,23 @@ const app = {
 
         <div class="benchmark-metrics-cards">
           <div class="metric-stat-box">
-            <div class="metric-val">${fmtPct(metrics.decision_extraction_recall)}</div>
+            <div class="metric-val">${esc(fmtPct(metrics.decision_extraction_recall))}</div>
             <div class="metric-lbl">Decision Recall</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${fmtPct(metrics.evidence_link_accuracy)}</div>
+            <div class="metric-val">${esc(fmtPct(metrics.evidence_link_accuracy))}</div>
             <div class="metric-lbl">Evidence Link Validity</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${fmtPct(metrics.drift_precision)}</div>
+            <div class="metric-val">${esc(fmtPct(metrics.drift_precision))}</div>
             <div class="metric-lbl">Drift Precision</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val" style="color: #10b981;">${fmtPct(metrics.unsupported_claim_rate)}</div>
+            <div class="metric-val" style="color: #10b981;">${esc(fmtPct(metrics.unsupported_claim_rate))}</div>
             <div class="metric-lbl">Unsupported Claim Rate</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val">${fmtVal(metrics.processing_latency_ms, ' ms')}</div>
+            <div class="metric-val">${esc(fmtVal(metrics.processing_latency_ms, ' ms'))}</div>
             <div class="metric-lbl">Median Latency</div>
           </div>
         </div>
@@ -1026,7 +1086,7 @@ const app = {
         </table>
       `;
     } catch (e) {
-      container.innerHTML = `Error loading benchmark: ${e.message}`;
+      container.innerHTML = `<div class="placeholder-state">Error loading benchmark: ${esc(e.message)}</div>`;
     }
   },
 
@@ -1043,7 +1103,7 @@ const app = {
           Marcus Vance proposed deadband tuning, but Sarah Chen benchmarked it and proved it caused 17% higher latency and transient overshoots.
           ADR 0004 established discrete PID control with anti-windup clamping.
         </p>
-        <button class="btn btn-secondary btn-sm" onclick="app.inspectArtifact('src/thermal/control.py::regulate_temperature')">
+        <button class="btn btn-secondary btn-sm btn-tour-thermal">
           View Regulate Temperature Decision Chain ↗
         </button>
       </div>
@@ -1055,11 +1115,15 @@ const app = {
           Marcus Vance attempted to keep local caching by adding soft memory caps (PR #38). Priya Patel demonstrated that local caching causes replica stampedes and memory duplication. 
           ADR 0009 superseded the local cache and migrated to Redis cluster with sentinel failover.
         </p>
-        <button class="btn btn-secondary btn-sm" onclick="app.inspectArtifact('src/cache/store.py::cache_get')">
+        <button class="btn btn-secondary btn-sm btn-tour-cache">
           View Cache Store Decision Chain ↗
         </button>
       </div>
     `;
+    const thermalBtn = container.querySelector('.btn-tour-thermal');
+    if (thermalBtn) thermalBtn.addEventListener('click', () => app.inspectArtifact('src/thermal/control.py::regulate_temperature'));
+    const cacheBtn = container.querySelector('.btn-tour-cache');
+    if (cacheBtn) cacheBtn.addEventListener('click', () => app.inspectArtifact('src/cache/store.py::cache_get'));
   },
 
   getStateColor(state) {
@@ -1070,10 +1134,21 @@ const app = {
     return '#64748b';
   },
 
+  authToken: '',
+  setAuthToken(token) {
+    this.authToken = (token || '').trim();
+  },
+
   // =========================================================================
   // UNIFIED API LAYER (Supports both Local Python Server & GitHub Pages)
   // =========================================================================
   async apiFetch(url, options = {}) {
+    options = { ...options };
+    options.headers = { ...(options.headers || {}) };
+    if (this.authToken && !options.headers['Authorization']) {
+      options.headers['Authorization'] = 'Bearer ' + this.authToken;
+    }
+
     const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (isLocalServer) {
       try {
@@ -1086,12 +1161,16 @@ const app = {
           this._updateModeBadge(true);
           return await res.json();
         } else {
+          let errData;
           try {
-            const errData = await res.json();
-            return errData;
+            errData = await res.json();
           } catch (err) {
-            return { status: 'error', message: `Server error HTTP ${res.status}` };
+            errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
+          if (res.status === 401 || res.status === 403) {
+            alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
+          }
+          return errData;
         }
       } catch (e) {
         console.warn('Backend server error or offline; falling back to client-side engine:', e.message);

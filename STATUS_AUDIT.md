@@ -70,3 +70,29 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 | **Demo vs deployed product unclear** | `run_demo.py`, `server.py` | Demo environment relies on synthetic/mocked seeds without explicit separation between demonstration mock modes and production deployment modes. | `CONFIRMED` |
 | **DB / Git hygiene** | `.gitignore`, repository index | `context_intelligence.db` was previously tracked; `.db` files required manual untracking via `git rm --cached`. | `CONFIRMED` |
 | **Test gaps** | `tests/` | No test coverage for TLS certificate validation failure handling, API authentication/role authorization, frontend XSS escaping, or temporal edge ranges. | `CONFIRMED` |
+
+---
+
+## 5. Security & Bug Fix Verification Log
+
+### Step 1.1 (P0-a) — TLS Certificate Verification Safety
+- Status: **RESOLVED**
+- Files: `backend/ingestion/live_github.py`, `tests/test_tls_safety.py`
+- Verification: `python -m unittest tests/test_tls_safety.py` (3 tests pass). Unverified fallbacks removed; custom CA bundle via `CIF_CA_BUNDLE` supported; secrets never leaked in exceptions.
+
+### Step 1.2 (P0-b) — API Authorization & Boundaries
+- Status: **RESOLVED**
+- Files: `backend/security.py`, `backend/api.py`, `server.py`, `tests/test_api_auth.py`
+- Verification: `python -m unittest tests/test_api_auth.py` (8 tests pass). Role-based token auth (`viewer`, `reviewer`, `admin`) enforced via constant-time comparison; wildcard CORS replaced with strict origin check; destructive routes require exact database name confirmation; 1MB request body limit enforced.
+
+### Step 1.3 (P0-c) — Frontend HTML Injection (XSS) Prevention
+- Status: **RESOLVED**
+- Inventory: 38 occurrences of `innerHTML` in `web/app.js` and `docs/app.js` (0 `insertAdjacentHTML`, 0 `outerHTML`).
+- Files: `web/app.js`, `web/index.html`, `docs/app.js`, `docs/index.html`, `docs/style.css`, `tests/test_frontend_escape.py`
+- Resolution:
+  1. Implemented `esc(value)` escaping `& < > " '` and `safeUrl(value)` enforcing `http`/`https` protocols.
+  2. Wrapped all interpolated values across timeline, context graph, code-context explorer, decision explorer, evidence panel, review queue, drift checker, benchmark metrics, and onboarding tour.
+  3. Replaced dynamic inline handlers with `addEventListener` and `data-*` attributes (`dataset`).
+  4. Added Content-Security-Policy `<meta>` tag in `web/index.html` and `docs/index.html` (`default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'`).
+  5. Tested with synthetic XSS payloads `<img src=x onerror=alert(1)>` and `"><script>alert(1)</script>` in `tests/test_frontend_escape.py` (6 tests pass). Static heuristic lint verifies no unescaped variables assigned to `innerHTML`.
+
