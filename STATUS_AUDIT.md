@@ -279,3 +279,31 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Added Historical "As Of" Query card with date picker, artifact filter, quick prompt chips, grounded belief banner, and 3-column breakdown.
   5. Created `tests/test_as_of.py` (9 tests covering empty before decision, query on 1 March never showing 15 March, supersession on 5 March vs 12 March, later evidence segregation, reconstructed history flag, counterfactual rules, edge validity ranges, API error handling, and artifact filtering).
   6. Verification: 9/9 tests in `test_as_of.py` pass; full suite (110 tests) and demo runner (21/21 checks) pass.
+
+### Step 2.7 — Fresh-Database Lifecycle Proof
+- Status: **RESOLVED**
+- Files: `tools/verify_lifecycle_fresh_db.py`, `tests/test_lifecycle.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Created standalone CLI proof script `tools/verify_lifecycle_fresh_db.py`:
+     - Creates isolated temp DB and initializes schema with migrations 001 and 002 applied.
+     - Seeds baseline demo repositories.
+     - Ingests test entities and evidence events.
+     - Executes strict scripted progression:
+       * create -> proposed (recorded in state_history as initial state)
+       * proposed -> tested with evidence (automated load testing in CI)
+       * tested -> accepted (architectural sign-off)
+       * accepted -> superseded (by streaming pipeline decision with pointer)
+       * attempted reopening of superseded decision strictly rejected (raises `InvalidTransition`).
+     - Prints structured audit log containing all 4 transition records with actors, notes, and timestamps.
+     - Exits non-zero on any deviation from expected states or invariant checks.
+  2. Added subprocess verification test `test_fresh_db_lifecycle_proof_script` in `tests/test_lifecycle.py`.
+  3. Verification: `tools/verify_lifecycle_fresh_db.py` executes with exit code 0; test suite (111 tests) and demo checks (21/21) pass.
+
+---
+
+## Phase 2 Exit Check
+- Fresh DB records history: **PASS** (proven via migration 002, `test_history_recorded.py`, and `tools/verify_lifecycle_fresh_db.py`).
+- All state changes pass lifecycle engine: **PASS** (proven via `backend/engine/lifecycle.py`, `ALLOWED_TRANSITIONS`, `InvalidTransition` enforcement in `backend/db.py` and `/api/review-action`).
+- Migrations tested on DB copy: **PASS** (proven via migration tests against `backups/context_intelligence.pre_v2.db`).
+- As-of queries correct on boundary dates: **PASS** (proven via `backend/engine/as_of.py` and `tests/test_as_of.py`).
+- Git Tag: `phase2-done`

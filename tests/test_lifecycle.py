@@ -268,6 +268,30 @@ class TestLifecycle(unittest.TestCase):
             sh_row = cursor.fetchone()
             self.assertIsNotNone(sh_row, "Superseded transition must be logged in state_history")
 
+    def test_fresh_db_lifecycle_proof_script(self):
+        """
+        Step 2.7 Verification: Runs tools/verify_lifecycle_fresh_db.py via subprocess.
+        Asserts successful execution (returncode 0) proving:
+        create -> test -> accept -> supersede -> reopen-attempt-on-superseded failure on fresh DB.
+        """
+        import subprocess
+        import sys
+        script_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "verify_lifecycle_fresh_db.py")
+        self.assertTrue(os.path.exists(script_path), f"Script not found at {script_path}")
+
+        proc = subprocess.run(
+            [sys.executable, script_path],
+            capture_output=True,
+            text=True
+        )
+        self.assertEqual(
+            proc.returncode, 0,
+            f"verify_lifecycle_fresh_db.py failed with returncode {proc.returncode}:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}"
+        )
+        self.assertIn("ALL LIFECYCLE CHECKS PASSED", proc.stdout)
+        self.assertIn("Reopen attempt on superseded decision was REJECTED", proc.stdout)
+
 
 if __name__ == "__main__":
     unittest.main()
+
