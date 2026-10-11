@@ -260,3 +260,22 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   3. Acceptance verification: For seeded superseded decision `dec_cache_local_lru_proposed`, endpoint and UI demonstrate full chronological sequence: `proposed → accepted → superseded` with actors `marcus_vance` and `priya_patel`, recorded rationales, and supersession pointer to `dec_cache_redis_accepted`.
   4. Created `tests/test_decision_history_api.py` (6 tests covering seeded superseded decision history, supersession chain traversal, 404 on nonexistent decision, global audit log, actor filtering, and date filtering).
   5. Verification: All 6 tests in `test_decision_history_api.py` pass; full test discovery suite (101 tests) and demo runner (21/21 checks) pass.
+
+### Step 2.6 — Historical "As Of" Queries and Counterfactual Explorer
+- Status: **RESOLVED**
+- Files: `backend/engine/as_of.py`, `backend/engine/graph.py`, `backend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_as_of.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Implemented historical belief engine `as_of(db, repo, cutoff, artifact)` in `backend/engine/as_of.py`:
+     - Timezone-aware cutoff parsing supporting ISO-8601 timestamps and date strings (`YYYY-MM-DD` normalized to end-of-day UTC).
+     - Decisions filtered by `made_at <= cutoff` with state as of cutoff reconstructed strictly from `state_history` (latest transition `<= cutoff`, never current state). Flagged `has_reconstructed_history_only` if all history prior to cutoff is backfilled/reconstructed.
+     - Graph edges filtered by `valid_from <= cutoff` and (`valid_to IS NULL` or `valid_to > cutoff`).
+     - Evidence partitioned into `evidence` (`timestamp <= cutoff`) and `later_evidence` (`timestamp > cutoff`).
+     - Non-speculative counterfactual rules: documented alternatives show recorded reasons; untried alternatives state `"no recorded outcome — consequences of the untried alternative are unknown."`.
+     - `changed_afterwards` lists subsequent state transitions, supersessions, and new decisions on the same entities.
+     - Optional `artifact` parameter filters decisions and entity associations.
+  2. Implemented `get_edges_as_of(cutoff)` in `TemporalGraph` (`backend/engine/graph.py`).
+  3. Added `GET /api/as-of` endpoint with `ROLE_VIEWER` authorization in `backend/api.py`.
+  4. Implemented interactive UI in `web/index.html`, `web/app.js`, `web/style.css` (mirrored to `docs/`):
+     - Added Historical "As Of" Query card with date picker, artifact filter, quick prompt chips, grounded belief banner, and 3-column breakdown.
+  5. Created `tests/test_as_of.py` (9 tests covering empty before decision, query on 1 March never showing 15 March, supersession on 5 March vs 12 March, later evidence segregation, reconstructed history flag, counterfactual rules, edge validity ranges, API error handling, and artifact filtering).
+  6. Verification: 9/9 tests in `test_as_of.py` pass; full suite (110 tests) and demo runner (21/21 checks) pass.

@@ -47,6 +47,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/guard-rules"): ROLE_VIEWER,
     ("GET", "/api/auth-status"): ROLE_VIEWER,
     ("GET", "/api/decision-history"): ROLE_VIEWER,
+    ("GET", "/api/as-of"): ROLE_VIEWER,
 
     # POST routes (reviewer)
     ("POST", "/api/review-action"): ROLE_REVIEWER,
@@ -460,6 +461,29 @@ class APIHandler:
                             "total_count": len(audit_log)
                         }
                     }
+
+        if path == "/api/as-of":
+            repo = query_params.get("repo", [None])[0]
+            date_param = query_params.get("date", [None])[0]
+            cutoff_param = query_params.get("cutoff", [None])[0]
+            cutoff_val = date_param or cutoff_param
+            artifact = query_params.get("artifact", [None])[0]
+
+            if not cutoff_val:
+                return {
+                    "status": "error",
+                    "message": "Missing required parameter 'date' (e.g. YYYY-MM-DD or ISO-8601 timestamp)",
+                    "status_code": 400
+                }
+
+            from backend.engine.as_of import as_of
+            try:
+                result = as_of(self.db, repo=repo, cutoff=cutoff_val, artifact=artifact)
+                return result
+            except ValueError as ve:
+                return {"status": "error", "message": str(ve), "status_code": 400}
+            except Exception as e:
+                return {"status": "error", "message": f"Error executing as_of query: {e}", "status_code": 500}
 
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 

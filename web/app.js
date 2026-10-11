@@ -298,7 +298,156 @@ const app = {
     document.querySelectorAll('.filter-btn').forEach(b => {
       b.classList.toggle('active', b.textContent.toLowerCase().includes(state));
     });
-    this.loadTimeline();
+    this.resetAsOfQuery();
+  },
+
+  // =========================================================================
+  // STEP 2.6: Historical "As Of" Query & Counterfactual Explorer
+  // =========================================================================
+  setAsOfQueryDate(dateStr) {
+    const dateInput = document.getElementById('asof-date-input');
+    if (dateInput) dateInput.value = dateStr;
+    this.runAsOfQuery();
+  },
+
+  async runAsOfQuery() {
+    const dateInput = document.getElementById('asof-date-input');
+    const artifactInput = document.getElementById('asof-artifact-input');
+    const resultsPane = document.getElementById('asof-results-pane');
+    const resetBtn = document.getElementById('btn-asof-reset');
+    const timelineContainer = document.getElementById('timeline-container');
+    const explanationBox = document.getElementById('asof-explanation-box');
+    const decisionsContainer = document.getElementById('asof-decisions-container');
+    const altsContainer = document.getElementById('asof-alternatives-container');
+    const changesContainer = document.getElementById('asof-changes-container');
+
+    const dateVal = dateInput ? dateInput.value.trim() : '';
+    const artifactVal = artifactInput ? artifactInput.value.trim() : '';
+
+    if (!dateVal) {
+      alert('Please select a date for the As Of query.');
+      return;
+    }
+
+    if (resultsPane) resultsPane.style.display = 'flex';
+    if (resetBtn) resetBtn.style.display = 'inline-flex';
+    if (timelineContainer) timelineContainer.style.display = 'none';
+
+    if (explanationBox) explanationBox.innerHTML = '<div class="loading-state">Reconstructing historical beliefs and counterfactuals...</div>';
+    if (decisionsContainer) decisionsContainer.innerHTML = '<div class="loading-state">Loading decisions...</div>';
+    if (altsContainer) altsContainer.innerHTML = '<div class="loading-state">Loading alternatives...</div>';
+    if (changesContainer) changesContainer.innerHTML = '<div class="loading-state">Loading changes...</div>';
+
+    const params = [`date=${encodeURIComponent(dateVal)}`];
+    if (this.selectedRepo) params.push(`repo=${encodeURIComponent(this.selectedRepo)}`);
+    if (artifactVal) params.push(`artifact=${encodeURIComponent(artifactVal)}`);
+
+    try {
+      const json = await this.apiFetch(`/api/as-of?${params.join('&')}`);
+      if (json.status !== 'success' || !json.data) {
+        if (explanationBox) explanationBox.innerHTML = `<div class="placeholder-state">Error: ${esc(json.message || 'Failed to query as of date')}</div>`;
+        return;
+      }
+
+      const { decisions, documented_alternatives, changed_afterwards, later_evidence, explanation } = json.data;
+
+      // 1. Explanation banner
+      if (explanationBox) {
+        explanationBox.textContent = explanation || 'No explanation generated.';
+      }
+
+      // 2. Reconstructed Decisions
+      if (decisionsContainer) {
+        if (!decisions || decisions.length === 0) {
+          decisionsContainer.innerHTML = '<div class="placeholder-state">No active decisions recorded as of this date.</div>';
+        } else {
+          decisionsContainer.innerHTML = decisions.map(d => {
+            const dateStr = d.made_at ? d.made_at.substring(0, 10) : '';
+            return `
+              <div class="asof-card">
+                <div class="asof-card-header">
+                  <span class="status-tag ${esc(d.state_as_of_cutoff)}">${esc(d.state_as_of_cutoff)}</span>
+                  <div>${d.has_reconstructed_history_only ? '<span class="badge-tag reconstructed">' + esc('Reconstructed') + '</span>' : '<span class="badge-tag observed">' + esc('Observed') + '</span>'}</div>
+                </div>
+                <h5 class="asof-card-title">${esc(d.title)}</h5>
+                <p class="asof-card-body">${esc(d.rationale || 'No rationale recorded.')}</p>
+                <div style="font-size: 0.74rem; color: #64748b; margin-top: 6px;">
+                  Author: <strong>${esc(d.made_by)}</strong> • Date: <code>${esc(dateStr)}</code>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 3. Documented Alternatives
+      if (altsContainer) {
+        if (!documented_alternatives || documented_alternatives.length === 0) {
+          altsContainer.innerHTML = '<div class="placeholder-state">No documented alternatives for decisions known at this date.</div>';
+        } else {
+          altsContainer.innerHTML = documented_alternatives.map(a => `
+            <div class="asof-card">
+              <div class="asof-card-header">
+                <span class="badge-tag" style="background-color: rgba(239, 68, 68, 0.15); color: #f87171;">${esc('Alternative')}</span>
+                <span style="font-size: 0.72rem; color: #64748b;">For: ${esc(a.for_decision_title ? a.for_decision_title.substring(0, 24) : '')}</span>
+              </div>
+              <h5 class="asof-card-title">${esc(a.description)}</h5>
+              <div class="asof-card-body" style="color: #cbd5e1;">
+                <strong>Outcome:</strong> ${esc(a.rejection_reason)}
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // 4. Changed Afterwards & Later Evidence
+      if (changesContainer) {
+        const hasChanges = (changed_afterwards && changed_afterwards.length > 0) || (later_evidence && later_evidence.length > 0);
+        if (!hasChanges) {
+          changesContainer.innerHTML = '<div class="placeholder-state">No subsequent transitions or later evidence recorded.</div>';
+        } else {
+          const transItems = (changed_afterwards || []).map(c => {
+            const dateStr = c.changed_at ? c.changed_at.substring(0, 10) : (c.made_at ? c.made_at.substring(0, 10) : '');
+            return `
+              <div class="asof-card" style="border-left: 3px solid var(--status-superseded);">
+                <div class="asof-card-header">
+                  <span class="badge-tag" style="background-color: rgba(168, 85, 247, 0.15); color: #c084fc;">${esc(c.type === 'later_transition' ? 'Transition' : 'New Decision')}</span>
+                  <span style="font-size: 0.72rem; color: #64748b;">${esc(dateStr)}</span>
+                </div>
+                <h5 class="asof-card-title">${esc(c.decision_title || c.decision_id)}</h5>
+                <p class="asof-card-body">${c.type === 'later_transition' ? esc((c.from_state || 'Initial') + ' → ' + c.to_state + ' by ' + c.changed_by) : esc('Adopted by ' + c.made_by)}</p>
+                ${c.notes ? '<p class="asof-card-body" style="font-style: italic;">&ldquo;' + esc(c.notes) + '&rdquo;</p>' : ''}
+              </div>
+            `;
+          }).join('');
+
+          const evItems = (later_evidence || []).map(e => `
+            <div class="asof-card" style="border-left: 3px solid #06b6d4;">
+              <div class="asof-card-header">
+                <span class="badge-tag" style="background-color: rgba(6, 182, 212, 0.15); color: #22d3ee;">${esc('Later Evidence')}</span>
+                <span style="font-size: 0.72rem; color: #64748b;">${esc(e.timestamp ? e.timestamp.substring(0, 10) : '')}</span>
+              </div>
+              <h5 class="asof-card-title">${esc(e.title || e.source_type)}</h5>
+              <p class="asof-card-body">By ${esc(e.author)} in ${esc(e.source_type)}</p>
+            </div>
+          `).join('');
+
+          changesContainer.innerHTML = transItems + evItems;
+        }
+      }
+
+    } catch (e) {
+      if (explanationBox) explanationBox.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
+    }
+  },
+
+  resetAsOfQuery() {
+    const resultsPane = document.getElementById('asof-results-pane');
+    const resetBtn = document.getElementById('btn-asof-reset');
+    const timelineContainer = document.getElementById('timeline-container');
+    if (resultsPane) resultsPane.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
+    if (timelineContainer) timelineContainer.style.display = 'block';
   },
 
   // =========================================================================

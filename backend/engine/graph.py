@@ -219,3 +219,27 @@ class TemporalGraph:
                     })
 
         return {"nodes": nodes, "links": links}
+
+    def get_edges_as_of(self, cutoff: str) -> List[Dict[str, Any]]:
+        """
+        Returns edges that were temporally valid at cutoff:
+        valid_from <= cutoff and (valid_to is NULL or valid_to > cutoff).
+        """
+        clean_cutoff = cutoff.strip().replace("Z", "+00:00")
+        if len(clean_cutoff) == 10 and clean_cutoff[4] == '-' and clean_cutoff[7] == '-':
+            clean_cutoff = f"{clean_cutoff}T23:59:59.999999+00:00"
+        dt_cutoff = _parse_iso(clean_cutoff, "cutoff")
+        valid_edges = []
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM edges")
+            for r in cursor.fetchall():
+                ed = dict(r)
+                dt_from = _parse_iso(ed["valid_from"], "valid_from")
+                if dt_from <= dt_cutoff:
+                    if ed.get("valid_to"):
+                        dt_to = _parse_iso(ed["valid_to"], "valid_to")
+                        if dt_to <= dt_cutoff:
+                            continue
+                    valid_edges.append(ed)
+        return valid_edges

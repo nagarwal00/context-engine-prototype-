@@ -135,6 +135,59 @@
               <button class="filter-btn" onclick="app.filterTimelineState('rejected')">Rejected</button>
             </div>
           </div>
+
+          <!-- STEP 2.6: Historical "As Of" Query & Counterfactual Explorer -->
+          <div class="asof-panel-card">
+            <div class="asof-header">
+              <div>
+                <h3 class="asof-title">Historical &ldquo;As Of&rdquo; Query &amp; Counterfactual Explorer</h3>
+                <p class="asof-desc">Reconstruct what the team believed at any historical point in time with non-speculative alternative evaluation.</p>
+              </div>
+              <div class="asof-quick-prompts">
+                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-04')">&ldquo;What did the team believe on 2026-02-04, and why?&rdquo;</span>
+                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-06')">&ldquo;What did the team believe on 2026-02-06, and why?&rdquo;</span>
+              </div>
+            </div>
+            <div class="asof-controls-bar">
+              <div class="asof-input-group">
+                <label for="asof-date-input">As Of Date:</label>
+                <input type="date" id="asof-date-input" class="asof-date-input" value="2026-02-04">
+              </div>
+              <div class="asof-input-group">
+                <label for="asof-artifact-input">Artifact (optional):</label>
+                <input type="text" id="asof-artifact-input" class="asof-text-input" placeholder="e.g. src/cache/store.py">
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="app.runAsOfQuery()">Reconstruct Beliefs ⏱</button>
+              <button class="btn btn-secondary btn-sm" id="btn-asof-reset" onclick="app.resetAsOfQuery()" style="display: none;">Show Live Timeline</button>
+            </div>
+
+            <!-- As Of Results Pane -->
+            <div id="asof-results-pane" class="asof-results-pane" style="display: none;">
+              <!-- Grounded Explanation Banner -->
+              <div class="asof-explanation-box" id="asof-explanation-box"></div>
+
+              <div class="asof-grid">
+                <!-- Left: Reconstructed Decisions as of Date -->
+                <div class="asof-column">
+                  <h4 class="asof-column-title">Decisions Believed as of Date</h4>
+                  <div id="asof-decisions-container" class="asof-card-stack"></div>
+                </div>
+
+                <!-- Middle: Documented Alternatives -->
+                <div class="asof-column">
+                  <h4 class="asof-column-title">Documented Alternatives</h4>
+                  <div id="asof-alternatives-container" class="asof-card-stack"></div>
+                </div>
+
+                <!-- Right: Changed Afterwards & Later Evidence -->
+                <div class="asof-column">
+                  <h4 class="asof-column-title">Changed Afterwards &amp; Later Evidence</h4>
+                  <div id="asof-changes-container" class="asof-card-stack"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="timeline-wrapper" id="timeline-container">
             <!-- Timeline items injected here -->
           </div>
