@@ -213,6 +213,26 @@ class APIHandler:
                         "made_at": ed["valid_from"]
                     })
 
+                # Supersession candidates (P1-d / Step 1.6)
+                cursor.execute("SELECT * FROM edges WHERE edge_type = 'supersession_candidate'")
+                for r in cursor.fetchall():
+                    ed = dict(r)
+                    cursor.execute("SELECT title FROM decisions WHERE decision_id = ?", (ed["from_id"],))
+                    d1 = cursor.fetchone()
+                    cursor.execute("SELECT title FROM decisions WHERE decision_id = ?", (ed["to_id"],))
+                    d2 = cursor.fetchone()
+                    queue.append({
+                        "item_type": "supersession_candidate",
+                        "edge_id": ed["edge_id"],
+                        "from_id": ed["from_id"],
+                        "to_id": ed["to_id"],
+                        "title": f"Candidate Supersession: '{d1['title'] if d1 else ed['from_id']}' -> '{d2['title'] if d2 else ed['to_id']}'",
+                        "queue_reason": "Ambiguous supersession candidate flagged for human arbitration per Section 10",
+                        "confidence": 0.70,
+                        "review_status": "pending_review",
+                        "made_at": ed["valid_from"]
+                    })
+
             return {"status": "success", "data": queue}
 
         # 8. Evaluation & Benchmark
@@ -335,6 +355,54 @@ class APIHandler:
                         # Dismiss or resolve edge
                         cursor.execute("DELETE FROM edges WHERE edge_id = ?", (target_id,))
                         conn.commit()
+
+                elif item_type == "supersession_candidate":
+                    cursor.execute("""
+                        SELECT * FROM edges
+                        WHERE edge_id = ? OR (from_id = ? AND edge_type = 'supersession_candidate')
+                    """, (target_id, target_id))
+                    edge_row = cursor.fetchone()
+                    if edge_row:
+                        edge = dict(edge_row)
+                        newer_id = edge["from_id"]
+                        older_id = edge["to_id"]
+                        if action == "confirm":
+                            cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (newer_id,))
+                            new_dec = cursor.fetchone()
+                            d_time = new_dec["made_at"] if new_dec else (datetime.utcnow().isoformat() + "Z")
+
+                            cursor.execute("""
+                            UPDATE decisions SET state = 'superseded', superseded_by_decision_id = ?
+                            WHERE decision_id = ? AND state != 'superseded'
+                            """, (newer_id, older_id))
+
+                            cursor.execute("""
+                            UPDATE decisions SET supersedes_decision_id = ?
+                            WHERE decision_id = ?
+                            """, (older_id, newer_id))
+
+                            edge_sup_id = f"edge_super_{newer_id[:8]}_{older_id[:8]}"
+                            cursor.execute("""
+                            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to)
+                            VALUES (?, 'supersedes', ?, 'decision', ?, 'decision', ?, NULL)
+                            """, (edge_sup_id, newer_id, older_id, d_time))
+
+                            cursor.execute("""
+                            UPDATE edges SET valid_to = ?
+                            WHERE (from_id = ? OR to_id = ?) AND (valid_to IS NULL OR valid_to > ?)
+                            """, (d_time, older_id, older_id, d_time))
+
+                            hist_id = f"hist_super_rev_{older_id[:8]}_{int(time.time()*1000)}"
+                            cursor.execute("""
+                            INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                            VALUES (?, ?, 'superseded', ?, 'human_reviewer', ?)
+                            """, (hist_id, older_id, d_time, f"Supersession confirmed via review queue (superseded by {newer_id})"))
+
+                            cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
+                            conn.commit()
+                        elif action == "reject":
+                            cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
+                            conn.commit()
 
             return {"status": "success", "message": f"Action '{action}' executed successfully on {target_id}"}
 

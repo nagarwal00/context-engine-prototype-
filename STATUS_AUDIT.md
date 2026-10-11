@@ -119,5 +119,33 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   5. Inspected `context_intelligence.db` and `whybench.db`: found 0 placeholder edges in active databases.
   6. Verification: `tests/test_graph_temporal.py` (6 tests pass).
 
+### Step 1.6 (P1-d) — Evidence-Based Supersession Matching
+- Status: **RESOLVED**
+- Files: `backend/engine/reconciliation.py`, `backend/api.py`, `tests/test_supersession.py`
+- Resolution:
+  1. Defined `GENERIC_STOP_WORDS` and `REPLACEMENT_CUES` constants in `backend/engine/reconciliation.py`.
+  2. Implemented candidate priority:
+     - Priority 1: Explicit reference (decision ID, ADR number, `#PR/issue` number, title match with cue).
+     - Priority 2: Shared affected entity (≥ 1 common entity) AND later in time AND replacement cue present.
+     - Priority 3: Non-stopword title overlap used only to break ties among candidates that already share an entity.
+  3. If more than one candidate qualifies or match is word-overlap only, does not auto-link; creates `supersession_candidate` review queue items for human arbitration.
+  4. Symmetrical `supersedes`/`superseded_by` fields, `supersedes` edges, and `state_history` audit records maintained.
+  5. Implemented review queue arbitration in `/api/review-action` for `item_type == "supersession_candidate"` (confirm applies supersession, reject dismisses edge).
+  6. Verification: `tests/test_supersession.py` (4 tests pass covering unrelated word overlap rejection, explicit reference auto-linking, shared entity + cue auto-linking, and ambiguous candidate review queue routing).
+
+---
+
+## Phase 1 Exit Verification Summary
+- **Test suite**: 61 / 61 tests passing (`python -m unittest discover -s tests -v`).
+- **Demo suite**: 21 / 21 checks passing (`python run_demo.py`).
+- **TLS safety**: Verified zero unverified SSL fallbacks across backend and tools.
+- **API security**: Role-based auth (`viewer`, `reviewer`, `admin`), CORS allowlist, and 1MB limit enforced.
+- **Frontend XSS**: All `innerHTML` dynamic bindings sanitized with `esc()`, CSP `<meta>` tags active in both `web/` and `docs/`.
+- **Drift detector reliability**: Strict structured error handling with sanitised diagnostics; no swallowed exceptions.
+- **Temporal graph**: Required ISO-8601 timestamps on all edges; zero placeholder dates in active databases.
+- **Supersession**: Evidence-based candidate priority and review queue routing for ambiguous candidates.
+- **Git tag**: `phase1-done`.
+
+
 
 
