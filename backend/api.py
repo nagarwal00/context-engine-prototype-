@@ -2,7 +2,7 @@
 Context Intelligence Framework - REST API Handler
 Provides clean JSON REST endpoints for all 6 UI surfaces, review actions, and evaluation.
 """
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import hashlib
 import hmac
 import json
@@ -19,6 +19,46 @@ from backend.engine.reconciliation import ReconciliationEngine
 from backend.engine.drift_detector import DriftDetector
 from backend.evaluation.benchmark import BenchmarkRunner
 from backend.seed_data import populate_seed_data
+from backend.security import (
+    ROLE_VIEWER,
+    ROLE_REVIEWER,
+    ROLE_ADMIN,
+    ROLE_EXEMPT,
+    authorize,
+    is_dev_mode
+)
+
+# Route-to-role authorization mapping (Step 1.2 / P0-b)
+# Default deny: any route not explicitly listed here is rejected.
+ROUTE_ROLES: Dict[Tuple[str, str], str] = {
+    # GET routes (viewer)
+    ("GET", "/api/timeline"): ROLE_VIEWER,
+    ("GET", "/api/graph"): ROLE_VIEWER,
+    ("GET", "/api/artifacts"): ROLE_VIEWER,
+    ("GET", "/api/explain"): ROLE_VIEWER,
+    ("GET", "/api/decisions"): ROLE_VIEWER,
+    ("GET", "/api/evidence"): ROLE_VIEWER,
+    ("GET", "/api/review-queue"): ROLE_VIEWER,
+    ("GET", "/api/benchmark"): ROLE_VIEWER,
+    ("GET", "/api/stats"): ROLE_VIEWER,
+    ("GET", "/api/repos"): ROLE_VIEWER,
+    ("GET", "/api/guard-rules"): ROLE_VIEWER,
+    ("GET", "/api/auth-status"): ROLE_VIEWER,
+
+    # POST routes (reviewer)
+    ("POST", "/api/review-action"): ROLE_REVIEWER,
+    ("POST", "/api/guard-rules/approve"): ROLE_REVIEWER,
+    ("POST", "/api/guard-rules/disable"): ROLE_REVIEWER,
+    ("POST", "/api/drift-check"): ROLE_REVIEWER,
+
+    # POST routes (admin)
+    ("POST", "/api/reseed"): ROLE_ADMIN,
+    ("POST", "/api/clear-db"): ROLE_ADMIN,
+    ("POST", "/api/ingest-repo"): ROLE_ADMIN,
+
+    # Webhook (exempt from Bearer token - uses GitHub HMAC signature)
+    ("POST", "/api/webhook/github"): ROLE_EXEMPT,
+}
 
 class APIHandler:
     def __init__(self, db: Database):
@@ -28,6 +68,19 @@ class APIHandler:
         self.reconciliation = ReconciliationEngine(db)
         self.drift_detector = DriftDetector(db)
         self.benchmark_runner = BenchmarkRunner(db)
+
+    def check_authorization(
+        self,
+        method: str,
+        path: str,
+        headers: Dict[str, str],
+        client_ip: str = "127.0.0.1"
+    ) -> Tuple[bool, int, str]:
+        """Validates route existence and credentials against required role (default deny)."""
+        required_role = ROUTE_ROLES.get((method.upper(), path))
+        if required_role is None:
+            return False, 404, f"Endpoint not found: {method.upper()} {path}"
+        return authorize(headers, required_role, client_ip)
 
     def handle_get(self, path: str, query_params: Dict[str, List[str]]) -> Dict[str, Any]:
         # 1. Timeline Slice
@@ -217,6 +270,16 @@ class APIHandler:
             rules = self.db.get_guard_rules(status=status_filter)
             return {"status": "success", "data": rules}
 
+        # 12. Auth Status (Step 1.2 / P0-b)
+        elif path == "/api/auth-status":
+            return {
+                "status": "success",
+                "data": {
+                    "role_required_for_writes": True,
+                    "dev_mode": is_dev_mode()
+                }
+            }
+
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
     def handle_post(self, path: str, body: Dict[str, Any]) -> Dict[str, Any]:
@@ -308,6 +371,13 @@ class APIHandler:
 
         # 3. Reseed Pilot Database
         elif path == "/api/reseed":
+            expected_db = os.path.basename(self.db.db_path)
+            if body.get("confirm") != expected_db:
+                return {
+                    "status": "error",
+                    "status_code": 400,
+                    "message": f"Confirmation required: body must contain 'confirm': '{expected_db}'"
+                }
             stats = populate_seed_data(self.db)
             return {"status": "success", "message": "Pilot database reseeded successfully", "stats": stats}
 
@@ -334,6 +404,13 @@ class APIHandler:
 
         # 5. Clear Database (Empty Canvas)
         elif path == "/api/clear-db":
+            expected_db = os.path.basename(self.db.db_path)
+            if body.get("confirm") != expected_db:
+                return {
+                    "status": "error",
+                    "status_code": 400,
+                    "message": f"Confirmation required: body must contain 'confirm': '{expected_db}'"
+                }
             from backend.ingestion.live_github import LiveGitHubIngestor
             LiveGitHubIngestor(self.db).clear_database()
             return {"status": "success", "message": "Dashboard database cleared successfully. Ready for custom repository."}

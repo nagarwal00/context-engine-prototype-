@@ -97,8 +97,13 @@ const app = {
   },
 
   async emptyDashboard() {
-    if (confirm('Are you sure you want to empty the dashboard? This will wipe all current decisions, timeline cards, and graph nodes to give you a completely blank canvas.')) {
-      const json = await this.apiFetch('/api/clear-db', { method: 'POST' });
+    const confirmName = prompt('Enter exact database filename to confirm wipe:', 'context_intelligence.db');
+    if (confirmName) {
+      const json = await this.apiFetch('/api/clear-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: confirmName })
+      });
       alert(json.message);
       this.selectedRepo = '';
       await this.loadRepositoriesList();
@@ -210,7 +215,11 @@ const app = {
 
   async reseedData() {
     if (confirm('Reset pilot repositories to default seed state?')) {
-      const json = await this.apiFetch('/api/reseed', { method: 'POST' });
+      const json = await this.apiFetch('/api/reseed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: 'context_intelligence.db' })
+      });
       alert(json.message);
       this.init();
       this.navigate('timeline');
@@ -1070,10 +1079,21 @@ const app = {
     return '#64748b';
   },
 
+  authToken: '',
+  setAuthToken(token) {
+    this.authToken = (token || '').trim();
+  },
+
   // =========================================================================
   // UNIFIED API LAYER (Supports both Local Python Server & GitHub Pages)
   // =========================================================================
   async apiFetch(url, options = {}) {
+    options = { ...options };
+    options.headers = { ...(options.headers || {}) };
+    if (this.authToken && !options.headers['Authorization']) {
+      options.headers['Authorization'] = 'Bearer ' + this.authToken;
+    }
+
     const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (isLocalServer) {
       try {
@@ -1086,12 +1106,16 @@ const app = {
           this._updateModeBadge(true);
           return await res.json();
         } else {
+          let errData;
           try {
-            const errData = await res.json();
-            return errData;
+            errData = await res.json();
           } catch (err) {
-            return { status: 'error', message: `Server error HTTP ${res.status}` };
+            errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
+          if (res.status === 401 || res.status === 403) {
+            alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
+          }
+          return errData;
         }
       } catch (e) {
         console.warn('Backend server error or offline; falling back to client-side engine:', e.message);

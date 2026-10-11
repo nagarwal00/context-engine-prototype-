@@ -958,3 +958,24 @@ body {
   to { transform: rotate(360deg); }
 }
 
+.auth-token-box {
+  display: flex;
+  align-items: center;
+}
+.auth-input-field {
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  width: 115px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.auth-input-field:focus {
+  border-color: var(--accent-primary);
+}
+
+

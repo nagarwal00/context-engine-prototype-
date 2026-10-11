@@ -45,6 +45,9 @@
           <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
           <span class="stat-pill alert" id="stat-review-pill"><span class="dot review"></span> <span id="stat-review-count">--</span> Queue Items</span>
         </div>
+        <div class="auth-token-box" title="Authorization token (CIF_REVIEWER_TOKEN or CIF_ADMIN_TOKEN)">
+          <input type="password" id="auth-token-input" placeholder="Access token" class="auth-input-field" onchange="app.setAuthToken(this.value)" />
+        </div>
         <button class="btn btn-primary btn-sm" onclick="app.openAddRepoModal()" title="Ingest any public or private GitHub repository">
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
           Add Repo
