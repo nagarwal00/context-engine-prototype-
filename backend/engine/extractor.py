@@ -163,18 +163,19 @@ class DecisionExtractor:
                     )
                     extracted.append(dec)
 
-        # If no explicit decision could be grounded with evidence, mark unresolved
+        # If no explicit decision could be grounded with evidence, mark proposed with insufficient evidence (Step 2.1)
         if not extracted and events:
             unres_dec = Decision(
-                decision_id=f"dec_{repo.replace('/', '_')}_unres_{events[0].source_id.replace('/', '_')}",
-                title=f"Unresolved Decision for {bundle_name}",
-                state="unresolved",
+                decision_id=f"dec_{repo.replace('/', '_')}_proposed_{events[0].source_id.replace('/', '_')}",
+                title=f"Proposed Candidate Decision for {bundle_name}",
+                state="proposed",
+                evidence_assessment="insufficient",
                 made_by="system",
                 made_at=events[0].timestamp,
                 artifacts_affected=target_entities,
                 alternatives_considered=[],
                 rationale="Insufficient evidence in repository history to confirm design rationale.",
-                evidence_event_ids=[], # Allowed ONLY for unresolved
+                evidence_event_ids=[], # Allowed for proposed when evidence_assessment='insufficient'
                 confidence=0.2,
                 review_status="pending_review",
                 repo=repo

@@ -69,7 +69,7 @@ class Database:
             CREATE TABLE IF NOT EXISTS decisions (
                 decision_id TEXT PRIMARY KEY,
                 title TEXT NOT NULL,
-                state TEXT NOT NULL CHECK (state IN ('proposed','accepted','rejected','superseded','unresolved')),
+                state TEXT NOT NULL CHECK (state IN ('proposed','tested','accepted','rejected','superseded','reopened')),
                 made_by TEXT,
                 made_at TEXT,
                 rationale TEXT,
@@ -79,6 +79,8 @@ class Database:
                 superseded_by_decision_id TEXT,
                 alternatives_json TEXT DEFAULT '[]',
                 repo TEXT NOT NULL,
+                evidence_assessment TEXT NOT NULL DEFAULT 'insufficient' CHECK (evidence_assessment IN ('strong','moderate','weak','insufficient','contradicted')),
+                freshness TEXT NOT NULL DEFAULT 'fresh' CHECK (freshness IN ('fresh','stale','under_review','revalidated')),
                 FOREIGN KEY (supersedes_decision_id) REFERENCES decisions(decision_id)
             );
             """)
@@ -241,8 +243,8 @@ class Database:
             INSERT INTO decisions (
                 decision_id, title, state, made_by, made_at, rationale, confidence,
                 review_status, supersedes_decision_id, superseded_by_decision_id,
-                alternatives_json, repo
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                alternatives_json, repo, evidence_assessment, freshness
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(decision_id) DO UPDATE SET
                 title=excluded.title,
                 state=excluded.state,
@@ -254,7 +256,9 @@ class Database:
                 supersedes_decision_id=excluded.supersedes_decision_id,
                 superseded_by_decision_id=excluded.superseded_by_decision_id,
                 alternatives_json=excluded.alternatives_json,
-                repo=excluded.repo;
+                repo=excluded.repo,
+                evidence_assessment=excluded.evidence_assessment,
+                freshness=excluded.freshness;
             """, (
                 decision.decision_id,
                 decision.title,
@@ -267,7 +271,9 @@ class Database:
                 decision.supersedes_decision_id,
                 decision.superseded_by_decision_id,
                 json.dumps(decision.alternatives_considered),
-                decision.repo
+                decision.repo,
+                decision.evidence_assessment,
+                decision.freshness
             ))
 
             # Update decision_evidence links
@@ -277,13 +283,18 @@ class Database:
                 INSERT OR IGNORE INTO decision_evidence (decision_id, event_id) VALUES (?, ?)
                 """, (decision.decision_id, eid))
 
-            # Invariant check at DB level (Section 13)
+            # Invariant check at DB level (Section 13 / Step 2.1)
             cursor.execute("SELECT COUNT(*) as cnt FROM decision_evidence WHERE decision_id = ?", (decision.decision_id,))
             evidence_count = cursor.fetchone()["cnt"]
-            if decision.state != "unresolved" and evidence_count == 0:
+            if decision.state in ("tested", "accepted", "rejected", "superseded") and evidence_count == 0:
                 conn.rollback()
                 raise ValueError(
-                    f"Mechanical Invariant Failure: Decision '{decision.title}' persisted with 0 valid evidence records!"
+                    f"Mechanical Invariant Failure: Decision '{decision.title}' ({decision.decision_id}) has state='{decision.state}' persisted with 0 valid evidence records!"
+                )
+            elif decision.state in ("proposed", "reopened") and evidence_count == 0 and decision.evidence_assessment != "insufficient":
+                conn.rollback()
+                raise ValueError(
+                    f"Mechanical Invariant Failure: Decision '{decision.title}' has state='{decision.state}' with 0 evidence records but evidence_assessment '{decision.evidence_assessment}' != 'insufficient'!"
                 )
 
             # Update decision_artifacts links

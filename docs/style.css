@@ -21,6 +21,10 @@
   --status-superseded-bg: rgba(168, 85, 247, 0.12);
   --status-proposed: #f59e0b;
   --status-proposed-bg: rgba(245, 158, 11, 0.12);
+  --status-tested: #06b6d4;
+  --status-tested-bg: rgba(6, 182, 212, 0.12);
+  --status-reopened: #f97316;
+  --status-reopened-bg: rgba(249, 115, 22, 0.12);
   --status-unresolved: #64748b;
   --status-unresolved-bg: rgba(100, 116, 139, 0.15);
 
@@ -513,9 +517,11 @@ body {
   gap: 4px;
 }
 .status-tag.accepted { background-color: var(--status-accepted-bg); color: var(--status-accepted); }
+.status-tag.tested { background-color: var(--status-tested-bg); color: var(--status-tested); }
 .status-tag.rejected { background-color: var(--status-rejected-bg); color: var(--status-rejected); }
 .status-tag.superseded { background-color: var(--status-superseded-bg); color: var(--status-superseded); }
 .status-tag.proposed { background-color: var(--status-proposed-bg); color: var(--status-proposed); }
+.status-tag.reopened { background-color: var(--status-reopened-bg); color: var(--status-reopened); }
 .status-tag.unresolved { background-color: var(--status-unresolved-bg); color: var(--status-unresolved); }
 
 /* SURFACE 2: Context Graph */

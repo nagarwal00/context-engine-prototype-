@@ -45,12 +45,18 @@ class StateChange:
     changed_by: str = "system"
     notes: Optional[str] = None
 
+ALLOWED_DECISION_STATES = {"proposed", "tested", "accepted", "rejected", "superseded", "reopened"}
+ALLOWED_EVIDENCE_ASSESSMENTS = {"strong", "moderate", "weak", "insufficient", "contradicted"}
+ALLOWED_FRESHNESS = {"fresh", "stale", "under_review", "revalidated"}
+
 @dataclass
 class Decision:
-    """Section 5.2 Decision Schema"""
+    """Section 5.2 Decision Schema & Step 2.1 State Model"""
     decision_id: str = field(default_factory=generate_uuid)
     title: str = ""
-    state: str = "proposed" # proposed | accepted | rejected | superseded | unresolved
+    state: str = "proposed" # proposed | tested | accepted | rejected | superseded | reopened
+    evidence_assessment: str = "insufficient" # strong | moderate | weak | insufficient | contradicted
+    freshness: str = "fresh" # fresh | stale | under_review | revalidated
     state_history: List[Dict[str, Any]] = field(default_factory=list)
     made_by: str = ""
     made_at: str = field(default_factory=current_iso)
@@ -64,16 +70,46 @@ class Decision:
     review_status: str = "pending_review" # auto_confirmed | pending_review | human_confirmed | human_rejected | human_merged | human_corrected
     repo: str = ""
 
+    def __post_init__(self):
+        # Compatibility alias for legacy 'unresolved' state
+        if self.state == "unresolved":
+            self.state = "proposed"
+            self.evidence_assessment = "insufficient"
+
     def validate_invariants(self):
         """
-        Mechanical enforcement of Section 5.2 & Section 13:
-        evidence_event_ids can never be empty for non-unresolved decisions!
+        Mechanical enforcement of Step 2.1 & Section 13:
+        - state in proposed | tested | accepted | rejected | superseded | reopened
+        - evidence_assessment in strong | moderate | weak | insufficient | contradicted
+        - freshness in fresh | stale | under_review | revalidated
+        - states tested, accepted, rejected, superseded require >= 1 evidence event.
+        - proposed and reopened may have none, but then evidence_assessment must be insufficient.
         """
-        if self.state != "unresolved" and len(self.evidence_event_ids) == 0:
+        if self.state not in ALLOWED_DECISION_STATES:
             raise ValueError(
-                f"Invariant Violation: Decision '{self.title}' ({self.decision_id}) has state='{self.state}' "
-                "but contains NO evidence_event_ids. Section 5.2 requires at least one evidence link."
+                f"Invalid decision state: '{self.state}'. Must be one of {sorted(ALLOWED_DECISION_STATES)}"
             )
+        if self.evidence_assessment not in ALLOWED_EVIDENCE_ASSESSMENTS:
+            raise ValueError(
+                f"Invalid evidence_assessment: '{self.evidence_assessment}'. Must be one of {sorted(ALLOWED_EVIDENCE_ASSESSMENTS)}"
+            )
+        if self.freshness not in ALLOWED_FRESHNESS:
+            raise ValueError(
+                f"Invalid freshness: '{self.freshness}'. Must be one of {sorted(ALLOWED_FRESHNESS)}"
+            )
+
+        if self.state in ("tested", "accepted", "rejected", "superseded"):
+            if len(self.evidence_event_ids) == 0:
+                raise ValueError(
+                    f"Invariant Violation: Decision '{self.title}' ({self.decision_id}) has state='{self.state}' "
+                    "but contains NO evidence_event_ids. Evidence invariant requires >= 1 evidence event."
+                )
+        elif self.state in ("proposed", "reopened"):
+            if len(self.evidence_event_ids) == 0 and self.evidence_assessment != "insufficient":
+                raise ValueError(
+                    f"Invariant Violation: Decision '{self.title}' ({self.decision_id}) has state='{self.state}' "
+                    f"with 0 evidence events, so evidence_assessment must be 'insufficient', got '{self.evidence_assessment}'."
+                )
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

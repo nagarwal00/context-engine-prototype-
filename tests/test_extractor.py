@@ -56,7 +56,7 @@ class TestExtractor(unittest.TestCase):
             self.assertFalse(is_decision_candidate(n), f"Expected negative rejection for: {n.title}")
 
     def test_validate_grounding_anti_hallucination(self):
-        """Asserts that an invented or hallucinated rationale is downgraded to unresolved with pending_review."""
+        """Asserts that an invented or hallucinated rationale is downgraded to proposed with evidence_assessment=insufficient."""
         events = [
             Event(
                 event_id="evt_valid_01",
@@ -91,7 +91,8 @@ class TestExtractor(unittest.TestCase):
             "confidence": 0.95
         }
         res_hal = validate_grounding(hallucinated_cand, events)
-        self.assertEqual(res_hal["state"], "unresolved", "Hallucinated claim must be downgraded to unresolved")
+        self.assertEqual(res_hal["state"], "proposed", "Hallucinated claim must be downgraded to proposed")
+        self.assertEqual(res_hal["evidence_assessment"], "insufficient")
         self.assertLessEqual(res_hal["confidence"], 0.3)
         self.assertEqual(res_hal["review_status"], "pending_review")
 
@@ -104,7 +105,8 @@ class TestExtractor(unittest.TestCase):
             "confidence": 0.95
         }
         res_bad = validate_grounding(bad_id_cand, events)
-        self.assertEqual(res_bad["state"], "unresolved")
+        self.assertEqual(res_bad["state"], "proposed")
+        self.assertEqual(res_bad["evidence_assessment"], "insufficient")
         self.assertEqual(res_bad["review_status"], "pending_review")
 
 if __name__ == "__main__":

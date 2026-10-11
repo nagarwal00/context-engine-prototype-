@@ -23,7 +23,8 @@ def validate_grounding(candidate: Dict[str, Any], events: List[Event]) -> Dict[s
 
     # Check 1: Existence of cited event IDs
     if not cited_ids or any(cid not in event_map for cid in cited_ids):
-        candidate["state"] = "unresolved"
+        candidate["state"] = "proposed"
+        candidate["evidence_assessment"] = "insufficient"
         candidate["confidence"] = min(candidate.get("confidence", 0.3), 0.3)
         candidate["review_status"] = "pending_review"
         candidate["rationale"] = f"Unverified Grounding: Cited event IDs {cited_ids} not found in bundle."
@@ -42,7 +43,8 @@ def validate_grounding(candidate: Dict[str, Any], events: List[Event]) -> Dict[s
     support_ratio = overlap / len(rationale_tokens)
 
     if support_ratio < 0.5:
-        candidate["state"] = "unresolved"
+        candidate["state"] = "proposed"
+        candidate["evidence_assessment"] = "insufficient"
         candidate["confidence"] = min(candidate.get("confidence", 0.3), 0.3)
         candidate["review_status"] = "pending_review"
         candidate["rationale"] = f"Ungrounded Claim ({round(support_ratio*100,1)}% match): {rationale}"

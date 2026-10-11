@@ -165,6 +165,22 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   4. Created CLI `tools/migrate_db.py --db PATH [--dry-run]`.
   5. Verified via `tests/test_migrations.py` (6 tests pass): fresh DB creation, idempotency, transaction rollback on failure, dry-run mode, CLI execution, and zero-data-loss validation against a copy of `backups/context_intelligence.pre_v2.db`.
 
+### Step 2.1 — Reconcile State Definitions (Migration 001)
+- Status: **RESOLVED**
+- Files: `backend/migrations/001_reconcile_state_definitions.py`, `backend/models.py`, `backend/db.py`, `backend/engine/extractor.py`, `backend/engine/llm_extractor.py`, `tests/test_extractor.py`, `web/index.html`, `web/style.css`, `docs/index.html`, `docs/style.css`, `tests/test_state_model.py`
+- Resolution:
+  1. Rebuilt `decisions` table via Migration 001 with new CHECK constraints:
+     - `state IN ('proposed', 'tested', 'accepted', 'rejected', 'superseded', 'reopened')`
+     - `evidence_assessment IN ('strong', 'moderate', 'weak', 'insufficient', 'contradicted')` (default `'insufficient'`)
+     - `freshness IN ('fresh', 'stale', 'under_review', 'revalidated')` (default `'fresh'`)
+  2. Migrated legacy `unresolved` state to `state='proposed'`, `evidence_assessment='insufficient'`. Added compatibility alias in `Decision.__post_init__`.
+  3. Enforced new evidence invariant: states `tested`, `accepted`, `rejected`, `superseded` require ≥ 1 evidence event; `proposed` and `reopened` may have zero only when `evidence_assessment='insufficient'`.
+  4. Updated `save_decision` in `backend/db.py` to persist `evidence_assessment` and `freshness` with mechanical validation.
+  5. Updated fallback extractor and LLM anti-hallucination grounding validator to emit `state='proposed'` with `evidence_assessment='insufficient'`.
+  6. Updated frontend UI tabs and CSS status tag styling (`.status-tag.tested`, `.status-tag.reopened`) in both `web/` and `docs/`.
+  7. Verification: `tests/test_state_model.py` (7 tests pass covering every allowed state, illegal state rejection, illegal assessment/freshness rejection, invariant enforcement, compatibility alias, and zero-data-loss validation against `backups/context_intelligence.pre_v2.db`). Full suite (74 tests) and demo suite (21/21) pass.
+
+
 
 
 

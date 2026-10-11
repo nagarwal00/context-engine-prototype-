@@ -201,10 +201,11 @@
           <div class="faceted-tabs">
             <button class="facet-tab active" onclick="app.filterDecisionsByState('all')">All Decisions</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('accepted')">Accepted</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('tested')">Tested</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('proposed')">Proposed</button>
+            <button class="facet-tab" onclick="app.filterDecisionsByState('reopened')">Reopened</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('superseded')">Superseded</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('rejected')">Rejected</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('proposed')">Proposed</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('unresolved')">Unresolved</button>
           </div>
           <div class="decisions-grid" id="decisions-container">
             <!-- Decision cards injected here -->
