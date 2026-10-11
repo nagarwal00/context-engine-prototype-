@@ -17,6 +17,7 @@ from backend.engine.graph import TemporalGraph
 from backend.engine.explanation import ExplanationGenerator
 from backend.engine.reconciliation import ReconciliationEngine
 from backend.engine.drift_detector import DriftDetector
+import uuid
 from backend.evaluation.benchmark import BenchmarkRunner
 from backend.seed_data import populate_seed_data
 from backend.security import (
@@ -25,7 +26,8 @@ from backend.security import (
     ROLE_ADMIN,
     ROLE_EXEMPT,
     authorize,
-    is_dev_mode
+    is_dev_mode,
+    get_authenticated_role
 )
 
 # Route-to-role authorization mapping (Step 1.2 / P0-b)
@@ -302,78 +304,206 @@ class APIHandler:
 
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
-    def handle_post(self, path: str, body: Dict[str, Any]) -> Dict[str, Any]:
-        # 1. Review Actions (confirm | reject | merge | correct per Section 10)
+    def handle_post(
+        self,
+        path: str,
+        body: Dict[str, Any],
+        headers: Optional[Dict[str, str]] = None,
+        client_ip: str = "127.0.0.1"
+    ) -> Dict[str, Any]:
+        # 1. Review Actions (confirm | reject | merge | correct | reopen | mark_tested per Step 2.4)
         if path == "/api/review-action":
-            action = body.get("action") # confirm | reject | merge | correct
+            action = body.get("action")
             target_id = body.get("target_id")
             item_type = body.get("item_type", "decision")
-            notes = body.get("notes", "Human review triage action")
+            reason = (body.get("reason") or body.get("notes") or "").strip()
+
+            if not action or not target_id:
+                return {
+                    "status": "error",
+                    "status_code": 400,
+                    "message": "Missing 'action' or 'target_id' in review request"
+                }
+
+            if not reason:
+                if action in ("reopen", "mark_tested"):
+                    return {
+                        "status": "error",
+                        "status_code": 400,
+                        "message": f"Review action '{action}' requires a non-empty reason"
+                    }
+                else:
+                    reason = f"Human triage action: {action}"
+
+            # Record reviewer identity: token role + optional display name (Step 2.4)
+            token_role = get_authenticated_role(headers, client_ip)
+            display_name = (body.get("reviewer") or body.get("reviewer_name") or body.get("display_name") or "").strip()
+            if display_name:
+                actor = f"{token_role}:{display_name}"
+            else:
+                actor = body.get("actor") or token_role
+
+            now_iso = datetime.utcnow().isoformat() + "Z"
 
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
 
                 if item_type == "decision":
-                    now_iso = datetime.utcnow().isoformat() + "Z"
-                    cursor.execute("SELECT state FROM decisions WHERE decision_id = ?", (target_id,))
+                    cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (target_id,))
                     d_row = cursor.fetchone()
-                    cur_state = d_row["state"] if d_row else "accepted"
+                    if not d_row:
+                        return {
+                            "status": "error",
+                            "status_code": 404,
+                            "message": f"Decision '{target_id}' not found"
+                        }
 
-                    if action == "confirm":
-                        cursor.execute("""
-                        UPDATE decisions SET review_status = 'human_confirmed', confidence = 1.0
-                        WHERE decision_id = ?
-                        """, (target_id,))
-                    elif action == "reject":
-                        # Soft delete per Section 10
-                        cursor.execute("""
-                        UPDATE decisions SET review_status = 'human_rejected'
-                        WHERE decision_id = ?
-                        """, (target_id,))
-                    elif action == "correct":
-                        new_title = body.get("title")
-                        new_state = body.get("state")
-                        new_rationale = body.get("rationale")
-                        if new_state and new_state != cur_state:
-                            from backend.engine.lifecycle import transition
-                            transition(
-                                conn,
-                                target_id,
-                                new_state,
-                                actor="human_reviewer",
-                                reason=notes or f"Corrected state to {new_state}",
-                                at=now_iso
-                            )
-                            cur_state = new_state
-                        cursor.execute("""
-                        UPDATE decisions SET
-                            title = COALESCE(?, title),
-                            rationale = COALESCE(?, rationale),
-                            review_status = 'human_corrected'
-                        WHERE decision_id = ?
-                        """, (new_title, new_rationale, target_id))
+                    cur_state = d_row["state"]
+                    from backend.engine.lifecycle import transition, InvalidTransition
 
-                    # Record triage action in state_history
-                    cursor.execute("PRAGMA table_info(state_history)")
-                    sh_cols = {r["name"] for r in cursor.fetchall()}
-                    hist_id = f"hist_rev_{target_id[:8]}_{int(time.time()*1000)}"
-                    notes_entry = f"Triage action: {action}. Notes: {notes}"
-                    if "reconstructed" in sh_cols:
-                        cursor.execute("""
-                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
-                        VALUES (?, ?, ?, ?, ?, ?, 0)
-                        """, (hist_id, target_id, cur_state, now_iso, "human_reviewer", notes_entry))
-                    else:
-                        cursor.execute("""
-                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                        """, (hist_id, target_id, cur_state, now_iso, "human_reviewer", notes_entry))
+                    try:
+                        if action == "mark_tested":
+                            transition(conn, target_id, "tested", actor=actor, reason=reason, at=now_iso)
+                            cursor.execute("""
+                            UPDATE decisions SET review_status = 'human_tested' WHERE decision_id = ?
+                            """, (target_id,))
 
-                    conn.commit()
+                        elif action == "confirm":
+                            if cur_state in ("proposed", "tested"):
+                                transition(conn, target_id, "accepted", actor=actor, reason=reason, at=now_iso)
+                            elif cur_state == "accepted":
+                                # Already accepted: record triage confirmation history row
+                                hist_id = f"hist_rev_{target_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                                cursor.execute("PRAGMA table_info(state_history)")
+                                sh_cols = {r["name"] for r in cursor.fetchall()}
+                                notes_entry = f"Review confirmed: {reason}"
+                                if "reconstructed" in sh_cols:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                                    VALUES (?, ?, 'accepted', ?, ?, ?, 0)
+                                    """, (hist_id, target_id, now_iso, actor, notes_entry))
+                                else:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                                    VALUES (?, ?, 'accepted', ?, ?, ?)
+                                    """, (hist_id, target_id, now_iso, actor, notes_entry))
+                            else:
+                                raise InvalidTransition(f"Cannot confirm decision currently in '{cur_state}' state")
+
+                            cursor.execute("""
+                            UPDATE decisions SET review_status = 'human_confirmed', confidence = 1.0
+                            WHERE decision_id = ?
+                            """, (target_id,))
+
+                        elif action == "reject":
+                            if cur_state in ("proposed", "tested"):
+                                transition(conn, target_id, "rejected", actor=actor, reason=reason, at=now_iso)
+                            elif cur_state == "rejected":
+                                hist_id = f"hist_rev_{target_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                                cursor.execute("PRAGMA table_info(state_history)")
+                                sh_cols = {r["name"] for r in cursor.fetchall()}
+                                notes_entry = f"Review rejected: {reason}"
+                                if "reconstructed" in sh_cols:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                                    VALUES (?, ?, 'rejected', ?, ?, ?, 0)
+                                    """, (hist_id, target_id, now_iso, actor, notes_entry))
+                                else:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                                    VALUES (?, ?, 'rejected', ?, ?, ?)
+                                    """, (hist_id, target_id, now_iso, actor, notes_entry))
+                            else:
+                                raise InvalidTransition(f"Cannot reject decision currently in '{cur_state}' state. Must be reopened or superseded.")
+
+                            cursor.execute("""
+                            UPDATE decisions SET review_status = 'human_rejected' WHERE decision_id = ?
+                            """, (target_id,))
+
+                        elif action == "reopen":
+                            transition(conn, target_id, "reopened", actor=actor, reason=reason, at=now_iso)
+                            cursor.execute("""
+                            UPDATE decisions SET review_status = 'human_reopened' WHERE decision_id = ?
+                            """, (target_id,))
+
+                        elif action == "merge":
+                            into_id = body.get("into_decision_id") or body.get("canonical_decision_id")
+                            if not into_id:
+                                return {
+                                    "status": "error",
+                                    "status_code": 400,
+                                    "message": "Action 'merge' requires 'into_decision_id'"
+                                }
+                            cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (into_id,))
+                            if not cursor.fetchone():
+                                return {
+                                    "status": "error",
+                                    "status_code": 404,
+                                    "message": f"Target decision to merge into '{into_id}' not found"
+                                }
+                            if cur_state in ("proposed", "tested"):
+                                transition(conn, target_id, "accepted", actor=actor, reason=f"Accepted for merge: {reason}", at=now_iso)
+                            transition(conn, target_id, "superseded", actor=actor, reason=f"Merged into {into_id}: {reason}", at=now_iso, superseded_by_id=into_id)
+                            cursor.execute("""
+                            UPDATE decisions SET review_status = 'human_merged' WHERE decision_id = ?
+                            """, (target_id,))
+
+                        elif action == "correct":
+                            new_state = body.get("state")
+                            new_title = body.get("title")
+                            new_rationale = body.get("rationale")
+                            if new_state and new_state != cur_state:
+                                transition(conn, target_id, new_state, actor=actor, reason=reason, at=now_iso)
+                            else:
+                                hist_id = f"hist_rev_{target_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                                cursor.execute("PRAGMA table_info(state_history)")
+                                sh_cols = {r["name"] for r in cursor.fetchall()}
+                                notes_entry = f"Correction applied: {reason}"
+                                if "reconstructed" in sh_cols:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                                    VALUES (?, ?, ?, ?, ?, ?, 0)
+                                    """, (hist_id, target_id, cur_state, now_iso, actor, notes_entry))
+                                else:
+                                    cursor.execute("""
+                                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                                    VALUES (?, ?, ?, ?, ?, ?)
+                                    """, (hist_id, target_id, cur_state, now_iso, actor, notes_entry))
+
+                            cursor.execute("""
+                            UPDATE decisions SET
+                                title = COALESCE(?, title),
+                                rationale = COALESCE(?, rationale),
+                                review_status = 'human_corrected'
+                            WHERE decision_id = ?
+                            """, (new_title, new_rationale, target_id))
+
+                        else:
+                            return {
+                                "status": "error",
+                                "status_code": 400,
+                                "message": f"Unknown review action '{action}' for decision"
+                            }
+
+                        conn.commit()
+
+                    except InvalidTransition as e:
+                        conn.rollback()
+                        return {
+                            "status": "error",
+                            "status_code": 409,
+                            "message": f"Conflict: {str(e)}"
+                        }
+                    except ValueError as e:
+                        conn.rollback()
+                        return {
+                            "status": "error",
+                            "status_code": 409,
+                            "message": f"Conflict: {str(e)}"
+                        }
 
                 elif item_type in ("conflict", "drift"):
                     if action in ("confirm", "reject"):
-                        # Dismiss or resolve edge
                         cursor.execute("DELETE FROM edges WHERE edge_id = ?", (target_id,))
                         conn.commit()
 
@@ -390,26 +520,44 @@ class APIHandler:
                         if action == "confirm":
                             cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (newer_id,))
                             new_dec = cursor.fetchone()
-                            d_time = new_dec["made_at"] if new_dec else (datetime.utcnow().isoformat() + "Z")
+                            d_time = new_dec["made_at"] if new_dec else now_iso
 
-                            from backend.engine.lifecycle import transition
-                            transition(
-                                conn,
-                                older_id,
-                                "superseded",
-                                actor="human_reviewer",
-                                reason=f"Supersession confirmed via review queue (superseded by {newer_id})",
-                                at=d_time,
-                                superseded_by_id=newer_id
-                            )
-
-                            cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
-                            conn.commit()
+                            from backend.engine.lifecycle import transition, InvalidTransition
+                            try:
+                                transition(
+                                    conn,
+                                    older_id,
+                                    "superseded",
+                                    actor=actor,
+                                    reason=reason,
+                                    at=d_time,
+                                    superseded_by_id=newer_id
+                                )
+                                cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
+                                conn.commit()
+                            except (InvalidTransition, ValueError) as e:
+                                conn.rollback()
+                                return {
+                                    "status": "error",
+                                    "status_code": 409,
+                                    "message": f"Conflict: {str(e)}"
+                                }
                         elif action == "reject":
                             cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
                             conn.commit()
+                    else:
+                        return {
+                            "status": "error",
+                            "status_code": 404,
+                            "message": f"Supersession candidate edge '{target_id}' not found"
+                        }
 
-            return {"status": "success", "message": f"Action '{action}' executed successfully on {target_id}"}
+            return {
+                "status": "success",
+                "message": f"Action '{action}' executed successfully on {target_id}",
+                "actor": actor,
+                "reason": reason
+            }
 
         # 2. Guard Rule Actions (Section 5.4: approve | disable)
         elif path == "/api/guard-rules/approve":

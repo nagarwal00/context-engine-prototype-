@@ -222,6 +222,27 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Verifies migration 002 idempotency.
   5. Verification: All 5 tests in `test_history_recorded.py` pass; full test suite (85 tests) and demo checks (21/21) pass.
 
+### Step 2.4 — Review Workflow for Lifecycle
+- Status: **RESOLVED**
+- Files: `backend/api.py`, `backend/security.py`, `server.py`, `tests/test_review_actions.py`
+- Resolution:
+  1. Extended `/api/review-action` with full lifecycle transition integration:
+     - Supported actions: `confirm`, `reject`, `merge`, `correct`, `reopen`, `mark_tested`.
+     - `mark_tested` advances proposed decision to `tested` via `lifecycle.transition`.
+     - `confirm` advances proposed/tested decision to `accepted` via `lifecycle.transition`, updates `review_status = 'human_confirmed'`, and sets `confidence = 1.0`. If already accepted, records a review triage history entry.
+     - `reject` advances proposed/tested decision to `rejected` via `lifecycle.transition`, updating `review_status = 'human_rejected'`.
+     - `reopen` advances rejected or accepted decision to `reopened` via `lifecycle.transition`.
+     - `merge` merges target decision into `into_decision_id`, superseding it via `lifecycle.transition`.
+     - `correct` allows human correction of state, title, and rationale with audit history logging.
+  2. Implemented reviewer identity resolution:
+     - Added `get_authenticated_role(headers, client_ip)` in `backend/security.py` returning `admin`, `reviewer`, or `viewer`.
+     - Formats actor as `token_role:display_name` (e.g., `reviewer:Alice`) when display name or reviewer name is supplied.
+  3. Enforced reason requirements:
+     - `reopen` and `mark_tested` strictly require a non-empty reason; missing returns HTTP 400.
+     - Invalid lifecycle transitions (e.g. attempting to reopen a terminal superseded decision or illegal state jumps) raise `InvalidTransition` and return HTTP 409 with readable message.
+  4. Created `tests/test_review_actions.py` (10 tests covering all 6 actions, history row generation, reason requirement, 409 on invalid transitions, merge supersession, and reviewer identity resolution).
+  5. Verification: All 10 tests in `test_review_actions.py` pass; full test discovery suite (95 tests) and demo checks (21/21) pass.
+
 
 
 

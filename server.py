@@ -113,7 +113,9 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 self._send_json({"status": "error", "message": "Invalid JSON in request body"}, status=400)
                 return
 
-            res = self.server.api_handler.handle_post(parsed.path, body_json)
+            res = self.server.api_handler.handle_post(
+                parsed.path, body_json, headers=headers_dict, client_ip=client_ip
+            )
             status = res.get("status_code", 200 if res.get("status") == "success" else 400)
             self._send_json(res, status=status)
         else:

@@ -101,3 +101,21 @@ def authorize(
         return True, 200, "Authorized as reviewer"
 
     return False, 403, "Forbidden: Invalid token or insufficient permissions"
+
+
+def get_authenticated_role(headers: Optional[Dict[str, str]] = None, client_ip: Optional[str] = "127.0.0.1") -> str:
+    """Returns the authenticated role for the request: 'admin', 'reviewer', or 'viewer'."""
+    headers = headers or {}
+    admin_token = os.environ.get("CIF_ADMIN_TOKEN", "").strip()
+    reviewer_token = os.environ.get("CIF_REVIEWER_TOKEN", "").strip()
+    token = extract_bearer_token(headers)
+    if token:
+        token_bytes = token.encode("utf-8")
+        if admin_token and hmac.compare_digest(token_bytes, admin_token.encode("utf-8")):
+            return ROLE_ADMIN
+        if reviewer_token and hmac.compare_digest(token_bytes, reviewer_token.encode("utf-8")):
+            return ROLE_REVIEWER
+    if is_dev_mode(client_ip):
+        return ROLE_REVIEWER
+    return ROLE_VIEWER
+
