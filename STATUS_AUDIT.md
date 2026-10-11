@@ -146,6 +146,26 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 - **Supersession**: Evidence-based candidate priority and review queue routing for ambiguous candidates.
 - **Git tag**: `phase1-done`.
 
+---
+
+## Phase 2 — Complete the Decision History
+
+### Step 2.0 — Migration Framework
+- Status: **RESOLVED**
+- Files: `backend/migrations/__init__.py`, `backend/migrations/runner.py`, `backend/db.py`, `tools/migrate_db.py`, `tests/test_migrations.py`
+- Resolution:
+  1. Created `schema_migrations(version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT NOT NULL)` tracking table.
+  2. Implemented transactional migration runner in `backend/migrations/runner.py`:
+     - Discovers migration modules in `backend/migrations/` matching `^(\d+)_(.+)\.py$`.
+     - Executes each pending migration inside its own transaction (`PRAGMA foreign_keys = OFF; BEGIN; upgrade(conn); ... COMMIT; PRAGMA foreign_keys = ON; PRAGMA foreign_key_check;`).
+     - On failure, rolls back transaction and leaves database unchanged.
+     - Running twice is guaranteed to be a no-op.
+     - Supports `--dry-run` to inspect pending migrations without applying.
+  3. Integrated runner into `Database._init_schema()` in `backend/db.py` to ensure all databases automatically run pending migrations.
+  4. Created CLI `tools/migrate_db.py --db PATH [--dry-run]`.
+  5. Verified via `tests/test_migrations.py` (6 tests pass): fresh DB creation, idempotency, transaction rollback on failure, dry-run mode, CLI execution, and zero-data-loss validation against a copy of `backups/context_intelligence.pre_v2.db`.
+
+
 
 
 

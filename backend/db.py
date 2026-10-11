@@ -9,6 +9,7 @@ from datetime import datetime
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from backend.models import Event, Decision, Entity, Edge, Identity, GuardRule
+from backend.migrations import run_migrations
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "context_intelligence.db")
 
@@ -157,6 +158,9 @@ class Database:
             );
             """)
             conn.commit()
+
+            # 10. Schema Migrations (Step 2.0)
+            run_migrations(conn)
 
     # --- Upsert & Query Methods ---
 
