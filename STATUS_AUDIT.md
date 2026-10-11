@@ -200,6 +200,28 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   3. Implemented `record_initial_state` for initial ingestion creation (`from_state = NULL`).
   4. Verification: `tests/test_lifecycle.py` (8 tests pass covering all legal transitions, all illegal pairs via `itertools.product`, `superseded` terminal state, `rejected -> reopened -> accepted` progression, evidence requirement, and audit logging). Full suite (80 tests) and demo suite (21/21) pass.
 
+### Step 2.3 — Record History Everywhere and Backfill
+- Status: **RESOLVED**
+- Files: `backend/migrations/002_backfill_state_history.py`, `tools/backfill_state_history.py`, `backend/db.py`, `backend/engine/lifecycle.py`, `backend/engine/reconciliation.py`, `backend/seed_data.py`, `backend/api.py`, `tests/test_history_recorded.py`
+- Resolution:
+  1. Found and routed all direct decision state mutations through `lifecycle.transition`:
+     - In `backend/db.py`: `save_decision` validates state changes against `ALLOWED_TRANSITIONS` (raises `InvalidTransition`), records initial history for new decisions (`from_state = NULL`), and records transition history with actor, reason, and timestamp.
+     - In `backend/engine/reconciliation.py`: supersession links route through `lifecycle.transition(conn, older_id, 'superseded', ...)`.
+     - In `backend/seed_data.py`: `dec_cache_local_lru_proposed` undergoes explicit lifecycle progression `proposed -> accepted -> superseded` via `lifecycle.transition`.
+     - In `backend/api.py`: review queue triage and decision corrections route state changes through `lifecycle.transition`.
+  2. Implemented Migration 002 (`backend/migrations/002_backfill_state_history.py`):
+     - Adds `from_state TEXT` and `reconstructed INTEGER DEFAULT 0` columns to `state_history` if missing.
+     - Backfills one audit record per decision lacking history with `notes="reconstructed from current state at backfill"`, `changed_by="system:backfill"`, `changed_at=decision.made_at`, `from_state=NULL`, and `reconstructed=1`.
+     - Applied Migration 002 to active `context_intelligence.db`, populating previously empty `state_history` (0 -> 6 records).
+  3. Created CLI tool `tools/backfill_state_history.py` supporting `--db PATH` and `--dry-run` with before/after count reporting.
+  4. Created `tests/test_history_recorded.py`:
+     - Verifies fresh seeded DB has `SELECT COUNT(*) FROM state_history >= COUNT(*) FROM decisions`.
+     - Verifies review action increases history count.
+     - Verifies backfill tool on legacy DB copy (`backups/context_intelligence.pre_v2.db`).
+     - Verifies `save_decision` lifecycle transition enforcement and initial audit recording.
+     - Verifies migration 002 idempotency.
+  5. Verification: All 5 tests in `test_history_recorded.py` pass; full test suite (85 tests) and demo checks (21/21) pass.
+
 
 
 

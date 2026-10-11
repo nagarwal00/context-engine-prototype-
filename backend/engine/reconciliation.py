@@ -277,49 +277,26 @@ class ReconciliationEngine:
                 # Auto-link ONLY if a single qualified candidate was selected
                 if chosen_candidate:
                     older = chosen_candidate
-                    cursor.execute("""
-                    UPDATE decisions SET state = 'superseded', superseded_by_decision_id = ?
-                    WHERE decision_id = ? AND state != 'superseded'
-                    """, (d_id, older["decision_id"]))
-
-                    cursor.execute("""
-                    UPDATE decisions SET supersedes_decision_id = ?
-                    WHERE decision_id = ?
-                    """, (older["decision_id"], d_id))
-
-                    # Edge: d supersedes older
-                    edge_id = f"edge_super_{d_id}_{older['decision_id']}"
-                    cursor.execute("""
-                    INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to)
-                    VALUES (?, 'supersedes', ?, 'decision', ?, 'decision', ?, NULL)
-                    """, (edge_id, d_id, older["decision_id"], d_time))
-
-                    # Update edges for older decision to expire at valid_to
-                    cursor.execute("""
-                    UPDATE edges SET valid_to = ?
-                    WHERE (from_id = ? OR to_id = ?) AND (valid_to IS NULL OR valid_to > ?)
-                    """, (d_time, older["decision_id"], older["decision_id"], d_time))
-
-                    # Log supersession in state_history
-                    cursor.execute("""
-                    INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """, (
-                        f"hist_super_{older['decision_id']}_{d_time}",
-                        older["decision_id"],
-                        "superseded",
-                        d_time,
-                        d.get("made_by") or "reconciliation_engine",
-                        f"Superseded by decision '{d['title']}' ({d_id})"
-                    ))
-
-                    supersessions.append({
-                        "new_decision_id": d_id,
-                        "superseded_decision_id": older["decision_id"],
-                        "title": d["title"],
-                        "prior_title": older["title"],
-                        "effective_at": d_time
-                    })
+                    from backend.engine.lifecycle import transition
+                    try:
+                        transition(
+                            conn,
+                            older["decision_id"],
+                            "superseded",
+                            actor=d.get("made_by") or "reconciliation_engine",
+                            reason=f"Superseded by decision '{d['title']}' ({d_id})",
+                            at=d_time,
+                            superseded_by_id=d_id
+                        )
+                        supersessions.append({
+                            "new_decision_id": d_id,
+                            "superseded_decision_id": older["decision_id"],
+                            "title": d["title"],
+                            "prior_title": older["title"],
+                            "effective_at": d_time
+                        })
+                    except Exception:
+                        pass
 
             conn.commit()
 

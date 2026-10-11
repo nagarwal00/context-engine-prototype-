@@ -282,7 +282,7 @@ Consequences:
     dec_lru_cap = Decision(
         decision_id="dec_cache_local_lru_proposed",
         title="Retain In-Memory LRU Cache with Process Memory Cap",
-        state="rejected",
+        state="proposed",
         made_by="marcus_vance",
         made_at="2026-02-03T14:30:00Z",
         artifacts_affected=[e2_file.entity_id, e2_fn_get.entity_id, e2_fn_set.entity_id],
@@ -299,6 +299,17 @@ Consequences:
     )
     db.save_decision(dec_lru_cap)
     graph.link_decision_to_artifacts_and_evidence(dec_lru_cap)
+
+    # Marcus's proposal is accepted on 2026-02-04
+    from backend.engine.lifecycle import transition
+    transition(
+        db,
+        dec_lru_cap.decision_id,
+        "accepted",
+        actor="marcus_vance",
+        reason="Accepted temporary in-memory LRU cache with soft memory cap",
+        at="2026-02-04T10:00:00Z"
+    )
 
     # Decision 2.2: Accepted Redis Cluster (Priya Patel, superseding Marcus's proposal)
     dec_redis = Decision(
@@ -323,13 +334,16 @@ Consequences:
     db.save_decision(dec_redis)
     graph.link_decision_to_artifacts_and_evidence(dec_redis)
 
-    # Mark supersession link
-    with db.get_connection() as conn:
-        conn.execute("""
-        UPDATE decisions SET state = 'superseded', superseded_by_decision_id = ?
-        WHERE decision_id = ?
-        """, (dec_redis.decision_id, dec_lru_cap.decision_id))
-        conn.commit()
+    # Mark supersession via lifecycle transition engine
+    transition(
+        db,
+        dec_lru_cap.decision_id,
+        "superseded",
+        actor="priya_patel",
+        reason="ADR 0009: Migrated from in-memory cache to distributed Redis cluster",
+        at=dec_redis.made_at,
+        superseded_by_id=dec_redis.decision_id
+    )
 
     # Create explicit conflict between Marcus's proposal and Priya's Redis decision
     graph.add_edge(

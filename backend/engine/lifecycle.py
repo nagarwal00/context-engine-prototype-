@@ -4,6 +4,7 @@ Implements Step 2.2 of ANTIGRAVITY_HANDOFF_V2.md
 """
 import datetime
 import time
+import uuid
 from typing import Dict, Set, List, Optional, Any
 from backend.db import Database
 from backend.models import ALLOWED_DECISION_STATES
@@ -25,8 +26,19 @@ ALLOWED_TRANSITIONS: Dict[str, Set[str]] = {
 }
 
 
+import contextlib
+
+@contextlib.contextmanager
+def _resolve_connection(db_or_conn: Any):
+    if hasattr(db_or_conn, "get_connection"):
+        with db_or_conn.get_connection() as conn:
+            yield conn
+    else:
+        yield db_or_conn
+
+
 def transition(
-    db: Database,
+    db: Any,
     decision_id: str,
     to_state: str,
     actor: str,
@@ -49,7 +61,7 @@ def transition(
     if not reason or not str(reason).strip():
         raise ValueError("Lifecycle transition requires non-empty reason")
 
-    with db.get_connection() as conn:
+    with _resolve_connection(db) as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
         dec_row = cursor.fetchone()
@@ -89,7 +101,7 @@ def transition(
         # Check state_history schema
         cursor.execute("PRAGMA table_info(state_history)")
         sh_cols = {r["name"] for r in cursor.fetchall()}
-        hist_id = f"hist_{decision_id}_{int(time.time()*1000)}"
+        hist_id = f"hist_{decision_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
 
         # Update decision state and optional superseded pointers
         if to_state == "superseded":
@@ -124,11 +136,24 @@ def transition(
 
         # Insert history record
         notes_text = f"Transition: {from_state} -> {to_state}. Reason: {reason}"
-        if "from_state" in sh_cols:
+        has_from_state = "from_state" in sh_cols
+        has_reconstructed = "reconstructed" in sh_cols
+
+        if has_from_state and has_reconstructed:
+            cursor.execute("""
+            INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes, reconstructed)
+            VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+            """, (hist_id, decision_id, from_state, to_state, now_iso, actor, notes_text))
+        elif has_from_state and not has_reconstructed:
             cursor.execute("""
             INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes)
             VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (hist_id, decision_id, from_state, to_state, now_iso, actor, notes_text))
+        elif not has_from_state and has_reconstructed:
+            cursor.execute("""
+            INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
+            """, (hist_id, decision_id, to_state, now_iso, actor, notes_text))
         else:
             cursor.execute("""
             INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
@@ -148,7 +173,7 @@ def transition(
 
 
 def record_initial_state(
-    db: Database,
+    db: Any,
     decision_id: str,
     initial_state: str,
     actor: str = "system:ingestion",
@@ -156,18 +181,30 @@ def record_initial_state(
     at: Optional[str] = None
 ) -> Dict[str, Any]:
     """Records the initial creation history entry with from_state = NULL."""
-    with db.get_connection() as conn:
+    with _resolve_connection(db) as conn:
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(state_history)")
         sh_cols = {r["name"] for r in cursor.fetchall()}
-        hist_id = f"hist_init_{decision_id}_{int(time.time()*1000)}"
+        hist_id = f"hist_init_{decision_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
         now_iso = at or (datetime.datetime.now(datetime.timezone.utc).isoformat())
         notes_text = f"Initial state: {initial_state}. Reason: {reason}"
+        has_from_state = "from_state" in sh_cols
+        has_reconstructed = "reconstructed" in sh_cols
 
-        if "from_state" in sh_cols:
+        if has_from_state and has_reconstructed:
+            cursor.execute("""
+            INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes, reconstructed)
+            VALUES (?, ?, NULL, ?, ?, ?, ?, 0)
+            """, (hist_id, decision_id, initial_state, now_iso, actor, notes_text))
+        elif has_from_state and not has_reconstructed:
             cursor.execute("""
             INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes)
             VALUES (?, ?, NULL, ?, ?, ?, ?)
+            """, (hist_id, decision_id, initial_state, now_iso, actor, notes_text))
+        elif not has_from_state and has_reconstructed:
+            cursor.execute("""
+            INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
             """, (hist_id, decision_id, initial_state, now_iso, actor, notes_text))
         else:
             cursor.execute("""

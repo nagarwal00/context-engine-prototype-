@@ -314,6 +314,11 @@ class APIHandler:
                 cursor = conn.cursor()
 
                 if item_type == "decision":
+                    now_iso = datetime.utcnow().isoformat() + "Z"
+                    cursor.execute("SELECT state FROM decisions WHERE decision_id = ?", (target_id,))
+                    d_row = cursor.fetchone()
+                    cur_state = d_row["state"] if d_row else "accepted"
+
                     if action == "confirm":
                         cursor.execute("""
                         UPDATE decisions SET review_status = 'human_confirmed', confidence = 1.0
@@ -329,24 +334,40 @@ class APIHandler:
                         new_title = body.get("title")
                         new_state = body.get("state")
                         new_rationale = body.get("rationale")
+                        if new_state and new_state != cur_state:
+                            from backend.engine.lifecycle import transition
+                            transition(
+                                conn,
+                                target_id,
+                                new_state,
+                                actor="human_reviewer",
+                                reason=notes or f"Corrected state to {new_state}",
+                                at=now_iso
+                            )
+                            cur_state = new_state
                         cursor.execute("""
                         UPDATE decisions SET
                             title = COALESCE(?, title),
-                            state = COALESCE(?, state),
                             rationale = COALESCE(?, rationale),
                             review_status = 'human_corrected'
                         WHERE decision_id = ?
-                        """, (new_title, new_state, new_rationale, target_id))
-                    # Record triage state transition in state_history
-                    now_iso = datetime.utcnow().isoformat() + "Z"
-                    cursor.execute("SELECT state FROM decisions WHERE decision_id = ?", (target_id,))
-                    d_row = cursor.fetchone()
-                    cur_state = d_row["state"] if d_row else "accepted"
+                        """, (new_title, new_rationale, target_id))
+
+                    # Record triage action in state_history
+                    cursor.execute("PRAGMA table_info(state_history)")
+                    sh_cols = {r["name"] for r in cursor.fetchall()}
                     hist_id = f"hist_rev_{target_id[:8]}_{int(time.time()*1000)}"
-                    cursor.execute("""
-                    INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """, (hist_id, target_id, cur_state, now_iso, "human_reviewer", f"Triage action: {action}. Notes: {notes}"))
+                    notes_entry = f"Triage action: {action}. Notes: {notes}"
+                    if "reconstructed" in sh_cols:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, 0)
+                        """, (hist_id, target_id, cur_state, now_iso, "human_reviewer", notes_entry))
+                    else:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """, (hist_id, target_id, cur_state, now_iso, "human_reviewer", notes_entry))
 
                     conn.commit()
 
@@ -371,32 +392,16 @@ class APIHandler:
                             new_dec = cursor.fetchone()
                             d_time = new_dec["made_at"] if new_dec else (datetime.utcnow().isoformat() + "Z")
 
-                            cursor.execute("""
-                            UPDATE decisions SET state = 'superseded', superseded_by_decision_id = ?
-                            WHERE decision_id = ? AND state != 'superseded'
-                            """, (newer_id, older_id))
-
-                            cursor.execute("""
-                            UPDATE decisions SET supersedes_decision_id = ?
-                            WHERE decision_id = ?
-                            """, (older_id, newer_id))
-
-                            edge_sup_id = f"edge_super_{newer_id[:8]}_{older_id[:8]}"
-                            cursor.execute("""
-                            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to)
-                            VALUES (?, 'supersedes', ?, 'decision', ?, 'decision', ?, NULL)
-                            """, (edge_sup_id, newer_id, older_id, d_time))
-
-                            cursor.execute("""
-                            UPDATE edges SET valid_to = ?
-                            WHERE (from_id = ? OR to_id = ?) AND (valid_to IS NULL OR valid_to > ?)
-                            """, (d_time, older_id, older_id, d_time))
-
-                            hist_id = f"hist_super_rev_{older_id[:8]}_{int(time.time()*1000)}"
-                            cursor.execute("""
-                            INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                            VALUES (?, ?, 'superseded', ?, 'human_reviewer', ?)
-                            """, (hist_id, older_id, d_time, f"Supersession confirmed via review queue (superseded by {newer_id})"))
+                            from backend.engine.lifecycle import transition
+                            transition(
+                                conn,
+                                older_id,
+                                "superseded",
+                                actor="human_reviewer",
+                                reason=f"Supersession confirmed via review queue (superseded by {newer_id})",
+                                at=d_time,
+                                superseded_by_id=newer_id
+                            )
 
                             cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
                             conn.commit()

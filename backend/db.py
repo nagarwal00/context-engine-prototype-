@@ -5,6 +5,8 @@ Implements concrete DDL schema from Section 13 and invariants from Section 5.2.
 import sqlite3
 import json
 import os
+import time
+import uuid
 from datetime import datetime
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
@@ -136,10 +138,12 @@ class Database:
             CREATE TABLE IF NOT EXISTS state_history (
                 history_id TEXT PRIMARY KEY,
                 decision_id TEXT NOT NULL,
+                from_state TEXT,
                 state TEXT NOT NULL,
                 changed_at TEXT NOT NULL,
                 changed_by TEXT NOT NULL,
                 notes TEXT,
+                reconstructed INTEGER DEFAULT 0,
                 FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE
             );
             """)
@@ -239,6 +243,22 @@ class Database:
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
+
+            # Check if decision already exists to validate transitions
+            cursor.execute("SELECT state FROM decisions WHERE decision_id = ?", (decision.decision_id,))
+            existing_row = cursor.fetchone()
+            existing_state = existing_row["state"] if existing_row else None
+
+            if existing_state is not None and existing_state != decision.state:
+                from backend.engine.lifecycle import ALLOWED_TRANSITIONS, InvalidTransition
+                allowed_targets = ALLOWED_TRANSITIONS.get(existing_state, set())
+                if decision.state not in allowed_targets:
+                    conn.rollback()
+                    raise InvalidTransition(
+                        f"Cannot save decision '{decision.decision_id}': illegal transition from '{existing_state}' to '{decision.state}'. "
+                        f"Allowed transitions: {sorted(allowed_targets)}"
+                    )
+
             cursor.execute("""
             INSERT INTO decisions (
                 decision_id, title, state, made_by, made_at, rationale, confidence,
@@ -322,33 +342,90 @@ class Database:
                     INSERT OR IGNORE INTO decision_artifacts (decision_id, entity_id) VALUES (?, ?)
                     """, (decision.decision_id, auto_id))
 
-            # Record state history if provided or new
+            # Record state history
+            cursor.execute("PRAGMA table_info(state_history)")
+            sh_cols = {r["name"] for r in cursor.fetchall()}
+            has_from = "from_state" in sh_cols
+            has_rec = "reconstructed" in sh_cols
+
             if decision.state_history:
                 for sh in decision.state_history:
-                    cursor.execute("""
-                    INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """, (
-                        sh.get("history_id", f"sh_{decision.decision_id}_{sh.get('changed_at')}"),
-                        decision.decision_id,
-                        sh.get("state", decision.state),
-                        sh.get("changed_at", decision.made_at),
-                        sh.get("changed_by", decision.made_by or "system"),
-                        sh.get("notes", "")
-                    ))
+                    sh_from = sh.get("from_state")
+                    sh_to = sh.get("state", decision.state)
+                    sh_at = sh.get("changed_at", decision.made_at)
+                    sh_by = sh.get("changed_by", decision.made_by or "system")
+                    sh_notes = sh.get("notes", "")
+                    sh_id = sh.get("history_id", f"sh_{decision.decision_id}_{sh_at}")
+
+                    if has_from and has_rec:
+                        cursor.execute("""
+                        INSERT OR REPLACE INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+                        """, (sh_id, decision.decision_id, sh_from, sh_to, sh_at, sh_by, sh_notes))
+                    elif has_from:
+                        cursor.execute("""
+                        INSERT OR REPLACE INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """, (sh_id, decision.decision_id, sh_from, sh_to, sh_at, sh_by, sh_notes))
+                    elif has_rec:
+                        cursor.execute("""
+                        INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, 0)
+                        """, (sh_id, decision.decision_id, sh_to, sh_at, sh_by, sh_notes))
+                    else:
+                        cursor.execute("""
+                        INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """, (sh_id, decision.decision_id, sh_to, sh_at, sh_by, sh_notes))
             else:
-                hist_id = f"hist_{decision.decision_id}_{decision.state}"
-                cursor.execute("""
-                INSERT OR REPLACE INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """, (
-                    hist_id,
-                    decision.decision_id,
-                    decision.state,
-                    decision.made_at,
-                    decision.made_by or "system",
-                    decision.rationale or f"State recorded as {decision.state}"
-                ))
+                cursor.execute("SELECT COUNT(*) AS c FROM state_history WHERE decision_id = ?", (decision.decision_id,))
+                prior_hist_count = cursor.fetchone()["c"]
+                if existing_state is not None and existing_state != decision.state:
+                    hist_id = f"hist_{decision.decision_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                    notes_text = f"Transition: {existing_state} -> {decision.state}. Reason: {decision.rationale or 'State updated'}"
+                    if has_from and has_rec:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, 0)
+                        """, (hist_id, decision.decision_id, existing_state, decision.state, decision.made_at, decision.made_by or "system", notes_text))
+                    elif has_from:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        """, (hist_id, decision.decision_id, existing_state, decision.state, decision.made_at, decision.made_by or "system", notes_text))
+                    elif has_rec:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, 0)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system", notes_text))
+                    else:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system", notes_text))
+                elif prior_hist_count == 0:
+                    hist_id = f"hist_init_{decision.decision_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                    notes_text = f"Initial state: {decision.state}. Reason: {decision.rationale or 'Initial state recorded'}"
+                    if has_from and has_rec:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, NULL, ?, ?, ?, ?, 0)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system:ingestion", notes_text))
+                    elif has_from:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, from_state, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, NULL, ?, ?, ?, ?)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system:ingestion", notes_text))
+                    elif has_rec:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                        VALUES (?, ?, ?, ?, ?, ?, 0)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system:ingestion", notes_text))
+                    else:
+                        cursor.execute("""
+                        INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                        """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system:ingestion", notes_text))
 
             conn.commit()
             return decision.decision_id
