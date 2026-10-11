@@ -593,9 +593,14 @@ const app = {
             <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 12px;">
               Author: <strong>${esc(d.made_by)}</strong> • Evidence: <strong>${esc(d.evidence_count)}</strong>
             </div>
-            <button class="btn btn-secondary btn-sm btn-show-evidence" data-decision-id="${esc(d.decision_id)}">
-              Inspect Evidence Trail ↗
-            </button>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm btn-show-evidence" data-decision-id="${esc(d.decision_id)}">
+                Inspect Evidence Trail ↗
+              </button>
+              <button class="btn btn-secondary btn-sm btn-show-lifecycle" data-decision-id="${esc(d.decision_id)}">
+                Lifecycle ↻
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -604,6 +609,9 @@ const app = {
       container.querySelectorAll('.btn-show-evidence').forEach(btn => {
         btn.addEventListener('click', () => app.showDecisionEvidence(btn.dataset.decisionId));
       });
+      container.querySelectorAll('.btn-show-lifecycle').forEach(btn => {
+        btn.addEventListener('click', () => app.showDecisionLifecycle(btn.dataset.decisionId));
+      });
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
@@ -611,6 +619,7 @@ const app = {
 
   filterDecisionsByState(state) {
     this.decisionFilter = state;
+    this.showDecisionsGrid();
     document.querySelectorAll('.facet-tab').forEach(b => {
       b.classList.toggle('active', b.textContent.toLowerCase().includes(state));
     });
@@ -619,7 +628,267 @@ const app = {
 
   searchDecisions(query) {
     this.decisionSearchQuery = query;
+    this.showDecisionsGrid();
     this.loadDecisions();
+  },
+
+  // =========================================================================
+  // STEP 2.5: Lifecycle View, Supersession Chain & Audit Log
+  // =========================================================================
+  currentLifecycleDecisionId: null,
+
+  showDecisionsGrid() {
+    const grid = document.getElementById('decisions-container');
+    const lifecycle = document.getElementById('lifecycle-container');
+    if (grid) grid.style.display = 'grid';
+    if (lifecycle) lifecycle.style.display = 'none';
+
+    document.querySelectorAll('.facet-tab').forEach(b => {
+      b.classList.toggle('active', b.id !== 'facet-tab-lifecycle' && b.textContent.toLowerCase().includes(this.decisionFilter));
+    });
+  },
+
+  async showLifecycleTab() {
+    const grid = document.getElementById('decisions-container');
+    const lifecycle = document.getElementById('lifecycle-container');
+    if (grid) grid.style.display = 'none';
+    if (lifecycle) lifecycle.style.display = 'flex';
+
+    document.querySelectorAll('.facet-tab').forEach(b => {
+      b.classList.toggle('active', b.id === 'facet-tab-lifecycle');
+    });
+
+    if (this.cachedDecisions.length === 0) {
+      await this.loadDecisions();
+    }
+
+    const select = document.getElementById('lifecycle-decision-select');
+    if (select && this.cachedDecisions.length > 0) {
+      select.innerHTML = this.cachedDecisions.map(d => `
+        <option value="${esc(d.decision_id)}">${esc(d.title)} [${esc(d.state)}]</option>
+      `).join('');
+
+      let targetId = this.currentLifecycleDecisionId;
+      if (!targetId || !this.cachedDecisions.some(d => d.decision_id === targetId)) {
+        const preferred = this.cachedDecisions.find(d => d.state === 'superseded') || this.cachedDecisions[0];
+        targetId = preferred.decision_id;
+      }
+      select.value = targetId;
+      await this.loadDecisionLifecycle(targetId);
+    }
+
+    await this.loadAuditLog();
+  },
+
+  showDecisionLifecycle(decisionId) {
+    this.currentLifecycleDecisionId = decisionId;
+    this.navigate('decisions');
+    this.showLifecycleTab();
+    const select = document.getElementById('lifecycle-decision-select');
+    if (select) select.value = decisionId;
+    this.loadDecisionLifecycle(decisionId);
+  },
+
+  async loadDecisionLifecycle(decisionId) {
+    if (!decisionId) return;
+    this.currentLifecycleDecisionId = decisionId;
+
+    const summaryEl = document.getElementById('lifecycle-decision-summary');
+    const timelineEl = document.getElementById('lifecycle-timeline-list');
+    const chainEl = document.getElementById('lifecycle-chain-details');
+
+    if (summaryEl) summaryEl.innerHTML = '<div class="loading-state">Loading decision lifecycle...</div>';
+    if (timelineEl) timelineEl.innerHTML = '<div class="loading-state">Loading timeline...</div>';
+    if (chainEl) chainEl.innerHTML = '<div class="loading-state">Loading supersession chain...</div>';
+
+    try {
+      const json = await this.apiFetch(`/api/decision-history?decision_id=${encodeURIComponent(decisionId)}`);
+      if (json.status !== 'success' || !json.data) {
+        if (summaryEl) summaryEl.innerHTML = `<div class="placeholder-state">Decision '${esc(decisionId)}' not found.</div>`;
+        return;
+      }
+
+      const { decision, transitions, supersession_chain } = json.data;
+
+      // 1. Render Summary Card
+      if (summaryEl) {
+        summaryEl.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap;">
+            <div>
+              <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                <span class="status-tag ${esc(decision.state)}">${esc(decision.state)}</span>
+                <span class="stat-pill">Assessment: <strong>${esc(decision.evidence_assessment)}</strong></span>
+                <span class="stat-pill">Freshness: <strong>${esc(decision.freshness)}</strong></span>
+              </div>
+              <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">${esc(decision.title)}</h2>
+              <p style="font-size: 0.88rem; color: #94a3b8; max-width: 800px; margin-bottom: 10px;">${esc(decision.rationale || 'No rationale recorded.')}</p>
+            </div>
+            <div style="text-align: right; font-size: 0.8rem; color: #64748b;">
+              <div>Decided by: <strong>${esc(decision.made_by)}</strong></div>
+              <div>Date: <code>${esc(decision.made_at ? decision.made_at.substring(0, 10) : 'N/A')}</code></div>
+              <div>Repo: <code>${esc(decision.repo)}</code></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 2. Render Vertical Transition Timeline
+      if (timelineEl) {
+        if (!transitions || transitions.length === 0) {
+          timelineEl.innerHTML = '<div class="placeholder-state">No recorded transitions for this decision.</div>';
+        } else {
+          timelineEl.innerHTML = transitions.map(t => {
+            const dateStr = t.changed_at ? t.changed_at.replace('T', ' ').substring(0, 19) : 'Initial';
+            const badgeTag = t.reconstructed
+              ? '<span class="badge-tag reconstructed" title="Reconstructed during migration">' + esc('Reconstructed') + '</span>'
+              : '<span class="badge-tag observed" title="Directly observed transition event">' + esc('Observed') + '</span>';
+            const fromStateTag = t.from_state
+              ? '<span class="status-tag ' + esc(t.from_state) + '">' + esc(t.from_state) + '</span> → <span class="status-tag ' + esc(t.to_state) + '">' + esc(t.to_state) + '</span>'
+              : '<span class="status-tag ' + esc(t.to_state) + '">' + esc(t.to_state) + '</span> <span style="font-size: 0.75rem; color: #64748b;">(' + esc('Created') + ')</span>';
+            const color = this.getStateColor(t.to_state);
+
+            return `
+              <div class="lifecycle-timeline-item">
+                <div class="lifecycle-timeline-marker" style="background-color: ${esc(color)};"></div>
+                <div class="lifecycle-timeline-content">
+                  <div class="timeline-transition-row">
+                    <div>${fromStateTag}</div>
+                    <div>${badgeTag}</div>
+                  </div>
+                  <div class="timeline-meta-row">
+                    <span>Actor: <strong>${esc(t.changed_by)}</strong></span>
+                    <span>Timestamp: <code>${esc(dateStr)}</code></span>
+                  </div>
+                  <div style="font-size: 0.84rem; color: #cbd5e1; margin-top: 4px;">
+                    ${esc(t.notes || 'No reason provided.')}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // 3. Render Supersession Chain
+      if (chainEl) {
+        const preceding = supersession_chain?.preceding || [];
+        const current = supersession_chain?.current || decision;
+        const succeeding = supersession_chain?.succeeding || [];
+
+        let chainHtml = '';
+
+        if (preceding.length > 0) {
+          chainHtml += preceding.map(p => `
+            <div class="chain-node-box" onclick="app.showDecisionLifecycle('${esc(p.decision_id)}')">
+              <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">← Preceding Decision</div>
+              <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">${esc(p.title)}</div>
+              <span class="status-tag ${esc(p.state)}">${esc(p.state)}</span>
+            </div>
+            <div class="chain-connector">↓ supersedes</div>
+          `).join('');
+        }
+
+        chainHtml += `
+          <div class="chain-node-box current">
+            <div style="font-size: 0.72rem; color: var(--status-superseded); text-transform: uppercase; margin-bottom: 2px;">● Selected Decision</div>
+            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 4px;">${esc(current.title)}</div>
+            <span class="status-tag ${esc(current.state)}">${esc(current.state)}</span>
+          </div>
+        `;
+
+        if (succeeding.length > 0) {
+          chainHtml += succeeding.map(s => `
+            <div class="chain-connector">↓ superseded by</div>
+            <div class="chain-node-box" onclick="app.showDecisionLifecycle('${esc(s.decision_id)}')">
+              <div style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 2px;">→ Succeeding Decision</div>
+              <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 4px;">${esc(s.title)}</div>
+              <span class="status-tag ${esc(s.state)}">${esc(s.state)}</span>
+            </div>
+          `).join('');
+        }
+
+        if (preceding.length === 0 && succeeding.length === 0) {
+          chainHtml += `
+            <div style="font-size: 0.8rem; color: #64748b; font-style: italic; margin-top: 10px; text-align: center;">
+              Stand-alone decision (no preceding or succeeding decisions in supersession chain).
+            </div>
+          `;
+        }
+
+        chainEl.innerHTML = chainHtml;
+      }
+
+    } catch (e) {
+      if (summaryEl) summaryEl.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
+    }
+  },
+
+  async loadAuditLog() {
+    const tbody = document.getElementById('audit-table-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading audit trail...</td></tr>';
+
+    const actor = document.getElementById('audit-filter-actor')?.value?.trim() || '';
+    const date = document.getElementById('audit-filter-date')?.value?.trim() || '';
+
+    const params = [];
+    if (actor) params.push(`actor=${encodeURIComponent(actor)}`);
+    if (date) params.push(`date=${encodeURIComponent(date)}`);
+    let url = '/api/decision-history';
+    if (params.length > 0) url += `?${params.join('&')}`;
+
+    try {
+      const json = await this.apiFetch(url);
+      const rows = json.data?.audit_log || [];
+
+      if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="placeholder-state">No audit log records match filter criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(r => {
+        const dateStr = r.changed_at ? r.changed_at.replace('T', ' ').substring(0, 19) : '';
+        const transStr = r.from_state
+          ? '<span class="status-tag ' + esc(r.from_state) + '">' + esc(r.from_state) + '</span> → <span class="status-tag ' + esc(r.to_state) + '">' + esc(r.to_state) + '</span>'
+          : '<span class="status-tag ' + esc(r.to_state) + '">' + esc(r.to_state) + '</span>';
+        const badge = r.reconstructed
+          ? '<span class="badge-tag reconstructed">' + esc('Reconstructed') + '</span>'
+          : '<span class="badge-tag observed">' + esc('Observed') + '</span>';
+
+        return `
+          <tr>
+            <td style="font-family: monospace; white-space: nowrap;">${esc(dateStr)}</td>
+            <td>
+              <a href="#" class="audit-link" onclick="event.preventDefault(); app.showDecisionLifecycle('${esc(r.decision_id)}');">
+                ${esc(r.decision_title || r.decision_id)}
+              </a>
+            </td>
+            <td>${transStr}</td>
+            <td><strong>${esc(r.changed_by)}</strong></td>
+            <td>${esc(r.notes || '')}</td>
+            <td>${badge}</td>
+          </tr>
+        `;
+      }).join('');
+    } catch (e) {
+      tbody.innerHTML = `<tr><td colspan="6" class="placeholder-state">Error loading audit log: ${esc(e.message)}</td></tr>`;
+    }
+  },
+
+  filterAuditLog() {
+    clearTimeout(this._auditDebounce);
+    this._auditDebounce = setTimeout(() => {
+      this.loadAuditLog();
+    }, 250);
+  },
+
+  clearAuditFilters() {
+    const actorInput = document.getElementById('audit-filter-actor');
+    const dateInput = document.getElementById('audit-filter-date');
+    if (actorInput) actorInput.value = '';
+    if (dateInput) dateInput.value = '';
+    this.loadAuditLog();
   },
 
   // =========================================================================

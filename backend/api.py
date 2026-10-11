@@ -46,6 +46,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/repos"): ROLE_VIEWER,
     ("GET", "/api/guard-rules"): ROLE_VIEWER,
     ("GET", "/api/auth-status"): ROLE_VIEWER,
+    ("GET", "/api/decision-history"): ROLE_VIEWER,
 
     # POST routes (reviewer)
     ("POST", "/api/review-action"): ROLE_REVIEWER,
@@ -301,6 +302,164 @@ class APIHandler:
                     "dev_mode": is_dev_mode()
                 }
             }
+
+        # 13. Decision Lifecycle History and Audit Log (Step 2.5)
+        elif path == "/api/decision-history":
+            decision_id = query_params.get("decision_id", [None])[0]
+            actor_filter = query_params.get("actor", [None])[0]
+            date_filter = query_params.get("date", [None])[0]
+
+            with self.db.get_connection() as conn:
+                cursor = conn.cursor()
+
+                if decision_id:
+                    cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
+                    d_row = cursor.fetchone()
+                    if not d_row:
+                        return {"status": "error", "message": f"Decision '{decision_id}' not found", "status_code": 404}
+
+                    dec = dict(d_row)
+
+                    cursor.execute("PRAGMA table_info(state_history)")
+                    cols = {r["name"] for r in cursor.fetchall()}
+                    has_from = "from_state" in cols
+                    has_rec = "reconstructed" in cols
+
+                    cursor.execute("""
+                    SELECT * FROM state_history
+                    WHERE decision_id = ?
+                    ORDER BY changed_at ASC
+                    """, (decision_id,))
+                    history_rows = [dict(r) for r in cursor.fetchall()]
+
+                    transitions = []
+                    for h in history_rows:
+                        is_reconstructed = bool(h.get("reconstructed", 0)) if has_rec else (
+                            h.get("changed_by") == "system:backfill" or "reconstructed" in (h.get("notes") or "").lower()
+                        )
+                        transitions.append({
+                            "history_id": h.get("history_id"),
+                            "decision_id": h.get("decision_id"),
+                            "from_state": h.get("from_state") if has_from else None,
+                            "to_state": h.get("state"),
+                            "state": h.get("state"),
+                            "changed_at": h.get("changed_at"),
+                            "changed_by": h.get("changed_by"),
+                            "notes": h.get("notes") or "",
+                            "reconstructed": is_reconstructed
+                        })
+
+                    # Supersession chain traversal:
+                    # Preceding decisions (what this decision supersedes)
+                    preceding = []
+                    curr_prev = dec.get("supersedes_decision_id")
+                    seen_prev = {decision_id}
+                    while curr_prev and curr_prev not in seen_prev:
+                        seen_prev.add(curr_prev)
+                        cursor.execute("SELECT decision_id, title, state, made_at, made_by, supersedes_decision_id FROM decisions WHERE decision_id = ?", (curr_prev,))
+                        p_row = cursor.fetchone()
+                        if p_row:
+                            p_dict = dict(p_row)
+                            preceding.append(p_dict)
+                            curr_prev = p_dict.get("supersedes_decision_id")
+                        else:
+                            break
+
+                    # Succeeding decisions (what supersedes this decision)
+                    succeeding = []
+                    curr_next = dec.get("superseded_by_decision_id")
+                    seen_next = {decision_id}
+                    while curr_next and curr_next not in seen_next:
+                        seen_next.add(curr_next)
+                        cursor.execute("SELECT decision_id, title, state, made_at, made_by, superseded_by_decision_id FROM decisions WHERE decision_id = ?", (curr_next,))
+                        n_row = cursor.fetchone()
+                        if n_row:
+                            n_dict = dict(n_row)
+                            succeeding.append(n_dict)
+                            curr_next = n_dict.get("superseded_by_decision_id")
+                        else:
+                            break
+
+                    return {
+                        "status": "success",
+                        "data": {
+                            "decision": {
+                                "decision_id": dec["decision_id"],
+                                "title": dec["title"],
+                                "state": dec["state"],
+                                "made_by": dec.get("made_by"),
+                                "made_at": dec.get("made_at"),
+                                "rationale": dec.get("rationale"),
+                                "repo": dec.get("repo"),
+                                "evidence_assessment": dec.get("evidence_assessment", "insufficient"),
+                                "freshness": dec.get("freshness", "fresh"),
+                                "supersedes_decision_id": dec.get("supersedes_decision_id"),
+                                "superseded_by_decision_id": dec.get("superseded_by_decision_id")
+                            },
+                            "transitions": transitions,
+                            "supersession_chain": {
+                                "preceding": preceding,
+                                "current": {
+                                    "decision_id": dec["decision_id"],
+                                    "title": dec["title"],
+                                    "state": dec["state"]
+                                },
+                                "succeeding": succeeding
+                            }
+                        }
+                    }
+
+                else:
+                    # Global audit log (filterable by actor or date)
+                    cursor.execute("PRAGMA table_info(state_history)")
+                    cols = {r["name"] for r in cursor.fetchall()}
+                    has_from = "from_state" in cols
+                    has_rec = "reconstructed" in cols
+
+                    query = """
+                    SELECT sh.*, d.title as decision_title, d.repo as decision_repo
+                    FROM state_history sh
+                    LEFT JOIN decisions d ON sh.decision_id = d.decision_id
+                    WHERE 1=1
+                    """
+                    params = []
+                    if actor_filter:
+                        query += " AND sh.changed_by LIKE ?"
+                        params.append(f"%{actor_filter}%")
+                    if date_filter:
+                        query += " AND sh.changed_at LIKE ?"
+                        params.append(f"{date_filter}%")
+
+                    query += " ORDER BY sh.changed_at DESC"
+                    cursor.execute(query, params)
+                    rows = [dict(r) for r in cursor.fetchall()]
+
+                    audit_log = []
+                    for h in rows:
+                        is_reconstructed = bool(h.get("reconstructed", 0)) if has_rec else (
+                            h.get("changed_by") == "system:backfill" or "reconstructed" in (h.get("notes") or "").lower()
+                        )
+                        audit_log.append({
+                            "history_id": h.get("history_id"),
+                            "decision_id": h.get("decision_id"),
+                            "decision_title": h.get("decision_title"),
+                            "decision_repo": h.get("decision_repo"),
+                            "from_state": h.get("from_state") if has_from else None,
+                            "to_state": h.get("state"),
+                            "state": h.get("state"),
+                            "changed_at": h.get("changed_at"),
+                            "changed_by": h.get("changed_by"),
+                            "notes": h.get("notes") or "",
+                            "reconstructed": is_reconstructed
+                        })
+
+                    return {
+                        "status": "success",
+                        "data": {
+                            "audit_log": audit_log,
+                            "total_count": len(audit_log)
+                        }
+                    }
 
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 

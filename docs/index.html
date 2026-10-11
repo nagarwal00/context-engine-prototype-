@@ -206,9 +206,77 @@
             <button class="facet-tab" onclick="app.filterDecisionsByState('reopened')">Reopened</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('superseded')">Superseded</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('rejected')">Rejected</button>
+            <button class="facet-tab" id="facet-tab-lifecycle" onclick="app.showLifecycleTab()">Lifecycle &amp; Audit</button>
           </div>
           <div class="decisions-grid" id="decisions-container">
             <!-- Decision cards injected here -->
+          </div>
+          <!-- Lifecycle & Audit View Container (Step 2.5) -->
+          <div id="lifecycle-container" class="lifecycle-container" style="display: none;">
+            <div class="lifecycle-toolbar">
+              <div class="lifecycle-select-group">
+                <label for="lifecycle-decision-select">Decision History:</label>
+                <select id="lifecycle-decision-select" onchange="app.loadDecisionLifecycle(this.value)">
+                  <!-- Injected by app.js -->
+                </select>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="app.showDecisionsGrid()">← Back to Decisions Grid</button>
+            </div>
+
+            <!-- Decision Summary Card & Metadata -->
+            <div id="lifecycle-decision-summary" class="lifecycle-summary-card">
+              <!-- Injected by app.js -->
+            </div>
+
+            <div class="lifecycle-content-grid">
+              <!-- Left / Main: Vertical Timeline -->
+              <div class="lifecycle-timeline-pane">
+                <h3 class="panel-section-title">Transition Timeline</h3>
+                <div id="lifecycle-timeline-list" class="lifecycle-timeline-list">
+                  <!-- Injected by app.js -->
+                </div>
+              </div>
+
+              <!-- Right: Supersession Chain Detail -->
+              <div class="lifecycle-chain-pane">
+                <h3 class="panel-section-title">Supersession Chain</h3>
+                <div id="lifecycle-chain-details" class="lifecycle-chain-details">
+                  <!-- Injected by app.js -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Global Audit Log Section -->
+            <div class="audit-log-section">
+              <div class="audit-log-header">
+                <div>
+                  <h3 class="panel-section-title" style="margin-bottom: 2px;">Global Audit Log</h3>
+                  <p class="view-desc" style="font-size: 0.8rem;">Complete chronological log of all decision state mutations across repositories.</p>
+                </div>
+                <div class="audit-filter-controls">
+                  <input type="text" id="audit-filter-actor" placeholder="Filter actor..." oninput="app.filterAuditLog()" class="audit-input">
+                  <input type="text" id="audit-filter-date" placeholder="Date (YYYY-MM-DD)..." oninput="app.filterAuditLog()" class="audit-input">
+                  <button class="btn btn-secondary btn-sm" onclick="app.clearAuditFilters()">Reset</button>
+                </div>
+              </div>
+              <div class="audit-table-responsive">
+                <table class="audit-table">
+                  <thead>
+                    <tr>
+                      <th>Changed At</th>
+                      <th>Decision</th>
+                      <th>Transition</th>
+                      <th>Actor</th>
+                      <th>Notes / Reason</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody id="audit-table-body">
+                    <!-- Injected by app.js -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
 

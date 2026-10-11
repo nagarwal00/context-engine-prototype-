@@ -243,9 +243,20 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   4. Created `tests/test_review_actions.py` (10 tests covering all 6 actions, history row generation, reason requirement, 409 on invalid transitions, merge supersession, and reviewer identity resolution).
   5. Verification: All 10 tests in `test_review_actions.py` pass; full test discovery suite (95 tests) and demo checks (21/21) pass.
 
-
-
-
-
-
-
+### Step 2.5 — Lifecycle UI and Audit View
+- Status: **RESOLVED**
+- Files: `backend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_decision_history_api.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Added `GET /api/decision-history` route with `viewer` authorization:
+     - With `decision_id`: retrieves decision metadata, full chronological state `transitions` (with `from_state`, `to_state`, `changed_at`, `changed_by`, `notes`, `reconstructed` boolean), and `supersession_chain` (preceding ancestors, current node, succeeding descendants). Returns HTTP 404 if decision is not found.
+     - Without `decision_id`: retrieves global `audit_log` across all decisions, supporting query parameters `actor` (case-insensitive substring filter) and `date` (ISO date prefix filter), with total record counts and provenance flags.
+  2. Implemented Lifecycle & Audit UI in Decision Explorer:
+     - Added "Lifecycle & Audit" facet tab toggle and direct "Lifecycle ↻" inspection buttons on decision cards.
+     - Added Decision History inspector dropdown (`#lifecycle-decision-select`) and decision summary card.
+     - Implemented vertical **Transition Timeline** displaying each state mutation, state change pills (`from_state` → `to_state`), timestamp, actor, notes, and `Reconstructed`/`Observed` provenance badge.
+     - Implemented **Supersession Chain** panel visualizing preceding decisions (`supersedes`), current decision, and succeeding decisions (`superseded_by`) with interactive navigation.
+     - Implemented filterable **Global Audit Log** table supporting live actor search and date filtering.
+     - Protected all dynamic text rendering with `esc()` and URL schemes with `safeUrl()`, verified clean by `tests/test_frontend_escape.py`. Synchronized all updates from `web/` to `docs/`.
+  3. Acceptance verification: For seeded superseded decision `dec_cache_local_lru_proposed`, endpoint and UI demonstrate full chronological sequence: `proposed → accepted → superseded` with actors `marcus_vance` and `priya_patel`, recorded rationales, and supersession pointer to `dec_cache_redis_accepted`.
+  4. Created `tests/test_decision_history_api.py` (6 tests covering seeded superseded decision history, supersession chain traversal, 404 on nonexistent decision, global audit log, actor filtering, and date filtering).
+  5. Verification: All 6 tests in `test_decision_history_api.py` pass; full test discovery suite (101 tests) and demo runner (21/21 checks) pass.
