@@ -190,13 +190,14 @@ class BenchmarkRunner:
 
         tp = fp = tn = fn = 0
         for case in cases:
-            findings = self.drift_detector.analyze_diff_for_drift(
+            report = self.drift_detector.analyze_diff_for_drift(
                 repo=case["repo"],
                 commit_or_pr_id=f"eval_{case['id']}",
                 author="eval_bot",
                 changed_files=case["files"],
                 diff_text=case["diff_text"]
             )
+            findings = report["findings"] if isinstance(report, dict) else report
             detected = len(findings) > 0
             expected_violation = (case["expected"] == "violation")
 

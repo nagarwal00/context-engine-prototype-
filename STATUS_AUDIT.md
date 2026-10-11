@@ -96,3 +96,16 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   4. Added Content-Security-Policy `<meta>` tag in `web/index.html` and `docs/index.html` (`default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'`).
   5. Tested with synthetic XSS payloads `<img src=x onerror=alert(1)>` and `"><script>alert(1)</script>` in `tests/test_frontend_escape.py` (6 tests pass). Static heuristic lint verifies no unescaped variables assigned to `innerHTML`.
 
+### Step 1.4 (P1-b) — No More Silent Detector Failures
+- Status: **RESOLVED**
+- Files: `backend/engine/drift_detector.py`, `backend/engine/guard_rules.py`, `backend/db.py`, `backend/api.py`, `tools/ci_check.py`, `web/app.js`, `docs/app.js`, `tests/test_drift_errors.py`
+- Resolution:
+  1. Removed broad `except Exception: pass` from `drift_detector.py`.
+  2. Updated `analyze_diff_for_drift` to return a report object `{ "status": "complete" | "incomplete", "findings": [...], "errors": [ { "stage", "rule_id", "error_type", "message" } ] }`.
+  3. Evaluates each rule inside its own `try/except`; on failure appends a sanitised error (rule id + exception class + short message, no diff content, no params dump) and continues with other rules; marks status `incomplete`.
+  4. Logged errors with standard `logging` module.
+  5. Updated API endpoints (`/api/drift-check`, webhook receiver) to return full report. UI displays visible warning "Check incomplete: N rule(s) could not run" and distinguishes it from "No violations found".
+  6. `tools/ci_check.py` exit codes: `0` = complete and clean, `1` = violations, `2` = incomplete.
+  7. Verification: `tests/test_drift_errors.py` (3 tests pass). All 51 suite tests pass, 21 demo checks pass.
+
+

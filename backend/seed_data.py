@@ -363,13 +363,14 @@ Consequences:
     +        return 0.0
     +    return 100.0
     """
-    drift_results = drift_detector.analyze_diff_for_drift(
+    drift_report = drift_detector.analyze_diff_for_drift(
         repo=repo1,
         commit_or_pr_id="pr_thermal_violation_44",
         author="elena_rostova",
         changed_files=["src/thermal/control.py"],
         diff_text=simulated_violating_diff
     )
+    drift_results = drift_report["findings"] if isinstance(drift_report, dict) else drift_report
 
     return {
         "repo1": repo1,

@@ -962,9 +962,17 @@ const app = {
         body: JSON.stringify({ repo, diff_text: diffText, files: [file] })
       });
 
+      const errors = json.errors || (json.report && json.report.errors) || [];
+      const isIncomplete = json.check_status === 'incomplete' || (json.report && json.report.status === 'incomplete');
+
       if (json.drift_detected) {
         const drift = json.results[0];
         const confStr = drift.confidence ? Math.round(drift.confidence * 100) + '%' : '';
+        const incompleteWarning = isIncomplete ? `
+          <div style="margin-top: 8px; padding: 6px 10px; background: rgba(245, 158, 11, 0.15); border-left: 3px solid #f59e0b; font-size: 0.8rem; color: #fbbf24;">
+            ⚠️ Check incomplete: ${esc(errors.length)} rule(s) could not run
+          </div>
+        ` : '';
         resultDisplay.innerHTML = `
           <div class="drift-alert-box drift-found">
             <h4 style="font-size: 1.05rem; margin-bottom: 6px;">⚠️ CI Alert: Code-Level Architectural Drift Detected!</h4>
@@ -973,14 +981,22 @@ const app = {
               Violated Decision: <strong>${esc(drift.decision_title)}</strong> (Confidence: ${esc(confStr)})<br>
               Action taken: Generated <code>drifts_from</code> edge and dispatched to Human Review Queue.
             </p>
+            ${incompleteWarning}
           </div>
         `;
         this.refreshStats();
+      } else if (isIncomplete) {
+        resultDisplay.innerHTML = `
+          <div class="drift-alert-box" style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24;">
+            <h4 style="font-size: 1.05rem; margin-bottom: 6px;">⚠️ Check incomplete: ${esc(errors.length)} rule(s) could not run</h4>
+            <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1;">One or more decision guard rules encountered errors during evaluation and could not complete.</p>
+          </div>
+        `;
       } else {
         resultDisplay.innerHTML = `
           <div class="drift-alert-box clean">
             <h4 style="font-size: 1.05rem; margin-bottom: 6px;">✓ CI Pass: Code change is consistent with accepted decisions.</h4>
-            <p style="font-size: 0.88rem;">No architectural drift or reintroduction of rejected approaches detected.</p>
+            <p style="font-size: 0.88rem;">No violations found. No architectural drift or reintroduction of rejected approaches detected.</p>
           </div>
         `;
       }
@@ -1402,27 +1418,28 @@ const app = {
         const isThermal = diffText.includes('on_off') || diffText.includes('hysteresis') || diffText.includes('clamp');
         const isCache = diffText.includes('local_cache') || diffText.includes('dictionary');
 
-        if (isThermal || isCache) {
-          return {
-            status: 'success',
-            drift_detected: true,
-            results: [{
-              reason: isThermal
-                ? 'Re-introduces deadband/on-off threshold oscillation pattern specifically rejected in ADR-0004 and Issue #12'
-                : 'Re-introduces uncoordinated local memory caching specifically superseded in ADR-0009 and Issue #34',
-              decision_title: isThermal
-                ? 'ADR 0004: Implement PID Feedback Loop Algorithm for Thermal Regulation'
-                : 'ADR 0009: Migrate from Local In-Memory Cache to Redis Cluster with Sentinel',
-              confidence: 0.94
-            }]
-          };
-        } else {
-          return {
-            status: 'success',
-            drift_detected: false,
-            results: []
-          };
-        }
+        const results = (isThermal || isCache) ? [{
+          reason: isThermal
+            ? 'Re-introduces deadband/on-off threshold oscillation pattern specifically rejected in ADR-0004 and Issue #12'
+            : 'Re-introduces uncoordinated local memory caching specifically superseded in ADR-0009 and Issue #34',
+          decision_title: isThermal
+            ? 'ADR 0004: Implement PID Feedback Loop Algorithm for Thermal Regulation'
+            : 'ADR 0009: Migrate from Local In-Memory Cache to Redis Cluster with Sentinel',
+          confidence: 0.94
+        }] : [];
+
+        return {
+          status: 'success',
+          drift_detected: results.length > 0,
+          check_status: 'complete',
+          results: results,
+          errors: [],
+          report: {
+            status: 'complete',
+            findings: results,
+            errors: []
+          }
+        };
       }
 
       if (path === '/api/reseed') {

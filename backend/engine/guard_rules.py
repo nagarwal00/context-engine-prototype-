@@ -163,15 +163,19 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
 
     return list(dedup.values())
 
-def check_diff_against_guard_rules(
+def check_diff_against_guard_rules_with_report(
     rules: List[Dict[str, Any]],
     changed_files: List[str],
     diff_text: str
-) -> List[Dict[str, Any]]:
+) -> Dict[str, Any]:
     """
     Evaluates active guard rules against newly added lines in a pull request diff.
+    Isolates rule evaluations so errors in one rule do not suppress others.
+    Returns: { "status": "complete" | "incomplete", "violations": [...], "errors": [...] }
     """
     violations = []
+    errors = []
+
     # Extract added lines only (lines starting with + but not +++)
     added_lines_with_file = []
     current_file = changed_files[0] if changed_files else ""
@@ -187,63 +191,90 @@ def check_diff_against_guard_rules(
         if rule.get("status") != "active":
             continue
 
-        rule_type = rule.get("rule_type")
-        params = rule.get("params", {})
-        rule_id = rule.get("rule_id")
-        decision_id = rule.get("decision_id")
-        decision_title = rule.get("decision_title", "Architectural Decision")
-        paths = params.get("paths", ["*"])
+        rule_id = rule.get("rule_id", "unknown")
+        try:
+            if rule.get("_parse_error") or rule.get("params") is None:
+                raise ValueError(f"Malformed rule parameters: {rule.get('_parse_error', 'Invalid params')}")
 
-        for filepath, line_content in added_lines_with_file:
-            # Check if file path matches any path pattern (supports ** multi-level globs)
-            matches_path = any(_path_matches_pattern(filepath, pat) for pat in paths)
-            if not matches_path and paths != ["*"]:
-                continue
+            rule_type = rule.get("rule_type")
+            params = rule.get("params", {})
+            decision_id = rule.get("decision_id")
+            decision_title = rule.get("decision_title", "Architectural Decision")
+            paths = params.get("paths", ["*"])
 
-            if rule_type == "forbid_import":
-                mod = params.get("module", "")
-                if mod and (
-                    re.search(r'\bimport\s+' + re.escape(mod) + r'\b', line_content) or
-                    re.search(r'\bfrom\s+' + re.escape(mod) + r'(?:\.|\s+import)\b', line_content)
-                ):
-                    violations.append({
-                        "rule_id": rule_id,
-                        "decision_id": decision_id,
-                        "rule_type": rule_type,
-                        "file": filepath,
-                        "line": line_content,
-                        "message": f"Violation of Rule '{rule_id}': Forbidden import '{mod}' detected in {filepath}.",
-                        "citation": f"Governed by Decision '{decision_title}' ({decision_id})"
-                    })
+            for filepath, line_content in added_lines_with_file:
+                # Check if file path matches any path pattern (supports ** multi-level globs)
+                matches_path = any(_path_matches_pattern(filepath, pat) for pat in paths)
+                if not matches_path and paths != ["*"]:
+                    continue
 
-            elif rule_type == "forbid_pattern":
-                regex_pat = params.get("regex", "")
-                if regex_pat and re.search(regex_pat, line_content):
-                    msg = params.get("message") or f"Forbidden code pattern matching /{regex_pat}/"
-                    violations.append({
-                        "rule_id": rule_id,
-                        "decision_id": decision_id,
-                        "rule_type": rule_type,
-                        "file": filepath,
-                        "line": line_content,
-                        "message": f"Violation of Rule '{rule_id}': {msg} in {filepath}.",
-                        "citation": f"Governed by Decision '{decision_title}' ({decision_id})"
-                    })
-
-            elif rule_type == "config_value":
-                cfg_file = params.get("file")
-                key = params.get("key")
-                must_equal = params.get("must_equal")
-                if cfg_file and fnmatch.fnmatch(filepath, cfg_file) and key and must_equal:
-                    if f'"{key}"' in line_content and str(must_equal) not in line_content:
+                if rule_type == "forbid_import":
+                    mod = params.get("module", "")
+                    if mod and (
+                        re.search(r'\bimport\s+' + re.escape(mod) + r'\b', line_content) or
+                        re.search(r'\bfrom\s+' + re.escape(mod) + r'(?:\.|\s+import)\b', line_content)
+                    ):
                         violations.append({
                             "rule_id": rule_id,
                             "decision_id": decision_id,
                             "rule_type": rule_type,
                             "file": filepath,
                             "line": line_content,
-                            "message": f"Violation of Rule '{rule_id}': Config key '{key}' must equal '{must_equal}' in {filepath}.",
+                            "message": f"Violation of Rule '{rule_id}': Forbidden import '{mod}' detected in {filepath}.",
                             "citation": f"Governed by Decision '{decision_title}' ({decision_id})"
                         })
 
-    return violations
+                elif rule_type == "forbid_pattern":
+                    regex_pat = params.get("regex", "")
+                    if regex_pat:
+                        if re.search(regex_pat, line_content):
+                            msg = params.get("message") or f"Forbidden code pattern matching /{regex_pat}/"
+                            violations.append({
+                                "rule_id": rule_id,
+                                "decision_id": decision_id,
+                                "rule_type": rule_type,
+                                "file": filepath,
+                                "line": line_content,
+                                "message": f"Violation of Rule '{rule_id}': {msg} in {filepath}.",
+                                "citation": f"Governed by Decision '{decision_title}' ({decision_id})"
+                            })
+
+                elif rule_type == "config_value":
+                    cfg_file = params.get("file")
+                    key = params.get("key")
+                    must_equal = params.get("must_equal")
+                    if cfg_file and fnmatch.fnmatch(filepath, cfg_file) and key and must_equal:
+                        if f'"{key}"' in line_content and str(must_equal) not in line_content:
+                            violations.append({
+                                "rule_id": rule_id,
+                                "decision_id": decision_id,
+                                "rule_type": rule_type,
+                                "file": filepath,
+                                "line": line_content,
+                                "message": f"Violation of Rule '{rule_id}': Config key '{key}' must equal '{must_equal}' in {filepath}.",
+                                "citation": f"Governed by Decision '{decision_title}' ({decision_id})"
+                            })
+        except Exception as e:
+            errors.append({
+                "stage": "guard_rules",
+                "rule_id": rule_id,
+                "error_type": e.__class__.__name__,
+                "message": f"Rule evaluation error: {e.__class__.__name__}: {str(e)[:150]}"
+            })
+
+    return {
+        "status": "incomplete" if errors else "complete",
+        "violations": violations,
+        "errors": errors
+    }
+
+
+def check_diff_against_guard_rules(
+    rules: List[Dict[str, Any]],
+    changed_files: List[str],
+    diff_text: str
+) -> List[Dict[str, Any]]:
+    """Evaluates guard rules against diff, returning violations list."""
+    report = check_diff_against_guard_rules_with_report(rules, changed_files, diff_text)
+    return report["violations"]
+

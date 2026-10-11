@@ -566,7 +566,11 @@ class Database:
             rules = []
             for r in rows:
                 item = dict(r)
-                item["params"] = json.loads(item["params_json"]) if item["params_json"] else {}
+                try:
+                    item["params"] = json.loads(item["params_json"]) if item["params_json"] else {}
+                except Exception as e:
+                    item["params"] = None
+                    item["_parse_error"] = str(e)
                 rules.append(item)
             return rules
 

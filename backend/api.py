@@ -360,14 +360,22 @@ class APIHandler:
             diff_text = body.get("diff_text", "")
             files = body.get("files", ["src/thermal/control.py"])
             author = body.get("author", "developer")
-            results = self.drift_detector.analyze_diff_for_drift(
+            report = self.drift_detector.analyze_diff_for_drift(
                 repo=repo,
                 commit_or_pr_id="live_ci_check",
                 author=author,
                 changed_files=files,
                 diff_text=diff_text
             )
-            return {"status": "success", "drift_detected": len(results) > 0, "results": results}
+            findings = report.get("findings", [])
+            return {
+                "status": "success",
+                "drift_detected": len(findings) > 0,
+                "results": findings,
+                "check_status": report.get("status", "complete"),
+                "errors": report.get("errors", []),
+                "report": report
+            }
 
         # 3. Reseed Pilot Database
         elif path == "/api/reseed":
@@ -490,13 +498,14 @@ class APIHandler:
             changed_files = ["unknown"]
 
         # Run drift analysis
-        findings = self.drift_detector.analyze_diff_for_drift(
+        report = self.drift_detector.analyze_diff_for_drift(
             repo=repo_full,
             commit_or_pr_id=f"pr_{pr_number}",
             author=pr.get("user", {}).get("login", "unknown"),
             changed_files=changed_files,
             diff_text=diff_text
         )
+        findings = report.get("findings", [])
 
         # Post PR comment if violations and token available
         comment_posted = False
@@ -533,6 +542,8 @@ class APIHandler:
             "repo": repo_full,
             "pr": pr_number,
             "findings_count": len(findings),
+            "check_status": report.get("status", "complete"),
+            "errors": report.get("errors", []),
             "comment_posted": comment_posted,
             "diff_fetch_error": fetch_error
         }, 200)

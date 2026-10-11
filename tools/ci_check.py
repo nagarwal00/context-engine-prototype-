@@ -97,12 +97,22 @@ def main():
 
     # Import the guard rules checker (stdlib only inside it)
     try:
-        from backend.engine.guard_rules import check_diff_against_guard_rules
+        from backend.engine.guard_rules import check_diff_against_guard_rules_with_report
     except ImportError as e:
         print(f"[CI_CHECK] ERROR importing guard_rules: {e}", file=sys.stderr)
         sys.exit(2)
 
-    violations = check_diff_against_guard_rules(rules, changed_files, diff_text)
+    report = check_diff_against_guard_rules_with_report(rules, changed_files, diff_text)
+    violations = report.get("violations", [])
+    errors = report.get("errors", [])
+
+    if errors:
+        print(f"\n[CI_CHECK] INCOMPLETE: {len(errors)} guard rule(s) encountered evaluation errors:\n", file=sys.stderr)
+        for err in errors:
+            print(f"  RULE: {err.get('rule_id')} — {err.get('error_type')}: {err.get('message')}", file=sys.stderr)
+        if violations:
+            print(f"\n[CI_CHECK] Also detected {len(violations)} violation(s).", file=sys.stderr)
+        sys.exit(2)
 
     if violations:
         print(f"\n[CI_CHECK] FAIL: {len(violations)} guard rule violation(s) found!\n")
