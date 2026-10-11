@@ -26,23 +26,21 @@ import ssl
 
 GITHUB_API_BASE = "https://api.github.com"
 
+class GitHubTLSError(Exception):
+    """Raised when GitHub API requests fail due to TLS certificate verification failure."""
+    pass
+
 def _create_secure_ssl_context() -> ssl.SSLContext:
-    """Creates an SSL context that handles Windows root certificates and fallback."""
+    """Creates a secure SSL context using system defaults or CIF_CA_BUNDLE if set."""
+    ca_bundle = os.environ.get("CIF_CA_BUNDLE")
+    if ca_bundle and os.path.exists(ca_bundle):
+        return ssl.create_default_context(cafile=ca_bundle)
     try:
         import certifi
         return ssl.create_default_context(cafile=certifi.where())
     except Exception:
         pass
-    try:
-        ctx = ssl.create_default_context()
-        return ctx
-    except Exception:
-        pass
-    # Fallback for environments with missing local issuer certificates
-    ctx = ssl._create_unverified_context() if hasattr(ssl, "_create_unverified_context") else ssl.create_default_context()
-    ctx.check_hostname = False
-    ctx.verify_mode = ssl.CERT_NONE
-    return ctx
+    return ssl.create_default_context()
 
 class LiveGitHubIngestor:
     def __init__(self, db: Database, token: Optional[str] = None):
@@ -69,21 +67,15 @@ class LiveGitHubIngestor:
 
         req = urllib.request.Request(url, headers=headers)
         try:
-            try:
-                with urllib.request.urlopen(req, timeout=12, context=self.ssl_context) as response:
-                    status = response.getcode()
-                    data = json.loads(response.read().decode("utf-8"))
-                    return status, data
-            except urllib.error.URLError as ssl_err:
-                if "CERTIFICATE_VERIFY_FAILED" in str(ssl_err) or "certificate verify failed" in str(ssl_err):
-                    unverified_ctx = ssl._create_unverified_context() if hasattr(ssl, "_create_unverified_context") else self.ssl_context
-                    unverified_ctx.check_hostname = False
-                    unverified_ctx.verify_mode = ssl.CERT_NONE
-                    with urllib.request.urlopen(req, timeout=12, context=unverified_ctx) as response:
-                        status = response.getcode()
-                        data = json.loads(response.read().decode("utf-8"))
-                        return status, data
-                raise
+            with urllib.request.urlopen(req, timeout=12, context=self.ssl_context) as response:
+                status = response.getcode()
+                data = json.loads(response.read().decode("utf-8"))
+                return status, data
+        except ssl.SSLCertVerificationError as e:
+            raise GitHubTLSError(
+                "TLS certificate verification failed connecting to GitHub API. "
+                "Please update OS root certificates or set CIF_CA_BUNDLE."
+            ) from e
         except urllib.error.HTTPError as e:
             try:
                 err_body = json.loads(e.read().decode("utf-8"))
@@ -91,6 +83,18 @@ class LiveGitHubIngestor:
             except Exception:
                 msg = str(e)
             return e.code, {"error": msg}
+        except urllib.error.URLError as e:
+            reason = getattr(e, "reason", None)
+            if isinstance(reason, ssl.SSLCertVerificationError) or (
+                isinstance(reason, str) and (
+                    "CERTIFICATE_VERIFY_FAILED" in reason or "certificate verify failed" in reason.lower()
+                )
+            ):
+                raise GitHubTLSError(
+                    "TLS certificate verification failed connecting to GitHub API. "
+                    "Please update OS root certificates or set CIF_CA_BUNDLE."
+                ) from e
+            return 500, {"error": str(reason if reason is not None else e)}
         except Exception as e:
             return 500, {"error": str(e)}
 
