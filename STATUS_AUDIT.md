@@ -180,6 +180,27 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   6. Updated frontend UI tabs and CSS status tag styling (`.status-tag.tested`, `.status-tag.reopened`) in both `web/` and `docs/`.
   7. Verification: `tests/test_state_model.py` (7 tests pass covering every allowed state, illegal state rejection, illegal assessment/freshness rejection, invariant enforcement, compatibility alias, and zero-data-loss validation against `backups/context_intelligence.pre_v2.db`). Full suite (74 tests) and demo suite (21/21) pass.
 
+### Step 2.2 — Lifecycle Engine
+- Status: **RESOLVED**
+- Files: `backend/engine/lifecycle.py`, `tests/test_lifecycle.py`
+- Resolution:
+  1. Implemented data-driven lifecycle transition engine in `backend/engine/lifecycle.py`:
+     - Dictionary table `ALLOWED_TRANSITIONS`:
+       - `proposed -> tested, accepted, rejected`
+       - `tested -> accepted, rejected`
+       - `accepted -> superseded, reopened`
+       - `rejected -> reopened`
+       - `reopened -> tested, accepted, rejected`
+       - `superseded -> (terminal, no transitions allowed)`
+  2. Implemented `transition(db, decision_id, to_state, actor, reason, at, evidence_event_ids, superseded_by_id)`:
+     - Validates against allowed transition graph; raises `InvalidTransition` otherwise.
+     - Enforces non-empty `actor` and `reason`.
+     - Enforces evidence requirement for states `tested/accepted/rejected/superseded` (checks existing links + supplied events).
+     - Executes updates inside a single database transaction (updates `decisions.state`, appends audit row to `state_history` with actor/reason/timestamp, closes `valid_to` edge validity for `superseded`).
+  3. Implemented `record_initial_state` for initial ingestion creation (`from_state = NULL`).
+  4. Verification: `tests/test_lifecycle.py` (8 tests pass covering all legal transitions, all illegal pairs via `itertools.product`, `superseded` terminal state, `rejected -> reopened -> accepted` progression, evidence requirement, and audit logging). Full suite (80 tests) and demo suite (21/21) pass.
+
+
 
 
 
