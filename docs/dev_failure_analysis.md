@@ -3,7 +3,7 @@
 - **Standard Questions Evaluated**: 18
 - **Successfully Extracted (Strict 1-to-1)**: 18
 - **Total Misses & State Mismatches**: 0
-- **False Positive Decisions**: 22
+- **False Positive Decisions**: 38
 
 ## 1. Failure Counts by Category
 
@@ -27,16 +27,16 @@
 
 ## 4. Wrongly-Extracted System Decisions (False Positives)
 
-Total false positive / unlinked decisions identified: **22**
+Total false positive / unlinked decisions identified: **38**
 
-- **`dec_cli_cli_github_pr_670`** (`cli/cli`): *Fork-exec child subprocess isolation with restricted inherited env for extension* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_pr_review_comment_c712`** (`cli/cli`): *Reject executing third-party extensions via in-process Go plugins* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_adr_docs_rfc_004-termenv-formatting_md`** (`cli/cli`): *RFC 004: Terminal Color and Hyperlink Detection via termenv* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_github_pr_735`** (`cli/cli`): *Auto-detect TTY and disable ANSI formatting in non-interactive pipelines* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_adr_docs_rfc_005-git-credential-helper_md`** (`cli/cli`): *RFC 005: Git Credential Helper Protocol Provider* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_github_pr_810`** (`cli/cli`): *Implementation of gh auth git-credential helper protocol* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cli_cli_pr_review_comment_c840`** (`cli/cli`): *Reject global auth token in HTTP GET query string* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cloud-hypervisor_cloud-hypervisor_github_issue_940`** (`cloud-hypervisor/cloud-hypervisor`): *High guest exit latency on unpinned multi-threaded vCPUs* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cloud-hypervisor_cloud-hypervisor_pr_review_comment_c615`** (`cloud-hypervisor/cloud-hypervisor`): *Reject legacy floppy and IDE device emulation* — System decision extracted from repository history does not match any evaluated ground-truth question
-- **`dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_virtio-fs_md`** (`cloud-hypervisor/cloud-hypervisor`): *Design: VirtIO-FS Shared Host Filesystem with Direct Access (DAX) Window* — System decision extracted from repository history does not match any evaluated ground-truth question
-- *... and 12 more unlinked decisions*
+- **`dec_acme-ecommerce_payment-core_github_pr_14`** (`acme-ecommerce/payment-core`): *Implement Exponential Backoff with Full Jitter for Stripe API* — Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_08' (system should have abstained)
+- **`dec_acme-ecommerce_payment-core_github_pr_18`** (`acme-ecommerce/payment-core`): *Idempotency-Key Header Middleware with SHA-256 Request Hashing* — Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_09' (system should have abstained)
+- **`dec_acme-ecommerce_payment-core_github_pr_14`** (`acme-ecommerce/payment-core`): *Implement Exponential Backoff with Full Jitter for Stripe API* — Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_10' (system should have abstained)
+- **`dec_acme-ecommerce_payment-core_github_pr_29`** (`acme-ecommerce/payment-core`): *Migrate refund math to integer cents and Decimal representation* — Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_11' (system should have abstained)
+- **`dec_acme-ecommerce_payment-core_github_pr_29`** (`acme-ecommerce/payment-core`): *Migrate refund math to integer cents and Decimal representation* — Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_14' (system should have abstained)
+- **`dec_cloud-hypervisor_cloud-hypervisor_github_pr_1042`** (`cloud-hypervisor/cloud-hypervisor`): *Implement VirtIO Memory Ballooning with Page Reporting* — Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_09' (system should have abstained)
+- **`dec_cloud-hypervisor_cloud-hypervisor_github_issue_940`** (`cloud-hypervisor/cloud-hypervisor`): *High guest exit latency on unpinned multi-threaded vCPUs* — Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_10' (system should have abstained)
+- **`dec_cloud-hypervisor_cloud-hypervisor_github_pr_1105`** (`cloud-hypervisor/cloud-hypervisor`): *CPU Pinning and NUMA Topology Node Binding* — Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_11' (system should have abstained)
+- **`dec_cloud-hypervisor_cloud-hypervisor_github_pr_1180`** (`cloud-hypervisor/cloud-hypervisor`): *PCIe Root Port Hotplug Support for VirtIO Devices* — Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_13' (system should have abstained)
+- **`dec_cli_cli_github_pr_518`** (`cli/cli`): *Add zalando/go-keyring provider for auth token persistence* — Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_08' (system should have abstained)
+- *... and 28 more unlinked decisions*

@@ -126,8 +126,8 @@ def analyze_failures(
         all_questions = json.load(f)
 
     split_questions = [q for q in all_questions if q.get("split") == split and q.get("verified") is True]
-    standard_questions = [q for q in split_questions if q.get("expected_state") != "unresolved"]
-    refusal_questions = [q for q in split_questions if q.get("expected_state") == "unresolved"]
+    standard_questions = [q for q in split_questions if q.get("expected_state") not in ("unresolved", "none")]
+    refusal_questions = [q for q in split_questions if q.get("expected_state") in ("unresolved", "none")]
 
     # Fetch DB events
     with db.get_connection() as conn:
@@ -207,20 +207,39 @@ def analyze_failures(
     for q in refusal_questions:
         expected_events = set(q.get("evidence_event_ids", []))
         repo = q.get("repo")
+        matched_sd = None
         for sd in system_decisions:
             if repo and sd.get("repo") != repo:
                 continue
             sd_events = decision_to_evidence.get(sd["decision_id"], set())
-            if expected_events.intersection(sd_events):
-                false_positives.append({
-                    "type": "refusal_false_positive",
-                    "decision_id": sd["decision_id"],
-                    "repo": repo,
-                    "title": sd["title"],
-                    "state": sd["state"],
-                    "question_id": q["id"],
-                    "reason": f"Decision was extracted on negative refusal question '{q['id']}' (system should have abstained)"
-                })
+            if expected_events and expected_events.intersection(sd_events):
+                matched_sd = sd
+                break
+
+        if matched_sd is None and not expected_events:
+            q_text = q.get("question", "").lower()
+            q_tokens = set(tokenize(q_text)) - STOP_WORDS
+            for sd in system_decisions:
+                if repo and sd.get("repo") != repo:
+                    continue
+                sd_title_tokens = set(tokenize(sd.get("title", ""))) - STOP_WORDS
+                sd_problem_tokens = set(tokenize(sd.get("problem_statement", ""))) - STOP_WORDS
+                sd_all = sd_title_tokens | sd_problem_tokens
+                if any(w in sd_all for w in q_tokens if len(w) > 5 and w in ("mongodb", "dynamodb", "elasticsearch", "cassandra", "memcached", "spanner", "vault", "consul", "istio", "envoy", "traefik")):
+                    matched_sd = sd
+                    break
+
+        if matched_sd is not None:
+            false_positives.append({
+                "type": "refusal_false_positive",
+                "decision_id": matched_sd["decision_id"],
+                "repo": repo,
+                "title": matched_sd["title"],
+                "state": matched_sd["state"],
+                "question_id": q["id"],
+                "negative_type": q.get("negative_type", "unrecorded"),
+                "reason": f"Decision was extracted on negative {q.get('negative_type', 'refusal')} question '{q['id']}' (system should have abstained)"
+            })
 
     # (b) Unmatched System Decisions in DB
     for sd in system_decisions:

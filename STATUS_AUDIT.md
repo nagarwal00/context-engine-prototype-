@@ -655,3 +655,26 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `test_sampling_determinism_and_cap_per_repo`: Verifies seed 1234 determinism and 40-decision-per-repo cap.
      - Full test discovery suite: **169 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 4.6 — Representative Negative Cases (Unrecorded & Mention-Without-Decision Mix)
+- Status: **RESOLVED**
+- Files: `backend/evaluation/whybench/questions.json`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `tools/analyze_failures.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Negative Cases Extension:
+     - Extended WhyBench question suite to 134 items (63 dev, 71 test).
+     - Added 45 negative cases in `dev` and 45 negative cases in `test` (15 per repository across all 3 repos).
+     - **Type (a) Unrecorded** (`negative_type: "unrecorded"`, `expected_state: "none"`, `evidence_event_ids: []`): Questions asking why an unrecorded technology was chosen (e.g., MongoDB, CVV cache, Cassandra, QEMU C wrapper). Honest answer is "no recorded architectural decision found".
+     - **Type (b) Mention-without-decision** (`negative_type: "mention_without_decision"`, `expected_state: "none"`, `evidence_event_ids: ["evt_..."]`): Discussions where a technology was casually mentioned or queried without reaching an architectural decision (e.g., "could eBPF filter balloon events?", "evaluate DynamoDB locks?").
+     - Type (b) represents 8/15 (53.3%) of negatives per repo in each split, exceeding the required >= 50% mix.
+  2. Dataset Validation Rule (`tools/validate_whybench.py`):
+     - Validates that all negative items declare `negative_type` in `("unrecorded", "mention_without_decision")`.
+     - Strictly enforces >= 15 negative cases per repository in both `dev` and `test` splits.
+     - Strictly enforces >= 50% type (b) negative cases per repository in both `dev` and `test` splits.
+  3. Benchmark & Failure Analysis Accounting:
+     - `tools/run_whybench.py` and `tools/analyze_failures.py` updated to classify questions into standard (`expected_state not in ("unresolved", "none")`) and refusal/negatives (`expected_state in ("unresolved", "none")`).
+     - Any system decision citing type (b) discussion events or falsely matching unrecorded type (a) topics is counted as a false positive decision (`false_positive_decision`).
+  4. Acceptance & Verification:
+     - `python tools/validate_whybench.py` passes with 0 errors across 134 questions and validates negative mix (15 negatives per repo, 53.3% type b).
+     - `python tools/run_whybench.py --split dev` evaluates all 45 dev negatives with refusal accuracy.
+     - Full test discovery suite: **169 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

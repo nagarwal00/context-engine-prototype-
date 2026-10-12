@@ -34,8 +34,168 @@
     }
   },
   "failures": [],
-  "false_positives_total": 22,
+  "false_positives_total": 38,
   "false_positives": [
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_acme-ecommerce_payment-core_github_pr_14",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Implement Exponential Backoff with Full Jitter for Stripe API",
+      "state": "accepted",
+      "question_id": "WB_PAY_DEV_NEG_08",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_08' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_acme-ecommerce_payment-core_github_pr_18",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Idempotency-Key Header Middleware with SHA-256 Request Hashing",
+      "state": "accepted",
+      "question_id": "WB_PAY_DEV_NEG_09",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_09' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_acme-ecommerce_payment-core_github_pr_14",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Implement Exponential Backoff with Full Jitter for Stripe API",
+      "state": "accepted",
+      "question_id": "WB_PAY_DEV_NEG_10",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_10' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_acme-ecommerce_payment-core_github_pr_29",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Migrate refund math to integer cents and Decimal representation",
+      "state": "accepted",
+      "question_id": "WB_PAY_DEV_NEG_11",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_11' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_acme-ecommerce_payment-core_github_pr_29",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Migrate refund math to integer cents and Decimal representation",
+      "state": "accepted",
+      "question_id": "WB_PAY_DEV_NEG_14",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_PAY_DEV_NEG_14' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1042",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Implement VirtIO Memory Ballooning with Page Reporting",
+      "state": "accepted",
+      "question_id": "WB_CH_DEV_NEG_09",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_09' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_issue_940",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "High guest exit latency on unpinned multi-threaded vCPUs",
+      "state": "proposed",
+      "question_id": "WB_CH_DEV_NEG_10",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_10' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1105",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "CPU Pinning and NUMA Topology Node Binding",
+      "state": "accepted",
+      "question_id": "WB_CH_DEV_NEG_11",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_11' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1180",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "PCIe Root Port Hotplug Support for VirtIO Devices",
+      "state": "accepted",
+      "question_id": "WB_CH_DEV_NEG_13",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CH_DEV_NEG_13' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_518",
+      "repo": "cli/cli",
+      "title": "Add zalando/go-keyring provider for auth token persistence",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_08",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_08' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_518",
+      "repo": "cli/cli",
+      "title": "Add zalando/go-keyring provider for auth token persistence",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_09",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_09' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_592",
+      "repo": "cli/cli",
+      "title": "Batch repository and issue queries using GraphQL fragments",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_10",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_10' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_592",
+      "repo": "cli/cli",
+      "title": "Batch repository and issue queries using GraphQL fragments",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_11",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_11' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_670",
+      "repo": "cli/cli",
+      "title": "Fork-exec child subprocess isolation with restricted inherited env for extension",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_12",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_12' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_670",
+      "repo": "cli/cli",
+      "title": "Fork-exec child subprocess isolation with restricted inherited env for extension",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_13",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_13' (system should have abstained)"
+    },
+    {
+      "type": "refusal_false_positive",
+      "decision_id": "dec_cli_cli_github_pr_735",
+      "repo": "cli/cli",
+      "title": "Auto-detect TTY and disable ANSI formatting in non-interactive pipelines",
+      "state": "accepted",
+      "question_id": "WB_CLI_DEV_NEG_14",
+      "negative_type": "mention_without_decision",
+      "reason": "Decision was extracted on negative mention_without_decision question 'WB_CLI_DEV_NEG_14' (system should have abstained)"
+    },
     {
       "type": "unmatched_decision",
       "decision_id": "dec_cli_cli_github_pr_670",
@@ -43,8 +203,8 @@
       "title": "Fork-exec child subprocess isolation with restricted inherited env for extension",
       "state": "accepted",
       "cites": [
-        "evt_why_cli_issue_550",
-        "evt_why_cli_pr_670"
+        "evt_why_cli_pr_670",
+        "evt_why_cli_issue_550"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },
@@ -199,8 +359,8 @@
       "title": "Idempotency-Key Header Middleware with SHA-256 Request Hashing",
       "state": "accepted",
       "cites": [
-        "evt_why_pay_pr_18",
-        "evt_why_pay_issue_05"
+        "evt_why_pay_issue_05",
+        "evt_why_pay_pr_18"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },
@@ -244,8 +404,8 @@
       "title": "Migrate refund math to integer cents and Decimal representation",
       "state": "accepted",
       "cites": [
-        "evt_why_pay_pr_29",
-        "evt_why_pay_issue_11"
+        "evt_why_pay_issue_11",
+        "evt_why_pay_pr_29"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },

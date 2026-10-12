@@ -4,8 +4,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why did payment-core migrate from Braintree to Stripe Payment Intents API?",
     "answer_summary": "Legacy Braintree did not support European 3DS2 compliance, leading to high drop-offs; Stripe Payment Intents provides 3DS2 and sub-800ms auth.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0001-stripe-payment-migration.md"],
-    "evidence_event_ids": ["evt_why_pay_adr_01"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0001-stripe-payment-migration.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_adr_01"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -15,8 +19,14 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How were Stripe API 429 rate limits resolved under flash sale load?",
     "answer_summary": "Implemented exponential backoff with randomized full jitter retrying up to 4 times.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/14", "https://github.com/acme-ecommerce/payment-core/issues/8"],
-    "evidence_event_ids": ["evt_why_pay_pr_14", "evt_why_pay_issue_08"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/14",
+      "https://github.com/acme-ecommerce/payment-core/issues/8"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_14",
+      "evt_why_pay_issue_08"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -26,8 +36,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why were fixed 500ms sleep retries rejected for Stripe API calls?",
     "answer_summary": "Fixed sleep intervals cause thundering herd synchronized retries when Stripe recovers.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/14#discussion_r301"],
-    "evidence_event_ids": ["evt_why_pay_rev_c301"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/14#discussion_r301"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c301"
+    ],
     "expected_state": "rejected",
     "split": "dev",
     "verified": true
@@ -37,9 +51,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How does payment-core prevent duplicate order fulfillments from duplicate webhooks?",
     "answer_summary": "Stores processed event IDs in Redis with 24-hour TTL and acquires distributed mutex lock before processing.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0002-webhook-idempotency.md"],
-    "evidence_event_ids": ["evt_why_pay_adr_02"],
-    "expected_state": "dev",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0002-webhook-idempotency.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_adr_02"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -49,31 +66,13 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why was SQLAlchemy async connection pool adopted for the database?",
     "answer_summary": "Eliminates connection pool exhaustion under 2,000 checkout req/sec compared to raw per-request psycopg2 connections.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/commit/7a8b9c0d1e2f3a4b"],
-    "evidence_event_ids": ["evt_why_pay_commit_7a"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/commit/7a8b9c0d1e2f3a4b"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_commit_7a"
+    ],
     "expected_state": "accepted",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_PAY_06",
-    "repo": "acme-ecommerce/payment-core",
-    "question": "Why did payment-core switch from PostgreSQL to MongoDB for transactional payment ledger?",
-    "answer_summary": "No recorded decision; payment-core strictly uses relational PostgreSQL with ACID guarantees.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_PAY_07",
-    "repo": "acme-ecommerce/payment-core",
-    "question": "Why does payment-core store raw unencrypted credit card CVVs in local memory cache?",
-    "answer_summary": "No recorded decision; PCI-DSS compliance prohibits raw CVV storage.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
     "split": "dev",
     "verified": true
   },
@@ -82,8 +81,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why was client-side order redirect replaced by webhook-first confirmation?",
     "answer_summary": "Browser checkout redirects were dropping orders when mobile users closed Safari before page redirect completed.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0003-webhook-first-confirmation.md"],
-    "evidence_event_ids": ["evt_why_pay_adr_03"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0003-webhook-first-confirmation.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_adr_03"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -93,8 +96,14 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How were double charges prevented when users double-clicked the checkout submit button?",
     "answer_summary": "Idempotency-Key HTTP middleware hashing request payloads with SHA-256 and returning cached responses on hit.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/18", "https://github.com/acme-ecommerce/payment-core/issues/5"],
-    "evidence_event_ids": ["evt_why_pay_pr_18", "evt_why_pay_issue_05"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/18",
+      "https://github.com/acme-ecommerce/payment-core/issues/5"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_18",
+      "evt_why_pay_issue_05"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -104,8 +113,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why were database row locks rejected for enforcing checkout idempotency?",
     "answer_summary": "Database row locks cause connection saturation and deadlock risks under high checkout volume.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/18#discussion_r402"],
-    "evidence_event_ids": ["evt_why_pay_rev_c402"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/18#discussion_r402"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c402"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -115,8 +128,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How does payment-core authenticate incoming Stripe webhooks?",
     "answer_summary": "Validates HMAC-SHA256 signature against secret with a 300-second maximum timestamp drift tolerance window.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/22"],
-    "evidence_event_ids": ["evt_why_pay_pr_22"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/22"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_22"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -126,8 +143,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why was skipping webhook signature verification in development rejected?",
     "answer_summary": "Bypassing signature validation risks shipping unverified endpoints to production.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/22#discussion_r450"],
-    "evidence_event_ids": ["evt_why_pay_rev_c450"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/22#discussion_r450"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c450"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -137,8 +158,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How did payment-core implement support for customer partial refunds?",
     "answer_summary": "Introduced immutable append-only line-item reversal records tracking fractional refunds against order authorization totals.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0004-partial-refund-support.md"],
-    "evidence_event_ids": ["evt_why_pay_adr_04"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0004-partial-refund-support.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_adr_04"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -148,8 +173,14 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How were fractional cent rounding errors solved in multi-currency refund calculations?",
     "answer_summary": "Migrated monetary calculations to 64-bit integer cents and Python Decimal types.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/29", "https://github.com/acme-ecommerce/payment-core/issues/11"],
-    "evidence_event_ids": ["evt_why_pay_pr_29", "evt_why_pay_issue_11"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/29",
+      "https://github.com/acme-ecommerce/payment-core/issues/11"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_29",
+      "evt_why_pay_issue_11"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -159,8 +190,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why were client-supplied timestamps rejected for partial refund requests?",
     "answer_summary": "Untrusted client clocks permit replay attacks and out-of-order ledger anomalies; server UTC monotonic clock is required.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/29#discussion_r505"],
-    "evidence_event_ids": ["evt_why_pay_rev_c505"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/29#discussion_r505"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c505"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -170,8 +205,14 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How does payment-core handle toxic malformed webhook messages that crash consumer workers?",
     "answer_summary": "Parks toxic messages in a Dead Letter Queue (DLQ) after 3 failed delivery attempts.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/35", "https://github.com/acme-ecommerce/payment-core/issues/19"],
-    "evidence_event_ids": ["evt_why_pay_pr_35", "evt_why_pay_issue_19"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/35",
+      "https://github.com/acme-ecommerce/payment-core/issues/19"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_35",
+      "evt_why_pay_issue_19"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -181,8 +222,12 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "How does payment-core achieve PCI SAQ A compliance for credit card processing?",
     "answer_summary": "Delegates card data collection to browser Stripe Elements, storing only opaque payment_method_id tokens on the backend.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0005-pci-token-vault.md"],
-    "evidence_event_ids": ["evt_why_pay_adr_05"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/blob/main/docs/adr/0005-pci-token-vault.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_adr_05"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -192,42 +237,13 @@
     "repo": "acme-ecommerce/payment-core",
     "question": "Why was in-memory caching of card CVV security codes rejected?",
     "answer_summary": "Direct violation of PCI-DSS Requirement 3.2 prohibiting post-authorization CVV storage.",
-    "evidence_urls": ["https://github.com/acme-ecommerce/payment-core/pull/38#discussion_r610"],
-    "evidence_event_ids": ["evt_why_pay_rev_c610"],
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/38#discussion_r610"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c610"
+    ],
     "expected_state": "rejected",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_PAY_19",
-    "repo": "acme-ecommerce/payment-core",
-    "question": "Why did payment-core switch from JSON REST APIs to XML SOAP endpoints?",
-    "answer_summary": "No recorded decision; payment-core exposes modern RESTful JSON endpoints.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_PAY_20",
-    "repo": "acme-ecommerce/payment-core",
-    "question": "Why does payment-core store customer passwords in base64 plaintext?",
-    "answer_summary": "No recorded decision; all credentials use salted Argon2id hashing.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_PAY_21",
-    "repo": "acme-ecommerce/payment-core",
-    "question": "Why was Apache Cassandra chosen over PostgreSQL for payment transactions?",
-    "answer_summary": "No recorded decision; PostgreSQL with ACID transactions is the canonical ledger datastore.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
     "split": "test",
     "verified": true
   },
@@ -236,8 +252,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why did Cloud Hypervisor choose KVM dirty ring buffer over userfaultfd for live migration?",
     "answer_summary": "KVM dirty ring drastically reduces lock contention and keeps VM guest pause time below 35ms.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/live-migration.md"],
-    "evidence_event_ids": ["evt_why_ch_rfc_01"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/live-migration.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rfc_01"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -247,8 +267,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why was synchronous balloon deflation rejected in virtio-balloon?",
     "answer_summary": "Synchronous deflation blocked guest vCPUs for up to 400ms under memory pressure; replaced by background worker.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042#discussion_r502"],
-    "evidence_event_ids": ["evt_why_ch_rev_c502"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042#discussion_r502"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rev_c502"
+    ],
     "expected_state": "rejected",
     "split": "dev",
     "verified": true
@@ -258,8 +282,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How does Cloud Hypervisor achieve line-rate 10GbE networking throughput?",
     "answer_summary": "Implements vhost-user-net delegating packet processing to DPDK/OVS shared memory queues, eliminating kernel context switches.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/vhost-user-net.md"],
-    "evidence_event_ids": ["evt_why_ch_rfc_03"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/vhost-user-net.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rfc_03"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -269,8 +297,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why did Cloud Hypervisor enable virtio unused page reporting in PR #1042?",
     "answer_summary": "Allows dynamic RAM overcommit back to the host hypervisor without guest performance degradation.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042"],
-    "evidence_event_ids": ["evt_why_ch_pr_1042"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1042"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -280,8 +312,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How did Cloud Hypervisor achieve sub-30ms guest kernel boot times?",
     "answer_summary": "Implements direct ELF/bzImage kernel loader eliminating SeaBIOS/UEFI real-mode initialization overhead.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/direct-kernel-boot.md"],
-    "evidence_event_ids": ["evt_why_ch_rfc_02"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/direct-kernel-boot.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rfc_02"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -291,31 +327,15 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How was multi-threaded vCPU tail latency jitter mitigated?",
     "answer_summary": "Implemented vCPU thread pinning to physical host cores and guest RAM NUMA node affinity binding.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1105", "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/940"],
-    "evidence_event_ids": ["evt_why_ch_pr_1105", "evt_why_ch_issue_940"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1105",
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/940"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1105",
+      "evt_why_ch_issue_940"
+    ],
     "expected_state": "accepted",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_07",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why did Cloud Hypervisor replace the Rust VMM core with a QEMU C wrapper?",
-    "answer_summary": "No recorded decision; Cloud Hypervisor is strictly Rust-native for memory safety.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_08",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why does Cloud Hypervisor disable ACPI power management tables?",
-    "answer_summary": "No recorded decision; ACPI and device-tree hardware descriptions are actively maintained.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
     "split": "dev",
     "verified": true
   },
@@ -324,8 +344,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why was legacy floppy and IDE drive emulation rejected?",
     "answer_summary": "Legacy peripheral emulation violates the minimal attack surface mission; only VirtIO and modern PCIe devices are supported.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1105#discussion_r615"],
-    "evidence_event_ids": ["evt_why_ch_rev_c615"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1105#discussion_r615"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rev_c615"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -335,8 +359,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How does virtio-fs avoid memory duplication when sharing container root filesystems?",
     "answer_summary": "Maps host page cache directly into guest address space using a Direct Access (DAX) memory window.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/virtio-fs.md"],
-    "evidence_event_ids": ["evt_why_ch_rfc_04"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/virtio-fs.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rfc_04"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -346,8 +374,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How does Cloud Hypervisor support dynamic hotplug of PCIe devices?",
     "answer_summary": "Implements PCIe native hotplug controller and ACPI PCI notification methods in PR #1180.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1180"],
-    "evidence_event_ids": ["evt_why_ch_pr_1180"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1180"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1180"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -357,8 +389,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why did Cloud Hypervisor adopt Linux io_uring for disk virtualization?",
     "answer_summary": "Replaced synchronous pread/pwrite thread pools with asynchronous io_uring submission rings, doubling IOPS.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1240"],
-    "evidence_event_ids": ["evt_why_ch_pr_1240"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1240"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1240"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -368,8 +404,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why were spin-polling loops prohibited in io_uring worker threads?",
     "answer_summary": "Spin-polling consumes 100% host CPU even when guest VM is idle; eventfd notification is required.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1240#discussion_r720"],
-    "evidence_event_ids": ["evt_why_ch_rev_c720"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1240#discussion_r720"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rev_c720"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -379,8 +419,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How does Cloud Hypervisor provide direct GPU access to guest virtual machines?",
     "answer_summary": "Uses Linux VFIO driver API for hardware IOMMU page table mapping and MSI-X interrupt forwarding.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1312"],
-    "evidence_event_ids": ["evt_why_ch_pr_1312"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1312"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1312"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -390,8 +434,12 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "Why did Cloud Hypervisor adopt the ACPI Generic Event Device (GED)?",
     "answer_summary": "Unifies event dispatching across x86_64 and AArch64 and removes 1,200 lines of architecture-specific AML bytecode.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/acpi-ged.md"],
-    "evidence_event_ids": ["evt_why_ch_rfc_05"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/blob/main/docs/designs/acpi-ged.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_rfc_05"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -401,53 +449,13 @@
     "repo": "cloud-hypervisor/cloud-hypervisor",
     "question": "How does the microVM profile achieve 12ms cold boot for serverless sandboxes?",
     "answer_summary": "Strips ACPI tables and serial console emulation, configuring minimal device tree representation.",
-    "evidence_urls": ["https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1390"],
-    "evidence_event_ids": ["evt_why_ch_pr_1390"],
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1390"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1390"
+    ],
     "expected_state": "accepted",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_17",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why did Cloud Hypervisor embed a proprietary binary NVIDIA kernel module?",
-    "answer_summary": "No recorded decision; Cloud Hypervisor only links open-source components with zero proprietary binary blobs.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_18",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why does Cloud Hypervisor bundle an unencrypted FTP server inside the guest supervisor?",
-    "answer_summary": "No recorded decision; unencrypted FTP is not part of the Cloud Hypervisor architecture.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_19",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why did Cloud Hypervisor replace KVM with an interpreted bytecode CPU emulator?",
-    "answer_summary": "No recorded decision; Cloud Hypervisor relies strictly on hardware-accelerated virtualization.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CH_20",
-    "repo": "cloud-hypervisor/cloud-hypervisor",
-    "question": "Why did Cloud Hypervisor mandate MS-DOS 6.22 compatibility mode?",
-    "answer_summary": "No recorded decision; legacy DOS compatibility is explicitly out of scope.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
     "split": "test",
     "verified": true
   },
@@ -456,8 +464,14 @@
     "repo": "cli/cli",
     "question": "Why does GitHub CLI store OAuth credentials in native OS keyrings instead of plaintext config files?",
     "answer_summary": "World-readable plaintext config files left credentials vulnerable to local processes; OS keyrings provide hardware-backed protection.",
-    "evidence_urls": ["https://github.com/cli/cli/blob/main/docs/rfc/001-keyring-credentials.md", "https://github.com/cli/cli/issues/412"],
-    "evidence_event_ids": ["evt_why_cli_rfc_01", "evt_why_cli_issue_412"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/blob/main/docs/rfc/001-keyring-credentials.md",
+      "https://github.com/cli/cli/issues/412"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rfc_01",
+      "evt_why_cli_issue_412"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -467,8 +481,12 @@
     "repo": "cli/cli",
     "question": "Why was custom symmetric key encryption rejected for storing gh credentials?",
     "answer_summary": "Storing custom symmetric keys next to the ciphertext on disk offers no additional security over native OS keychains.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/518#discussion_r601"],
-    "evidence_event_ids": ["evt_why_cli_rev_c601"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/518#discussion_r601"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rev_c601"
+    ],
     "expected_state": "rejected",
     "split": "dev",
     "verified": true
@@ -478,8 +496,12 @@
     "repo": "cli/cli",
     "question": "Why are third-party GitHub CLI extensions executed as isolated child subprocesses?",
     "answer_summary": "Prevents third-party extension memory corruption and privilege escalation inside the host CLI runtime.",
-    "evidence_urls": ["https://github.com/cli/cli/blob/main/docs/rfc/003-extension-isolation.md"],
-    "evidence_event_ids": ["evt_why_cli_rfc_03"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/blob/main/docs/rfc/003-extension-isolation.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rfc_03"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -489,8 +511,12 @@
     "repo": "cli/cli",
     "question": "How was zalando/go-keyring integrated into the gh auth login command?",
     "answer_summary": "Integrated in PR #518 to provide cross-platform OS keyring persistence with fallback to encrypted file storage.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/518"],
-    "evidence_event_ids": ["evt_why_cli_pr_518"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/518"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_518"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -500,8 +526,14 @@
     "repo": "cli/cli",
     "question": "Why did GitHub CLI migrate from REST to GraphQL for pull request listings?",
     "answer_summary": "Eliminates N+1 REST API calls by batching review statuses, checks, and comments in a single paginated query.",
-    "evidence_urls": ["https://github.com/cli/cli/blob/main/docs/rfc/002-graphql-query-batching.md", "https://github.com/cli/cli/issues/480"],
-    "evidence_event_ids": ["evt_why_cli_rfc_02", "evt_why_cli_issue_480"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/blob/main/docs/rfc/002-graphql-query-batching.md",
+      "https://github.com/cli/cli/issues/480"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rfc_02",
+      "evt_why_cli_issue_480"
+    ],
     "expected_state": "accepted",
     "split": "dev",
     "verified": true
@@ -511,31 +543,13 @@
     "repo": "cli/cli",
     "question": "How did PR #592 optimize repository and issue queries?",
     "answer_summary": "Replaced iterative REST calls with single GraphQL requests using reusable query fragments.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/592"],
-    "evidence_event_ids": ["evt_why_cli_pr_592"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/592"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_592"
+    ],
     "expected_state": "accepted",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_CLI_07",
-    "repo": "cli/cli",
-    "question": "Why did GitHub CLI migrate from Go to Electron GUI desktop client?",
-    "answer_summary": "No recorded decision; GitHub CLI is an interactive terminal CLI compiled directly in Go.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "dev",
-    "verified": true
-  },
-  {
-    "id": "WB_CLI_08",
-    "repo": "cli/cli",
-    "question": "Why does GitHub CLI transmit telemetry analytics over unencrypted HTTP port 80?",
-    "answer_summary": "No recorded decision; all GitHub API and telemetry communication requires TLS 1.3.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
     "split": "dev",
     "verified": true
   },
@@ -544,8 +558,12 @@
     "repo": "cli/cli",
     "question": "Why was executing extensions via Go dynamic plugin packages rejected?",
     "answer_summary": "Go plugins require exact compiler and ABI matching and do not isolate process memory; child fork-exec isolation is required.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/670#discussion_r712"],
-    "evidence_event_ids": ["evt_why_cli_rev_c712"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/670#discussion_r712"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rev_c712"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -555,8 +573,14 @@
     "repo": "cli/cli",
     "question": "How does GitHub CLI isolate extension subprocess execution environment?",
     "answer_summary": "Restricts inherited environment variables, strips sensitive tokens, and bounds PATH lookups to extension install directory.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/670", "https://github.com/cli/cli/issues/550"],
-    "evidence_event_ids": ["evt_why_cli_pr_670", "evt_why_cli_issue_550"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/670",
+      "https://github.com/cli/cli/issues/550"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_670",
+      "evt_why_cli_issue_550"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -566,8 +590,12 @@
     "repo": "cli/cli",
     "question": "Why did GitHub CLI adopt termenv for terminal formatting?",
     "answer_summary": "Provides automated TTY inspection and strips ANSI formatting when stdout is piped to tools or when NO_COLOR is active.",
-    "evidence_urls": ["https://github.com/cli/cli/blob/main/docs/rfc/004-termenv-formatting.md"],
-    "evidence_event_ids": ["evt_why_cli_rfc_04"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/blob/main/docs/rfc/004-termenv-formatting.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rfc_04"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -577,8 +605,14 @@
     "repo": "cli/cli",
     "question": "How was ANSI escape sequence corruption resolved in Unix pipelines?",
     "answer_summary": "Integrated IOStreams ColorEnabled check auto-disabling colors when stdout is not connected to an interactive terminal.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/735", "https://github.com/cli/cli/issues/620"],
-    "evidence_event_ids": ["evt_why_cli_pr_735", "evt_why_cli_issue_620"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/735",
+      "https://github.com/cli/cli/issues/620"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_735",
+      "evt_why_cli_issue_620"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -588,8 +622,12 @@
     "repo": "cli/cli",
     "question": "How does GitHub CLI share credentials with standard Git CLI operations?",
     "answer_summary": "Implements the gh auth git-credential helper answering Git protocol get/store/erase queries from the OS keychain.",
-    "evidence_urls": ["https://github.com/cli/cli/blob/main/docs/rfc/005-git-credential-helper.md"],
-    "evidence_event_ids": ["evt_why_cli_rfc_05"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/blob/main/docs/rfc/005-git-credential-helper.md"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rfc_05"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -599,8 +637,12 @@
     "repo": "cli/cli",
     "question": "How is git credential helper configured during authentication?",
     "answer_summary": "PR #810 adds git credential helper entries directly into global git configuration during gh auth login.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/810"],
-    "evidence_event_ids": ["evt_why_cli_pr_810"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/810"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_810"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
@@ -610,8 +652,12 @@
     "repo": "cli/cli",
     "question": "Why was passing authentication tokens via URL query parameters rejected?",
     "answer_summary": "URL query tokens leak into proxy logs and browser history; tokens must strictly use Authorization HTTP headers.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/810#discussion_r840"],
-    "evidence_event_ids": ["evt_why_cli_rev_c840"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/810#discussion_r840"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_rev_c840"
+    ],
     "expected_state": "rejected",
     "split": "test",
     "verified": true
@@ -621,54 +667,1288 @@
     "repo": "cli/cli",
     "question": "How does gh auth login authenticate in headless SSH cloud environments without a browser?",
     "answer_summary": "Falls back to OAuth Device Code flow presenting a one-time 8-digit code for secondary device authorization.",
-    "evidence_urls": ["https://github.com/cli/cli/pull/920", "https://github.com/cli/cli/issues/780"],
-    "evidence_event_ids": ["evt_why_cli_pr_920", "evt_why_cli_issue_780"],
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/920",
+      "https://github.com/cli/cli/issues/780"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_920",
+      "evt_why_cli_issue_780"
+    ],
     "expected_state": "accepted",
     "split": "test",
     "verified": true
   },
   {
-    "id": "WB_CLI_17",
+    "id": "WB_PAY_DEV_NEG_01",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why did payment-core switch from PostgreSQL to MongoDB for transactional payment ledger?",
+    "answer_summary": "No recorded architectural decision; payment-core strictly relies on PostgreSQL with ACID relational guarantees.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_02",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why does payment-core store raw unencrypted credit card CVVs in local memory cache?",
+    "answer_summary": "No recorded architectural decision; caching raw CVVs is strictly prohibited by PCI-DSS compliance standards.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_03",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why was Apache Kafka chosen over RabbitMQ for transactional payment settlement queues?",
+    "answer_summary": "No recorded decision; payment-core does not use Apache Kafka for payment settlement queues.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_04",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why did payment-core rewrite its payment checkout microservice in Rust?",
+    "answer_summary": "No recorded decision; payment-core is written in Python with SQLAlchemy and async connection pools.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_05",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why was Redis Cluster replaced with Apache Cassandra for distributed idempotency keys?",
+    "answer_summary": "No recorded decision; Redis distributed locks and key TTLs remain the active idempotency store.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_06",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why did payment-core deprecate PayPal checkout integration in favor of Apple Pay exclusive?",
+    "answer_summary": "No recorded decision; payment-core maintains multi-provider support through Stripe Payment Intents.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_07",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Why was Istio service mesh chosen for inter-service payment mTLS encryption?",
+    "answer_summary": "No recorded decision; inter-service communication does not use Istio service mesh.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_08",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Did the team decide to adopt GraphQL for payment checkout APIs when discussing issue #8 payload structures?",
+    "answer_summary": "Mention without decision; a contributor casually asked if GraphQL should be evaluated, but no architecture decision was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/8"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_08"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_09",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Was AWS DynamoDB chosen when evaluating database lock contention in issue #5 concurrent checkouts?",
+    "answer_summary": "Mention without decision; DynamoDB conditional writes were mentioned in an exploratory comment but no decision was made.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/5"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_05"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_10",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Did PR #14 decide to integrate Celery background task worker for retrying failed Stripe payments?",
+    "answer_summary": "Mention without decision; a review thread noted Celery as a potential queue, but an inline decorator was implemented instead without a Celery decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/14"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_14"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_11",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Did issue #11 adopt gRPC protocol for external multi-currency conversion services?",
+    "answer_summary": "Mention without decision; gRPC was mentioned casually in issue discussion but Python Decimal representation was adopted without gRPC.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/11"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_11"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_12",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Was Docker Swarm adopted for deploying webhook verification workers in PR #22?",
+    "answer_summary": "Mention without decision; Docker Swarm was listed in a dev environment comment but no infrastructure decision was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/22"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_22"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_13",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Did issue #19 adopt Apache Flink for real-time dead letter queue payload stream processing?",
+    "answer_summary": "Mention without decision; Apache Flink stream analytics was suggested in discussion but simple DLQ routing was implemented without Flink.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/19"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_19"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_14",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Did automated linter bot comments on PR #29 approve migrating refund calculations to floating-point?",
+    "answer_summary": "Mention without decision; a bot linter flagged format warnings on currency fields; floating-point was never approved.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/29"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_29"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_DEV_NEG_15",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "dev",
+    "question": "Was Datadog APM tracing adopted as the monitoring standard in PR #35 review discussion?",
+    "answer_summary": "Mention without decision; a reviewer suggested adding Datadog APM trace headers, but no monitoring standard was decided.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/35"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_35"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_01",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why did Cloud Hypervisor replace the Rust VMM core with a QEMU C wrapper?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor is written natively in Rust for memory safety.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_02",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why does Cloud Hypervisor disable ACPI power management tables across all VM profiles?",
+    "answer_summary": "No recorded decision; ACPI Generic Event Device (GED) is supported for system notifications.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_03",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why was the Xen hypervisor driver chosen as the default virtualization back-end?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor operates exclusively on Linux KVM and MSHV.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_04",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why was SPICE remote desktop display protocol adopted for virtual machines?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor is a headless cloud hypervisor and does not implement SPICE desktop protocol.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_05",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why did Cloud Hypervisor adopt Ceph RBD for remote block storage attachments?",
+    "answer_summary": "No recorded decision; block storage is backed by virtio-block and vhost-user without built-in Ceph drivers.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_06",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why was FreeBSD bhyve hypervisor adopted for macOS host compatibility?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor targets Linux KVM and does not use bhyve.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_07",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Why did Cloud Hypervisor implement legacy IDE floppy disk device emulation?",
+    "answer_summary": "No recorded decision; legacy devices like floppy and IDE are explicitly rejected in favor of VirtIO.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_08",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Did Cloud Hypervisor decide to adopt eBPF packet filters when discussing issue #890 balloon stalls?",
+    "answer_summary": "Mention without decision; a comment asked if eBPF could track guest page state, but no eBPF architecture was decided.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/890"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_890"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_09",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Was DPDK user-space polling chosen for virtio-balloon queue processing in PR #1042?",
+    "answer_summary": "Mention without decision; a reviewer asked if DPDK polling loops could speed up ballooning, but it was dropped without decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1042"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_10",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Did the vCPU latency discussion in issue #940 result in adopting OpenMP runtime affinity?",
+    "answer_summary": "Mention without decision; OpenMP thread affinity was mentioned in an exploratory comment but libc::sched_setaffinity was implemented.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/940"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_940"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_11",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Did PR #1105 decide to replace sched_setaffinity with Linux cgroups v2 cpuset controller?",
+    "answer_summary": "Mention without decision; cgroups v2 was mentioned as an alternative in PR comments, but no decision to adopt cgroups was made.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1105"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1105"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_12",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Was WireGuard tunnel encryption integrated into the virtio-fs shared filesystem in issue #1015?",
+    "answer_summary": "Mention without decision; a comment asked if WireGuard should secure shared host directories, but no network encryption was decided.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/1015"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_1015"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_13",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Did PR #1180 adopt PCIe hot-unplug surprise removal support for VirtIO devices?",
+    "answer_summary": "Mention without decision; surprise removal edge cases were discussed in comments, but postponed without an architectural decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1180"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1180"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_14",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Did issue #1120 adopt jemalloc memory profiling for tracing balloon driver leak statistics?",
+    "answer_summary": "Mention without decision; jemalloc was suggested as a debugging tool to reproduce leaks, but no allocator switch was decided.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/1120"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_1120"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_DEV_NEG_15",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "dev",
+    "question": "Was Kata Containers shim integration adopted as the exclusive container runtime in PR #1390?",
+    "answer_summary": "Mention without decision; release notes referenced Kata container compatibility tests, but no exclusive runtime was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1390"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1390"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_01",
     "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why did GitHub CLI migrate from Go to Electron GUI desktop client?",
+    "answer_summary": "No recorded decision; GitHub CLI is a terminal command-line application built with Go.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_02",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why does GitHub CLI transmit telemetry analytics over unencrypted HTTP port 80?",
+    "answer_summary": "No recorded decision; GitHub CLI does not transmit unencrypted HTTP telemetry.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_03",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why was SQLite embedded database adopted to cache git commit trees locally in gh?",
+    "answer_summary": "No recorded decision; GitHub CLI delegates git object queries directly to git plumbing commands.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_04",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why did GitHub CLI replace git credential helper with SSH certificate authority?",
+    "answer_summary": "No recorded decision; gh auth integrates with the standard git credential helper protocol.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_05",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why was Python scripting runtime bundled into the official gh extension runner?",
+    "answer_summary": "No recorded decision; extensions are executed as standalone child subprocess executables.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_06",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why did GitHub CLI switch from cobra to urfave/cli for command-line flag parsing?",
+    "answer_summary": "No recorded decision; spf13/cobra is the standard command-line parser in GitHub CLI.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_07",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Why was WebAssembly Wasmtime engine embedded into gh to execute extensions?",
+    "answer_summary": "No recorded decision; extensions run via OS fork-exec subprocess isolation rather than WebAssembly.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_08",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Did the team decide to adopt KeePass database storage when discussing issue #412 keyring alternatives?",
+    "answer_summary": "Mention without decision; a commenter asked if KeePass files could store credentials, but OS-level keyrings were selected without KeePass.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/412"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_412"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_09",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Was HashiCorp Vault integration chosen as the default enterprise credential provider in PR #518?",
+    "answer_summary": "Mention without decision; a contributor asked if Vault would be supported, but it was noted as out of scope without an architectural decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/518"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_518"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_10",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Did issue #480 decide to switch all GitHub CLI operations from GitHub API to local git log scraping?",
+    "answer_summary": "Mention without decision; parsing local git logs was proposed as a quick fix, but GraphQL query batching was adopted without git scraping.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/480"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_480"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_11",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Did PR #592 adopt Apollo GraphQL Client caching layer for repository queries?",
+    "answer_summary": "Mention without decision; Apollo client caching was mentioned in discussion, but raw HTTP GraphQL batching was chosen without Apollo.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/592"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_592"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_12",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Was Docker containerization adopted for running untrusted third-party extensions in issue #550?",
+    "answer_summary": "Mention without decision; containerizing extensions was suggested in an issue comment but dropped as overly heavy without a decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/550"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_550"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_13",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Did PR #670 decide to use Linux AppArmor security profiles for extension subprocess sandboxing?",
+    "answer_summary": "Mention without decision; AppArmor profiles were discussed in PR review, but omitted due to cross-platform compatibility.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/670"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_670"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_14",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Did issue #620 adopt ncurses library for rendering terminal UI tables?",
+    "answer_summary": "Mention without decision; ncurses was casually suggested for TTY formatting, but standard termenv was chosen without ncurses.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/620"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_620"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_DEV_NEG_15",
+    "repo": "cli/cli",
+    "split": "dev",
+    "question": "Was PKCE OAuth flow adopted for headless SSH logins in PR #920 discussions?",
+    "answer_summary": "Mention without decision; PKCE vs Device Code was discussed in PR review, but Device Code flow was adopted without a PKCE decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/920"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_920"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_01",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why did payment-core switch from JSON REST APIs to XML SOAP for payment endpoints?",
+    "answer_summary": "No recorded decision; payment-core strictly exposes modern REST APIs with JSON.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_02",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why does payment-core store customer passwords in base64 plaintext in database tables?",
+    "answer_summary": "No recorded decision; customer passwords are never stored in plaintext.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_03",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why was Apache Cassandra chosen over PostgreSQL for payment database persistence?",
+    "answer_summary": "No recorded decision; PostgreSQL with async connection pooling is the primary database.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_04",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why did payment-core mandate SOAP envelope encoding for Stripe charge requests?",
+    "answer_summary": "No recorded decision; Stripe requests use HTTPS JSON APIs.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_05",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why was Elasticsearch adopted as the primary ACID transactional ledger for checkout balances?",
+    "answer_summary": "No recorded decision; Elasticsearch is not an ACID payment ledger.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_06",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why did payment-core replace JWT token authentication with Basic HTTP auth over unencrypted ports?",
+    "answer_summary": "No recorded decision; HTTP Basic auth over unencrypted ports is strictly avoided.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_07",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Why was CouchDB adopted for storing customer multi-currency wallet balances?",
+    "answer_summary": "No recorded decision; wallet balances are recorded in PostgreSQL ledger.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_08",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Did PR #18 review comments decide to adopt Memcached alongside Redis for idempotency?",
+    "answer_summary": "Mention without decision; Memcached was casually compared to Redis in PR discussion, but only Redis was used.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/18"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_18"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_09",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Was Apache Pulsar evaluated and chosen for webhook message ingestion in issue #19?",
+    "answer_summary": "Mention without decision; Pulsar was mentioned in a comment thread about queues, but no decision was made.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/19"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_19"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_10",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Did issue #8 contributor comments decide to replace Python threading with asyncio event loop across all services?",
+    "answer_summary": "Mention without decision; asyncio was discussed for concurrency, but no global framework switch was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/issues/8"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_issue_08"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_11",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Did PR #22 discussion adopt OpenTelemetry SDK for tracing webhook signature verification latency?",
+    "answer_summary": "Mention without decision; OpenTelemetry spans were discussed in review comments, but left for future work without decision.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/22"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_22"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_12",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Was JSON Web Encryption (JWE) chosen to wrap webhook payloads in PR #35 discussions?",
+    "answer_summary": "Mention without decision; JWE was mentioned as an option, but HMAC-SHA256 signature verification was retained without JWE.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/35"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_35"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_13",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Did release notes mentioning Stripe SDK v10 in PR #14 adopt automatic Stripe telemetry sharing?",
+    "answer_summary": "Mention without decision; release notes listed SDK upgrade, but automatic telemetry was not adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/14"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_14"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_14",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Was AWS KMS adopted for credit card token encryption in PR #38 review discussion?",
+    "answer_summary": "Mention without decision; AWS KMS was casually mentioned in comments, but dual-token AES vault was chosen.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/38"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_rev_c610"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_PAY_TEST_NEG_15",
+    "repo": "acme-ecommerce/payment-core",
+    "split": "test",
+    "question": "Did dependabot dependency upgrade comments on PR #29 decide to replace Decimal with GMP big-integer library?",
+    "answer_summary": "Mention without decision; dependabot comment listed dependency updates, but Python standard Decimal was kept.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/acme-ecommerce/payment-core/pull/29"
+    ],
+    "evidence_event_ids": [
+      "evt_why_pay_pr_29"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_01",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why did Cloud Hypervisor embed a proprietary binary NVIDIA kernel driver into the VMM?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor uses standard open VFIO PCIe passthrough.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_02",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why does Cloud Hypervisor bundle an unencrypted FTP server inside the guest VM tree?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor does not bundle FTP servers.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_03",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why did Cloud Hypervisor replace KVM with an interpreted bytecode software CPU emulator?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor relies exclusively on hardware-assisted virtualization.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_04",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why did Cloud Hypervisor mandate MS-DOS 6.22 compatibility mode for cloud serverless profiles?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor targets modern 64-bit Linux kernels and UEFI firmware.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_05",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why was VirtualBox VDI disk format adopted over raw sparse files in Cloud Hypervisor?",
+    "answer_summary": "No recorded decision; Cloud Hypervisor supports raw files and qcow2.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_06",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why did Cloud Hypervisor replace Rust-VMM crates with Java JNI virtualization bindings?",
+    "answer_summary": "No recorded decision; Rust-VMM crates form the foundation of Cloud Hypervisor.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_07",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Why was Telnet protocol chosen for VM hypervisor management socket?",
+    "answer_summary": "No recorded decision; management uses a local UNIX domain socket with REST API.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_08",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Did issue #890 discussions decide to adopt ZFS pool storage for guest memory swapping?",
+    "answer_summary": "Mention without decision; ZFS ARC caching was mentioned in discussion, but no storage switch was decided.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/890"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_890"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_09",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Was Tokio async runtime chosen over standard threads in PR #1240 io_uring discussions?",
+    "answer_summary": "Mention without decision; Tokio was mentioned in review comments, but dedicated worker threads with io_uring were used.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1240"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1240"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_10",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Did PR #1312 discuss and adopt NVIDIA proprietary vGPU grid licensing manager?",
+    "answer_summary": "Mention without decision; a reviewer asked if vGPU grid licensing applies, but standard open VFIO was implemented without vGPU grid manager.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1312"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1312"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_11",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Did issue #940 discuss adopting Intel CAT (Cache Allocation Technology) for vCPU cache isolation?",
+    "answer_summary": "Mention without decision; Intel CAT was mentioned as an option for vCPU latency, but NUMA CPU pinning was implemented instead.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/940"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_940"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_12",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Was GlusterFS evaluated for virtio-fs multi-node cluster backend in issue #1015?",
+    "answer_summary": "Mention without decision; GlusterFS was mentioned in passing, but single-host DAX directory sharing was retained.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/issues/1015"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_issue_1015"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_13",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Did PR #1180 comments adopt Thunderbolt PCIe external hotplug device specifications?",
+    "answer_summary": "Mention without decision; Thunderbolt hotplug was mentioned by a contributor, but root port VirtIO hotplug was implemented.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1180"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1180"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_14",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Did bot automated benchmark comments on PR #1042 decide to enforce 1GB hugepages for all guests?",
+    "answer_summary": "Mention without decision; CI perf bot posted 1GB hugepages benchmark comparison, but hugepage size was left configurable.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1042"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1042"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CH_TEST_NEG_15",
+    "repo": "cloud-hypervisor/cloud-hypervisor",
+    "split": "test",
+    "question": "Was gVisor container sandbox architecture adopted in PR #1390 serverless profile?",
+    "answer_summary": "Mention without decision; gVisor was mentioned in comparison to microVMs, but hardware virtualization was retained.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cloud-hypervisor/cloud-hypervisor/pull/1390"
+    ],
+    "evidence_event_ids": [
+      "evt_why_ch_pr_1390"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_01",
+    "repo": "cli/cli",
+    "split": "test",
     "question": "Why did GitHub CLI migrate all commands to PHP scripts?",
-    "answer_summary": "No recorded decision; GitHub CLI is compiled Go.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CLI_18",
-    "repo": "cli/cli",
-    "question": "Why does GitHub CLI store OAuth secrets in unencrypted web cookies?",
-    "answer_summary": "No recorded decision; GitHub CLI does not use web cookies for credential storage.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CLI_19",
-    "repo": "cli/cli",
-    "question": "Why did GitHub CLI disable TLS verification for enterprise GitHub instances by default?",
-    "answer_summary": "No recorded decision; TLS certificate verification is enforced by default across all hosts.",
-    "evidence_urls": [],
-    "evidence_event_ids": [],
-    "expected_state": "unresolved",
-    "split": "test",
-    "verified": true
-  },
-  {
-    "id": "WB_CLI_20",
-    "repo": "cli/cli",
-    "question": "Why was the gh CLI command line interface rewritten in Perl?",
     "answer_summary": "No recorded decision; GitHub CLI is written in Go.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
     "evidence_urls": [],
     "evidence_event_ids": [],
-    "expected_state": "unresolved",
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_02",
+    "repo": "cli/cli",
     "split": "test",
+    "question": "Why does GitHub CLI store OAuth secrets in unencrypted web cookies?",
+    "answer_summary": "No recorded decision; GitHub CLI uses OS keyrings with encrypted file fallback.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_03",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Why did GitHub CLI disable TLS verification for enterprise GitHub instances by default?",
+    "answer_summary": "No recorded decision; TLS verification is strictly enabled by default for all hosts.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_04",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Why was the gh CLI command line interface rewritten in Perl?",
+    "answer_summary": "No recorded decision; GitHub CLI is compiled Go.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_05",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Why did GitHub CLI mandate Google Chrome installation for running gh auth login?",
+    "answer_summary": "No recorded decision; gh auth supports system default browsers and headless device codes.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_06",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Why was Apache Thrift adopted as the RPC layer for GitHub CLI commands?",
+    "answer_summary": "No recorded decision; gh calls GitHub REST and GraphQL APIs over HTTPS.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_07",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Why did GitHub CLI deprecate git command line wrapper execution in favor of libgit2 C library?",
+    "answer_summary": "No recorded decision; gh executes local git via child process exec.",
+    "expected_state": "none",
+    "negative_type": "unrecorded",
+    "evidence_urls": [],
+    "evidence_event_ids": [],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_08",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did issue #412 discussions decide to adopt GnuPG pass password manager for token persistence?",
+    "answer_summary": "Mention without decision; 'pass' was mentioned in discussion, but zalando/go-keyring OS keychain was implemented.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/412"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_412"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_09",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Was AWS Secrets Manager integration adopted in PR #518 comments for cloud tokens?",
+    "answer_summary": "Mention without decision; a comment asked if AWS Secrets Manager would be supported, but it was marked out of scope.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/518"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_518"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_10",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did PR #670 decide to use Firejail sandboxing for third-party extensions?",
+    "answer_summary": "Mention without decision; Firejail was mentioned as an option, but portable restricted environment fork-exec was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/670"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_670"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_11",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did issue #480 discuss switching to gRPC-Web for repository pull request pagination?",
+    "answer_summary": "Mention without decision; gRPC-Web was mentioned in an exploratory comment, but GraphQL query batching was chosen.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/480"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_480"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_12",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Was Bubble Tea TUI framework adopted for rendering terminal output in PR #735?",
+    "answer_summary": "Mention without decision; Bubble Tea was mentioned in review discussion, but termenv TTY detection was retained.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/735"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_735"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_13",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did PR #810 review discussion decide to support Kerberos SPNEGO authentication?",
+    "answer_summary": "Mention without decision; Kerberos was mentioned in comments, but standard git-credential protocol was implemented.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/810"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_810"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_14",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did issue #780 adopt an embedded micro-webserver for OAuth redirect handling on headless servers?",
+    "answer_summary": "Mention without decision; running a local webserver was suggested in comments, but OAuth Device Code flow was adopted.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/issues/780"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_issue_780"
+    ],
+    "verified": true
+  },
+  {
+    "id": "WB_CLI_TEST_NEG_15",
+    "repo": "cli/cli",
+    "split": "test",
+    "question": "Did dependabot comments on PR #592 decide to replace shurcooL/graphql with khan/genqlient?",
+    "answer_summary": "Mention without decision; dependabot comment listed dependency notes, but shurcooL/graphql was retained.",
+    "expected_state": "none",
+    "negative_type": "mention_without_decision",
+    "evidence_urls": [
+      "https://github.com/cli/cli/pull/592"
+    ],
+    "evidence_event_ids": [
+      "evt_why_cli_pr_592"
+    ],
     "verified": true
   }
 ]

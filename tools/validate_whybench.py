@@ -67,11 +67,19 @@ def validate_whybench_questions(file_path: str = None) -> bool:
             errors.append(f"Question {qid} is missing 'answer_summary'.")
 
         expected_state = q.get("expected_state")
-        if expected_state not in ("accepted", "rejected", "proposed", "superseded", "unresolved"):
+        if expected_state not in ("accepted", "rejected", "proposed", "superseded", "unresolved", "none"):
             errors.append(f"Question {qid} has invalid expected_state: '{expected_state}'.")
 
-        # Refusal cases (unresolved) have empty evidence; others must have evidence
-        if expected_state != "unresolved":
+        # Refusal / negative cases (unresolved or none)
+        is_negative = expected_state in ("unresolved", "none")
+        if is_negative:
+            neg_type = q.get("negative_type")
+            if not neg_type or neg_type not in ("unrecorded", "mention_without_decision"):
+                errors.append(f"Negative question {qid} ({expected_state}) must declare negative_type as 'unrecorded' or 'mention_without_decision'.")
+            for u in q.get("evidence_urls", []):
+                if not (u.startswith("http://") or u.startswith("https://")):
+                    errors.append(f"Question {qid} has invalid URL: '{u}'.")
+        else:
             urls = q.get("evidence_urls", [])
             if not urls:
                 errors.append(f"Question {qid} ({expected_state}) must have at least one public evidence_url.")
@@ -93,7 +101,7 @@ def validate_whybench_questions(file_path: str = None) -> bool:
         split = q.get("split")
         if split == "dev":
             dev_count += 1
-        elif split == "test":
+        elif split in ("test", "test_v2"):
             test_count += 1
         else:
             errors.append(f"Question {qid} has invalid split: '{split}'. Must be 'dev' or 'test'.")
@@ -103,13 +111,36 @@ def validate_whybench_questions(file_path: str = None) -> bool:
         if count < 20:
             errors.append(f"Repository '{r}' only has {count} questions (minimum 20 required by handoff spec).")
 
+    # Step 4.6: Check representative negative cases mix (>= 15 negatives per repo, at least half of type b)
+    neg_stats = defaultdict(lambda: defaultdict(lambda: {"total": 0, "type_a": 0, "type_b": 0}))
+    for q in questions:
+        if q.get("expected_state") in ("unresolved", "none"):
+            s = q.get("split")
+            r = q.get("repo")
+            nt = q.get("negative_type", "unrecorded")
+            neg_stats[s][r]["total"] += 1
+            if nt == "mention_without_decision":
+                neg_stats[s][r]["type_b"] += 1
+            else:
+                neg_stats[s][r]["type_a"] += 1
+
+    for s in ("dev", "test"):
+        for r in sorted(repo_counts.keys()):
+            counts = neg_stats[s][r]
+            tot = counts["total"]
+            tb = counts["type_b"]
+            if tot < 15:
+                errors.append(f"Repository '{r}' in split '{s}' has only {tot} negative cases (minimum 15 required by Step 4.6).")
+            if tb < (tot / 2):
+                errors.append(f"Repository '{r}' in split '{s}' has {tb}/{tot} type (b) negatives (at least half required by Step 4.6).")
+
     total = len(questions)
     dev_ratio = round((dev_count / total) * 100, 1) if total > 0 else 0
     test_ratio = round((test_count / total) * 100, 1) if total > 0 else 0
 
-    print("=" * 60)
+    print("=" * 65)
     print("  WHYBENCH DATASET VALIDATION REPORT")
-    print("=" * 60)
+    print("=" * 65)
     print(f"  Total Questions:      {total}")
     print(f"  Dev Split:            {dev_count} ({dev_ratio}%)")
     print(f"  Test Split:           {test_count} ({test_ratio}%)")
@@ -117,8 +148,17 @@ def validate_whybench_questions(file_path: str = None) -> bool:
     print("  Per-Repository Breakdown:")
     for r, c in sorted(repo_counts.items()):
         print(f"    - {r}: {c} questions")
+    print("-" * 65)
+    print("  REPRESENTATIVE NEGATIVE CASES MIX (STEP 4.6):")
+    for s in ("dev", "test"):
+        print(f"    Split '{s}':")
+        for r in sorted(repo_counts.keys()):
+            c = neg_stats[s][r]
+            pct_b = round((c['type_b'] / c['total']) * 100, 1) if c['total'] > 0 else 0.0
+            print(f"      * {r}: {c['total']} negatives (type_a: {c['type_a']}, type_b: {c['type_b']} [{pct_b}%])")
+    print("-" * 65)
     print(f"  Validation Errors:    {len(errors)}")
-    print("=" * 60)
+    print("=" * 65)
 
     if errors:
         for err in errors:
@@ -129,7 +169,7 @@ def validate_whybench_questions(file_path: str = None) -> bool:
         print(f"  [WARN] {unverified_count} questions are not marked 'verified: true'.")
         return False
 
-    print("  [SUCCESS] WhyBench questions dataset schema is 100% valid!")
+    print("  [SUCCESS] WhyBench questions dataset schema & negative mix are 100% valid!")
     return True
 
 if __name__ == "__main__":

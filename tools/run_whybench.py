@@ -93,8 +93,8 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
             decision_to_evidence.setdefault(r["decision_id"], set()).add(r["event_id"])
 
     # Evaluate System Predictions (Step 4.1 Strict One-to-One Matching Protocol)
-    standard_questions = [q for q in split_questions if q.get("expected_state") != "unresolved"]
-    refusal_questions = [q for q in split_questions if q.get("expected_state") == "unresolved"]
+    standard_questions = [q for q in split_questions if q.get("expected_state") not in ("unresolved", "none")]
+    refusal_questions = [q for q in split_questions if q.get("expected_state") in ("unresolved", "none")]
 
     match_results = compute_decision_matching(standard_questions, system_decisions, decision_to_evidence)
     strict_match = match_results["strict"]
@@ -126,7 +126,7 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
             outcome["status"] = "missed"
         question_results.append(outcome)
 
-    # 2. Refusal questions
+    # 2. Refusal / negative questions (Step 4.6 unrecorded & mention_without_decision mix)
     refusal_correct_count = 0
     for q in refusal_questions:
         expected_events = set(q.get("evidence_event_ids", []))
@@ -140,11 +140,26 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
                 matched_decision = sd
                 break
 
+        # Check for unrecorded tech false positives (type a)
+        if matched_decision is None and not expected_events:
+            q_text = q.get("question", "").lower()
+            q_tokens = set(tokenize(q_text)) - STOP_WORDS
+            for sd in system_decisions:
+                if repo and sd.get("repo") != repo:
+                    continue
+                sd_title_tokens = set(tokenize(sd.get("title", ""))) - STOP_WORDS
+                sd_problem_tokens = set(tokenize(sd.get("problem_statement", ""))) - STOP_WORDS
+                sd_all = sd_title_tokens | sd_problem_tokens
+                if any(w in sd_all for w in q_tokens if len(w) > 5 and w in ("mongodb", "dynamodb", "elasticsearch", "cassandra", "memcached", "spanner", "vault", "consul", "istio", "envoy", "traefik")):
+                    matched_decision = sd
+                    break
+
         outcome = {
             "id": q["id"],
             "repo": q["repo"],
             "question": q["question"],
-            "expected_state": "unresolved",
+            "expected_state": q.get("expected_state", "none"),
+            "negative_type": q.get("negative_type", "unrecorded"),
             "is_refusal_case": True
         }
         if matched_decision is None:
