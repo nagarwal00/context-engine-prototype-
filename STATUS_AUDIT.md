@@ -916,3 +916,35 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Created tests/test_slack_adapter.py (2 tests): verifies parsing, identity mapping, thread independence key grouping, and secret redaction.
      - Full test discovery suite: **208 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 6.1 — Real GitHub App / Webhook / CI Test Status
+- Status: **RESOLVED**
+- Files: GITHUB_APP_SETUP.md, .github/workflows/cif-check.yml, tools/ci_check.py, tests/test_webhook.py, readme.md, STATUS_AUDIT.md
+- Resolution:
+  1. Webhook Signature & Pipeline Validation:
+     - Verified HMAC-SHA256 signature checking (X-Hub-Signature-256), pull_request actions, diff fetch, drift & rejected-idea detection, PR comments, and status reporting in backend/api.py.
+  2. Setup Documentation & Serverless CI:
+     - Maintained GITHUB_APP_SETUP.md documenting app permissions (PR read/write, contents read, issues read), webhook secret setup, and tunnel commands.
+     - Provided .github/workflows/cif-check.yml executing tools/ci_check.py (--base ... --head ...) with explicit exit codes 0/1/2 without server requirements.
+  3. Honest Testing Disclosure:
+     - Added required honest disclosure to readme.md: "webhook/CI verified with mocks only" (automated HMAC-SHA256 test suite in tests/test_webhook.py; live production deployment requires public IP/tunnel per GITHUB_APP_SETUP.md).
+  4. Acceptance & Verification:
+     - Ran tests/test_webhook.py (8 tests passing): verified valid signatures, missing signatures (401), invalid signatures (401), missing secret (401), non-PR events (200 ignored), closed action (200 ignored), violating PR diffs, and clean PR diffs.
+     - Full test discovery suite: **208 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
+
+### Step 6.2 — Separate Live and Simulated Frontends
+- Status: **RESOLVED**
+- Files: tools/build_static.py, web/static_data.js, docs/static_data.js, .github/workflows/deploy.yml, STATUS_AUDIT.md
+- Resolution:
+  1. Deterministic Static Dataset Generator (tools/build_static.py):
+     - Runs APIHandler in-process to export all GET endpoints (stats, repos, guard rules, timeline, graph, artifacts, decisions, review queue, benchmark, bus factor, adaptive onboarding) to web/static_data.js.
+     - Computes cryptographic SHA-256 hash of context_intelligence.db and records deterministic snapshot timestamp (generation_date) in static bundle.
+     - Mirrors web/ into docs/ with identical file contents. Verified running build_static.py multiple times yields identical byte-level output.
+  2. CI Deployment Verification (.github/workflows/deploy.yml):
+     - Added automated build_static.py step and git diff --exit-code web/ docs/ check in deploy workflow, ensuring deployment fails if docs/ drifts from web/.
+  3. Acceptance & Verification:
+     - Ran build_static.py twice; confirmed diff between web/ and docs/ is empty.
+     - Verified mode badges ("Live engine" vs "Static snapshot — simulated") and simulated labels on client state write operations.
+     - Full test discovery suite: **208 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

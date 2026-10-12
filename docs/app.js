@@ -67,6 +67,8 @@ const app = {
       this.populateEvidenceSelect();
     } else if (surfaceId === 'review') {
       this.loadReviewQueue();
+    } else if (surfaceId === 'bus-factor') {
+      this.loadBusFactorData();
     }
   },
 
@@ -1690,40 +1692,330 @@ const app = {
   },
 
   // =========================================================================
-  // EXTRA: Onboarding Guided Tour
+  // EXTRA: Adaptive Developer Onboarding (Step 5.4)
   // =========================================================================
-  loadOnboardingTour() {
-    const container = document.getElementById('onboarding-tour-container');
-    container.innerHTML = `
-      <div class="timeline-card" style="margin-bottom: 20px;">
-        <h3 style="font-size: 1.15rem; margin-bottom: 8px;">1. Subsystem: Thermal Regulation (<code>src/thermal/control.py</code>)</h3>
-        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
-          <strong>Historical Context:</strong> In v1, an on-off controller was used, leading to emergency chamber shutdowns under 80% duty cycle (Issue #12). 
-          Marcus Vance proposed deadband tuning, but Sarah Chen benchmarked it and proved it caused 17% higher latency and transient overshoots.
-          ADR 0004 established discrete PID control with anti-windup clamping.
-        </p>
-        <button class="btn btn-secondary btn-sm btn-tour-thermal">
-          View Regulate Temperature Decision Chain ↗
-        </button>
-      </div>
+  loadOnboardingPreset(preset) {
+    const roleInput = document.getElementById('onboarding-role-input');
+    const moduleInput = document.getElementById('onboarding-module-input');
+    const filesInput = document.getElementById('onboarding-files-input');
+    const taskInput = document.getElementById('onboarding-task-input');
 
-      <div class="timeline-card">
-        <h3 style="font-size: 1.15rem; margin-bottom: 8px;">2. Subsystem: Distributed Caching (<code>src/cache/store.py</code>)</h3>
-        <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
-          <strong>Historical Context:</strong> Python in-memory LRU dict cache caused worker pods to crash with OOM errors under flash sales (Issue #34). 
-          Marcus Vance attempted to keep local caching by adding soft memory caps (PR #38). Priya Patel demonstrated that local caching causes replica stampedes and memory duplication. 
-          ADR 0009 superseded the local cache and migrated to Redis cluster with sentinel failover.
-        </p>
-        <button class="btn btn-secondary btn-sm btn-tour-cache">
-          View Cache Store Decision Chain ↗
-        </button>
+    if (preset === 'thermal') {
+      if (roleInput) roleInput.value = 'Control Systems Engineer';
+      if (moduleInput) moduleInput.value = 'thermal';
+      if (filesInput) filesInput.value = 'src/thermal/control.py';
+      if (taskInput) taskInput.value = 'Implement anti-windup clamping';
+      this.selectedRepo = 'acme-eng/thermal-control-system';
+    } else if (preset === 'cache') {
+      if (roleInput) roleInput.value = 'Infrastructure / SRE';
+      if (moduleInput) moduleInput.value = 'cache';
+      if (filesInput) filesInput.value = 'src/cache/store.py';
+      if (taskInput) taskInput.value = 'Migrate session caching to Redis cluster';
+      this.selectedRepo = 'acme-eng/distributed-cache-service';
+    } else if (preset === 'security') {
+      if (roleInput) roleInput.value = 'Security Auditor';
+      if (moduleInput) moduleInput.value = 'keyring';
+      if (filesInput) filesInput.value = 'pkg/cmd/auth/auth.go';
+      if (taskInput) taskInput.value = 'Manage OAuth token persistence with keyring';
+      this.selectedRepo = 'cli/cli';
+    }
+    this.generateOnboardingPath();
+  },
+
+  loadOnboardingTour() {
+    // Generate onboarding path on initial navigation if container is empty
+    const container = document.getElementById('onboarding-tour-container');
+    if (!container || container.children.length === 0) {
+      this.generateOnboardingPath();
+    }
+  },
+
+  async generateOnboardingPath() {
+    const container = document.getElementById('onboarding-tour-container');
+    const checklistCard = document.getElementById('onboarding-checklist-card');
+    if (!container) return;
+
+    const role = (document.getElementById('onboarding-role-input')?.value || '').trim();
+    const module = (document.getElementById('onboarding-module-input')?.value || '').trim();
+    const files = (document.getElementById('onboarding-files-input')?.value || '').trim();
+    const task = (document.getElementById('onboarding-task-input')?.value || '').trim();
+    const repo = this.selectedRepo || '';
+
+    container.innerHTML = `
+      <div class="placeholder-state" style="padding: 30px;">
+        <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">Synthesizing Adaptive Learning Path...</div>
+        <div style="color: #94a3b8; font-size: 0.9rem;">Traversing context graph, ranking decisions, and extracting architectural pitfalls for <strong>${esc(role || 'engineering')}</strong></div>
       </div>
     `;
-    const thermalBtn = container.querySelector('.btn-tour-thermal');
-    if (thermalBtn) thermalBtn.addEventListener('click', () => app.inspectArtifact('src/thermal/control.py::regulate_temperature'));
-    const cacheBtn = container.querySelector('.btn-tour-cache');
-    if (cacheBtn) cacheBtn.addEventListener('click', () => app.inspectArtifact('src/cache/store.py::cache_get'));
+
+    try {
+      const q = new URLSearchParams();
+      if (repo) q.set('repo', repo);
+      if (role) q.set('role', role);
+      if (module) q.set('module', module);
+      if (files) q.set('files', files);
+      if (task) q.set('task', task);
+
+      const res = await this.apiFetch(`/api/onboarding?${q.toString()}`);
+      if (res && res.status === 'success') {
+        this.renderOnboardingPath(res);
+      } else {
+        container.innerHTML = `<div class="placeholder-state">Error generating onboarding path: ${esc(res?.message || 'Unknown error')}</div>`;
+      }
+    } catch (err) {
+      container.innerHTML = `<div class="placeholder-state">Failed to connect to onboarding service: ${esc(err.message)}</div>`;
+    }
   },
+
+  onboardingCheckedItems: new Set(),
+
+  toggleOnboardingCheck(itemId) {
+    if (this.onboardingCheckedItems.has(itemId)) {
+      this.onboardingCheckedItems.delete(itemId);
+    } else {
+      this.onboardingCheckedItems.add(itemId);
+    }
+    try {
+      localStorage.setItem('cif_onboarding_checks', JSON.stringify(Array.from(this.onboardingCheckedItems)));
+    } catch (e) {}
+    this.updateChecklistProgressBadge();
+  },
+
+  updateChecklistProgressBadge() {
+    const totalBoxes = document.querySelectorAll('.onboarding-chkbox').length;
+    const checkedBoxes = document.querySelectorAll('.onboarding-chkbox:checked').length;
+    const badge = document.getElementById('onboarding-progress-badge');
+    if (badge) {
+      badge.textContent = `${checkedBoxes} / ${totalBoxes} completed`;
+      if (checkedBoxes === totalBoxes && totalBoxes > 0) {
+        badge.style.background = 'rgba(16,185,129,0.3)';
+        badge.textContent = `All ${totalBoxes} items completed! 🎉`;
+      } else {
+        badge.style.background = 'rgba(16,185,129,0.15)';
+      }
+    }
+  },
+
+  renderOnboardingPath(data) {
+    const container = document.getElementById('onboarding-tour-container');
+    const checklistCard = document.getElementById('onboarding-checklist-card');
+    const checklistContainer = document.getElementById('onboarding-checklist-items');
+    if (!container) return;
+
+    // Load persisted checked items from localStorage
+    try {
+      const saved = localStorage.getItem('cif_onboarding_checks');
+      if (saved) {
+        this.onboardingCheckedItems = new Set(JSON.parse(saved));
+      }
+    } catch (e) {}
+
+    // Render Checklist
+    if (checklistCard && checklistContainer && data.checklist && data.checklist.length > 0) {
+      checklistCard.style.display = 'block';
+      checklistContainer.innerHTML = data.checklist.map(item => {
+        const isChecked = this.onboardingCheckedItems.has(item.id);
+        return `
+          <label style="display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px; cursor: pointer; font-size: 0.88rem;">
+            <input type="checkbox" class="onboarding-chkbox" data-id="${esc(item.id)}" ${isChecked ? 'checked' : ''} onchange="app.toggleOnboardingCheck('${esc(item.id)}')" />
+            <span style="color: ${isChecked ? '#94a3b8' : '#e2e8f0'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">
+              <span class="badge" style="font-size: 0.72rem; padding: 2px 6px; margin-right: 6px;">${esc(item.category)}</span>
+              ${esc(item.title)}
+            </span>
+          </label>
+        `;
+      }).join('');
+      this.updateChecklistProgressBadge();
+    } else if (checklistCard) {
+      checklistCard.style.display = 'none';
+    }
+
+    const s = data.sections || {};
+    const overview = s.overview || {};
+    const activeDecs = s.active_decisions || [];
+    const evidenceList = s.architectural_evidence || [];
+    const pitfalls = s.rejected_pitfalls || [];
+    const openItems = s.open_stale_items || [];
+
+    let html = '';
+
+    // Section 1: Overview Card
+    html += `
+      <div class="timeline-card" style="margin-bottom: 24px; border-left: 4px solid #3b82f6;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+          <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">${esc(overview.title || 'Subsystem Overview')}</h2>
+          <span class="badge badge-accepted" style="font-size: 0.8rem;">Role: ${esc(overview.role || 'Engineer')}</span>
+        </div>
+        <p style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
+          ${esc(overview.summary || '')}
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
+          <div><strong>Subsystem:</strong> <code>${esc(overview.module || 'core')}</code></div>
+          <div><strong>Primary Architects:</strong> ${overview.primary_architects?.map(a => `<span class="badge">${esc(a)}</span>`).join(' ') || 'None recorded'}</div>
+          <div><strong>Target Files:</strong> ${overview.affected_artifacts?.map(a => `<code>${esc(a)}</code>`).join(', ') || 'N/A'}</div>
+        </div>
+      </div>
+    `;
+
+    // Section 2: Key Active Decisions
+    html += `
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          1. Key Active Decisions (${activeDecs.length})
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+    `;
+    if (activeDecs.length === 0) {
+      html += `<div class="placeholder-state" style="padding: 16px;">No active decisions recorded for this subsystem.</div>`;
+    } else {
+      activeDecs.forEach((d, idx) => {
+        html += `
+          <div class="timeline-card" style="margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <h4 style="font-size: 1.05rem; margin: 0; color: #f8fafc;">
+                ${idx + 1}. ${esc(d.title)}
+              </h4>
+              <div style="display: flex; gap: 6px;">
+                <span class="badge" style="background: rgba(16,185,129,0.15); color: #10b981;">${esc(d.state)}</span>
+                <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6;">evidence: ${esc(d.evidence_label)}</span>
+              </div>
+            </div>
+            <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+              <strong>Rationale:</strong> ${esc(d.rationale)}
+            </p>
+            ${d.assumptions && d.assumptions.length > 0 ? `
+              <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px;">
+                <strong>Key Assumptions:</strong> ${d.assumptions.map(a => `• ${esc(a)}`).join(' ')}
+              </div>
+            ` : ''}
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+              <div>Author: <strong>${esc(d.made_by)}</strong> • Date: ${esc(d.made_at || 'Recorded')}</div>
+              <div style="display: flex; gap: 8px;">
+                ${d.citations?.map(c => `
+                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none;">
+                    [${esc(c.source_type)}] ${esc(c.title)} ↗
+                  </a>
+                `).join('') || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    html += `</div></div>`;
+
+    // Section 3: Important Commits & Architectural Discussions
+    html += `
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          2. Architectural Evidence & Discussions (${evidenceList.length})
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+    `;
+    if (evidenceList.length === 0) {
+      html += `<div class="placeholder-state" style="padding: 16px;">No linked discussion events recorded.</div>`;
+    } else {
+      evidenceList.forEach(ev => {
+        html += `
+          <div class="timeline-card" style="padding: 12px 16px; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <span style="font-weight: 600; font-size: 0.95rem; color: #f1f5f9;">
+                <span class="badge" style="margin-right: 6px;">${esc(ev.source_type)}</span>
+                <a href="${safeUrl(ev.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: none;">
+                  ${esc(ev.title)} ↗
+                </a>
+              </span>
+              <span style="font-size: 0.8rem; color: #94a3b8;">${esc(ev.author || 'contributor')}</span>
+            </div>
+            <p style="font-size: 0.86rem; color: #94a3b8; margin: 0; line-height: 1.4;">
+              ${esc(ev.summary)}
+            </p>
+          </div>
+        `;
+      });
+    }
+    html += `</div></div>`;
+
+    // Section 4: Rejected Alternatives & Known Pitfalls
+    html += `
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #f87171; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          3. Rejected Alternatives & Known Pitfalls (${pitfalls.length})
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+    `;
+    if (pitfalls.length === 0) {
+      html += `<div class="placeholder-state" style="padding: 16px;">No known rejected pitfalls recorded for this scope.</div>`;
+    } else {
+      pitfalls.forEach(p => {
+        html += `
+          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <h4 style="font-size: 1.02rem; margin: 0; color: #fca5a5;">
+                ⚠️ DO NOT REINTRODUCE: ${esc(p.title)}
+              </h4>
+              <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">rejected</span>
+            </div>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+              <strong>Why This Failed:</strong> ${esc(p.rejection_reason)}
+            </p>
+            <div style="font-size: 0.8rem; color: #94a3b8; display: flex; justify-content: space-between;">
+              <span>Rejected By: <strong>${esc(p.rejected_by)}</strong></span>
+              <div style="display: flex; gap: 8px;">
+                ${p.citations?.map(c => `
+                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #fca5a5; text-decoration: underline;">
+                    [${esc(c.source_type)}] Evidence ↗
+                  </a>
+                `).join('') || ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    html += `</div></div>`;
+
+    // Section 5: Open Items & Stale Decisions
+    html += `
+      <div style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #fbbf24; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          4. Open Items & Stale Assumptions (${openItems.length})
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+    `;
+    if (openItems.length === 0) {
+      html += `<div class="placeholder-state" style="padding: 16px;">All relevant decisions are currently validated and fresh.</div>`;
+    } else {
+      openItems.forEach(o => {
+        html += `
+          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <h4 style="font-size: 1.02rem; margin: 0; color: #fde68a;">
+                ⏳ ${esc(o.title)}
+              </h4>
+              <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a;">freshness: ${esc(o.freshness)}</span>
+            </div>
+            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+              <strong>Context:</strong> ${esc(o.rationale)}
+            </p>
+            ${o.broken_assumptions && o.broken_assumptions.length > 0 ? `
+              <div style="font-size: 0.84rem; color: #ef4444; margin-bottom: 6px;">
+                <strong>Broken Assumption:</strong> ${o.broken_assumptions.map(a => esc(a)).join('; ')}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+    }
+    html += `</div></div>`;
+
+    container.innerHTML = html;
+  },
+
 
   getStateColor(state) {
     if (state === 'accepted') return '#10b981';
@@ -2135,7 +2427,187 @@ const app = {
       return (staticData.endpoints && staticData.endpoints.benchmark) || { status: 'success', data: { metrics: {}, baselines: {} } };
     }
 
+    if (path === '/api/bus-factor') {
+      return (staticData.endpoints && staticData.endpoints.bus_factor) || {
+        status: 'success',
+        overall_bus_factor: 1,
+        total_modules: 0,
+        modules: []
+      };
+    }
+
+    if (path === '/api/onboarding') {
+      const role = params.get('role') || 'developer';
+      const mod = params.get('module') || 'thermal';
+      const isThermal = mod.includes('thermal');
+      return {
+        status: 'success',
+        repo: repo || (isThermal ? 'acme-eng/thermal-control-system' : 'acme-eng/distributed-cache-service'),
+        role: role,
+        module: mod,
+        files: params.get('files') ? params.get('files').split(',') : [],
+        total_items: 4,
+        checklist: [
+          { id: 'chk_1', category: 'overview', title: `Review ${mod.toUpperCase()} Subsystem Architecture Overview`, completed: false },
+          { id: 'chk_2', category: 'active_decision', title: isThermal ? 'Study Decision: Adopt Discrete PID Controller' : 'Study Decision: Migrate from In-Memory LRU to Redis Cluster', completed: false },
+          { id: 'chk_3', category: 'pitfall', title: isThermal ? 'Avoid Pitfall: Reject Simple Deadband Hysteresis (transient overshoots)' : 'Avoid Pitfall: Reject In-Memory LRU Cache Cap (replica stampedes & OOM)', completed: false },
+          { id: 'chk_4', category: 'evidence', title: isThermal ? 'Read ADR 0004: Discrete PID Controller with anti-windup clamping' : 'Read ADR 0009: Redis Cluster with Sentinel Failover', completed: false }
+        ],
+        sections: {
+          overview: {
+            title: `${mod.toUpperCase()} Subsystem Architectural Onboarding (${role})`,
+            module: mod,
+            role: role,
+            affected_artifacts: [isThermal ? 'src/thermal/control.py' : 'src/cache/store.py'],
+            primary_architects: [isThermal ? 'Sarah Chen' : 'Priya Patel'],
+            summary: `Curated context for ${role} on ${mod}. Focuses on architectural guarantees and critical operational constraints.`
+          },
+          active_decisions: [{
+            decision_id: isThermal ? 'dec_thermal_pid_accepted' : 'dec_cache_redis_accepted',
+            title: isThermal ? 'Adopt Discrete PID Controller for Chamber Temperature Regulation' : 'Migrate from In-Memory LRU to Distributed Redis Cluster',
+            state: 'accepted',
+            evidence_label: 'strong',
+            made_by: isThermal ? 'Sarah Chen' : 'Priya Patel',
+            rationale: isThermal ? 'Replaced on-off controller with discrete PID to eliminate transient overshoots under 80% duty cycle.' : 'Eliminates replica stampedes and memory duplication across worker pods.',
+            assumptions: [isThermal ? 'Assumes scipy/numpy available for coefficients' : 'Assumes Redis cluster sentinel latency < 5ms'],
+            citations: [{ source_type: 'adr', source_url: 'https://github.com/acme-eng/docs/adr/0004.md', title: isThermal ? 'ADR 0004' : 'ADR 0009' }]
+          }],
+          architectural_evidence: [{
+            event_id: 'evt_adr_01',
+            source_type: 'adr',
+            source_url: 'https://github.com/acme-eng/docs/adr/0004.md',
+            title: isThermal ? 'ADR 0004: PID Thermal Regulation' : 'ADR 0009: Redis Migration',
+            author: isThermal ? 'Sarah Chen' : 'Priya Patel',
+            summary: isThermal ? 'Detailed latency benchmarks showing 17% performance improvement.' : 'Demonstrated cluster failover under flash sales.'
+          }],
+          rejected_pitfalls: [{
+            decision_id: isThermal ? 'dec_thermal_deadband_rejected' : 'dec_cache_local_lru_proposed',
+            title: isThermal ? 'Reject Simple Deadband Hysteresis for Thermal Control' : 'Retain In-Memory LRU Cache with Process Memory Cap',
+            rejection_reason: isThermal ? 'Marcus Vance proposed deadband tuning, but benchmarks proved it caused 17% higher latency and emergency shutdowns.' : 'Marcus Vance attempted local soft caps, but replica stampedes still caused OOM crashes.',
+            rejected_by: 'Architecture Review',
+            citations: [{ source_type: 'github_issue', source_url: 'https://github.com/acme-eng/issues/12', title: 'Issue #12 Benchmarks' }]
+          }],
+          open_stale_items: []
+        }
+      };
+    }
+
     return { status: 'error', message: `Unknown endpoint ${path}` };
+  },
+
+  async loadBusFactorData() {
+    const container = document.getElementById('bus-factor-container');
+    if (!container) return;
+    container.innerHTML = '<div style="padding: 24px; color: #94a3b8;">Computing knowledge concentration map...</div>';
+
+    try {
+      const repoQuery = this.selectedRepo ? `?repo=${encodeURIComponent(this.selectedRepo)}` : '';
+      const json = await this.apiFetch(`/api/bus-factor${repoQuery}`);
+      if (json.status !== 'success' || !json.modules) {
+        container.innerHTML = `<div style="padding: 24px; color: #ef4444;">Failed to load bus factor data: ${esc(json.message || 'Unknown error')}</div>`;
+        return;
+      }
+
+      const overall = json.overall_bus_factor || 1;
+      const modules = json.modules || [];
+      const highRiskCount = modules.filter(m => m.risk_level === 'high').length;
+
+      let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Overall Bus Factor</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#ef4444' : overall === 2 ? '#f59e0b' : '#10b981'}; margin-top: 4px;">${esc(overall)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Min contributors required to maintain modules</div>
+          </div>
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Modules Analyzed</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #f3f4f6; margin-top: 4px;">${esc(modules.length)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">High-level package domains in repo</div>
+          </div>
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">High Concentration Risk</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#ef4444' : '#10b981'}; margin-top: 4px;">${esc(highRiskCount)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Modules dependent on a single contributor</div>
+          </div>
+        </div>
+
+        <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #f3f4f6; margin: 0;">Module Concentration Heat Map</h3>
+            <span style="font-size: 0.78rem; color: #9ca3af;">Ranked by concentration severity</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid #1f2937; color: #9ca3af; background: #0b0f17;">
+                  <th style="padding: 12px 16px;">Module</th>
+                  <th style="padding: 12px 16px;">Risk Level</th>
+                  <th style="padding: 12px 16px;">Bus Factor</th>
+                  <th style="padding: 12px 16px;">Top Contributor</th>
+                  <th style="padding: 12px 16px;">Decisions</th>
+                  <th style="padding: 12px 16px;">Doc Coverage</th>
+                  <th style="padding: 12px 16px;">Onboarding / Transfer Guidance</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      if (modules.length === 0) {
+        html += `
+          <tr>
+            <td colspan="7" style="padding: 24px; text-align: center; color: #6b7280;">No important decisions recorded yet for this repository.</td>
+          </tr>
+        `;
+      } else {
+        modules.forEach(m => {
+          const badgeBg = m.risk_level === 'high' ? 'rgba(239, 68, 68, 0.15)' : m.risk_level === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+          const badgeColor = m.risk_level === 'high' ? '#ef4444' : m.risk_level === 'medium' ? '#f59e0b' : '#10b981';
+          const docPct = Math.round((m.documentation_coverage || 0) * 100);
+          const topPct = Math.round((m.top_contributor_share || 0) * 100);
+
+          html += `
+            <tr style="border-bottom: 1px solid #1f2937;">
+              <td style="padding: 14px 16px; font-weight: 600; color: #f9fafb; font-family: monospace;">${esc(m.module)}</td>
+              <td style="padding: 14px 16px;">
+                <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: ${badgeBg}; color: ${badgeColor};">
+                  ${esc(m.risk_level)}
+                </span>
+              </td>
+              <td style="padding: 14px 16px; font-weight: 700; color: ${badgeColor}; font-size: 1rem;">
+                ${esc(m.bus_factor)}
+              </td>
+              <td style="padding: 14px 16px;">
+                <div style="font-weight: 500; color: #e5e7eb;">${esc(m.top_contributor)}</div>
+                <div style="font-size: 0.72rem; color: #9ca3af;">${esc(topPct)}% knowledge share</div>
+              </td>
+              <td style="padding: 14px 16px; color: #cbd5e1;">${esc(m.important_decisions_count)}</td>
+              <td style="padding: 14px 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="flex: 1; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; min-width: 60px;">
+                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#10b981' : '#f59e0b'};"></div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: #9ca3af;">${docPct}%</span>
+                </div>
+              </td>
+              <td style="padding: 14px 16px; font-size: 0.78rem; color: #9ca3af; max-width: 280px; line-height: 1.4;">
+                ${esc(m.onboarding_hint)}
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = `<div style="padding: 24px; color: #ef4444;">Error loading bus factor: ${esc(err.message)}</div>`;
+    }
   },
 
 };

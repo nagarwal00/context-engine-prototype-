@@ -108,6 +108,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span>Metrics & Baselines</span>
           </a>
+          <a class="nav-item" data-surface="bus-factor" onclick="app.navigate('bus-factor')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Bus Factor Map</span>
+          </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -365,16 +369,75 @@
           </div>
         </section>
 
-        <!-- EXTRA SURFACE: Onboarding Mode -->
+        <!-- EXTRA SURFACE: Onboarding Mode (Step 5.4 Adaptive Developer Onboarding) -->
         <section id="surface-onboarding" class="surface-view">
           <div class="view-header">
             <div>
-              <h1 class="view-title">Onboarding Mode: Architectural Guided Tour</h1>
-              <p class="view-desc">Curated walkthrough for new contributors to recover the "Why" behind core subsystems in minutes, not weeks.</p>
+              <h1 class="view-title">Adaptive Developer Onboarding</h1>
+              <p class="view-desc">Personalized, graph-driven learning paths tailored to your engineering role, subsystem, and target files. Recover architectural context and avoid known pitfalls.</p>
             </div>
           </div>
+
+          <!-- Onboarding Request & Persona Form -->
+          <div class="drift-tester-card" style="margin-bottom: 24px;">
+            <div class="form-row">
+              <label><strong>Quick Persona Presets:</strong></label>
+              <div class="preset-buttons">
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('thermal')">Persona 1: Thermal Control Engineer (Thermal Regulation)</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('cache')">Persona 2: Infrastructure / SRE (Distributed Cache)</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('security')">Persona 3: Security Auditor (Auth & Keyring)</button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
+              <div class="form-row">
+                <label for="onboarding-role-input">Engineering Role / Persona:</label>
+                <input type="text" id="onboarding-role-input" class="code-textarea" style="height: 38px; resize: none;" value="Control Systems Engineer" placeholder="e.g. Backend Engineer, SRE, Security Auditor" />
+              </div>
+              <div class="form-row">
+                <label for="onboarding-module-input">Target Subsystem / Module:</label>
+                <input type="text" id="onboarding-module-input" class="code-textarea" style="height: 38px; resize: none;" value="thermal" placeholder="e.g. thermal, cache, payment, auth" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
+              <div class="form-row">
+                <label for="onboarding-files-input">Optional Focus Files (comma separated):</label>
+                <input type="text" id="onboarding-files-input" class="code-textarea" style="height: 38px; resize: none;" value="src/thermal/control.py" placeholder="e.g. src/thermal/control.py" />
+              </div>
+              <div class="form-row">
+                <label for="onboarding-task-input">Optional Specific Task or Ticket:</label>
+                <input type="text" id="onboarding-task-input" class="code-textarea" style="height: 38px; resize: none;" value="Implement anti-windup clamping" placeholder="e.g. Add Redis failover, refactor auth token storage" />
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 16px;">
+              <button class="btn btn-primary" onclick="app.generateOnboardingPath()">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Generate Adaptive Learning Path
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Onboarding Checklist Card -->
+          <div id="onboarding-checklist-card" class="timeline-card" style="margin-bottom: 24px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Onboarding Reading Checklist
+              </h3>
+              <div id="onboarding-progress-badge" class="badge" style="background: rgba(16,185,129,0.15); color: #10b981; font-weight: 600;">
+                0 / 0 completed
+              </div>
+            </div>
+            <div id="onboarding-checklist-items" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Checklist checkboxes injected here -->
+            </div>
+          </div>
+
+          <!-- Dynamic Learning Path Output Container -->
           <div class="onboarding-cards" id="onboarding-tour-container">
-            <!-- Guided tour cards injected here -->
+            <!-- Dynamic ordered learning path injected here -->
           </div>
         </section>
 
@@ -422,6 +485,25 @@
           </div>
           <div class="benchmark-grid" id="benchmark-container">
             <!-- Benchmark metrics cards and comparative table injected here -->
+          </div>
+        </section>
+
+        <!-- EXTRA SURFACE: Bus Factor & Knowledge Concentration Map (Step 5.3) -->
+        <section id="surface-bus-factor" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Bus Factor &amp; Knowledge Concentration Map</h1>
+              <p class="view-desc">Module-level knowledge concentration derived from substantive architectural decisions, ADR authors, and code reviewers (raw commit counts excluded).</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary btn-sm" onclick="app.loadBusFactorData()">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Refresh Map
+              </button>
+            </div>
+          </div>
+          <div id="bus-factor-container" class="bus-factor-wrapper">
+            <!-- Rendered dynamically by app.js -->
           </div>
         </section>
 

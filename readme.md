@@ -64,6 +64,11 @@ If your professor asks you technical questions, here are the simple explanations
 - **In simple words:** An inbox for human engineers. If our system detects a conflict between two developers, or if a code change looks suspicious, it puts that item into this inbox so a human can click **Confirm**, **Correct**, or **Reject**.
 - **Handled by:** [`backend/api.py`](file:///c:/Users/HP/Desktop/SE_project/backend/api.py) and the web interface.
 
+### 8. "GitHub App & CI Integration"
+- **In simple words:** Integrates with GitHub to inspect pull request diffs in CI and automatically flag architectural regressions.
+- **Testing status:** *webhook/CI verified with mocks only* (automated test suite in `tests/test_webhook.py` using HMAC-SHA256 signature fixtures; live production deployment requires public IP/tunnel per `GITHUB_APP_SETUP.md`).
+- **Handled by:** [`backend/api.py`](file:///c:/Users/HP/Desktop/SE_project/backend/api.py) (`/api/webhook/github`), [`tools/ci_check.py`](file:///c:/Users/HP/Desktop/SE_project/tools/ci_check.py), and [`.github/workflows/cif-check.yml`](file:///c:/Users/HP/Desktop/SE_project/.github/workflows/cif-check.yml).
+
 ---
 
 ## 3. How to Run the Project (Step-by-Step)
