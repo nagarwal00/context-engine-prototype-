@@ -348,3 +348,34 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Verified: Passage extraction exact character offsets equality and contradiction cue detection.
      - Verified: Schema migration 003 applied cleanly to active `context_intelligence.db`.
      - Verified: `tests/test_independence.py` (9 tests pass); full test discovery suite (120 tests pass); demo runner (21/21 checks pass).
+
+### Step 3.2 — Evidence Assessment and Abstention
+- Status: **RESOLVED**
+- Files: `backend/engine/evidence.py`, `backend/engine/explanation.py`, `backend/api.py`, `backend/db.py`, `backend/evaluation/METRICS.md`, `METRICS.md`, `web/app.js`, `docs/app.js`, `tests/test_assessment.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Evidence Assessment Engine (`backend/engine/evidence.py`):
+     - Implemented deterministic assessment function `assess(decision, db=None, all_events=None, claim_evidences=None)`:
+       * `contradicted`: at least one `contradicting` relation from an active source (not superseded).
+       * `strong`: $\ge 2$ independent source groups with direct support ($\ge 2$ direct groups).
+       * `moderate`: 1 direct group plus $\ge 1$ other group (any relation, e.g. 1 direct + 1 indirect), OR $\ge 2$ independent indirect groups.
+       * `weak`: exactly 1 source group (e.g. 1 direct source without independent corroboration, or a single thread with multiple comments/copies).
+       * `insufficient`: no evidence, or only 1 indirect group.
+     - Generated human-readable `missing_corroboration` notes (e.g. "no independent source besides the ADR", "no outcome/test evidence linked", "no direct passage evidence supporting claims").
+     - Generated structured `conflicting_evidence` listing contradicting passages and related decisions on the same entities.
+     - Documented the rule and explicit design choice statement in code comments, `backend/evaluation/METRICS.md`, and root `METRICS.md`.
+  2. Database Layer Integration (`backend/db.py`):
+     - Automatically recomputes assessment and persists label in `decisions.evidence_assessment` inside `_sync_decision_claims`.
+     - Added `recompute_evidence_assessment(decision_id)` method.
+  3. Review Routing (`backend/api.py`):
+     - Route `/api/review-queue` automatically includes decisions with `evidence_assessment IN ('weak', 'insufficient', 'contradicted')` and `review_status NOT IN ('human_rejected', 'human_confirmed')` with descriptive queue reasons.
+  4. Abstention (`backend/engine/explanation.py` & `backend/api.py`):
+     - `/api/explain` and `ExplanationGenerator.explain_artifact` / `explain_decision` return `{ "status": "insufficient_evidence", "message": "..." }` when the governing decision has `evidence_assessment == "insufficient"` and no stronger source exists.
+  5. UI Confidence Label Calibration Renaming (`web/app.js`, `docs/app.js`):
+     - Display `evidence_assessment` as primary status indicator pill.
+     - Renamed legacy confidence badge to **"Heuristic score (uncalibrated): X%"** across Decision Explorer cards and Lifecycle inspector summary card.
+  6. Acceptance & Verification:
+     - Verified: a decision with a single copied source (>80% token overlap) collapses to 1 source group and is labelled `weak`, NEVER `strong`.
+     - Verified: contradicted decision is assessed as `contradicted`.
+     - Verified: abstention triggers on insufficient evidence for artifact and decision explanations.
+     - Verified: review queue routes `weak`, `insufficient`, and `contradicted` items.
+     - Verified: `tests/test_assessment.py` (10 tests pass); full test discovery suite (130 tests pass); demo runner (21/21 checks pass).

@@ -83,4 +83,25 @@ If case files are missing, these are reported as `"not measured"`.
 Wall-clock processing latency measured in milliseconds using `time.perf_counter()`:
 1. **Ingestion Latency**: Wall-clock duration to ingest and index a repository bundle.
 2. **Explanation Latency**: Wall-clock duration to answer an `explain` query.
-- Reported as the median value of $\ge 5$ measured runs.
+- Reported as the median value of >= 5 measured runs.
+
+---
+89: 
+90: ## 9. Evidence Assessment Deterministic Rule (Step 3.2)
+91: 
+92: Evaluates corroboration and evidentiary quality for decisions deterministically using claim-level passage links and source group clustering.
+93: 
+94: **Design Choice Statement:** The thresholds defined below are explicit architectural design choices, not statistical probabilities or sample estimates.
+95: 
+96: | Label | Deterministic Rule Definition |
+97: |---|---|
+98: | `contradicted` | At least one `contradicting` relation from an active evidence source (not superseded by later evidence). |
+99: | `strong` | $\ge 2$ independent source groups with direct support ($\ge 2$ direct groups). |
+100: | `moderate` | 1 direct group plus $\ge 1$ other group of any relation (e.g. 1 direct + 1 indirect), OR $\ge 2$ independent indirect groups. |
+101: | `weak` | Exactly 1 source group (e.g. 1 direct source without corroboration, or a single thread with multiple comments/copies). |
+102: | `insufficient` | No evidence events recorded, or only 1 indirect group. |
+103: 
+104: ### Missing Corroboration & Review Routing:
+105: - Decisions assessed as `weak`, `insufficient`, or `contradicted` automatically generate review-queue items (`/api/review-queue`) with human-readable rationale (e.g., "no independent source besides the ADR", "no outcome/test evidence linked").
+106: - Explanation endpoints (`/api/explain`) abstain with `{ "status": "insufficient_evidence", "message": "..." }` when the governing decision has `evidence_assessment == "insufficient"` and no stronger source exists.
+107: - Legacy extraction confidence scores are displayed as **"Heuristic score (uncalibrated)"** until calibration is proven.

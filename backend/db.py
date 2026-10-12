@@ -490,8 +490,30 @@ class Database:
                         claim_id, event_id, relation, passage_text, passage_start, passage_end, source_group
                     ) VALUES (?, ?, ?, ?, ?, ?, ?)
                     """, (clm.claim_id, ev["event_id"], rel, p_text, p_start, p_end, sg))
+
+            # Step 3.2: Recompute assessment label and store in decisions.evidence_assessment
+            from backend.engine.evidence import assess
+            assessment = assess(decision, db=self)
+            new_label = assessment.get("label", "insufficient")
+            cursor.execute("UPDATE decisions SET evidence_assessment = ? WHERE decision_id = ?", (new_label, decision.decision_id))
+            decision.evidence_assessment = new_label
         except Exception:
             pass
+
+    def recompute_evidence_assessment(self, decision_id: str) -> str:
+        """Recomputes deterministic evidence assessment label for a decision and updates database."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
+            row = cursor.fetchone()
+            if not row:
+                return "insufficient"
+            from backend.engine.evidence import assess
+            assessment = assess(dict(row), db=self)
+            label = assessment.get("label", "insufficient")
+            cursor.execute("UPDATE decisions SET evidence_assessment = ? WHERE decision_id = ?", (label, decision_id))
+            conn.commit()
+            return label
 
     def upsert_decision(self, decision: Decision) -> str:
         """Alias for save_decision."""

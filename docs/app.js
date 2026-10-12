@@ -727,13 +727,16 @@ const app = {
       }
 
       container.innerHTML = this.cachedDecisions.map(d => {
-        const confStr = d.confidence ? Math.round(d.confidence * 100) + '% Conf' : '';
+        const confStr = d.confidence ? 'Heuristic score (uncalibrated): ' + Math.round(d.confidence * 100) + '%' : '';
         return `
         <div class="decision-card">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <span class="status-tag ${esc(d.state)}">${esc(d.state)}</span>
-              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(confStr)}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 4px;">
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span class="status-tag ${esc(d.state)}">${esc(d.state)}</span>
+                <span class="stat-pill" style="font-size: 0.72rem; padding: 2px 6px;">Assessment: <strong>${esc(d.evidence_assessment || 'insufficient')}</strong></span>
+              </div>
+              <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;" title="Uncalibrated heuristic">${esc(confStr)}</span>
             </div>
             <h3 class="decision-card-title">${esc(d.title)}</h3>
             <p class="decision-card-rationale">${esc(d.rationale || 'No extracted rationale.')}</p>
@@ -868,6 +871,7 @@ const app = {
                 <span class="status-tag ${esc(decision.state)}">${esc(decision.state)}</span>
                 <span class="stat-pill">Assessment: <strong>${esc(decision.evidence_assessment)}</strong></span>
                 <span class="stat-pill">Freshness: <strong>${esc(decision.freshness)}</strong></span>
+                <span class="stat-pill" title="Uncalibrated extraction score">Heuristic score (uncalibrated): <strong>${esc(Math.round((decision.confidence || 0) * 100))}%</strong></span>
               </div>
               <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 6px;">${esc(decision.title)}</h2>
               <p style="font-size: 0.88rem; color: #94a3b8; max-width: 800px; margin-bottom: 10px;">${esc(decision.rationale || 'No rationale recorded.')}</p>

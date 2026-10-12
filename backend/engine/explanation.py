@@ -66,6 +66,23 @@ class ExplanationGenerator:
         active_decisions = [d for d in chain if d["state"] == "accepted"]
         current_active = active_decisions[-1] if active_decisions else chain[-1]
 
+        # Step 3.2 Abstention rule: abstain if evidence assessment is insufficient and no stronger source exists
+        active_assessment = current_active.get("evidence_assessment", "insufficient")
+        has_stronger = any(d.get("evidence_assessment") in ("strong", "moderate", "weak") for d in chain)
+
+        if active_assessment == "insufficient" and not has_stronger:
+            msg = f"Insufficient evidence recorded to explain design decisions governing artifact '{canonical_path}'."
+            return {
+                "artifact": canonical_path,
+                "status": "insufficient_evidence",
+                "message": msg,
+                "explanation": msg,
+                "current_decision": current_active["title"],
+                "current_state": current_active["state"],
+                "citations": citations,
+                "chain": steps
+            }
+
         overall_text = f"Artifact '{canonical_path}' is governed primarily by accepted decision '{current_active['title']}', established by {current_active['made_by']} on {current_active['made_at'][:10]}.\n\n"
         overall_text += f"Key Rationale: {current_active['rationale']}\n\n"
         
@@ -81,3 +98,51 @@ class ExplanationGenerator:
             "citations": citations,
             "chain": steps
         }
+
+    def explain_decision(self, decision_id: str) -> Dict[str, Any]:
+        """Explains a specific decision, abstaining if evidence is insufficient."""
+        with self.db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
+            row = cursor.fetchone()
+            if not row:
+                return {
+                    "decision_id": decision_id,
+                    "status": "not_found",
+                    "explanation": f"Decision '{decision_id}' not found in project history.",
+                    "citations": []
+                }
+            dec = dict(row)
+            ea = dec.get("evidence_assessment", "insufficient")
+            if ea == "insufficient":
+                msg = f"Insufficient evidence recorded for decision '{dec.get('title')}' ({decision_id})."
+                return {
+                    "decision_id": decision_id,
+                    "status": "insufficient_evidence",
+                    "message": msg,
+                    "explanation": msg,
+                    "citations": []
+                }
+
+            trail = self.db.query_full_evidence_trail(decision_id)
+            evidence_events = trail.get("evidence_events", [])
+            citations = [
+                {
+                    "source_type": ev["source_type"],
+                    "source_id": ev["source_id"],
+                    "source_url": ev["source_url"],
+                    "title": ev["title"] or f"{ev['source_type']} {ev['source_id']}",
+                    "author": ev["author"],
+                    "timestamp": ev["ts"]
+                }
+                for ev in evidence_events
+            ]
+            return {
+                "decision_id": decision_id,
+                "status": "grounded",
+                "current_decision": dec["title"],
+                "current_state": dec["state"],
+                "evidence_assessment": ea,
+                "explanation": f"Decision '{dec['title']}' ({dec['state']}) established by {dec.get('made_by')}: {dec.get('rationale')}",
+                "citations": citations
+            }

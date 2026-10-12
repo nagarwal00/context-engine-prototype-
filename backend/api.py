@@ -121,8 +121,22 @@ class APIHandler:
 
         # 4. Code-Context View / Explain Artifact
         elif path == "/api/explain":
-            artifact = query_params.get("artifact", ["src/thermal/control.py::regulate_temperature"])[0]
-            return {"status": "success", "data": self.explanation_gen.explain_artifact(artifact)}
+            decision_id = query_params.get("decision_id", [None])[0]
+            artifact = query_params.get("artifact", [None])[0]
+            if decision_id:
+                res = self.explanation_gen.explain_decision(decision_id)
+            elif artifact:
+                res = self.explanation_gen.explain_artifact(artifact)
+            else:
+                res = self.explanation_gen.explain_artifact("src/thermal/control.py::regulate_temperature")
+
+            if res.get("status") == "insufficient_evidence":
+                return {
+                    "status": "insufficient_evidence",
+                    "message": res.get("message") or res.get("explanation"),
+                    "data": res
+                }
+            return {"status": "success", "data": res}
 
         # 5. Decision Explorer
         elif path == "/api/decisions":
@@ -162,19 +176,31 @@ class APIHandler:
         # 7. Review Queue
         elif path == "/api/review-queue":
             queue = []
+            seen_decision_ids = set()
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
 
                 # Low confidence decisions (< 0.90) or pending_review
+                # OR evidence quality labels 'weak', 'insufficient', 'contradicted' (Step 3.2 review routing)
                 cursor.execute("""
                 SELECT * FROM decisions
-                WHERE (confidence < 0.90 OR review_status = 'pending_review') AND review_status NOT IN ('human_rejected', 'human_confirmed')
+                WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
+                  AND review_status NOT IN ('human_rejected', 'human_confirmed')
                 ORDER BY confidence ASC
                 """)
                 for r in cursor.fetchall():
                     d = dict(r)
-                    d["queue_reason"] = f"Low extraction confidence ({round(d['confidence']*100)}%) or pending review"
+                    ea = d.get("evidence_assessment", "insufficient")
+                    if ea == "contradicted":
+                        d["queue_reason"] = "Evidence quality assessed as 'contradicted': active contradictory findings detected"
+                    elif ea == "insufficient":
+                        d["queue_reason"] = "Evidence quality assessed as 'insufficient': missing evidence links or corroboration"
+                    elif ea == "weak":
+                        d["queue_reason"] = "Evidence quality assessed as 'weak': single source group without independent corroboration"
+                    else:
+                        d["queue_reason"] = f"Low extraction confidence ({round(d['confidence']*100)}%) or pending review"
                     d["item_type"] = "decision"
+                    seen_decision_ids.add(d["decision_id"])
                     queue.append(d)
 
                 # Conflicts
