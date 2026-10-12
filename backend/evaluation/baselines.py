@@ -51,14 +51,22 @@ class BaselineEvaluator:
         }
 
     def run_baseline_keyword(self, ground_truth: List[Dict[str, Any]], top_k: int = 5) -> Dict[str, Any]:
-        """Baseline A: Token overlap search over all events in the repo."""
+        """Baseline A: Token overlap search over all events in the repo (Task 1: Evidence Retrieval)."""
         if not ground_truth:
             return {
                 "name": "Baseline A: Keyword Search (Grep/BM25)",
                 "status": "not measured",
+                "task_1_hit_rate": "not measured",
+                "task_1_top_k": top_k,
+                "task_2_decision_recall": "n/a",
+                "task_2_state_accuracy": "n/a",
+                "task_2_refusal_accuracy": "n/a (always answers)",
                 "decision_recall": "not measured",
                 "found_count": 0,
-                "total_count": 0
+                "total_count": 0,
+                "task_1_applicable": True,
+                "task_2_applicable": False,
+                "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
             }
 
         with self.db.get_connection() as conn:
@@ -91,21 +99,37 @@ class BaselineEvaluator:
         return {
             "name": "Baseline A: Keyword Search (Grep/BM25)",
             "status": "measured",
-            "decision_recall": recall,
+            "task_1_hit_rate": recall,
+            "task_1_top_k": top_k,
+            "task_2_decision_recall": "n/a",
+            "task_2_state_accuracy": "n/a",
+            "task_2_refusal_accuracy": "n/a (always answers)",
+            "decision_recall": recall,  # Backward compatibility alias
             "found_count": found_count,
             "total_count": total_count,
-            "top_k": top_k
+            "top_k": top_k,
+            "task_1_applicable": True,
+            "task_2_applicable": False,
+            "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
         }
 
     def run_baseline_docs_only(self, ground_truth: List[Dict[str, Any]], top_k: int = 5) -> Dict[str, Any]:
-        """Baseline B: Token overlap search restricted to ADR/Doc events only."""
+        """Baseline B: Token overlap search restricted to ADR/Doc events only (Task 1: Evidence Retrieval)."""
         if not ground_truth:
             return {
                 "name": "Baseline B: Documentation/ADRs Only",
                 "status": "not measured",
+                "task_1_hit_rate": "not measured",
+                "task_1_top_k": top_k,
+                "task_2_decision_recall": "n/a",
+                "task_2_state_accuracy": "n/a",
+                "task_2_refusal_accuracy": "n/a (always answers)",
                 "decision_recall": "not measured",
                 "found_count": 0,
-                "total_count": 0
+                "total_count": 0,
+                "task_1_applicable": True,
+                "task_2_applicable": False,
+                "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
             }
 
         with self.db.get_connection() as conn:
@@ -138,10 +162,18 @@ class BaselineEvaluator:
         return {
             "name": "Baseline B: Documentation/ADRs Only",
             "status": "measured",
-            "decision_recall": recall,
+            "task_1_hit_rate": recall,
+            "task_1_top_k": top_k,
+            "task_2_decision_recall": "n/a",
+            "task_2_state_accuracy": "n/a",
+            "task_2_refusal_accuracy": "n/a (always answers)",
+            "decision_recall": recall,  # Backward compatibility alias
             "found_count": found_count,
             "total_count": total_count,
-            "top_k": top_k
+            "top_k": top_k,
+            "task_1_applicable": True,
+            "task_2_applicable": False,
+            "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
         }
 
     def run_baseline_llm(self, ground_truth: List[Dict[str, Any]]) -> Dict[str, Any]:

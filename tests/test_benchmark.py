@@ -326,6 +326,56 @@ class TestBenchmark(unittest.TestCase):
         self.assertEqual(metrics["event_exists"], 100.0)
         self.assertEqual(metrics["evidence_link_accuracy"], metrics["url_format_ok"])
 
+    def test_task_split_equivalent_tasks_reporting(self):
+        """
+        Step 4.2: Split the benchmark into two clearly defined tasks.
+        Asserts that search baselines (A and B) evaluate Task 1 (evidence retrieval),
+        while Task 2 (decision reconstruction) cells are marked 'n/a' and refusal is 'n/a (always answers)'.
+        """
+        # Create an ADR event and a decision
+        ev_doc = Event(
+            event_id="evt_adr_split_01",
+            source_type="adr",
+            source_id="adr_01",
+            source_url="https://github.com/test/repo/doc/adr_01",
+            repo="test/repo",
+            author="alice",
+            timestamp="2026-01-01T00:00:00Z",
+            title="ADR 01 Architecture Doc",
+            body="Use PostgreSQL database for transactional storage",
+            artifacts_touched=[]
+        )
+        self.db.upsert_event(ev_doc)
+
+        gt = [{
+            "id": "GT_TASK_SPLIT",
+            "repo": "test/repo",
+            "title": "Use PostgreSQL database",
+            "expected_state": "accepted",
+            "expected_evidence_contains": ["evt_adr_split_01"]
+        }]
+
+        evaluator = BaselineEvaluator(self.db)
+        b_keyword = evaluator.run_baseline_keyword(gt)
+        b_docs = evaluator.run_baseline_docs_only(gt)
+
+        # 1. Task 1 (Evidence Retrieval) is measured
+        self.assertTrue(b_keyword["task_1_applicable"])
+        self.assertEqual(b_keyword["task_1_hit_rate"], 100.0)
+        self.assertTrue(b_docs["task_1_applicable"])
+        self.assertEqual(b_docs["task_1_hit_rate"], 100.0)
+
+        # 2. Task 2 (Decision Reconstruction) is explicitly marked 'n/a'
+        self.assertFalse(b_keyword["task_2_applicable"])
+        self.assertEqual(b_keyword["task_2_decision_recall"], "n/a")
+        self.assertEqual(b_keyword["task_2_state_accuracy"], "n/a")
+        self.assertEqual(b_keyword["task_2_refusal_accuracy"], "n/a (always answers)")
+
+        self.assertFalse(b_docs["task_2_applicable"])
+        self.assertEqual(b_docs["task_2_decision_recall"], "n/a")
+        self.assertEqual(b_docs["task_2_state_accuracy"], "n/a")
+        self.assertEqual(b_docs["task_2_refusal_accuracy"], "n/a (always answers)")
+
 if __name__ == "__main__":
     unittest.main()
 

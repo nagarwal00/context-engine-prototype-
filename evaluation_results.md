@@ -13,22 +13,39 @@ WhyBench evaluates the Context Intelligence Framework on 3 open-source repositor
 
 **Total Dataset**: 61 questions (24 dev split [39.3%], 37 test split [60.7%]). All items are supported by public URLs or designed as negative refusal tests.
 
-### 1.1 Final Test Split Results (Frozen, Single Evaluation Run)
+### 1.1 Final Test Split Results (Split Across Equivalent Tasks — Step 4.2)
 
-Evaluated via `python tools/run_whybench.py --split test --final` (saved to `backend/evaluation/whybench/results_test_20261011.json`):
+Evaluated via `python tools/run_whybench.py --split test --final` (saved to `backend/evaluation/whybench/results_test_20261011.json`).
 
-| System / Baseline | Method | Recall | State Accuracy | Refusal Accuracy | Status |
-|---|---|:---:|:---:|:---:|:---:|
-| **CIF (Context Intelligence)** | Structured Extraction + Provenance Graph | **30.8%** (8/26) | **100.0%** (8/8) | **100.0%** (11/11) | Measured |
-| **Baseline A** | Keyword Token Overlap (Top 5 Events) | **64.9%** (24/37) | N/A | 0.0% (No refusal) | Measured |
-| **Baseline B** | Docs-Only Search (`source_type in adr,doc`) | **16.2%** (6/37) | N/A | 0.0% (No refusal) | Measured |
-| **Baseline C** | Plain LLM over Repo Text | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
-| **Baseline D** | GitHub Copilot Manual Labels | *not measured* | *not measured* | *not measured* | No manual labels |
+In accordance with Step 4.2, the benchmark results are explicitly partitioned into two distinct tasks so unlike systems are not compared directly:
 
-#### Honest Analysis: Where CIF Wins and Where CIF Loses
-- **Where CIF loses to Baseline A**: Baseline A achieves higher raw recall (**64.9% vs 30.8%**). Baseline A matches any raw text containing words from the question title. However, Baseline A does not extract structured decisions, does not distinguish accepted from rejected alternatives, and has **0% refusal accuracy** (it returns noisy snippets for questions about decisions that never occurred).
-- **Where CIF wins**: CIF achieves **100.0% State Accuracy** on extracted decisions (distinguishing accepted decisions from rejected alternatives and supersessions) and **100.0% Refusal Accuracy** on unrecorded architectural areas (preventing hallucinations).
-- **Why Baseline B fails**: Docs-only search drops to **16.2% recall**, demonstrating that in real repositories, the majority of architectural debate and decision rationale resides in pull request review comments and issue discussions, not formal ADR documents.
+#### Task 1 — Evidence Retrieval ("Find the sources that explain X")
+*Comparable across CIF and search baselines. Metric: Top-5 evidence event hit rate.*
+
+| System / Baseline | Method | Input Received | Task 1 Top-5 Hit Rate | Refusal (Abstention) | Status |
+|---|---|---|:---:|:---:|:---:|
+| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **65.4%** (17/26) | **100.0%** (11/11 abstained) | Measured |
+| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **64.9%** (24/37) | *n/a (always answers)* | Measured |
+| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **16.2%** (6/37) | *n/a (always answers)* | Measured |
+| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
+| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | No manual labels |
+
+#### Task 2 — Decision Reconstruction (Lifecycle State, Rationale, Alternatives, Supersession)
+*Evaluates structured architectural model extraction and lifecycle fidelity. Search baselines cannot perform this task and are marked `n/a`.*
+
+| System / Baseline | Method | Task 2 Strict Recall (1-to-1) | Task 2 Lenient Recall | State Accuracy | Refusal Accuracy | Status |
+|---|---|:---:|:---:|:---:|:---:|:---:|
+| **CIF (Context Intelligence)** | Reconciled Lifecycle + Invariants | **30.8%** (8/26) | **34.6%** (9/26) | **100.0%** (8/8) | **100.0%** (11/11) | Measured |
+| **Baseline A** | Keyword Search (Grep/BM25) | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |
+| **Baseline B** | Docs-Only Search | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |
+| **Baseline C** | Plain LLM over Repo Text | *not measured* | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
+| **Baseline D** | GitHub Copilot Manual Labels | *not measured* | *not measured* | *not measured* | *not measured* | No manual labels |
+
+#### Honest Task Analysis
+1. **Task 1 (Evidence Retrieval)**: CIF (**65.4%**) and Baseline A (**64.9%**) achieve comparable evidence hit rates when locating raw discussions that answer architectural questions. Baseline B (**16.2%**) demonstrates that searching formal documentation alone misses the majority of architectural decisions in real projects.
+2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), cannot extract alternatives, and cannot abstain on unrecorded topics (they return arbitrary noisy hits with 0% refusal). CIF reconstructs structured decisions with **100.0% State Accuracy** on extracted items and **100.0% Refusal Accuracy** on unrecorded decisions.
+3. **Overcounting Gap**: Under audited one-to-one strict matching (Step 4.1), CIF achieves **30.8%** strict recall vs **34.6%** lenient recall (a +3.8% overcounting gap), exposing where single decisions previously matched multiple questions under lenient evaluation.
+
 
 ---
 

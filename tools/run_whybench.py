@@ -166,6 +166,15 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     state_accuracy_lenient = lenient_match["state_accuracy"]
     refusal_accuracy = round((refusal_correct_count / refusal_total) * 100, 1) if refusal_total > 0 else 100.0
 
+    # Task 1: Evidence Retrieval Evaluation (CIF top-5 hit rate vs Baselines)
+    cif_task1_hits = 0
+    for q in standard_questions:
+        expected_events = set(q.get("evidence_event_ids", []))
+        matched_id = strict_found_map.get(q["id"], {}).get("system_decision_id")
+        if matched_id and expected_events.intersection(decision_to_evidence.get(matched_id, set())):
+            cif_task1_hits += 1
+    cif_task1_hit_rate = round((cif_task1_hits / total_standard_questions) * 100, 1) if total_standard_questions > 0 else 0.0
+
     # Evaluate Baselines
     baseline_evaluator = BaselineEvaluator(db)
     baselines_out = baseline_evaluator.evaluate_all(split_questions)
@@ -188,6 +197,33 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
             "state_accuracy_lenient": state_accuracy_lenient,
             "refusal_accuracy": refusal_accuracy
         },
+        "tasks": {
+            "task_1_evidence_retrieval": {
+                "name": "Task 1 — Evidence Retrieval (Top-5 Event Hit Rate)",
+                "description": "Find the sources/events that explain X",
+                "cif_hit_rate": cif_task1_hit_rate,
+                "baseline_keyword_hit_rate": baselines_out["baseline_keyword"]["task_1_hit_rate"],
+                "baseline_docs_only_hit_rate": baselines_out["baseline_docs_only"]["task_1_hit_rate"]
+            },
+            "task_2_decision_reconstruction": {
+                "name": "Task 2 — Decision Reconstruction (State, Rationale, Alternatives)",
+                "description": "Reconstruct decision state, rationale, alternatives, supersession, and refusal",
+                "cif_strict_recall": decision_recall_strict,
+                "cif_lenient_recall": decision_recall_lenient,
+                "cif_state_accuracy": state_accuracy,
+                "cif_refusal_accuracy": refusal_accuracy,
+                "baseline_keyword": {
+                    "strict_recall": "n/a",
+                    "state_accuracy": "n/a",
+                    "refusal_accuracy": "n/a (always answers)"
+                },
+                "baseline_docs_only": {
+                    "strict_recall": "n/a",
+                    "state_accuracy": "n/a",
+                    "refusal_accuracy": "n/a (always answers)"
+                }
+            }
+        },
         "baselines": baselines_out,
         "question_results": question_results
     }
@@ -202,12 +238,23 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     print(f"  WHYBENCH RESULTS [{split.upper()} SPLIT]")
     print("=" * 65)
     print(f"  Total Questions:              {len(split_questions)}")
-    print(f"  CIF Decision Recall (Strict): {decision_recall}% ({strict_match['matched_gt_count']}/{total_standard_questions})")
-    print(f"  CIF Decision Recall (Lenient):{decision_recall_lenient}% ({lenient_match['matched_gt_count']}/{total_standard_questions})")
+    print("-" * 65)
+    print("  TASK 1 — EVIDENCE RETRIEVAL (Top-5 Event Hit Rate):")
+    print(f"    CIF Event Hit Rate:         {cif_task1_hit_rate}% ({cif_task1_hits}/{total_standard_questions})")
+    print(f"    Baseline A (Keyword BM25):  {baselines_out['baseline_keyword']['task_1_hit_rate']}% hit rate")
+    print(f"    Baseline B (Docs-only):     {baselines_out['baseline_docs_only']['task_1_hit_rate']}% hit rate")
+    print("-" * 65)
+    print("  TASK 2 — DECISION RECONSTRUCTION:")
+    print(f"    CIF Decision Recall (Strict): {decision_recall}% ({strict_match['matched_gt_count']}/{total_standard_questions})")
+    print(f"    CIF Decision Recall (Lenient):{decision_recall_lenient}% ({lenient_match['matched_gt_count']}/{total_standard_questions})")
     if recall_difference > 0:
-        print(f"  Overcounting Gap:             +{recall_difference}%")
-    print(f"  CIF State Accuracy:           {state_accuracy}% ({strict_match['correct_state_count']}/{strict_match['matched_gt_count']})")
-    print(f"  CIF Refusal Accuracy:         {refusal_accuracy}% ({refusal_correct_count}/{refusal_total})")
+        print(f"    Overcounting Gap:             +{recall_difference}%")
+    print(f"    CIF State Accuracy:           {state_accuracy}% ({strict_match['correct_state_count']}/{strict_match['matched_gt_count']})")
+    print(f"    CIF Refusal Accuracy:         {refusal_accuracy}% ({refusal_correct_count}/{refusal_total})")
+    print(f"    Baseline A (Keyword BM25):    n/a (unstructured search only)")
+    print(f"    Baseline B (Docs-only):       n/a (unstructured search only)")
+    print(f"    Baseline C (Plain LLM):       {baselines_out['baseline_llm']['status']}")
+    print(f"    Baseline D (Copilot):         {baselines_out['baseline_copilot']['status']}")
     print("-" * 65)
     print(f"  Baseline A (Keyword):     {baselines_out['baseline_keyword']['decision_recall']}% recall")
     print(f"  Baseline B (Docs-only):   {baselines_out['baseline_docs_only']['decision_recall']}% recall")

@@ -246,7 +246,15 @@ window.__CIF_STATIC_DATA__ = {
             "decision_recall": 50.0,
             "found_count": 2,
             "name": "Baseline B: Documentation/ADRs Only",
+            "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
             "status": "measured",
+            "task_1_applicable": true,
+            "task_1_hit_rate": 50.0,
+            "task_1_top_k": 5,
+            "task_2_applicable": false,
+            "task_2_decision_recall": "n/a",
+            "task_2_refusal_accuracy": "n/a (always answers)",
+            "task_2_state_accuracy": "n/a",
             "top_k": 5,
             "total_count": 4
           },
@@ -254,7 +262,15 @@ window.__CIF_STATIC_DATA__ = {
             "decision_recall": 75.0,
             "found_count": 3,
             "name": "Baseline A: Keyword Search (Grep/BM25)",
+            "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
             "status": "measured",
+            "task_1_applicable": true,
+            "task_1_hit_rate": 75.0,
+            "task_1_top_k": 5,
+            "task_2_applicable": false,
+            "task_2_decision_recall": "n/a",
+            "task_2_refusal_accuracy": "n/a (always answers)",
+            "task_2_state_accuracy": "n/a",
             "top_k": 5,
             "total_count": 4
           },
@@ -285,8 +301,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_git_thermal_a1b2c3d4",
-                "evt_adr_thermal_0004"
+                "evt_adr_thermal_0004",
+                "evt_git_thermal_a1b2c3d4"
               ],
               "system_state": "accepted"
             },
@@ -297,8 +313,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_rev_cache_c201",
-                "evt_adr_cache_0009"
+                "evt_adr_cache_0009",
+                "evt_rev_cache_c201"
               ],
               "system_state": "accepted"
             },
@@ -343,8 +359,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -365,8 +381,8 @@ window.__CIF_STATIC_DATA__ = {
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_sarah",
-                "evt_issue_thermal_12_comm"
+                "evt_issue_thermal_12_comm",
+                "evt_issue_thermal_12_sarah"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -383,8 +399,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_git_thermal_a1b2c3d4",
-                  "evt_adr_thermal_0004"
+                  "evt_adr_thermal_0004",
+                  "evt_git_thermal_a1b2c3d4"
                 ],
                 "system_state": "accepted"
               },
@@ -395,8 +411,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_rev_cache_c201",
-                  "evt_adr_cache_0009"
+                  "evt_adr_cache_0009",
+                  "evt_rev_cache_c201"
                 ],
                 "system_state": "accepted"
               },
@@ -421,8 +437,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -561,7 +577,7 @@ window.__CIF_STATIC_DATA__ = {
           "finding_feedback_dismissed": 0,
           "finding_feedback_reopened": 0,
           "finding_feedback_total": 0,
-          "processing_latency_ms": 25.95,
+          "processing_latency_ms": 14.51,
           "recall_difference": 0.0,
           "state_accuracy": 66.7,
           "state_accuracy_lenient": 66.7,
@@ -1779,7 +1795,7 @@ window.__CIF_STATIC_DATA__ = {
           "edge_id": "edge_drift_src/cach_dec_cach",
           "entity_id": "src/cache/store.py",
           "item_type": "drift",
-          "made_at": "2026-10-12T11:35:57.749538+00:00",
+          "made_at": "2026-10-12T13:37:50.637054+00:00",
           "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_cache_redis_01'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
@@ -1790,7 +1806,7 @@ window.__CIF_STATIC_DATA__ = {
           "edge_id": "edge_drift_src/ther_dec_ther",
           "entity_id": "src/thermal/control.py",
           "item_type": "drift",
-          "made_at": "2026-10-12T11:35:57.768508+00:00",
+          "made_at": "2026-10-12T13:37:50.662764+00:00",
           "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
           "review_status": "pending_review",
           "title": "Drift on artifact"

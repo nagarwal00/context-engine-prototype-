@@ -102,22 +102,52 @@ Wall-clock processing latency measured in milliseconds using `time.perf_counter(
 - Reported as the median value of >= 5 measured runs.
 
 ---
-89: 
-90: ## 9. Evidence Assessment Deterministic Rule (Step 3.2)
-91: 
-92: Evaluates corroboration and evidentiary quality for decisions deterministically using claim-level passage links and source group clustering.
-93: 
-94: **Design Choice Statement:** The thresholds defined below are explicit architectural design choices, not statistical probabilities or sample estimates.
-95: 
-96: | Label | Deterministic Rule Definition |
-97: |---|---|
-98: | `contradicted` | At least one `contradicting` relation from an active evidence source (not superseded by later evidence). |
-99: | `strong` | $\ge 2$ independent source groups with direct support ($\ge 2$ direct groups). |
-100: | `moderate` | 1 direct group plus $\ge 1$ other group of any relation (e.g. 1 direct + 1 indirect), OR $\ge 2$ independent indirect groups. |
-101: | `weak` | Exactly 1 source group (e.g. 1 direct source without corroboration, or a single thread with multiple comments/copies). |
-102: | `insufficient` | No evidence events recorded, or only 1 indirect group. |
-103: 
-104: ### Missing Corroboration & Review Routing:
-105: - Decisions assessed as `weak`, `insufficient`, or `contradicted` automatically generate review-queue items (`/api/review-queue`) with human-readable rationale (e.g., "no independent source besides the ADR", "no outcome/test evidence linked").
-106: - Explanation endpoints (`/api/explain`) abstain with `{ "status": "insufficient_evidence", "message": "..." }` when the governing decision has `evidence_assessment == "insufficient"` and no stronger source exists.
-107: - Legacy extraction confidence scores are displayed as **"Heuristic score (uncalibrated)"** until calibration is proven.
+
+## 9. Evidence Assessment Deterministic Rule (Step 3.2)
+
+Evaluates corroboration and evidentiary quality for decisions deterministically using claim-level passage links and source group clustering.
+
+**Design Choice Statement:** The thresholds defined below are explicit architectural design choices, not statistical probabilities or sample estimates.
+
+| Label | Deterministic Rule Definition |
+|---|---|
+| `contradicted` | At least one `contradicting` relation from an active evidence source (not superseded by later evidence). |
+| `strong` | $\ge 2$ independent source groups with direct support ($\ge 2$ direct groups). |
+| `moderate` | 1 direct group plus $\ge 1$ other group of any relation (e.g. 1 direct + 1 indirect), OR $\ge 2$ independent indirect groups. |
+| `weak` | Exactly 1 source group (e.g. 1 direct source without corroboration, or a single thread with multiple comments/copies). |
+| `insufficient` | No evidence events recorded, or only 1 indirect group. |
+
+### Missing Corroboration & Review Routing:
+- Decisions assessed as `weak`, `insufficient`, or `contradicted` automatically generate review-queue items (`/api/review-queue`) with human-readable rationale (e.g., "no independent source besides the ADR", "no outcome/test evidence linked").
+- Explanation endpoints (`/api/explain`) abstain with `{ "status": "insufficient_evidence", "message": "..." }` when the governing decision has `evidence_assessment == "insufficient"` and no stronger source exists.
+- Legacy extraction confidence scores are displayed as **"Heuristic score (uncalibrated)"** until calibration is proven.
+
+---
+
+## 10. Split Benchmark Task Definitions (Step 4.2)
+
+To ensure fair comparisons and eliminate Direct Conflation of Unlike Tasks, the WhyBench evaluation corpus is formally partitioned into two distinct tasks:
+
+### Task 1 — Evidence Retrieval ("Find the sources that explain X")
+- **Input**: Natural language question or query regarding an architectural topic, decision, or component.
+- **Systems Evaluated**: Comparable across CIF and all retrieval baselines:
+  - **Baseline A (Keyword Search / BM25)**: Scores all events (commits, issues, PR discussions, ADRs) by token overlap.
+  - **Baseline B (Documentation/ADR Search)**: Scores only documentation and ADR events by token overlap.
+  - **CIF (Context Intelligence)**: Traverses the provenance graph to retrieve evidence events linked to relevant decisions.
+- **What Each System Receives**: Natural language query string + repository identifier.
+- **What Counts as Correct**: Top-$k$ event hit rate ($k=5$). The prediction is correct if $\ge 1$ retrieved event belongs to the question's expected evidence event set (`expected_evidence_contains`).
+- **Refusal Scoring**: An unconditional top-$k$ retrieval baseline has no abstention mechanism; when asked about unrecorded decisions, it unconditionally returns top-$k$ noisy hits. Such baselines receive **`n/a (always answers)`** rather than a false 0% score. CIF can abstain with `status: "insufficient_evidence"`.
+
+### Task 2 — Decision Reconstruction (Lifecycle State, Rationale, Alternatives, Supersession)
+- **Input**: Raw repository history bundles (commits, PR reviews, issue threads, ADR documents).
+- **Systems Evaluated**:
+  - **CIF**: Structured candidate extraction, invariant verification, reconciled lifecycle state machine, and context graph.
+  - **Baselines C & D (LLM / Copilot)**: Generative synthesis models evaluated when configured or manually labelled.
+  - **Baselines A & B (Keyword / Docs Search)**: Cannot extract structured decisions, classify lifecycle states, or identify alternatives. Marked **`n/a`** across Task 2 columns.
+- **What Each System Receives**: Full repository event stream and git tree diffs.
+- **What Counts as Correct**:
+  1. **Strict One-to-One Decision Recall**: Bipartite greedy assignment where candidate decision shares $\ge 1$ evidence event ID with GT label under strict mutual exclusion.
+  2. **Decision State Accuracy**: State (`accepted`, `rejected`, `superseded`, `reopened`) strictly matches the ground truth expected state.
+  3. **Grounded Rationale & Alternatives**: Rationale validated with $\ge 50\%$ content-token passage support; alternatives correctly preserved.
+- **Refusal Scoring**: When evaluated against negative questions regarding unrecorded architectural areas, the system must refuse ("No recorded architectural decision found"). Refusal accuracy measures the percentage of unrecorded cases where the system correctly abstained without hallucinating a decision. Baselines without refusal capability are marked `n/a (always answers)`.
+

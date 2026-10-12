@@ -534,3 +534,31 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `test_evidence_link_replacement_metrics`: Proves `url_format_ok`, `event_exists`, `claim_supported`.
      - Full test discovery suite: **158 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+
+### Step 4.2 — Compare Equivalent Tasks Only
+- Status: **RESOLVED**
+- Files: `backend/evaluation/baselines.py`, `tools/run_whybench.py`, `evaluation_results.md`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Formal Split Benchmark Task Definitions (`METRICS.md` Section 10):
+     - **Task 1 — Evidence Retrieval** ("Find the sources that explain X"):
+       * Input: Natural language query string + repository identifier.
+       * Systems evaluated: Comparable across CIF and search baselines (Baseline A: Keyword/BM25 token overlap, Baseline B: Documentation/ADR search).
+       * Metric: Top-$k$ ($k=5$) evidence event hit rate.
+       * Refusal: Unconditional top-$k$ search baselines have no abstention mechanism and are scored `n/a (always answers)` rather than a false 0.0%. CIF can abstain.
+     - **Task 2 — Decision Reconstruction** (Lifecycle State, Rationale, Alternatives, Supersession):
+       * Input: Full raw repository event history and git diffs.
+       * Systems evaluated: CIF (reconciled lifecycle state machine, structured candidate extraction, context graph) vs Baselines C & D (LLM / Copilot) when configured.
+       * Metrics: Strict one-to-one decision recall, decision state accuracy, grounded rationale & alternatives, and refusal accuracy.
+       * Non-reconstructing baselines (A & B) cannot extract decisions, states, or alternatives, and are explicitly marked `n/a` across all Task 2 columns rather than misleadingly scored as 0.0%.
+  2. Baseline Evaluator Separation (`backend/evaluation/baselines.py`):
+     - Updated `run_baseline_keyword` and `run_baseline_docs_only` to compute `task_1_hit_rate` (measured) while marking `task_2_decision_recall`, `task_2_state_accuracy` as `n/a`, and `task_2_refusal_accuracy` as `n/a (always answers)`.
+  3. WhyBench Runner Reporting (`tools/run_whybench.py`):
+     - Added CIF Task 1 hit rate calculation.
+     - Structured summary JSON and terminal output to report Task 1 (Evidence Retrieval) and Task 2 (Decision Reconstruction) in distinct tables.
+  4. Evaluation Results Documentation (`evaluation_results.md` Section 1.1):
+     - Split final test split results into separate tables for Task 1 and Task 2.
+     - Documented honest task analysis explaining why unlike tasks were previously conflated and why the two tasks are now separated.
+  5. Acceptance & Verification:
+     - Added `test_task_split_equivalent_tasks_reporting` to `tests/test_benchmark.py`: validates that Baseline A and B measure Task 1 hit rate while marking Task 2 metrics as `n/a` and refusal as `n/a (always answers)`.
+     - `tests/test_benchmark.py`: **9/9 tests passing**. Full test discovery suite: **159 tests passing**. Demo runner: **21/21 checks passing**.
