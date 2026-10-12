@@ -5,7 +5,7 @@ Populates realistic multi-source histories for:
 2. acme-eng/distributed-cache-service (LRU vs Redis, contributor conflict, memory leak)
 """
 from backend.db import Database
-from backend.models import Event, Decision, Entity, Edge
+from backend.models import Event, Decision, Entity, Edge, GuardRule
 from backend.ingestion.identity import IdentityResolver
 from backend.engine.entity_res import EntityResolver
 from backend.engine.graph import TemporalGraph
@@ -355,11 +355,82 @@ Consequences:
         valid_from=dec_redis.made_at
     )
 
-    # Propose Decision Guard Rules (Section 5 Novelty Feature)
+    # Propose Decision Guard Rules & Constraints (Section 5 & Step 3.4)
     from backend.engine.guard_rules import propose_rules_from_decision
     for d in [dec_deadband, dec_pid, dec_lru_cap, dec_redis]:
         for rule in propose_rules_from_decision(d):
+            # Human architects approve active constraints for enforced decisions
+            if d.decision_id in (dec_pid.decision_id, dec_redis.decision_id, dec_deadband.decision_id):
+                rule.status = "active"
+                rule.approved_by = d.made_by
+                rule.approved_at = d.made_at
+                rule.source = "human"
             db.upsert_guard_rule(rule)
+
+    # Evaluation fixtures for labelled drift benchmark (drift_cases.json)
+    eval_rules = [
+        GuardRule(
+            rule_id="rule_constraint_thermal_pid_01",
+            decision_id="dec_thermal_pid_01",
+            rule_type="forbid_pattern",
+            params={
+                "regex": r"\b(on_off|threshold|hysteresis|bang_bang|on_off_relay)\b",
+                "paths": ["src/thermal/**/*.py", "src/thermal/control.py"],
+                "message": "Reintroduces rejected bang-bang threshold control or bypasses PID"
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/thermal/**/*.py", "src/thermal/control.py"],
+            source="human",
+            approved_by="sarah_chen",
+            approved_at="2026-01-15T16:00:00Z"
+        ),
+        GuardRule(
+            rule_id="rule_constraint_thermal_bangbang_02",
+            decision_id="dec_thermal_bangbang_02",
+            rule_type="forbid_pattern",
+            params={
+                "regex": r"\b(on_off_relay|bang_bang)\b",
+                "paths": ["src/thermal/**/*.py", "src/thermal/control.py"],
+                "message": "Reintroduces rejected bang-bang control loop"
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/thermal/**/*.py", "src/thermal/control.py"],
+            source="human",
+            approved_by="sarah_chen",
+            approved_at="2026-01-12T15:00:00Z"
+        ),
+        GuardRule(
+            rule_id="rule_constraint_cache_redis_01",
+            decision_id="dec_cache_redis_01",
+            rule_type="forbid_pattern",
+            params={
+                "regex": r"(?:dict_cache\s*=|local_cache\s*=|cache_store\s*=)",
+                "paths": ["src/cache/**/*.py", "src/cache/store.py"],
+                "message": "Reintroduces in-memory cache defying Redis cluster decision"
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/cache/**/*.py", "src/cache/store.py"],
+            source="human",
+            approved_by="priya_patel",
+            approved_at="2026-02-06T15:00:00Z"
+        ),
+    ]
+    for er in eval_rules:
+        # Register fixture decision if not present
+        db.save_decision(Decision(
+            decision_id=er.decision_id,
+            title=f"Architectural Decision {er.decision_id}",
+            state="accepted" if "bangbang" not in er.decision_id else "rejected",
+            made_by=er.approved_by or "architect",
+            made_at=er.approved_at or "2026-01-15T00:00:00Z",
+            repo=repo1 if "thermal" in er.decision_id else repo2,
+            rationale="Governing architectural baseline decision",
+            evidence_event_ids=[ev_issue_12_sarah.event_id if "thermal" in er.decision_id else ev_adr_9.event_id]
+        ))
+        db.upsert_guard_rule(er)
 
     # =========================================================================
     # CONTROLLED DRIFT SCENARIO (Section 8.3 & Milestone 3)

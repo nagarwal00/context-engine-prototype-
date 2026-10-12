@@ -36,13 +36,15 @@ class TestGuardRules(unittest.TestCase):
         # Approve rule -> status='active'
         self.db.update_guard_rule_status("rule_test_01", "active", approved_by="admin_alice")
         active_rules = self.db.get_guard_rules(status="active")
-        self.assertEqual(len(active_rules), 1)
-        self.assertEqual(active_rules[0]["approved_by"], "admin_alice")
+        matching_active = [r for r in active_rules if r["rule_id"] == "rule_test_01"]
+        self.assertEqual(len(matching_active), 1)
+        self.assertEqual(matching_active[0]["approved_by"], "admin_alice")
 
         # Disable rule -> status='disabled'
         self.db.update_guard_rule_status("rule_test_01", "disabled")
         disabled_rules = self.db.get_guard_rules(status="disabled")
-        self.assertEqual(len(disabled_rules), 1)
+        matching_disabled = [r for r in disabled_rules if r["rule_id"] == "rule_test_01"]
+        self.assertEqual(len(matching_disabled), 1)
 
     def test_forbid_import_rule(self):
         """Tests forbid_import rule against positive violations and negative clean diffs."""

@@ -155,7 +155,7 @@ class Identity:
 
 @dataclass
 class GuardRule:
-    """Section 5.1 Decision Guard Rule (Novelty Feature)"""
+    """Section 5.1 Decision Guard Rule & Decision Constraint (Step 3.4)"""
     rule_id: str = field(default_factory=generate_uuid)
     decision_id: str = ""
     rule_type: str = "forbid_import" # forbid_import | require_import | forbid_pattern | config_value
@@ -165,9 +165,17 @@ class GuardRule:
     created_at: str = field(default_factory=current_iso)
     approved_by: Optional[str] = None
     approved_at: Optional[str] = None
+    polarity: str = "must_not" # must | must_not
+    applies_to: List[str] = field(default_factory=list) # entity IDs or path globs
+    source: str = "proposed" # human | proposed
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+# Alias per ANTIGRAVITY_HANDOFF_V2.md Step 3.4
+DecisionConstraint = GuardRule
+
 
 
 ALLOWED_CLAIM_TYPES = {"rationale", "alternative_rejected", "outcome", "constraint"}

@@ -420,3 +420,24 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   5. Acceptance & Verification:
      - Verified: every statement links to a passage; unsupported sentences are flagged with `flagged_unsupported: True` and collected in `unsupported_sentences`.
      - Verified: `tests/test_explanation.py` (8 tests pass); full test discovery suite (138 tests pass); demo runner (21/21 checks pass).
+
+### Step 3.4 (P1-a) — Decision-Specific Constraints & General Drift Detector
+- Status: **RESOLVED**
+- Files: `backend/migrations/004_decision_constraints.py`, `backend/models.py`, `backend/db.py`, `backend/engine/drift_detector.py`, `backend/engine/guard_rules.py`, `backend/seed_data.py`, `tests/test_guard_rules.py`, `tests/test_drift_rules.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Additive Migration 004 & Data Model:
+     - Created `backend/migrations/004_decision_constraints.py` adding `polarity` (`must` | `must_not`), `applies_to` (JSON array of entity IDs or path globs), and `source` (`human` | `proposed`) to `guard_rules`.
+     - Created `decision_constraints` view referencing `guard_rules` with alias `DecisionConstraint = GuardRule`.
+     - Backfilled `polarity`, `applies_to`, and `source` from rule params.
+     - Added `get_decision_evidence_passages` to `backend/db.py`.
+  2. Pure Constraint-Driven Evaluation (0 Domain Keywords):
+     - Completely removed hard-coded scenario branches (`redis`, `pid`, `hysteresis`) from `backend/engine/drift_detector.py`. Grep test asserts 0 domain keywords remain in source code.
+     - Implemented `parse_diff` with hunk headers, line numbers, added/removed line separation, and comment classification (`is_pure_comment`, `is_historical`).
+     - Query touched entities and active human-approved constraints overlapping touched entities/paths.
+     - Evaluated active rules against added lines (and removed lines for `require_*`), properly handling historical notes (`is_historical` e.g. decommissioned/deprecated notes) as clean changes.
+  3. Structured Findings with Passages and Signal Strength:
+     - Findings emitted with `status: "potential_violation"`, `rule_id`, `decision_id`, `file`, `line_number`, `offending_line`, `violating_diff_snippet`, `evidence_passages` (with URLs), `signal_strength` (`high` | `medium` | `low`), `confidence: 0.0`, `calibrated: false`, `reviewed: false`, and `drift_type: "drift"`.
+  4. Benchmark & Fixture Validation:
+     - Seeded active pilot constraints and test fixtures.
+     - `drift_cases.json` 20-case suite re-evaluated: **100.0% precision, 100.0% recall** (10 True Positives, 10 True Negatives, 0 False Positives, 0 False Negatives).
+     - Verified: `tests/test_drift_rules.py` (4 tests pass covering grep keyword check, 7 positive diffs, 11 negative diffs with near-misses, and full `drift_cases.json` suite); full test discovery suite (142 tests pass); demo runner (21/21 checks pass).

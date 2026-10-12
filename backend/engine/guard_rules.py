@@ -65,46 +65,58 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
         ]
         for pattern_word, mod_name in forbid_modules:
             if pattern_word in combined or mod_name in combined:
+                p_paths = ["*.py", "**/*.py", "src/**/*.py", "vmm/**/*.rs", "pkg/**/*.go"]
                 rules.append(GuardRule(
                     rule_id=f"rule_forbid_import_{decision.decision_id[:8]}_{mod_name}",
                     decision_id=decision.decision_id,
                     rule_type="forbid_import",
                     params={
                         "module": mod_name,
-                        "paths": ["*.py", "**/*.py", "src/**/*.py", "vmm/**/*.rs", "pkg/**/*.go"]
+                        "paths": p_paths
                     },
                     status="proposed",
+                    polarity="must_not",
+                    applies_to=p_paths,
+                    source="proposed",
                     created_by="rule_synthesizer",
                     created_at=decision.made_at
                 ))
 
         # Rule Type 3: forbid_pattern (regex anti-patterns)
         if "hysteresis" in combined or "bang-bang" in combined:
+            p_paths = ["src/thermal/**/*.py", "**/control.py"]
             rules.append(GuardRule(
                 rule_id=f"rule_forbid_pattern_{decision.decision_id[:8]}_bangbang",
                 decision_id=decision.decision_id,
                 rule_type="forbid_pattern",
                 params={
                     "regex": r"(?:on_off_relay|threshold_high|hysteresis_loop|bang_bang)",
-                    "paths": ["src/thermal/**/*.py", "**/control.py"],
+                    "paths": p_paths,
                     "message": "Reintroduces rejected bang-bang threshold hysteresis"
                 },
                 status="proposed",
+                polarity="must_not",
+                applies_to=p_paths,
+                source="proposed",
                 created_by="rule_synthesizer",
                 created_at=decision.made_at
             ))
 
         if "local_cache" in combined or "dict_cache" in combined:
+            p_paths = ["src/cache/**/*.py", "**/store.py"]
             rules.append(GuardRule(
                 rule_id=f"rule_forbid_pattern_{decision.decision_id[:8]}_dictcache",
                 decision_id=decision.decision_id,
                 rule_type="forbid_pattern",
                 params={
                     "regex": r"(?:dict_cache\s*=\s*\{\}|local_cache\s*=\s*\{\})",
-                    "paths": ["src/cache/**/*.py", "**/store.py"],
+                    "paths": p_paths,
                     "message": "Reintroduces rejected in-memory dictionary cache"
                 },
                 status="proposed",
+                polarity="must_not",
+                applies_to=p_paths,
+                source="proposed",
                 created_by="rule_synthesizer",
                 created_at=decision.made_at
             ))
@@ -112,35 +124,44 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
     # Rule Type 2: require_import (from accepted architectural decisions)
     if decision.state == "accepted":
         if "stripe" in text:
+            p_paths = ["src/payments/**/*.py"]
             rules.append(GuardRule(
                 rule_id=f"rule_require_import_{decision.decision_id[:8]}_stripe",
                 decision_id=decision.decision_id,
                 rule_type="require_import",
                 params={
                     "module": "stripe",
-                    "paths": ["src/payments/**/*.py"]
+                    "paths": p_paths
                 },
                 status="proposed",
+                polarity="must",
+                applies_to=p_paths,
+                source="proposed",
                 created_by="rule_synthesizer",
                 created_at=decision.made_at
             ))
 
         if "redis" in text and "cluster" in text:
+            p_paths = ["src/cache/**/*.py"]
             rules.append(GuardRule(
                 rule_id=f"rule_require_import_{decision.decision_id[:8]}_redis",
                 decision_id=decision.decision_id,
                 rule_type="require_import",
                 params={
                     "module": "redis",
-                    "paths": ["src/cache/**/*.py"]
+                    "paths": p_paths
                 },
                 status="proposed",
+                polarity="must",
+                applies_to=p_paths,
+                source="proposed",
                 created_by="rule_synthesizer",
                 created_at=decision.made_at
             ))
 
     # Rule Type 4: config_value
     if "timeout" in text:
+        p_paths = ["config.json", "**/config.json"]
         rules.append(GuardRule(
             rule_id=f"rule_config_val_{decision.decision_id[:8]}_timeout",
             decision_id=decision.decision_id,
@@ -151,6 +172,9 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
                 "must_equal": "30"
             },
             status="proposed",
+            polarity="must",
+            applies_to=p_paths,
+            source="proposed",
             created_by="rule_synthesizer",
             created_at=decision.made_at
         ))

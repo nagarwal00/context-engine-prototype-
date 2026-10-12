@@ -148,7 +148,7 @@ class Database:
             );
             """)
 
-            # 9. Decision Guard Rules Table (Section 5.1 Novelty)
+            # 9. Decision Guard Rules Table (Section 5.1 Novelty & Step 3.4 Constraints)
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS guard_rules (
                 rule_id TEXT PRIMARY KEY,
@@ -160,8 +160,16 @@ class Database:
                 created_at TEXT,
                 approved_by TEXT,
                 approved_at TEXT,
+                polarity TEXT NOT NULL DEFAULT 'must_not' CHECK (polarity IN ('must', 'must_not')),
+                applies_to TEXT NOT NULL DEFAULT '[]',
+                source TEXT NOT NULL DEFAULT 'proposed' CHECK (source IN ('human', 'proposed')),
                 FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE
             );
+            """)
+            cursor.execute("""
+            CREATE VIEW IF NOT EXISTS decision_constraints AS
+            SELECT rule_id AS constraint_id, decision_id, rule_type, params_json, status, polarity, applies_to, source, created_by, created_at, approved_by, approved_at
+            FROM guard_rules;
             """)
             conn.commit()
 
@@ -773,23 +781,31 @@ class Database:
                 decisions.append(d)
             return decisions
 
-    # --- Guard Rules Methods (Section 5.1 Novelty) ---
+    # --- Guard Rules & Decision Constraints Methods (Section 5.1 & Step 3.4) ---
 
     def upsert_guard_rule(self, rule: GuardRule) -> str:
-        """Upserts a decision guard rule."""
+        """Upserts a decision guard rule / decision constraint (Step 3.4)."""
+        applies_val = rule.applies_to if isinstance(rule.applies_to, list) else (rule.params.get("paths", []) if rule.params else [])
+        polarity_val = rule.polarity or ("must" if rule.rule_type == "require_import" else "must_not")
+        source_val = rule.source or "proposed"
+
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
             INSERT INTO guard_rules (
                 rule_id, decision_id, rule_type, params_json, status,
-                created_by, created_at, approved_by, approved_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                created_by, created_at, approved_by, approved_at,
+                polarity, applies_to, source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(rule_id) DO UPDATE SET
                 rule_type=excluded.rule_type,
                 params_json=excluded.params_json,
                 status=excluded.status,
                 approved_by=excluded.approved_by,
-                approved_at=excluded.approved_at;
+                approved_at=excluded.approved_at,
+                polarity=excluded.polarity,
+                applies_to=excluded.applies_to,
+                source=excluded.source;
             """, (
                 rule.rule_id,
                 rule.decision_id,
@@ -799,7 +815,10 @@ class Database:
                 rule.created_by,
                 rule.created_at,
                 rule.approved_by,
-                rule.approved_at
+                rule.approved_at,
+                polarity_val,
+                json.dumps(applies_val),
+                source_val
             ))
             conn.commit()
             return rule.rule_id
@@ -828,8 +847,38 @@ class Database:
                 except Exception as e:
                     item["params"] = None
                     item["_parse_error"] = str(e)
+                try:
+                    item["applies_to"] = json.loads(item["applies_to"]) if item.get("applies_to") else []
+                except Exception:
+                    item["applies_to"] = []
                 rules.append(item)
             return rules
+
+    def get_decision_evidence_passages(self, decision_id: str) -> List[Dict[str, Any]]:
+        """
+        Retrieves evidence passages and clickable source URLs for a decision (Step 3.4).
+        """
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT ce.passage_text, ce.relation, e.source_url, e.author, e.title, e.ts
+            FROM claim_evidence ce
+            JOIN decision_claims dc ON ce.claim_id = dc.claim_id
+            JOIN events e ON ce.event_id = e.event_id
+            WHERE dc.decision_id = ?
+            ORDER BY ce.passage_text DESC
+            """, (decision_id,))
+            rows = [dict(r) for r in cursor.fetchall()]
+            if not rows:
+                # Fallback to decision_evidence direct events
+                cursor.execute("""
+                SELECT ev.body as passage_text, 'direct' as relation, ev.source_url, ev.author, ev.title, ev.ts
+                FROM decision_evidence de
+                JOIN events ev ON de.event_id = ev.event_id
+                WHERE de.decision_id = ?
+                """, (decision_id,))
+                rows = [dict(r) for r in cursor.fetchall()]
+            return rows
 
     def update_guard_rule_status(self, rule_id: str, status: str, approved_by: Optional[str] = None) -> bool:
         """Updates the status of a guard rule (e.g. approve -> active, disable -> disabled)."""

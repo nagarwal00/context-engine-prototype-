@@ -1,15 +1,186 @@
+"""
+General Decision Constraint & Drift Detection Engine (Step 3.4 & Section 8.3)
+Evaluates code diffs against active, human-approved decision constraints and detection signatures.
+Zero domain keywords hard-coded: entirely driven by database constraints and context graph.
+"""
 import logging
 import re
-from typing import List, Dict, Any, Optional
-from backend.models import Edge, Decision
+import uuid
+import fnmatch
+from typing import List, Dict, Any, Optional, Tuple
+from backend.models import Edge
 from backend.db import Database
 
 logger = logging.getLogger("cif.drift_detector")
 
 
+def _path_matches_pattern(filepath: str, pattern: str) -> bool:
+    """Checks if a file path matches a glob pattern, supporting ** multi-level wildcards."""
+    if not filepath or not pattern:
+        return False
+    fp = filepath.replace("\\", "/").strip()
+    pat = pattern.replace("\\", "/").strip()
+
+    if pat == "*":
+        return True
+
+    if "**" not in pat:
+        if fnmatch.fnmatch(fp, pat):
+            return True
+        if "/" not in pat and fnmatch.fnmatch(fp.split("/")[-1], pat):
+            return True
+        return False
+
+    parts = pat.split("**/")
+    regex_parts = []
+    for part in parts:
+        escaped = re.escape(part).replace(r"\*", "[^/]*").replace(r"\?", "[^/]")
+        regex_parts.append(escaped)
+    regex = r"(?:.+/)?".join(regex_parts)
+    return bool(re.fullmatch(regex, fp))
+
+
+def _extract_code_part(line: str) -> Tuple[str, bool, bool]:
+    """
+    Extracts executable code from a line by stripping comments.
+    Returns: (code_part, is_pure_comment, has_historical_note)
+    """
+    stripped = line.strip()
+    if not stripped:
+        return "", False, False
+
+    # Check historical or decommissioning notes (should never trigger violations)
+    lower = stripped.lower()
+    has_historical_note = bool(
+        "decommissioned" in lower or
+        "deprecated" in lower or
+        "replaced by" in lower or
+        "was replaced" in lower or
+        "migrated from" in lower
+    )
+
+    # Pure line comments
+    if stripped.startswith(("#", "//", "/*", "*", "*/", '"""', "'''")):
+        return "", True, has_historical_note
+
+    # Inline comment stripping (for '#' not inside quotes)
+    code_part = stripped
+    if "#" in stripped:
+        in_quote = False
+        quote_char = ""
+        idx = 0
+        while idx < len(stripped):
+            ch = stripped[idx]
+            if ch in ('"', "'") and (idx == 0 or stripped[idx - 1] != "\\"):
+                if not in_quote:
+                    in_quote = True
+                    quote_char = ch
+                elif ch == quote_char:
+                    in_quote = False
+            elif ch == "#" and not in_quote:
+                code_part = stripped[:idx].strip()
+                break
+            idx += 1
+
+    return code_part, False, has_historical_note
+
+
 class DriftDetector:
     def __init__(self, db: Database):
         self.db = db
+
+    def parse_diff(self, diff_text: str, default_files: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Parses diff text into structured file hunks with 1-indexed line numbers.
+        """
+        import textwrap
+        diff_text = textwrap.dedent(diff_text or "")
+        file_entries: List[Dict[str, Any]] = []
+        current_file = default_files[0] if default_files else ""
+        current_entry: Optional[Dict[str, Any]] = None
+
+        new_lineno = 1
+        old_lineno = 1
+        hunk_header_re = re.compile(r"^@@\s+-(\d+)(?:,\d+)?\s+\+(\d+)(?:,\d+)?\s+@@")
+
+        for line in diff_text.splitlines():
+            # Diff file headers
+            if line.startswith("+++ b/"):
+                current_file = line[6:].strip()
+                current_entry = {
+                    "file": current_file,
+                    "added_lines": [],
+                    "removed_lines": [],
+                    "all_lines": []
+                }
+                file_entries.append(current_entry)
+                continue
+            elif line.startswith("+++ "):
+                current_file = line[4:].strip()
+                current_entry = {
+                    "file": current_file,
+                    "added_lines": [],
+                    "removed_lines": [],
+                    "all_lines": []
+                }
+                file_entries.append(current_entry)
+                continue
+
+            # Ensure entry exists
+            if current_entry is None:
+                current_entry = {
+                    "file": current_file or (default_files[0] if default_files else "unknown"),
+                    "added_lines": [],
+                    "removed_lines": [],
+                    "all_lines": []
+                }
+                file_entries.append(current_entry)
+
+            # Hunk header
+            match = hunk_header_re.match(line)
+            if match:
+                old_lineno = int(match.group(1))
+                new_lineno = int(match.group(2))
+                continue
+
+            # Added line
+            if line.startswith("+") and not line.startswith("+++"):
+                raw = line[1:]
+                code_part, is_comment, is_hist = _extract_code_part(raw)
+                item = {
+                    "line_number": new_lineno,
+                    "raw": raw,
+                    "code": code_part,
+                    "is_pure_comment": is_comment,
+                    "is_historical": is_hist,
+                    "diff_prefix": "+"
+                }
+                current_entry["added_lines"].append(item)
+                current_entry["all_lines"].append(item)
+                new_lineno += 1
+
+            # Removed line
+            elif line.startswith("-") and not line.startswith("---"):
+                raw = line[1:]
+                code_part, is_comment, is_hist = _extract_code_part(raw)
+                item = {
+                    "line_number": old_lineno,
+                    "raw": raw,
+                    "code": code_part,
+                    "is_pure_comment": is_comment,
+                    "is_historical": is_hist,
+                    "diff_prefix": "-"
+                }
+                current_entry["removed_lines"].append(item)
+                current_entry["all_lines"].append(item)
+                old_lineno += 1
+
+            else:
+                # Context line
+                new_lineno += 1
+                old_lineno += 1
+
+        return file_entries
 
     def analyze_diff_for_drift(
         self,
@@ -20,180 +191,273 @@ class DriftDetector:
         diff_text: str
     ) -> Dict[str, Any]:
         """
-        Runs Section 8.3 Drift Detection Pass:
-        1. Identifies entities touched by the diff.
-        2. Retrieves the most recent accepted and rejected decisions for those entities.
-        3. Checks if new code violates constraints or reintroduces rejected patterns.
-        4. Evaluates active guard rules with per-rule isolation.
-        
-        Returns:
-            {
-                "status": "complete" | "incomplete",
-                "findings": [...],
-                "errors": [
-                    { "stage": str, "rule_id": Optional[str], "error_type": str, "message": str }
-                ]
-            }
+        Runs Step 3.4 General Drift Detection Pass:
+        1. Parse diff into structured hunks and lines with line numbers.
+        2. Identify touched files and entities in database.
+        3. Fetch only active, human-approved decision constraints whose applies_to overlaps.
+        4. Evaluate each constraint against added lines (and removed lines for require_*).
+        5. Return potential violations with evidence passages, line numbers, and signal strength.
         """
-        detected_drifts: List[Dict[str, Any]] = []
+        findings: List[Dict[str, Any]] = []
         errors: List[Dict[str, Any]] = []
 
+        parsed_files = self.parse_diff(diff_text, default_files=changed_files)
+        all_touched_files = set(changed_files)
+        for pf in parsed_files:
+            if pf["file"] and pf["file"] != "unknown":
+                all_touched_files.add(pf["file"])
+
+        # 1. Look up matching entities
+        touched_entities: List[Dict[str, Any]] = []
         try:
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
-
-                for file_path in changed_files:
-                    # Find matching entity in database
+                for fp in all_touched_files:
                     cursor.execute("""
-                    SELECT entity_id, canonical_path, current_state_summary FROM entities
+                    SELECT entity_id, canonical_path FROM entities
                     WHERE repo = ? AND (canonical_path = ? OR canonical_path LIKE ?)
-                    """, (repo, file_path, f"{file_path}::%"))
-                    matching_entities = cursor.fetchall()
-
-                    for ent in matching_entities:
-                        ent_id = ent["entity_id"]
-                        canonical_path = ent["canonical_path"]
-
-                        # 1. Look up recent accepted decisions affecting this entity
-                        cursor.execute("""
-                        SELECT d.* FROM decisions d
-                        JOIN decision_artifacts da ON d.decision_id = da.decision_id
-                        WHERE da.entity_id = ? AND d.state = 'accepted'
-                        ORDER BY d.made_at DESC LIMIT 3
-                        """, (ent_id,))
-                        accepted_decisions = [dict(r) for r in cursor.fetchall()]
-
-                        # 2. Look up rejected alternatives/decisions affecting this entity
-                        cursor.execute("""
-                        SELECT d.* FROM decisions d
-                        JOIN decision_artifacts da ON d.decision_id = da.decision_id
-                        WHERE da.entity_id = ? AND d.state = 'rejected'
-                        ORDER BY d.made_at DESC LIMIT 3
-                        """, (ent_id,))
-                        rejected_decisions = [dict(r) for r in cursor.fetchall()]
-                        added_lines = []
-                        for line in diff_text.splitlines():
-                            s = line.strip()
-                            if s.startswith('+') and not s.startswith('+++'):
-                                added_lines.append(s[1:])
-                        diff_lower = "\n".join(added_lines).lower() if added_lines else diff_text.lower()
-
-                        # Drift Rule 1: Re-introduction of a rejected pattern
-                        for rej in rejected_decisions:
-                            rej_title = rej["title"].lower()
-                            keywords = [w for w in rej_title.split() if len(w) > 4 and w not in ("decision", "switch", "rejected", "system")]
-                            if keywords and all(k in diff_lower for k in keywords):
-                                drift_record = {
-                                    "drift_type": "reintroduces_rejected",
-                                    "entity_id": ent_id,
-                                    "canonical_path": canonical_path,
-                                    "decision_id": rej["decision_id"],
-                                    "decision_title": rej["title"],
-                                    "violating_diff_snippet": diff_text[:500],
-                                    "reason": f"Diff appears to reintroduce pattern from rejected decision '{rej['title']}'.",
-                                    "confidence": 0.92,
-                                    "commit_or_pr_id": commit_or_pr_id,
-                                    "author": author
-                                }
-                                detected_drifts.append(drift_record)
-                                self._record_drift_edge(ent_id, rej["decision_id"])
-
-                        # Drift Rule 2: Inconsistent or violating code against accepted decision
-                        for acc in accepted_decisions:
-                            acc_text = (acc["title"] + " " + (acc["rationale"] or "")).lower()
-                            
-                            # Scenario A: PID controller accepted, but diff reverts to simple threshold/hysteresis
-                            if "pid" in acc_text and ("threshold" in diff_lower or "on_off" in diff_lower or "hysteresis" in diff_lower):
-                                if "pid_gain" not in diff_lower and "integral" not in diff_lower:
-                                    drift_record = {
-                                        "drift_type": "drift",
-                                        "entity_id": ent_id,
-                                        "canonical_path": canonical_path,
-                                        "decision_id": acc["decision_id"],
-                                        "decision_title": acc["title"],
-                                        "violating_diff_snippet": diff_text[:500],
-                                        "reason": f"Diff removes or bypasses PID control logic established in accepted decision '{acc['title']}'.",
-                                        "confidence": 0.89,
-                                        "commit_or_pr_id": commit_or_pr_id,
-                                        "author": author
-                                    }
-                                    detected_drifts.append(drift_record)
-                                    self._record_drift_edge(ent_id, acc["decision_id"])
-
-                            # Scenario B: Redis cluster accepted, but diff imports local in-memory dict cache
-                            if "redis" in acc_text and ("dict_cache = {}" in diff_lower or "local_cache = {}" in diff_lower or "in-memory" in diff_lower):
-                                drift_record = {
-                                    "drift_type": "drift",
-                                    "entity_id": ent_id,
-                                    "canonical_path": canonical_path,
-                                    "decision_id": acc["decision_id"],
-                                    "decision_title": acc["title"],
-                                    "violating_diff_snippet": diff_text[:500],
-                                    "reason": f"Diff introduces in-memory cache defying accepted distributed Redis decision '{acc['title']}'.",
-                                    "confidence": 0.94,
-                                    "commit_or_pr_id": commit_or_pr_id,
-                                    "author": author
-                                }
-                                detected_drifts.append(drift_record)
-                                self._record_drift_edge(ent_id, acc["decision_id"])
+                    """, (repo, fp, f"{fp}::%"))
+                    touched_entities.extend([dict(r) for r in cursor.fetchall()])
         except Exception as e:
-            logger.error("Error querying decisions for diff: %s: %s", e.__class__.__name__, str(e))
+            logger.error("Error querying entities: %s", e)
             errors.append({
-                "stage": "entity_decisions",
+                "stage": "entities_lookup",
                 "rule_id": None,
                 "error_type": e.__class__.__name__,
-                "message": f"Query error: {e.__class__.__name__}: {str(e)[:150]}"
+                "message": f"Entity lookup error: {str(e)[:150]}"
             })
 
-        # Section 5.3: Evaluate active Decision Guard Rules against diff
-        active_rules = []
+        touched_entity_ids = {e["entity_id"] for e in touched_entities}
+        canonical_paths = {e["canonical_path"] for e in touched_entities}
+
+        # 2. Fetch active decision constraints
+        active_rules: List[Dict[str, Any]] = []
         try:
             active_rules = self.db.get_guard_rules(status="active")
         except Exception as e:
-            logger.error("Error fetching guard rules: %s: %s", e.__class__.__name__, str(e))
+            logger.error("Error fetching active constraints: %s", e)
             errors.append({
-                "stage": "guard_rules_fetch",
+                "stage": "constraints_fetch",
                 "rule_id": None,
                 "error_type": e.__class__.__name__,
-                "message": f"Failed fetching guard rules: {e.__class__.__name__}: {str(e)[:150]}"
+                "message": f"Constraints fetch error: {str(e)[:150]}"
             })
 
-        if active_rules:
-            from backend.engine.guard_rules import check_diff_against_guard_rules_with_report
-            for rule in active_rules:
-                rule_id = rule.get("rule_id", "unknown")
+        # 3. Evaluate overlapping constraints
+        for rule in active_rules:
+            rule_id = rule.get("rule_id", "unknown")
+            decision_id = rule.get("decision_id", "")
+            rule_type = rule.get("rule_type", "")
+            params = rule.get("params") or {}
+            polarity = rule.get("polarity", "must_not")
+            applies_to = rule.get("applies_to") or params.get("paths", ["*"])
+            citation = rule.get("decision_title") or f"Decision {decision_id}"
+
+            if not isinstance(applies_to, list):
+                applies_to = [str(applies_to)]
+
+            for file_entry in parsed_files:
+                filepath = file_entry["file"]
+
+                # Check applies_to overlap (must match entity ID, file path glob, or parameter path)
+                applies_overlap = any(
+                    item in touched_entity_ids or
+                    item in canonical_paths or
+                    _path_matches_pattern(filepath, item)
+                    for item in applies_to
+                )
+
+                if not applies_overlap and applies_to != ["*"]:
+                    continue
+
                 try:
-                    report = check_diff_against_guard_rules_with_report([rule], changed_files, diff_text)
-                    if report.get("errors"):
-                        errors.extend(report["errors"])
-                    for v in report.get("violations", []):
-                        detected_drifts.append({
-                            "drift_type": "guard_rule_violation",
-                            "rule_id": v["rule_id"],
-                            "entity_id": v["file"],
-                            "canonical_path": v["file"],
-                            "decision_id": v["decision_id"],
-                            "decision_title": v["citation"],
-                            "violating_diff_snippet": v["line"],
-                            "reason": v["message"],
-                            "confidence": 1.0,
-                            "commit_or_pr_id": commit_or_pr_id,
-                            "author": author,
-                            "citation": v["citation"]
-                        })
+                    # Evaluate Rule Types
+                    if rule_type == "forbid_import":
+                        mod = params.get("module", "")
+                        if not mod:
+                            continue
+                        import_pattern = re.compile(
+                            r'(?:^|[^\w])(?:import\s+' + re.escape(mod) + r'\b|from\s+' + re.escape(mod) + r'(?:\.|\s+import)\b)'
+                        )
+
+                        for item in file_entry["added_lines"]:
+                            # Ignore pure comments
+                            if item["is_pure_comment"] or item["is_historical"]:
+                                continue
+                            line_to_check = item["code"] or item["raw"]
+                            if import_pattern.search(line_to_check):
+                                finding = self._build_finding(
+                                    rule_id=rule_id,
+                                    decision_id=decision_id,
+                                    filepath=filepath,
+                                    item=item,
+                                    reason=f"Violation of constraint '{rule_id}': Forbidden import '{mod}' introduced in {filepath}.",
+                                    citation=citation,
+                                    commit_or_pr_id=commit_or_pr_id,
+                                    author=author,
+                                    signals_matched=3
+                                )
+                                findings.append(finding)
+                                self._record_drift_edge(filepath, decision_id)
+
+                    elif rule_type == "forbid_pattern":
+                        regex_str = params.get("regex", "")
+                        if not regex_str:
+                            continue
+                        compiled_re = re.compile(regex_str, re.IGNORECASE)
+
+                        # Check if diff has real code changes
+                        has_real_code = any(not it["is_pure_comment"] for it in file_entry["added_lines"])
+
+                        for item in file_entry["added_lines"]:
+                            # Clean changes: comments mentioning historical/decommissioned terms produce NO finding
+                            if item["is_historical"]:
+                                continue
+                            # If it's a pure comment line and the diff has no executable code added, skip
+                            if item["is_pure_comment"] and not has_real_code:
+                                continue
+
+                            # Check raw added line against pattern
+                            if compiled_re.search(item["raw"]):
+                                msg = params.get("message") or f"Forbidden pattern matching /{regex_str}/"
+                                signals = 3 if item["code"] else 2
+                                finding = self._build_finding(
+                                    rule_id=rule_id,
+                                    decision_id=decision_id,
+                                    filepath=filepath,
+                                    item=item,
+                                    reason=f"Violation of constraint '{rule_id}': {msg} in {filepath}.",
+                                    citation=citation,
+                                    commit_or_pr_id=commit_or_pr_id,
+                                    author=author,
+                                    signals_matched=signals
+                                )
+                                findings.append(finding)
+                                self._record_drift_edge(filepath, decision_id)
+
+                    elif rule_type == "require_import":
+                        mod = params.get("module", "")
+                        if not mod:
+                            continue
+                        import_pattern = re.compile(
+                            r'(?:^|[^\w])(?:import\s+' + re.escape(mod) + r'\b|from\s+' + re.escape(mod) + r'(?:\.|\s+import)\b)'
+                        )
+
+                        # Check if a removed line removed the required import
+                        for item in file_entry["removed_lines"]:
+                            if import_pattern.search(item["code"] or item["raw"]):
+                                finding = self._build_finding(
+                                    rule_id=rule_id,
+                                    decision_id=decision_id,
+                                    filepath=filepath,
+                                    item=item,
+                                    reason=f"Violation of constraint '{rule_id}': Required import '{mod}' was removed from {filepath}.",
+                                    citation=citation,
+                                    commit_or_pr_id=commit_or_pr_id,
+                                    author=author,
+                                    signals_matched=3
+                                )
+                                findings.append(finding)
+                                self._record_drift_edge(filepath, decision_id)
+
+                    elif rule_type == "config_value":
+                        cfg_file = params.get("file")
+                        key = params.get("key")
+                        must_equal = params.get("must_equal")
+
+                        if cfg_file and _path_matches_pattern(filepath, cfg_file) and key and must_equal is not None:
+                            for item in file_entry["added_lines"]:
+                                if item["is_pure_comment"]:
+                                    continue
+                                line_text = item["raw"]
+                                if f'"{key}"' in line_text or f"'{key}'" in line_text:
+                                    if str(must_equal) not in line_text:
+                                        finding = self._build_finding(
+                                            rule_id=rule_id,
+                                            decision_id=decision_id,
+                                            filepath=filepath,
+                                            item=item,
+                                            reason=f"Violation of constraint '{rule_id}': Config key '{key}' must equal '{must_equal}' in {filepath}.",
+                                            citation=citation,
+                                            commit_or_pr_id=commit_or_pr_id,
+                                            author=author,
+                                            signals_matched=3
+                                        )
+                                        findings.append(finding)
+                                        self._record_drift_edge(filepath, decision_id)
+
                 except Exception as e:
-                    logger.error("Error evaluating guard rule %s: %s: %s", rule_id, e.__class__.__name__, str(e))
+                    logger.error("Error evaluating constraint %s: %s", rule_id, e)
                     errors.append({
-                        "stage": "guard_rules",
+                        "stage": "constraint_eval",
                         "rule_id": rule_id,
                         "error_type": e.__class__.__name__,
-                        "message": f"Rule evaluation error: {e.__class__.__name__}: {str(e)[:150]}"
+                        "message": f"Rule evaluation error: {str(e)[:150]}"
                     })
 
         return {
             "status": "incomplete" if errors else "complete",
-            "findings": detected_drifts,
+            "findings": findings,
             "errors": errors
+        }
+
+    def _build_finding(
+        self,
+        rule_id: str,
+        decision_id: str,
+        filepath: str,
+        item: Dict[str, Any],
+        reason: str,
+        citation: str,
+        commit_or_pr_id: str,
+        author: str,
+        signals_matched: int
+    ) -> Dict[str, Any]:
+        """Constructs a Step 3.4 finding record with evidence passages and uncalibrated signal strength."""
+        lineno = item.get("line_number", 1)
+        raw_line = item.get("raw", "").strip()
+
+        evidence_passages = []
+        try:
+            raw_passages = self.db.get_decision_evidence_passages(decision_id)
+            for p in raw_passages:
+                evidence_passages.append({
+                    "passage_text": p.get("passage_text", ""),
+                    "source_url": p.get("source_url", "")
+                })
+        except Exception:
+            evidence_passages = []
+
+        if signals_matched >= 3:
+            signal_strength = "high"
+        elif signals_matched == 2:
+            signal_strength = "medium"
+        else:
+            signal_strength = "low"
+
+        finding_id = f"finding_{rule_id[:12]}_{lineno}_{uuid.uuid4().hex[:6]}"
+
+        return {
+            "finding_id": finding_id,
+            "status": "potential_violation",
+            "rule_id": rule_id,
+            "decision_id": decision_id,
+            "file": filepath,
+            "line_number": lineno,
+            "line_numbers": [lineno],
+            "offending_line": raw_line,
+            "violating_diff_snippet": raw_line,
+            "evidence_passages": evidence_passages,
+            "signal_strength": signal_strength,
+            "confidence": 0.0,
+            "calibrated": False,
+            "reviewed": False,
+            "reason": reason,
+            "message": reason,
+            "drift_type": "drift",
+            "citation": f"Governed by Decision '{citation}' ({decision_id})",
+            "commit_or_pr_id": commit_or_pr_id,
+            "author": author
         }
 
     def _record_drift_edge(self, entity_id: str, decision_id: str, valid_from: Optional[str] = None):
@@ -211,4 +475,3 @@ class DriftDetector:
             valid_from=valid_from
         )
         self.db.upsert_edge(edge)
-
