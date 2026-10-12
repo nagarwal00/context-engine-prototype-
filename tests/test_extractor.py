@@ -109,5 +109,74 @@ class TestExtractor(unittest.TestCase):
         self.assertEqual(res_bad["evidence_assessment"], "insufficient")
         self.assertEqual(res_bad["review_status"], "pending_review")
 
+    def test_extractor_rejection_cues_from_pr_review(self):
+        """Step 4.4: PR review comments with rejection cues must be extracted with state='rejected'."""
+        from backend.engine.extractor import DecisionExtractor
+        extractor = DecisionExtractor(None)
+        rev_ev = Event(
+            event_id="evt_rev_01",
+            source_type="pr_review_comment",
+            source_id="c101",
+            source_url="https://github.com/org/repo/pull/1#discussion_r101",
+            repo="org/repo",
+            author="reviewer_bob",
+            timestamp="2026-01-05T12:00:00Z",
+            title="Review on PR #1: Reject fixed interval retries",
+            body="Fixed 500ms sleep creates thundering herd. We must reject fixed sleep in favor of exponential backoff with full jitter.",
+            artifacts_touched=["src/retry.py"]
+        )
+        decs = extractor.extract_from_event_bundle("Review Bundle", [rev_ev], "org/repo", ["src/retry.py"])
+        self.assertEqual(len(decs), 1)
+        dec = decs[0]
+        self.assertEqual(dec.state, "rejected")
+        self.assertIn("evt_rev_01", dec.evidence_event_ids)
+        self.assertEqual(dec.confidence, 0.85)
+        self.assertIn("Reject fixed interval retries", dec.title)
+        self.assertEqual(len(dec.alternatives_considered), 1)
+
+    def test_extractor_pr_and_commit_with_parent_events(self):
+        """Step 4.4: Architectural PRs and git commits link parent event IDs into evidence."""
+        from backend.engine.extractor import DecisionExtractor
+        extractor = DecisionExtractor(None)
+        pr_ev = Event(
+            event_id="evt_pr_14",
+            source_type="github_pr",
+            source_id="14",
+            source_url="https://github.com/org/repo/pull/14",
+            repo="org/repo",
+            author="author_alice",
+            timestamp="2026-01-06T14:00:00Z",
+            title="PR #14: Implement Exponential Backoff with Full Jitter for Stripe API (Closes #8)",
+            body="Adds decorator with decorator-level exponential backoff with full jitter algorithm.",
+            artifacts_touched=["src/payments.py"],
+            parent_event_ids=["evt_issue_08"]
+        )
+        decs = extractor.extract_from_event_bundle("PR 14", [pr_ev], "org/repo", ["src/payments.py"])
+        self.assertEqual(len(decs), 1)
+        dec = decs[0]
+        self.assertEqual(dec.state, "accepted")
+        self.assertIn("evt_pr_14", dec.evidence_event_ids)
+        self.assertIn("evt_issue_08", dec.evidence_event_ids)
+        self.assertEqual(dec.confidence, 0.85)
+
+    def test_extractor_filters_trivial_events(self):
+        """Step 4.4: Trivial non-decision events return empty extraction and do not invent dummy decisions."""
+        from backend.engine.extractor import DecisionExtractor
+        extractor = DecisionExtractor(None)
+        trivial_ev = Event(
+            event_id="evt_triv_01",
+            source_type="git_commit",
+            source_id="c_triv",
+            source_url="https://github.com/org/repo/commit/123",
+            repo="org/repo",
+            author="dev",
+            timestamp="2026-01-07T10:00:00Z",
+            title="fix typo in comments",
+            body="fix minor spelling typo",
+            artifacts_touched=["README.md"]
+        )
+        decs = extractor.extract_from_event_bundle("Trivial Commit", [trivial_ev], "org/repo", [])
+        self.assertEqual(len(decs), 0)
+
 if __name__ == "__main__":
     unittest.main()

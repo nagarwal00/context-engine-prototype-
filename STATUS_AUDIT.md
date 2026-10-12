@@ -589,3 +589,34 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Unit test suite: `tests/test_failure_analysis.py` (2 tests pass).
      - Spot-checked 5 missed items by hand, confirming exact categorization matching empirical DB state.
      - Full test discovery suite: **161 tests passing**. Demo runner: **21/21 checks passing**.
+
+
+### Step 4.4 — Improve Recall from Analysis (Dev Split Only)
+- Status: **RESOLVED**
+- Files: `backend/engine/extractor.py`, `tools/sweep_thresholds.py`, `docs_changelog.md`, `tests/test_extractor.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Failure Category Remediation:
+     - Prioritized error categories by count from Step 4.3: `wrong_evidence` (5 misses) and `no_candidate` (3 misses).
+     - **Source Types**: Expanded `backend/engine/extractor.py` to support `git_commit` and `github_issue` in addition to `github_pr`, `pr_review_comment`, and `adr`.
+     - **Rejection Cue Detection & Classification**: Introduced `REJECTION_PATTERNS` (`reject`, `rejected`, `must reject`, `cannot use`, `not viable`, `abandoned`). Rejection comments now extract decisions with `state="rejected"`, recording rejected proposals in `alternatives_considered` with `confidence=0.85` (`WB_PAY_03`, `WB_CH_02`, `WB_CLI_02`).
+     - **Affirmative Architectural Intent Markers**: Broadened action cues (`implement`, `adopt`, `migrat*`, `switch to`, `enable`, `introduce`, `support`, `isolate`, `batch`, `pinning`, `feat:`, `refactor:`).
+     - **Parent Event ID Grounding**: PR decisions closing issues now propagate `[ev.event_id] + list(ev.parent_event_ids)` into `evidence_event_ids`, grounding the decision across the PR and closed issue (`WB_PAY_02`, `WB_CH_06`, `WB_CLI_04`).
+     - **Noise Filtering & False Positive Elimination**: Removed arbitrary fallback placeholder decision that generated empty citations (`evidence_event_ids=[]`), dropping false positives from 47 down to 22.
+  2. Empirical Impact on Dev Split:
+     - Strict Decision Recall: increased from 55.6% (10/18) to **100.0% (18/18)**.
+     - Strict State Accuracy: maintained at **100.0% (18/18)**.
+     - Task 1 Evidence Hit Rate: increased from 55.6% to **100.0% (18/18)**.
+     - Refusal Accuracy: maintained at **100.0% (6/6)**.
+     - Missed Questions: reduced from 8 to **0**.
+  3. Threshold Sweep & Precision/Recall Curve:
+     - Implemented `tools/sweep_thresholds.py` measuring precision, recall, and F1 across $\theta \in [0.50, 0.95]$:
+       * $\theta \ge 0.50 - 0.85$: Recall = 100.0%, Precision = 46.2%, F1 = 63.2%.
+       * $\theta \ge 0.90$: Recall = 55.6%, Precision = 62.5%, F1 = 58.8%.
+       * $\theta \ge 0.95$: Recall = 50.0%, Precision = 60.0%, F1 = 54.5%.
+  4. Acceptance & Verification:
+     - Added 3 unit tests in `tests/test_extractor.py`:
+       * `test_extractor_rejection_cues_from_pr_review`: Validates review rejection extraction with state="rejected".
+       * `test_extractor_pr_and_commit_with_parent_events`: Validates PR and commit extraction with parent event grounding.
+       * `test_extractor_filters_trivial_events`: Validates that non-decision events return empty extraction and do not invent dummy decisions.
+     - Full test discovery suite: **164 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

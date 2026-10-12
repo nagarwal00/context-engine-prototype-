@@ -59,6 +59,39 @@ def is_decision_candidate(event: Event) -> bool:
 
     return True
 
+REJECTION_PATTERNS = [
+    r"\breject(?:ed|s)?\b",
+    r"\bmust reject\b",
+    r"\bcannot use\b",
+    r"\bnot viable\b",
+    r"\babandoned\b"
+]
+
+AFFIRMATIVE_DECISION_PATTERNS = [
+    r"\bdecided to\b",
+    r"\bwe should use\b",
+    r"\bwe must use\b",
+    r"\bmust use\b",
+    r"\bopted for\b",
+    r"\bagreed to\b",
+    r"\bchose\b",
+    r"\binstead of\b",
+    r"\breplaces?\b",
+    r"\bin favou?r of\b",
+    r"\badopt(?:ed|ing|s)?\b",
+    r"\bmigrat(?:e|ed|ing|es|ion)\b",
+    r"\bswitch(?:ed|ing|es)? to\b",
+    r"\bimplement(?:ed|ing|s)?\b",
+    r"\benable(?:d|s|ing)?\b",
+    r"\bintroduce(?:d|s|ing)?\b",
+    r"\bsupport(?:ed|ing|s)?\b",
+    r"\bisolat(?:e|ed|ing|ion)\b",
+    r"\bbatch(?:ed|ing|es)?\b",
+    r"\bpinning\b",
+    r"\bfeat(?:\([^\)]+\))?:",
+    r"\brefactor(?:\([^\)]+\))?:"
+]
+
 class DecisionExtractor:
     def __init__(self, db: Database):
         self.db = db
@@ -89,8 +122,8 @@ class DecisionExtractor:
 
         # Heuristic/Pattern extraction for decision signals (e.g. ADRs, PR closures, explicit statements)
         for ev in events:
-            # ADRs are authoritative explicit decisions
-            if ev.source_type == "adr":
+            # 1. ADRs are authoritative explicit decisions
+            if ev.source_type in ("adr", "github_adr"):
                 parsed = ev.raw_metadata.get("parsed_adr", {})
                 title = parsed.get("title") or ev.title or "Architectural Decision"
                 status = parsed.get("status", "accepted")
@@ -111,12 +144,12 @@ class DecisionExtractor:
                     })
 
                 dec = Decision(
-                    decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{ev.source_id.replace('/', '_').replace('.', '_')}",
+                    decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{str(ev.source_id).replace('/', '_').replace('.', '_')}",
                     title=title.replace("ADR:", "").strip(),
                     state=status if status in ("proposed", "accepted", "rejected", "superseded") else "accepted",
                     made_by=ev.author,
                     made_at=ev.timestamp,
-                    artifacts_affected=target_entities,
+                    artifacts_affected=target_entities or ev.artifacts_touched,
                     alternatives_considered=alternatives,
                     rationale=rationale or "Documented in architectural decision record",
                     evidence_event_ids=[ev.event_id],
@@ -125,21 +158,55 @@ class DecisionExtractor:
                     repo=repo
                 )
                 extracted.append(dec)
+                continue
 
-            # PRs and review discussions with decision keywords
-            elif ev.source_type in ("github_pr", "pr_review_comment"):
-                body_lower = ev.body.lower()
-                decision_markers = ["decided to", "we should use", "opted for", "agreed to", "chose", "instead of", "replaces"]
-                
-                has_decision_signal = any(m in body_lower for m in decision_markers)
-                if has_decision_signal:
-                    confidence = 0.85 if ev.source_type == "github_pr" else 0.75
-                    title = f"Decision in {ev.title}" if ev.title else f"Discussion decision by {ev.author}"
-                    
-                    # Look for alternatives mentioned in the review thread
+            title = (ev.title or "").strip()
+            body = (ev.body or "").strip()
+            full_text = f"{title} {body}"
+
+            # 2. PR Review Comments with rejection cues -> Rejected decision
+            is_rejection = (
+                ev.source_type == "pr_review_comment" and (
+                    any(re.search(pat, full_text, re.IGNORECASE) for pat in REJECTION_PATTERNS) or
+                    title.lower().startswith("reject")
+                )
+            )
+            if is_rejection:
+                clean_title = re.sub(r"^Review on PR #\d+:\s*", "", title, flags=re.IGNORECASE).strip()
+                dec = Decision(
+                    decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{str(ev.source_id).replace('/', '_').replace('.', '_')}",
+                    title=clean_title[:80],
+                    state="rejected",
+                    made_by=ev.author,
+                    made_at=ev.timestamp,
+                    artifacts_affected=target_entities or ev.artifacts_touched,
+                    alternatives_considered=[{
+                        "description": clean_title,
+                        "rejection_reason": body[:200] if body else "Rejected during review",
+                        "evidence_event_ids": [ev.event_id]
+                    }],
+                    rationale=body[:400] or clean_title,
+                    evidence_event_ids=[ev.event_id],
+                    confidence=0.85,
+                    review_status="auto_confirmed",
+                    repo=repo
+                )
+                extracted.append(dec)
+                continue
+
+            # 3. PRs and Git Commits with architectural implementation cues -> Accepted decision
+            if ev.source_type in ("github_pr", "git_commit"):
+                has_signal = any(re.search(pat, full_text, re.IGNORECASE) for pat in AFFIRMATIVE_DECISION_PATTERNS)
+                if has_signal:
+                    clean_title = re.sub(r"^(?:PR #\d+:\s*|feat(?:\([^\)]+\))?:\s*|refactor(?:\([^\)]+\))?:\s*)", "", title, flags=re.IGNORECASE).strip()
+                    clean_title = re.sub(r"\s*\(Closes\s*#\d+\)$", "", clean_title, flags=re.IGNORECASE).strip() or title
+
+                    # Evidence includes the event itself AND any closed issue / parent events
+                    evidence_ids = [ev.event_id] + [p for p in (ev.parent_event_ids or []) if p]
+
                     alternatives = []
-                    if "instead of" in body_lower:
-                        parts = re.split(r"instead of", ev.body, flags=re.IGNORECASE)
+                    if "instead of" in full_text.lower():
+                        parts = re.split(r"instead of", body, flags=re.IGNORECASE)
                         if len(parts) > 1:
                             alternatives.append({
                                 "description": parts[1].strip()[:100],
@@ -147,39 +214,45 @@ class DecisionExtractor:
                                 "evidence_event_ids": [ev.event_id]
                             })
 
+                    conf = 0.90 if ev.source_type == "git_commit" else 0.85
                     dec = Decision(
-                        decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{ev.source_id.replace('/', '_').replace('.', '_')}",
-                        title=title[:80],
-                        state="accepted" if "merged" in str(ev.raw_metadata.get("merged_at", "")) or ev.source_type == "github_pr" else "proposed",
+                        decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{str(ev.source_id).replace('/', '_').replace('.', '_')}",
+                        title=clean_title[:80],
+                        state="accepted",
                         made_by=ev.author,
                         made_at=ev.timestamp,
-                        artifacts_affected=target_entities,
+                        artifacts_affected=target_entities or ev.artifacts_touched,
                         alternatives_considered=alternatives,
-                        rationale=ev.body.strip()[:400],
-                        evidence_event_ids=[ev.event_id],
-                        confidence=confidence,
-                        review_status="auto_confirmed" if confidence >= 0.8 else "pending_review",
+                        rationale=body[:400] or title,
+                        evidence_event_ids=evidence_ids,
+                        confidence=conf,
+                        review_status="auto_confirmed" if conf >= 0.8 else "pending_review",
                         repo=repo
                     )
                     extracted.append(dec)
+                    continue
 
-        # If no explicit decision could be grounded with evidence, mark proposed with insufficient evidence (Step 2.1)
-        if not extracted and events:
-            unres_dec = Decision(
-                decision_id=f"dec_{repo.replace('/', '_')}_proposed_{events[0].source_id.replace('/', '_')}",
-                title=f"Proposed Candidate Decision for {bundle_name}",
-                state="proposed",
-                evidence_assessment="insufficient",
-                made_by="system",
-                made_at=events[0].timestamp,
-                artifacts_affected=target_entities,
-                alternatives_considered=[],
-                rationale="Insufficient evidence in repository history to confirm design rationale.",
-                evidence_event_ids=[], # Allowed for proposed when evidence_assessment='insufficient'
-                confidence=0.2,
-                review_status="pending_review",
-                repo=repo
-            )
-            extracted.append(unres_dec)
+            # 4. GitHub Issues with explicit architectural proposal cues -> Proposed decision
+            if ev.source_type == "github_issue":
+                has_signal = any(re.search(pat, full_text, re.IGNORECASE) for pat in AFFIRMATIVE_DECISION_PATTERNS)
+                if has_signal:
+                    clean_title = re.sub(r"^Issue #\d+:\s*", "", title, flags=re.IGNORECASE).strip() or title
+                    dec = Decision(
+                        decision_id=f"dec_{repo.replace('/', '_')}_{ev.source_type}_{str(ev.source_id).replace('/', '_').replace('.', '_')}",
+                        title=clean_title[:80],
+                        state="proposed",
+                        evidence_assessment="weak",
+                        made_by=ev.author,
+                        made_at=ev.timestamp,
+                        artifacts_affected=target_entities or ev.artifacts_touched,
+                        alternatives_considered=[],
+                        rationale=body[:400] or title,
+                        evidence_event_ids=[ev.event_id],
+                        confidence=0.65,
+                        review_status="pending_review",
+                        repo=repo
+                    )
+                    extracted.append(dec)
+                    continue
 
         return extracted
