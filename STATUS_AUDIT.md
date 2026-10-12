@@ -562,3 +562,30 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   5. Acceptance & Verification:
      - Added `test_task_split_equivalent_tasks_reporting` to `tests/test_benchmark.py`: validates that Baseline A and B measure Task 1 hit rate while marking Task 2 metrics as `n/a` and refusal as `n/a (always answers)`.
      - `tests/test_benchmark.py`: **9/9 tests passing**. Full test discovery suite: **159 tests passing**. Demo runner: **21/21 checks passing**.
+
+
+### Step 4.3 — Failure Analysis Tool
+- Status: **RESOLVED**
+- Files: `tools/analyze_failures.py`, `tests/test_failure_analysis.py`, `docs/dev_failure_analysis.md`, `results/dev_failure_analysis.json`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Failure Classifier (`tools/analyze_failures.py`):
+     - Implemented strict priority ordering classifier for missed ground-truth items:
+       (1) `not_ingested`: Expected evidence event ID(s) absent from DB `events` table.
+       (2) `filtered`: Event present in DB, but removed by noise or trivial pre-filter (`is_decision_candidate`).
+       (3) `wrong_evidence`: Decision exists in repository for overlapping topic/entity, but cites different evidence event IDs.
+       (4) `no_candidate`: Event present in DB, but extractor produced 0 candidate decisions from its bundle.
+       (5) `wrong_state`: Found candidate sharing evidence, but system state differs from expected state.
+  2. False Positive Accounting:
+     - Tracks unlinked decisions in the database and decisions extracted for negative refusal cases (`expected_state == 'unresolved'`).
+  3. Reporting & Diagnostics:
+     - Outputs executive summary table, per-repository breakdown, itemized failure reasons, and false positive decisions in both JSON (`results/dev_failure_analysis.json`) and Markdown (`docs/dev_failure_analysis.md`).
+     - Dev split execution results: 18 standard questions, 10 true positives (strict 1-to-1), 8 missed items:
+       * `not_ingested`: 0
+       * `no_candidate`: 3 (WB_PAY_03, WB_CH_06, WB_CLI_04)
+       * `filtered`: 0
+       * `wrong_evidence`: 5 (WB_PAY_02, WB_PAY_05, WB_CH_02, WB_CH_04, WB_CLI_02)
+       * `wrong_state`: 0
+  4. Acceptance & Verification:
+     - Unit test suite: `tests/test_failure_analysis.py` (2 tests pass).
+     - Spot-checked 5 missed items by hand, confirming exact categorization matching empirical DB state.
+     - Full test discovery suite: **161 tests passing**. Demo runner: **21/21 checks passing**.

@@ -170,7 +170,7 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     cif_task1_hits = 0
     for q in standard_questions:
         expected_events = set(q.get("evidence_event_ids", []))
-        matched_id = strict_found_map.get(q["id"], {}).get("system_decision_id")
+        matched_id = strict_found_map.get(q["id"], {}).get("decision_id") or strict_found_map.get(q["id"], {}).get("system_decision_id")
         if matched_id and expected_events.intersection(decision_to_evidence.get(matched_id, set())):
             cif_task1_hits += 1
     cif_task1_hit_rate = round((cif_task1_hits / total_standard_questions) * 100, 1) if total_standard_questions > 0 else 0.0

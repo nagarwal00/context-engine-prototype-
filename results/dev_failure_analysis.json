@@ -1,0 +1,638 @@
+{
+  "split": "dev",
+  "standard_questions_total": 18,
+  "found_strictly": 10,
+  "total_failures": 8,
+  "category_totals": {
+    "not_ingested": 0,
+    "no_candidate": 3,
+    "filtered": 0,
+    "wrong_evidence": 5,
+    "wrong_state": 0
+  },
+  "repo_breakdown": {
+    "acme-ecommerce/payment-core": {
+      "not_ingested": 0,
+      "no_candidate": 1,
+      "filtered": 0,
+      "wrong_evidence": 2,
+      "wrong_state": 0
+    },
+    "cloud-hypervisor/cloud-hypervisor": {
+      "not_ingested": 0,
+      "no_candidate": 1,
+      "filtered": 0,
+      "wrong_evidence": 2,
+      "wrong_state": 0
+    },
+    "cli/cli": {
+      "not_ingested": 0,
+      "no_candidate": 1,
+      "filtered": 0,
+      "wrong_evidence": 1,
+      "wrong_state": 0
+    }
+  },
+  "failures": [
+    {
+      "id": "WB_PAY_02",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "How were Stripe API 429 rate limits resolved under flash sale load?",
+      "expected_state": "accepted",
+      "expected_evidence": [
+        "evt_why_pay_pr_14",
+        "evt_why_pay_issue_08"
+      ],
+      "category": "wrong_evidence",
+      "reason": "Decision 'dec_acme-ecommerce_payment-core_proposed_8' exists for overlapping topic, but cites [] instead of expected ['evt_why_pay_pr_14', 'evt_why_pay_issue_08']",
+      "details": {
+        "category": "wrong_evidence",
+        "reason": "Decision 'dec_acme-ecommerce_payment-core_proposed_8' exists for overlapping topic, but cites [] instead of expected ['evt_why_pay_pr_14', 'evt_why_pay_issue_08']",
+        "existing_decision_id": "dec_acme-ecommerce_payment-core_proposed_8",
+        "existing_evidence": [],
+        "expected_evidence": [
+          "evt_why_pay_pr_14",
+          "evt_why_pay_issue_08"
+        ]
+      }
+    },
+    {
+      "id": "WB_PAY_03",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why were fixed 500ms sleep retries rejected for Stripe API calls?",
+      "expected_state": "rejected",
+      "expected_evidence": [
+        "evt_why_pay_rev_c301"
+      ],
+      "category": "no_candidate",
+      "reason": "Event(s) ['evt_why_pay_rev_c301'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+      "details": {
+        "category": "no_candidate",
+        "reason": "Event(s) ['evt_why_pay_rev_c301'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+        "ingested_events": [
+          "evt_why_pay_rev_c301"
+        ]
+      }
+    },
+    {
+      "id": "WB_PAY_05",
+      "repo": "acme-ecommerce/payment-core",
+      "question": "Why was SQLAlchemy async connection pool adopted for the database?",
+      "expected_state": "accepted",
+      "expected_evidence": [
+        "evt_why_pay_commit_7a"
+      ],
+      "category": "wrong_evidence",
+      "reason": "Decision 'dec_acme-ecommerce_payment-core_proposed_7a8b9c0d1e2f3a4b' exists for overlapping topic, but cites [] instead of expected ['evt_why_pay_commit_7a']",
+      "details": {
+        "category": "wrong_evidence",
+        "reason": "Decision 'dec_acme-ecommerce_payment-core_proposed_7a8b9c0d1e2f3a4b' exists for overlapping topic, but cites [] instead of expected ['evt_why_pay_commit_7a']",
+        "existing_decision_id": "dec_acme-ecommerce_payment-core_proposed_7a8b9c0d1e2f3a4b",
+        "existing_evidence": [],
+        "expected_evidence": [
+          "evt_why_pay_commit_7a"
+        ]
+      }
+    },
+    {
+      "id": "WB_CH_02",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why was synchronous balloon deflation rejected in virtio-balloon?",
+      "expected_state": "rejected",
+      "expected_evidence": [
+        "evt_why_ch_rev_c502"
+      ],
+      "category": "wrong_evidence",
+      "reason": "Decision 'dec_cloud-hypervisor_cloud-hypervisor_proposed_c502' exists for overlapping topic, but cites [] instead of expected ['evt_why_ch_rev_c502']",
+      "details": {
+        "category": "wrong_evidence",
+        "reason": "Decision 'dec_cloud-hypervisor_cloud-hypervisor_proposed_c502' exists for overlapping topic, but cites [] instead of expected ['evt_why_ch_rev_c502']",
+        "existing_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_c502",
+        "existing_evidence": [],
+        "expected_evidence": [
+          "evt_why_ch_rev_c502"
+        ]
+      }
+    },
+    {
+      "id": "WB_CH_04",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "Why did Cloud Hypervisor enable virtio unused page reporting in PR #1042?",
+      "expected_state": "accepted",
+      "expected_evidence": [
+        "evt_why_ch_pr_1042"
+      ],
+      "category": "wrong_evidence",
+      "reason": "Decision 'dec_cloud-hypervisor_cloud-hypervisor_proposed_1042' exists for overlapping topic, but cites [] instead of expected ['evt_why_ch_pr_1042']",
+      "details": {
+        "category": "wrong_evidence",
+        "reason": "Decision 'dec_cloud-hypervisor_cloud-hypervisor_proposed_1042' exists for overlapping topic, but cites [] instead of expected ['evt_why_ch_pr_1042']",
+        "existing_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1042",
+        "existing_evidence": [],
+        "expected_evidence": [
+          "evt_why_ch_pr_1042"
+        ]
+      }
+    },
+    {
+      "id": "WB_CH_06",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "question": "How was multi-threaded vCPU tail latency jitter mitigated?",
+      "expected_state": "accepted",
+      "expected_evidence": [
+        "evt_why_ch_pr_1105",
+        "evt_why_ch_issue_940"
+      ],
+      "category": "no_candidate",
+      "reason": "Event(s) ['evt_why_ch_issue_940', 'evt_why_ch_pr_1105'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+      "details": {
+        "category": "no_candidate",
+        "reason": "Event(s) ['evt_why_ch_issue_940', 'evt_why_ch_pr_1105'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+        "ingested_events": [
+          "evt_why_ch_issue_940",
+          "evt_why_ch_pr_1105"
+        ]
+      }
+    },
+    {
+      "id": "WB_CLI_02",
+      "repo": "cli/cli",
+      "question": "Why was custom symmetric key encryption rejected for storing gh credentials?",
+      "expected_state": "rejected",
+      "expected_evidence": [
+        "evt_why_cli_rev_c601"
+      ],
+      "category": "wrong_evidence",
+      "reason": "Decision 'dec_cli_cli_proposed_c601' exists for overlapping topic, but cites [] instead of expected ['evt_why_cli_rev_c601']",
+      "details": {
+        "category": "wrong_evidence",
+        "reason": "Decision 'dec_cli_cli_proposed_c601' exists for overlapping topic, but cites [] instead of expected ['evt_why_cli_rev_c601']",
+        "existing_decision_id": "dec_cli_cli_proposed_c601",
+        "existing_evidence": [],
+        "expected_evidence": [
+          "evt_why_cli_rev_c601"
+        ]
+      }
+    },
+    {
+      "id": "WB_CLI_04",
+      "repo": "cli/cli",
+      "question": "How was zalando/go-keyring integrated into the gh auth login command?",
+      "expected_state": "accepted",
+      "expected_evidence": [
+        "evt_why_cli_pr_518"
+      ],
+      "category": "no_candidate",
+      "reason": "Event(s) ['evt_why_cli_pr_518'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+      "details": {
+        "category": "no_candidate",
+        "reason": "Event(s) ['evt_why_cli_pr_518'] present in DB, but extractor extracted 0 decision candidates from its bundle",
+        "ingested_events": [
+          "evt_why_cli_pr_518"
+        ]
+      }
+    }
+  ],
+  "false_positives_total": 47,
+  "false_positives": [
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_412",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Issue #412: Plaintext tokens exposed in process environment variables and config files",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_518",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for PR #518: Add zalando/go-keyring provider for auth token persistence (Closes #412)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_c601",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Review on PR #518: Reject custom symmetric encryption key on disk",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_480",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Issue #480: N+1 REST API roundtrips during repo list with pull requests",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_550",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Issue #550: Extension crash corrupts parent terminal state and escapes PATH",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_670",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for PR #670: Fork-exec child subprocess isolation with restricted inherited env for extensions (Closes #550)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_c712",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Review on PR #670: Reject executing third-party extensions via in-process Go plugins",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_adr_docs_rfc_004-termenv-formatting_md",
+      "repo": "cli/cli",
+      "title": "RFC 004: Terminal Color and Hyperlink Detection via termenv",
+      "state": "accepted",
+      "cites": [
+        "evt_why_cli_rfc_04"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_620",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Issue #620: Broken ANSI escape sequences when piping gh output to jq and grep",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_github_pr_735",
+      "repo": "cli/cli",
+      "title": "Decision in PR #735: Auto-detect TTY and disable ANSI formatting in non-interact",
+      "state": "accepted",
+      "cites": [
+        "evt_why_cli_pr_735"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_adr_docs_rfc_005-git-credential-helper_md",
+      "repo": "cli/cli",
+      "title": "RFC 005: Git Credential Helper Protocol Provider",
+      "state": "accepted",
+      "cites": [
+        "evt_why_cli_rfc_05"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_810",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for PR #810: Implementation of gh auth git-credential helper protocol",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_c840",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Review on PR #810: Reject global auth token in HTTP GET query string",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_780",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for Issue #780: Browser open failure in headless SSH and cloud container environments",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cli_cli_proposed_920",
+      "repo": "cli/cli",
+      "title": "Proposed Candidate Decision for PR #920: OAuth Device Code flow fallback for headless SSH sessions (Closes #780)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1042",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for PR #1042: Implement VirtIO Memory Ballooning with Page Reporting",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_890",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Issue #890: Memory balloon deflation stalls under aggressive host memory pressure",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_c502",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Review on PR #1042: Reject synchronous balloon deflation",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_940",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Issue #940: High guest exit latency on unpinned multi-threaded vCPUs",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1105",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for PR #1105: CPU Pinning and NUMA Topology Node Binding (Closes #940)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_c615",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Review on PR #1105: Reject legacy floppy and IDE device emulation",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_virtio-fs_md",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Design: VirtIO-FS Shared Host Filesystem with Direct Access (DAX) Window",
+      "state": "accepted",
+      "cites": [
+        "evt_why_ch_rfc_04"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1015",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Issue #1015: Host file lock contention in virtio-fs shared directory mounts",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1180",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for PR #1180: PCIe Root Port Hotplug Support for VirtIO Devices",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1240",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Decision in PR #1240: Asynchronous Disk I/O via Linux io_uring Engine",
+      "state": "accepted",
+      "cites": [
+        "evt_why_ch_pr_1240"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_c720",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Review on PR #1240: Reject unbounded polling loops in vhost worker",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1312",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for PR #1312: VFIO PCI Device Passthrough for GPU Workloads",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_acpi-ged_md",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Design: ACPI Generic Event Device (GED) for System Notifications",
+      "state": "accepted",
+      "cites": [
+        "evt_why_ch_rfc_05"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1120",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for Issue #1120: Guest memory leak in balloon statistics driver queue",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_cloud-hypervisor_cloud-hypervisor_proposed_1390",
+      "repo": "cloud-hypervisor/cloud-hypervisor",
+      "title": "Proposed Candidate Decision for PR #1390: MicroVM Minimal Device Tree Profile for Serverless Sandboxes",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_8",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Issue #8: Stripe API 429 Rate Limits encountered during flash sale traffic",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_14",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for PR #14: Implement Exponential Backoff with Full Jitter for Stripe API (Closes #8)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_c301",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Review on PR #14: Reject fixed interval retries",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_7a8b9c0d1e2f3a4b",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for feat(database): migrate to SQLAlchemy async connection pool with PgBouncer",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_5",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Issue #5: Duplicate customer charges under concurrent checkout clicks",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_18",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for PR #18: Idempotency-Key Header Middleware with SHA-256 Request Hashing (Closes #5)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_c402",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Review on PR #18: Reject database-level transaction locks for idempotency",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_22",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for PR #22: Webhook signature verification with HMAC-SHA256 and replay tolerance",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_c450",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Review on PR #22: Reject skipping signature verification in development",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0004-partial-refund-support_md",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "ADR 0004: Support Partial Refunds with Line-Item Reversal Ledger",
+      "state": "accepted",
+      "cites": [
+        "evt_why_pay_adr_04"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_11",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Issue #11: Floating point rounding discrepancies during multi-currency partial refunds",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_29",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for PR #29: Migrate refund math to integer cents and Decimal representation (Closes #11)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_c505",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Review on PR #29: Reject client-supplied refund timestamps",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_19",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Issue #19: Toxic malformed webhook payloads causing infinite queue retry loops",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_35",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for PR #35: Route unparseable webhook messages to Dead Letter Queue after 3 failed deliveries (Closes #19)",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0005-pci-token-vault_md",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "ADR 0005: Dual-token vault encryption for PCI-DSS compliance",
+      "state": "accepted",
+      "cites": [
+        "evt_why_pay_adr_05"
+      ],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    },
+    {
+      "type": "unmatched_decision",
+      "decision_id": "dec_acme-ecommerce_payment-core_proposed_c610",
+      "repo": "acme-ecommerce/payment-core",
+      "title": "Proposed Candidate Decision for Review on PR #38: Reject caching unencrypted CVV in memory",
+      "state": "proposed",
+      "cites": [],
+      "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
+    }
+  ]
+}
