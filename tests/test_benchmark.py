@@ -1,12 +1,14 @@
 import os
 import re
+import json
 import tempfile
 import unittest
 from backend.db import Database
 from backend.models import Event, Decision, Entity, Edge
 from backend.seed_data import populate_seed_data
-from backend.evaluation.benchmark import BenchmarkRunner
+from backend.evaluation.benchmark import BenchmarkRunner, compute_decision_matching, evaluate_precision_labels, compute_db_sha256
 from backend.evaluation.baselines import BaselineEvaluator
+from tools.run_whybench import run_whybench
 
 class TestBenchmark(unittest.TestCase):
     def setUp(self):
@@ -375,6 +377,163 @@ class TestBenchmark(unittest.TestCase):
         self.assertEqual(b_docs["task_2_decision_recall"], "n/a")
         self.assertEqual(b_docs["task_2_state_accuracy"], "n/a")
         self.assertEqual(b_docs["task_2_refusal_accuracy"], "n/a (always answers)")
+
+    def test_one_to_one_vs_many_to_one_matching(self):
+        """Step 4.10: 1 system decision sharing evidence with 2 GT items yields 50% strict vs 100% lenient recall."""
+        gt_dataset = [
+            {"id": "GT_1", "repo": "test/repo", "expected_state": "accepted", "evidence_event_ids": ["evt_shared"]},
+            {"id": "GT_2", "repo": "test/repo", "expected_state": "accepted", "evidence_event_ids": ["evt_shared"]}
+        ]
+        system_decisions = [
+            {"decision_id": "dec_single", "repo": "test/repo", "state": "accepted"}
+        ]
+        decision_to_evidence = {
+            "dec_single": {"evt_shared"}
+        }
+
+        match_results = compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)
+        strict = match_results["strict"]
+        lenient = match_results["lenient"]
+
+        self.assertEqual(strict["matched_gt_count"], 1)
+        self.assertEqual(strict["recall"], 50.0)
+        self.assertEqual(lenient["matched_gt_count"], 2)
+        self.assertEqual(lenient["recall"], 100.0)
+        self.assertTrue(match_results["overcounting_detected"])
+        self.assertEqual(match_results["recall_difference"], 50.0)
+
+    def test_missing_labels_precision_evaluation(self):
+        """Step 4.10: Missing precision label file returns 'not measured' with clear reason."""
+        val, reason = evaluate_precision_labels(self.db_path, labels_file_or_dir="non_existent_labels_file.json")
+        self.assertEqual(val, "not measured")
+        self.assertIn("not found", reason.lower())
+
+    def test_duplicate_matches_greedy_assignment(self):
+        """Step 4.10: 2 system decisions for 1 GT item greedily assigns highest overlap and leaves other unmatched."""
+        gt_dataset = [
+            {"id": "GT_TARGET", "repo": "test/repo", "expected_state": "accepted", "evidence_event_ids": ["evt_1", "evt_2"]}
+        ]
+        system_decisions = [
+            {"decision_id": "dec_low", "repo": "test/repo", "state": "accepted"},
+            {"decision_id": "dec_high", "repo": "test/repo", "state": "accepted"}
+        ]
+        decision_to_evidence = {
+            "dec_low": {"evt_1"},
+            "dec_high": {"evt_1", "evt_2"}
+        }
+
+        match_results = compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)
+        strict = match_results["strict"]
+
+        self.assertEqual(strict["matched_gt_count"], 1)
+        self.assertEqual(strict["found"][0]["decision_id"], "dec_high")
+        self.assertIn("dec_low", strict["unmatched_system_ids"])
+
+    def test_contradictory_evidence_matching(self):
+        """Step 4.10: System decision with contradictory lifecycle state is categorized in wrong_state."""
+        gt_dataset = [
+            {"id": "GT_STATE_TEST", "repo": "test/repo", "expected_state": "rejected", "evidence_event_ids": ["evt_test"]}
+        ]
+        system_decisions = [
+            {"decision_id": "dec_contrary", "repo": "test/repo", "state": "accepted"}
+        ]
+        decision_to_evidence = {
+            "dec_contrary": {"evt_test"}
+        }
+
+        match_results = compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)
+        strict = match_results["strict"]
+
+        self.assertEqual(strict["matched_gt_count"], 1)
+        self.assertEqual(strict["state_accuracy"], 0.0)
+        self.assertEqual(len(strict["wrong_state"]), 1)
+        self.assertEqual(strict["wrong_state"][0]["system_state"], "accepted")
+        self.assertEqual(strict["wrong_state"][0]["expected_state"], "rejected")
+
+    def test_empty_datasets_safety(self):
+        """Step 4.10: Empty GT and empty system decisions execute safely with 0.0 metrics."""
+        match_results = compute_decision_matching([], [], {})
+        self.assertEqual(match_results["strict"]["recall"], 0.0)
+        self.assertIn(match_results["strict"]["state_accuracy"], (0.0, "not measured"))
+        self.assertFalse(match_results["overcounting_detected"])
+
+    def test_negative_cases_evaluation(self):
+        """Step 4.10: Negative questions evaluate correctly for abstention and false positive decisions."""
+        neg_unrecorded = {
+            "id": "NEG_UNREC", "repo": "test/repo", "question": "Why MongoDB?", "expected_state": "none",
+            "negative_type": "unrecorded", "evidence_event_ids": []
+        }
+        neg_mention = {
+            "id": "NEG_MENTION", "repo": "test/repo", "question": "Should we look at DynamoDB?", "expected_state": "none",
+            "negative_type": "mention_without_decision", "evidence_event_ids": ["evt_discuss"]
+        }
+
+        # Case 1: Honest abstention (no decision made on evt_discuss)
+        system_decisions_clean = []
+        d2e_clean = {}
+
+        # If system made an erroneous decision on the discussion event
+        system_decisions_erroneous = [
+            {"decision_id": "dec_err", "repo": "test/repo", "state": "accepted", "title": "Adopt DynamoDB"}
+        ]
+        d2e_erroneous = {"dec_err": {"evt_discuss"}}
+
+        # Check clean abstention
+        expected_events = set(neg_mention["evidence_event_ids"])
+        matched_clean = any(expected_events.intersection(d2e_clean.get(sd["decision_id"], set())) for sd in system_decisions_clean)
+        self.assertFalse(matched_clean)
+
+        # Check false positive detection
+        matched_err = any(expected_events.intersection(d2e_erroneous.get(sd["decision_id"], set())) for sd in system_decisions_erroneous)
+        self.assertTrue(matched_err)
+
+    def test_reproducibility_identical_metrics(self):
+        """Step 4.10: Greedy matching with deterministic tie-breaking produces identical metrics across repeated runs."""
+        gt = [
+            {"id": "GT_A", "repo": "test/repo", "expected_state": "accepted", "evidence_event_ids": ["evt_1"]},
+            {"id": "GT_B", "repo": "test/repo", "expected_state": "accepted", "evidence_event_ids": ["evt_2"]}
+        ]
+        sds = [
+            {"decision_id": "dec_1", "repo": "test/repo", "state": "accepted"},
+            {"decision_id": "dec_2", "repo": "test/repo", "state": "accepted"}
+        ]
+        d2e = {"dec_1": {"evt_1"}, "dec_2": {"evt_2"}}
+
+        res1 = compute_decision_matching(gt, sds, d2e)
+        res2 = compute_decision_matching(gt, sds, d2e)
+
+        self.assertEqual(res1["strict"]["recall"], res2["strict"]["recall"])
+        self.assertEqual(res1["strict"]["matched_gt_count"], res2["strict"]["matched_gt_count"])
+        self.assertEqual(res1["strict"]["matched_system_ids"], res2["strict"]["matched_system_ids"])
+
+    def test_snapshot_hash_mismatch_refuses_precision(self):
+        """Step 4.10: evaluate_precision_labels refuses evaluation when DB hash mismatches template."""
+        # Create a dummy label file with mismatched snapshot hash
+        labels_path = os.path.join(self.tmp_dir.name, "precision_labels.json")
+        dummy_data = [{
+            "dataset_version": "whybench_v1",
+            "db_snapshot_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+            "repo": "test/repo",
+            "decision_id": "dec_1",
+            "correct": True
+        }]
+        with open(labels_path, "w", encoding="utf-8") as f:
+            json.dump(dummy_data, f)
+
+        val, reason = evaluate_precision_labels(self.db_path, labels_file_or_dir=labels_path)
+        self.assertEqual(val, "not measured")
+        self.assertIn("snapshot hash mismatch", reason)
+
+    def test_strict_test_split_protection(self):
+        """Step 4.10: run_whybench refuses to evaluate test or test_v2 without the explicit --final flag."""
+        with self.assertRaises(SystemExit) as cm1:
+            run_whybench(split="test", is_final=False)
+        self.assertEqual(cm1.exception.code, 1)
+
+        with self.assertRaises(SystemExit) as cm2:
+            run_whybench(split="test_v2", is_final=False)
+        self.assertEqual(cm2.exception.code, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

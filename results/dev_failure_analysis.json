@@ -237,8 +237,8 @@
       "title": "Auto-detect TTY and disable ANSI formatting in non-interactive pipelines",
       "state": "accepted",
       "cites": [
-        "evt_why_cli_issue_620",
-        "evt_why_cli_pr_735"
+        "evt_why_cli_pr_735",
+        "evt_why_cli_issue_620"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },
@@ -404,8 +404,8 @@
       "title": "Migrate refund math to integer cents and Decimal representation",
       "state": "accepted",
       "cites": [
-        "evt_why_pay_issue_11",
-        "evt_why_pay_pr_29"
+        "evt_why_pay_pr_29",
+        "evt_why_pay_issue_11"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },

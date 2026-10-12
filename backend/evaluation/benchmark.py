@@ -42,6 +42,10 @@ def evaluate_precision_labels(db_path: str, labels_file_or_dir: str = None) -> T
             candidate = os.path.join(labels_file_or_dir, "precision_labels.json")
             if os.path.exists(candidate):
                 labels_file = candidate
+            else:
+                return "not measured", f"precision label file not found at '{candidate}'"
+        else:
+            return "not measured", f"precision label file not found at '{labels_file_or_dir}'"
 
     if not labels_file:
         base_eval_dir = os.path.dirname(os.path.abspath(__file__))

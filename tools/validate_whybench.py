@@ -104,7 +104,7 @@ def validate_whybench_questions(file_path: str = None) -> bool:
         elif split in ("test", "test_v2"):
             test_count += 1
         else:
-            errors.append(f"Question {qid} has invalid split: '{split}'. Must be 'dev' or 'test'.")
+            errors.append(f"Question {qid} has invalid split: '{split}'. Must be 'dev', 'test', or 'test_v2'.")
 
     # Check minimum per-repo counts (Acceptance criteria: >= 20 verified questions per repo)
     for r, count in repo_counts.items():
@@ -124,7 +124,7 @@ def validate_whybench_questions(file_path: str = None) -> bool:
             else:
                 neg_stats[s][r]["type_a"] += 1
 
-    for s in ("dev", "test"):
+    for s in ("dev", "test_v2") if "test_v2" in neg_stats else ("dev", "test"):
         for r in sorted(repo_counts.keys()):
             counts = neg_stats[s][r]
             tot = counts["total"]
@@ -133,6 +133,27 @@ def validate_whybench_questions(file_path: str = None) -> bool:
                 errors.append(f"Repository '{r}' in split '{s}' has only {tot} negative cases (minimum 15 required by Step 4.6).")
             if tb < (tot / 2):
                 errors.append(f"Repository '{r}' in split '{s}' has {tb}/{tot} type (b) negatives (at least half required by Step 4.6).")
+
+    # Step 4.9: Check frozen test split test_v2 requirements (>= 20 questions per repo & frozen hash check)
+    v2_questions = [q for q in questions if q.get("split") == "test_v2"]
+    if v2_questions:
+        v2_repo_counts = defaultdict(int)
+        for q in v2_questions:
+            v2_repo_counts[q.get("repo")] += 1
+        for r in sorted(repo_counts.keys()):
+            c = v2_repo_counts[r]
+            if c < 20:
+                errors.append(f"Repository '{r}' in 'test_v2' split has only {c} verified questions (minimum 20 required by Step 4.9).")
+
+    frozen_file = os.path.join(PROJECT_ROOT, "backend", "evaluation", "whybench", "FROZEN.md")
+    if os.path.exists(frozen_file):
+        import hashlib
+        with open(file_path, "rb") as f:
+            actual_q_hash = hashlib.sha256(f.read()).hexdigest()
+        with open(frozen_file, "r", encoding="utf-8") as f:
+            frozen_content = f.read()
+        if actual_q_hash not in frozen_content:
+            errors.append(f"questions.json SHA-256 ({actual_q_hash}) does not match frozen hash recorded in FROZEN.md!")
 
     total = len(questions)
     dev_ratio = round((dev_count / total) * 100, 1) if total > 0 else 0
@@ -150,7 +171,7 @@ def validate_whybench_questions(file_path: str = None) -> bool:
         print(f"    - {r}: {c} questions")
     print("-" * 65)
     print("  REPRESENTATIVE NEGATIVE CASES MIX (STEP 4.6):")
-    for s in ("dev", "test"):
+    for s in ("dev", "test_v2") if "test_v2" in neg_stats else ("dev", "test"):
         print(f"    Split '{s}':")
         for r in sorted(repo_counts.keys()):
             c = neg_stats[s][r]

@@ -55,14 +55,14 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     if not run_id:
         run_id = f"{split}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-    # Guard test split run per Section 2.4
-    if split == "test" and not is_final:
-        print("[ERROR] The 'test' split may only be evaluated with the explicit '--final' flag.")
+    # Guard test split run per Section 2.4 & Step 4.9
+    if split in ("test", "test_v2") and not is_final:
+        print(f"[ERROR] The '{split}' split may only be evaluated with the explicit '--final' flag.")
         print("        Use '--split dev' for development and tuning.")
         sys.exit(1)
 
     existing_results = [f for f in os.listdir(whybench_dir) if f.startswith(f"results_{split}_")]
-    if split == "test" and existing_results and not force:
+    if split in ("test", "test_v2") and existing_results and not force:
         print(f"[ERROR] Test split results already exist ({existing_results[0]}).")
         print("        Re-running test evaluation is restricted to prevent overfitting. Use --force to override.")
         sys.exit(1)
@@ -105,7 +105,7 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
         all_questions = json.load(f)
 
     # Filter for target split and verified items
-    split_questions = [q for q in all_questions if q.get("split") == split and q.get("verified") is True]
+    split_questions = [q for q in all_questions if (q.get("split") == split or (split == "test" and q.get("split") == "test_v2")) and q.get("verified") is True]
     if not split_questions:
         print(f"[ERROR] No verified questions found for split '{split}'.")
         sys.exit(1)
@@ -422,7 +422,7 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="WhyBench Evaluation Runner")
-    parser.add_argument("--split", choices=["dev", "test"], default="dev", help="Dataset split to evaluate (dev or test)")
+    parser.add_argument("--split", choices=["dev", "test", "test_v2"], default="dev", help="Dataset split to evaluate (dev, test, or test_v2)")
     parser.add_argument("--final", action="store_true", help="Required flag to evaluate the test split")
     parser.add_argument("--force", action="store_true", help="Force re-evaluation of test split")
     parser.add_argument("--extractor", choices=["heuristic", "llm", "both"], default="heuristic", help="Extraction engine")

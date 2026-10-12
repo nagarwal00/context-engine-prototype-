@@ -728,3 +728,59 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Ran twice on dev split (`repro_exact_1` and `repro_exact_2`).
      - Automated diff verified all metrics JSON blocks are **100.0% exact identical matches**.
      - Full test discovery suite passing; Demo runner: **21/21 checks passing**.
+
+### Step 4.9 — New Frozen Test Split `test_v2`
+- Status: **RESOLVED**
+- Files: `backend/evaluation/whybench/questions.json`, `backend/evaluation/whybench/FROZEN.md`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Frozen Test Split Composition (`test_v2`):
+     - Split off new headline evaluation test split `test_v2` containing 71 total questions (100% verified):
+       * `acme-ecommerce/payment-core`: 25 questions (10 standard, 15 negatives)
+       * `cli/cli`: 23 questions (8 standard, 15 negatives)
+       * `cloud-hypervisor/cloud-hypervisor`: 23 questions (8 standard, 15 negatives)
+     - Meets the requirement of >= 20 verified questions per repository in `test_v2`.
+  2. Cryptographic Immutability (`backend/evaluation/whybench/FROZEN.md`):
+     - Created `backend/evaluation/whybench/FROZEN.md` recording SHA-256 hash digests:
+       * Full questions file: `1e46e50dd8a35f6d6a7c33b7b5472521e982b4ff907cd91584a0bb962f9d94ab`
+       * Canonical `test_v2` subset: `48c8e99e19cdf0e3069c39e51dbed7dcf6c3b3617927f1db4caf7559078f4a5b`
+  3. Strict Anti-Overfitting Runner Guards:
+     - `tools/run_whybench.py` strictly refuses to run `test_v2` (or legacy `test`) unless the explicit `--final` flag is provided.
+     - Refuses repeated execution if test results already exist, requiring explicit `--force` to re-run.
+  4. Validator Verification:
+     - `tools/validate_whybench.py` automatically checks the hash against `FROZEN.md` and verifies >= 20 verified questions per repo in `test_v2`.
+  5. Acceptance & Verification:
+     - `python tools/validate_whybench.py` passes with 0 errors across 134 questions and validates `test_v2` quotas and frozen digest.
+
+
+### Step 4.10 — Evaluation Test Suite Expansion
+- Status: **RESOLVED**
+- Files: `tests/test_benchmark.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Extended `tests/test_benchmark.py` with 9 dedicated unit test cases:
+     * `test_one_to_one_vs_many_to_one_matching`: validates strict 1-to-1 bipartite assignment vs lenient overcounting gap.
+     * `test_missing_labels_precision_evaluation`: verifies 'not measured' when label file is missing.
+     * `test_duplicate_matches_greedy_assignment`: verifies greedy resolution when multiple system decisions match one ground-truth item.
+     * `test_contradictory_evidence_matching`: verifies classification into `wrong_state` on contradictory lifecycle states.
+     * `test_empty_datasets_safety`: verifies safe execution on empty GT or system decision datasets without zero-division exceptions.
+     * `test_negative_cases_evaluation`: verifies correct refusal abstention on unrecorded items and false positive detection on discussion mentions.
+     * `test_reproducibility_identical_metrics`: verifies deterministic greedy matching across repeated executions.
+     * `test_snapshot_hash_mismatch_refuses_precision`: verifies evaluate_precision_labels refuses evaluation when DB hash mismatches template.
+     * `test_strict_test_split_protection`: verifies run_whybench refuses to evaluate test or test_v2 without the explicit `--final` flag.
+  2. Acceptance & Verification:
+     - Full test discovery suite: **184 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
+
+
+### Phase 4 Exit Check — Evaluation, Recall, Label Validation, Fair Baselines
+- Status: **PASSED & TAGGED** (`phase4-done`)
+- Verification:
+  - Audited 1-to-1 strict matching and evidence integrity (`url_format_ok`, `event_exists`, `claim_supported`).
+  - Equivalent task partitioning: Task 1 (evidence retrieval) vs Task 2 (decision reconstruction with `n/a` for baselines A/B).
+  - Failure analysis tool (`tools/analyze_failures.py`) with 5-category taxonomy and false positive tracking.
+  - Recall improved on dev split from 55.6% to 100.0% with threshold sweep curves in changelog.
+  - Human precision template with cryptographic SHA-256 snapshot verification refusing stale labels.
+  - Representative negative cases (15 per repo in dev and test_v2, 53.3% type b).
+  - Confidence calibration engine with 100-label threshold guard and uncalibrated UI pills.
+  - Reproducible manifests (`results/<run_id>/manifest.json`) and dynamic markdown generation (`tools/generate_evaluation_report.py`).
+  - Frozen test split `test_v2` with SHA-256 recorded in `backend/evaluation/whybench/FROZEN.md`.
+  - Comprehensive evaluation test suite (184 unit tests passing).
