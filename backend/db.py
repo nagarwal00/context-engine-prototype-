@@ -219,6 +219,9 @@ class Database:
         if not event.source_url:
             raise ValueError(f"Section 5.1 Violation: Event {event.source_id} has empty source_url!")
         
+        from backend.ingestion.sanitizer import sanitize_event
+        event = sanitize_event(event)
+
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
@@ -253,6 +256,101 @@ class Database:
             row = cursor.fetchone()
             conn.commit()
             return row["event_id"] if row else event.event_id
+
+    def purge_repo(self, repo: str) -> Dict[str, int]:
+        """
+        Deletes all events, entities, decisions, edges, claims, constraints, and history for a repository.
+        Implements retention/deletion policy for Step 5.1.
+        """
+        counts = {}
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT decision_id FROM decisions WHERE repo = ?", (repo,))
+            decision_ids = [row["decision_id"] for row in cursor.fetchall()]
+
+            cursor.execute("SELECT entity_id FROM entities WHERE repo = ?", (repo,))
+            entity_ids = [row["entity_id"] for row in cursor.fetchall()]
+
+            cursor.execute("SELECT event_id FROM events WHERE repo = ?", (repo,))
+            event_ids = [row["event_id"] for row in cursor.fetchall()]
+
+            all_ids = set(decision_ids) | set(entity_ids) | set(event_ids)
+
+            # 1. Delete claims & claim evidence
+            if decision_ids:
+                placeholders = ",".join("?" for _ in decision_ids)
+                cursor.execute(f"SELECT claim_id FROM decision_claims WHERE decision_id IN ({placeholders})", decision_ids)
+                claim_ids = [row["claim_id"] for row in cursor.fetchall()]
+                if claim_ids:
+                    c_placeholders = ",".join("?" for _ in claim_ids)
+                    cursor.execute(f"DELETE FROM claim_evidence WHERE claim_id IN ({c_placeholders})", claim_ids)
+                    counts["claim_evidence"] = cursor.rowcount
+                else:
+                    counts["claim_evidence"] = 0
+                cursor.execute(f"DELETE FROM decision_claims WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["decision_claims"] = cursor.rowcount
+            else:
+                counts["claim_evidence"] = 0
+                counts["decision_claims"] = 0
+
+            # 2. Delete guard rules / constraints
+            if decision_ids:
+                placeholders = ",".join("?" for _ in decision_ids)
+                cursor.execute(f"DELETE FROM guard_rules WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["guard_rules"] = cursor.rowcount
+            else:
+                counts["guard_rules"] = 0
+
+            # 3. Delete state history
+            if decision_ids:
+                placeholders = ",".join("?" for _ in decision_ids)
+                cursor.execute(f"DELETE FROM state_history WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["state_history"] = cursor.rowcount
+            else:
+                counts["state_history"] = 0
+
+            # 4. Delete decision evidence & artifacts
+            if decision_ids:
+                placeholders = ",".join("?" for _ in decision_ids)
+                cursor.execute(f"DELETE FROM decision_evidence WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["decision_evidence"] = cursor.rowcount
+                cursor.execute(f"DELETE FROM decision_artifacts WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["decision_artifacts"] = cursor.rowcount
+            else:
+                counts["decision_evidence"] = 0
+                counts["decision_artifacts"] = 0
+
+            # 5. Delete finding feedback
+            if decision_ids:
+                placeholders = ",".join("?" for _ in decision_ids)
+                cursor.execute(f"DELETE FROM finding_feedback WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["finding_feedback"] = cursor.rowcount
+            else:
+                counts["finding_feedback"] = 0
+
+            # 6. Delete edges touching repo entities or decisions
+            if all_ids:
+                id_list = list(all_ids)
+                placeholders = ",".join("?" for _ in id_list)
+                cursor.execute(f"DELETE FROM edges WHERE from_id IN ({placeholders}) OR to_id IN ({placeholders})", id_list + id_list)
+                counts["edges"] = cursor.rowcount
+            else:
+                counts["edges"] = 0
+
+            # 7. Delete decisions
+            cursor.execute("DELETE FROM decisions WHERE repo = ?", (repo,))
+            counts["decisions"] = cursor.rowcount
+
+            # 8. Delete entities
+            cursor.execute("DELETE FROM entities WHERE repo = ?", (repo,))
+            counts["entities"] = cursor.rowcount
+
+            # 9. Delete events
+            cursor.execute("DELETE FROM events WHERE repo = ?", (repo,))
+            counts["events"] = cursor.rowcount
+
+            conn.commit()
+        return counts
 
     def upsert_entity(self, entity: Entity) -> str:
         with self.get_connection() as conn:

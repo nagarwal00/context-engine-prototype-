@@ -57,6 +57,8 @@ class LiveGitHubIngestor:
 
     def _make_request(self, endpoint: str) -> Tuple[int, Any]:
         """Makes an HTTP GET request to GitHub API with proper headers and SSL context."""
+        if os.getenv("CIF_LOCAL_ONLY", "0").lower() in ("1", "true", "yes"):
+            raise RuntimeError("Network ingestion disabled in local-only mode (CIF_LOCAL_ONLY=1)")
         url = f"{GITHUB_API_BASE}/{endpoint.lstrip('/')}"
         headers = {
             "User-Agent": "Context-Intelligence-Framework/1.0",
@@ -325,6 +327,10 @@ class LiveGitHubIngestor:
                 stats["edges_created"] += 1
 
         return stats
+
+    def ingest_local_repository(self, local_path: str, clear_existing: bool = True) -> Dict[str, Any]:
+        """Alias for ingest_local_directory."""
+        return self.ingest_local_directory(local_path, clear_existing=clear_existing)
 
     def ingest_custom_repository(
         self,

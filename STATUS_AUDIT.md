@@ -784,3 +784,39 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   - Reproducible manifests (`results/<run_id>/manifest.json`) and dynamic markdown generation (`tools/generate_evaluation_report.py`).
   - Frozen test split `test_v2` with SHA-256 recorded in `backend/evaluation/whybench/FROZEN.md`.
   - Comprehensive evaluation test suite (184 unit tests passing).
+
+
+### Step 5.1 — Privacy-First Ingestion
+- Status: **RESOLVED**
+- Files: `backend/ingestion/sanitizer.py`, `PRIVACY.md`, `backend/db.py`, `backend/ingestion/git_adapter.py`, `backend/ingestion/github_adapter.py`, `backend/ingestion/adr_adapter.py`, `backend/ingestion/live_github.py`, `backend/engine/llm_client.py`, `backend/api.py`, `tests/test_sanitizer.py`, `tests/test_local_only.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Automated Redaction Engine (`backend/ingestion/sanitizer.py`):
+     - `sanitize_event(event) -> event` redacts secret strings in `title`, `body`, `source_url` (query parameter values and basic auth credentials), `author` (when configured or containing tokens/PII), and all values across `raw_metadata` (recursively).
+     - Standard replacement tokens implemented:
+       * GitHub tokens (`ghp_`, `gho_`, `ghs_`, `ghr_`, `github_pat_`) -> `[REDACTED:GITHUB_TOKEN]`
+       * AWS Access Key IDs (`AKIA...`) and secret keys -> `[REDACTED:AWS_KEY]`, `[REDACTED:AWS_SECRET]`
+       * Slack tokens (`xoxb-`, etc.) -> `[REDACTED:SLACK_TOKEN]`
+       * Google API keys (`AIza...`) -> `[REDACTED:GOOGLE_KEY]`
+       * Private keys (`-----BEGIN ... PRIVATE KEY-----`) -> `[REDACTED:PRIVATE_KEY]`
+       * JSON Web Tokens (`eyJ...`) -> `[REDACTED:JWT]`
+       * Bearer tokens / Authorization headers -> `Bearer [REDACTED:BEARER_TOKEN]`
+       * Secret, password, api_key, access_key assignments -> `[REDACTED:SECRET_ASSIGNMENT]`
+       * Optional PII (activated via `CIF_REDACT_PII=1`): Email addresses -> `[REDACTED:EMAIL]`, Phone numbers -> `[REDACTED:PHONE]`
+       * Optional Author redaction (activated via `CIF_REDACT_AUTHOR=1` or PII mode) -> `[REDACTED:AUTHOR]`
+  2. Adapter & Database Hooks:
+     - Hooked `sanitize_event(event)` before persistence across `GitAdapter`, `GitHubAdapter`, `ADRAdapter`, and inside `Database.upsert_event` as defense-in-depth before SQLite insertion.
+     - Implemented `SanitizingLogFilter` (`install_sanitizing_logger`) to scrub secrets from log records and exception text before emission.
+  3. Local-Only Mode (`CIF_LOCAL_ONLY=1`):
+     - `LLMClient.available()` returns `False` and `complete_json` returns `None` without invoking network providers.
+     - `LiveGitHubIngestor._make_request` raises `RuntimeError` preventing remote calls; local folder ingestion (`ingest_local_repository` / `ingest_local_directory`) functions fully offline.
+     - `POST /api/ingest-repo` rejects non-local directory targets with HTTP 403.
+  4. Repository Purge & Retention (`POST /api/purge-repo`):
+     - Implemented `Database.purge_repo(repo)` in a single transaction cascading deletion across `events`, `entities`, `decisions`, `decision_evidence`, `decision_artifacts`, `decision_claims`, `claim_evidence`, `edges`, `guard_rules`, and `state_history`.
+     - Route added to `backend/api.py` with `ROLE_ADMIN` requirement and explicit body confirmation `{"confirm": "<repo>"}`.
+  5. Privacy Documentation (`PRIVACY.md`):
+     - Complete documentation of privacy principles, secret patterns, database storage scope, LLM isolation guarantees, local-only configuration, and retention/purge API.
+  6. Acceptance & Verification:
+     - Created `tests/test_sanitizer.py` (7 tests): includes a raw-byte binary scan of the SQLite database file (`"rb"`) proving zero synthetic secrets reach disk bytes, URL query redaction, logging filter scrub, and `POST /api/purge-repo` verification.
+     - Created `tests/test_local_only.py` (4 tests): verifies complete LLM client deactivation, network blocking, local folder ingestion, and API rejection under `CIF_LOCAL_ONLY=1`.
+     - Full test discovery suite: **195 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

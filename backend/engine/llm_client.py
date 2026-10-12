@@ -17,13 +17,19 @@ class LLMClient:
         self.model = os.getenv("CIF_LLM_MODEL", "").strip()
         self.timeout = 30 # 30s timeout per Section 3.2
 
+    @staticmethod
+    def is_local_only() -> bool:
+        return os.getenv("CIF_LOCAL_ONLY", "0").lower() in ("1", "true", "yes")
+
     def available(self) -> bool:
-        """Returns True only if API key and model name are configured."""
+        """Returns True only if API key and model name are configured and local-only mode is not active."""
+        if self.is_local_only():
+            return False
         return bool(self.api_key and self.model)
 
     def complete_json(self, prompt: str, system_prompt: str = "You extract architectural decisions in strict JSON format.") -> Optional[str]:
         """Sends prompt and returns response string with exponential retry backoff."""
-        if not self.available():
+        if self.is_local_only() or not self.available():
             return None
 
         # Build request payload based on provider

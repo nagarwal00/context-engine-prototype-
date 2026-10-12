@@ -61,6 +61,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("POST", "/api/reseed"): ROLE_ADMIN,
     ("POST", "/api/clear-db"): ROLE_ADMIN,
     ("POST", "/api/ingest-repo"): ROLE_ADMIN,
+    ("POST", "/api/purge-repo"): ROLE_ADMIN,
 
     # Webhook (exempt from Bearer token - uses GitHub HMAC signature)
     ("POST", "/api/webhook/github"): ROLE_EXEMPT,
@@ -908,6 +909,15 @@ class APIHandler:
             max_commits = int(body.get("max_commits", 25))
             max_issues = int(body.get("max_issues", 15))
 
+            if os.getenv("CIF_LOCAL_ONLY", "0").lower() in ("1", "true", "yes"):
+                # In local-only mode, only local directories are allowed
+                if not os.path.exists(repo_input):
+                    return {
+                        "status": "error",
+                        "status_code": 403,
+                        "message": "Network ingestion disabled in local-only mode (CIF_LOCAL_ONLY=1). Only local directory paths can be ingested."
+                    }
+
             try:
                 from backend.ingestion.live_github import LiveGitHubIngestor
                 ingestor = LiveGitHubIngestor(self.db, token=token)
@@ -933,6 +943,25 @@ class APIHandler:
             from backend.ingestion.live_github import LiveGitHubIngestor
             LiveGitHubIngestor(self.db).clear_database()
             return {"status": "success", "message": "Dashboard database cleared successfully. Ready for custom repository."}
+
+        # 5b. Purge Repository (Step 5.1 Retention & Privacy Policy)
+        elif path == "/api/purge-repo":
+            repo = (body.get("repo") or "").strip()
+            confirm = (body.get("confirm") or "").strip()
+            if not repo:
+                return {"status": "error", "status_code": 400, "message": "Missing required field: repo"}
+            if confirm != repo:
+                return {
+                    "status": "error",
+                    "status_code": 400,
+                    "message": f"Confirmation mismatch. Body must include 'confirm': '{repo}'"
+                }
+            counts = self.db.purge_repo(repo)
+            return {
+                "status": "success",
+                "message": f"Successfully purged all records for repository '{repo}'",
+                "deleted_counts": counts
+            }
 
         # 6. Findings Feedback (Step 3.5 & Step 3.6)
         elif path == "/api/findings/feedback":

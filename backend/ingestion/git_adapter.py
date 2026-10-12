@@ -8,6 +8,7 @@ import re
 from backend.models import Event
 from backend.db import Database
 from backend.ingestion.identity import IdentityResolver
+from backend.ingestion.sanitizer import sanitize_event
 
 class GitAdapter:
     def __init__(self, db: Database, identity_resolver: IdentityResolver):
@@ -56,5 +57,6 @@ class GitAdapter:
             raw_metadata=raw_meta
         )
 
+        sanitize_event(event)
         self.db.upsert_event(event)
         return event

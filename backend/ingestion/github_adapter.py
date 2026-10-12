@@ -8,6 +8,7 @@ import re
 from backend.models import Event
 from backend.db import Database
 from backend.ingestion.identity import IdentityResolver
+from backend.ingestion.sanitizer import sanitize_event
 
 class GitHubAdapter:
     def __init__(self, db: Database, identity_resolver: IdentityResolver):
@@ -49,6 +50,7 @@ class GitHubAdapter:
             parent_event_ids=[],
             raw_metadata={"labels": labels or [], "issue_number": issue_number}
         )
+        sanitize_event(event)
         self.db.upsert_event(event)
         return event
 
@@ -92,6 +94,7 @@ class GitHubAdapter:
                 "commit_shas": commit_shas or []
             }
         )
+        sanitize_event(event)
         self.db.upsert_event(event)
         return event
 
@@ -132,5 +135,6 @@ class GitHubAdapter:
                 "line_number": line_number
             }
         )
+        sanitize_event(event)
         self.db.upsert_event(event)
         return event
