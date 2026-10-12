@@ -48,6 +48,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/auth-status"): ROLE_VIEWER,
     ("GET", "/api/decision-history"): ROLE_VIEWER,
     ("GET", "/api/as-of"): ROLE_VIEWER,
+    ("GET", "/api/findings/feedback"): ROLE_VIEWER,
 
     # POST routes (reviewer)
     ("POST", "/api/review-action"): ROLE_REVIEWER,
@@ -280,6 +281,23 @@ class APIHandler:
                         "made_at": ed["valid_from"]
                     })
 
+                # Ambiguous findings ('possible' tier from rejected-idea guard, Step 3.6)
+                pending_ambiguous = self.db.get_pending_ambiguous_findings()
+                for af in pending_ambiguous:
+                    queue.append({
+                        "item_type": "possible_rejected_idea",
+                        "finding_id": af["finding_id"],
+                        "decision_id": af["decision_id"],
+                        "pr_id": af["pr_id"],
+                        "title": f"Possible Rejected Idea: '{af['decision_title']}' ({af['pr_id']})",
+                        "queue_reason": f"Ambiguous finding ('possible' tier): {af['rejection_reason']}",
+                        "confidence": 0.70,
+                        "review_status": "pending_review",
+                        "rationale": af["message"],
+                        "pr_comment": af["pr_comment"],
+                        "made_at": af["created_at"]
+                    })
+
             return {"status": "success", "data": queue}
 
         # 8. Evaluation & Benchmark
@@ -311,7 +329,8 @@ class APIHandler:
                     "entities": ent_cnt,
                     "edges": edg_cnt,
                     "drifts": drf_cnt,
-                    "conflicts": cnf_cnt
+                    "conflicts": cnf_cnt,
+                    "finding_feedback": self.db.get_finding_feedback_counts()
                 }
             }
 
@@ -527,6 +546,19 @@ class APIHandler:
                 return {"status": "error", "message": str(ve), "status_code": 400}
             except Exception as e:
                 return {"status": "error", "message": f"Error executing as_of query: {e}", "status_code": 500}
+
+        elif path == "/api/findings/feedback":
+            finding_id = query_params.get("finding_id", [None])[0]
+            pr_id = query_params.get("pr_id", [None])[0]
+            items = self.db.get_finding_feedback(finding_id=finding_id, pr_id=pr_id)
+            counts = self.db.get_finding_feedback_counts()
+            return {
+                "status": "success",
+                "data": {
+                    "counts": counts,
+                    "items": items
+                }
+            }
 
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
@@ -778,6 +810,22 @@ class APIHandler:
                             "message": f"Supersession candidate edge '{target_id}' not found"
                         }
 
+                elif item_type == "possible_rejected_idea":
+                    f_id = target_id
+                    cursor.execute("SELECT * FROM ambiguous_findings WHERE finding_id = ?", (f_id,))
+                    af_row = cursor.fetchone()
+                    pr_id = af_row["pr_id"] if af_row else body.get("pr_id", "")
+                    dec_id = af_row["decision_id"] if af_row else body.get("decision_id", "")
+                    if action in ("confirm", "accepted"):
+                        res = self.rejected_idea_guard.confirm_finding(f_id, pr_id=pr_id, decision_id=dec_id, actor=actor, reason=reason)
+                        return {"status": "success", "message": f"Confirmed finding '{f_id}'", "data": res, "actor": actor, "reason": reason}
+                    elif action in ("reject", "dismiss", "human_rejected"):
+                        res = self.rejected_idea_guard.dismiss_finding(f_id, pr_id=pr_id, decision_id=dec_id, actor=actor, reason=reason)
+                        return {"status": "success", "message": f"Dismissed finding '{f_id}'", "data": res, "actor": actor, "reason": reason}
+                    elif action == "reopen":
+                        res = self.rejected_idea_guard.reopen_decision(dec_id, pr_id=pr_id, actor=actor, reason=reason)
+                        return {"status": "success", "message": f"Reopened decision '{dec_id}'", "data": res, "actor": actor, "reason": reason}
+
             return {
                 "status": "success",
                 "message": f"Action '{action}' executed successfully on {target_id}",
@@ -890,10 +938,12 @@ class APIHandler:
         elif path == "/api/findings/feedback":
             finding_id = body.get("finding_id", "")
             action = body.get("action", "")
-            reason = body.get("reason", "")
+            reason = (body.get("reason") or "").strip()
             pr_id = body.get("pr_id", "")
             decision_id = body.get("decision_id", "")
-            actor = body.get("actor", "reviewer")
+            token_role = get_authenticated_role(headers, client_ip)
+            display_name = (body.get("reviewer") or body.get("reviewer_name") or body.get("display_name") or "").strip()
+            actor = f"{token_role}:{display_name}" if display_name else (body.get("actor") or token_role)
 
             if not finding_id or not action:
                 return {"status": "error", "status_code": 400, "message": "Missing required fields: finding_id, action"}
@@ -901,15 +951,29 @@ class APIHandler:
             if action not in ("confirm", "dismiss", "reopen"):
                 return {"status": "error", "status_code": 400, "message": f"Invalid action '{action}'. Must be confirm, dismiss, or reopen."}
 
+            if not reason:
+                reason = f"Review action: {action}"
+
+            # Auto-resolve decision_id if missing from ambiguous_findings
+            if not decision_id:
+                with self.db.get_connection() as conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT decision_id, pr_id FROM ambiguous_findings WHERE finding_id = ?", (finding_id,))
+                    r = cur.fetchone()
+                    if r:
+                        decision_id = r["decision_id"]
+                        if not pr_id:
+                            pr_id = r["pr_id"]
+
             if action == "dismiss":
                 res = self.rejected_idea_guard.dismiss_finding(finding_id, pr_id, decision_id, actor, reason)
-                return {"status": "success", "data": res}
+                return {"status": "success", "message": f"Finding '{finding_id}' dismissed", "data": res}
             elif action == "confirm":
                 res = self.rejected_idea_guard.confirm_finding(finding_id, pr_id, decision_id, actor, reason)
-                return {"status": "success", "data": res}
+                return {"status": "success", "message": f"Finding '{finding_id}' confirmed", "data": res}
             elif action == "reopen":
                 res = self.rejected_idea_guard.reopen_decision(decision_id, pr_id, actor, reason)
-                return {"status": "success", "data": res}
+                return {"status": "success", "message": f"Decision '{decision_id}' reopened", "data": res}
 
         return {"status": "error", "message": f"Unknown POST endpoint {path}"}
 

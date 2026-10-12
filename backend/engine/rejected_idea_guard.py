@@ -506,6 +506,24 @@ class RejectedIdeaGuard:
 
             finding_id = f"rej_{dec_id[:8]}_{uuid.uuid4().hex[:6]}"
 
+            # Ambiguous findings ('possible' tier) route to review queue (Step 3.6)
+            if tier == "possible":
+                try:
+                    self.db.record_ambiguous_finding(
+                        finding_id=finding_id,
+                        pr_id=pr_id,
+                        repo=repo,
+                        decision_id=dec_id,
+                        decision_title=cand["decision_title"],
+                        tier=tier,
+                        signals_matched=matched_signal_names,
+                        rejection_reason=cand["rejection_reason"],
+                        message=msg,
+                        pr_comment=comment_text
+                    )
+                except Exception:
+                    pass
+
             findings.append({
                 "finding_id": finding_id,
                 "status": "potential_violation",
@@ -560,6 +578,10 @@ class RejectedIdeaGuard:
             pr_id=pr_id,
             decision_id=decision_id
         )
+        try:
+            self.db.resolve_ambiguous_finding(finding_id, "dismissed")
+        except Exception:
+            pass
         return {"status": "dismissed", "feedback_id": fb_id, "pr_id": pr_id, "decision_id": decision_id}
 
     def confirm_finding(
@@ -582,6 +604,10 @@ class RejectedIdeaGuard:
             pr_id=pr_id,
             decision_id=decision_id
         )
+        try:
+            self.db.resolve_ambiguous_finding(finding_id, "confirmed")
+        except Exception:
+            pass
         return {"status": "confirmed", "feedback_id": fb_id, "pr_id": pr_id, "decision_id": decision_id}
 
     def reopen_decision(
@@ -616,6 +642,10 @@ class RejectedIdeaGuard:
             pr_id=pr_id,
             decision_id=decision_id
         )
+        try:
+            self.db.resolve_ambiguous_finding(f"rej_{decision_id[:8]}", "reopened")
+        except Exception:
+            pass
 
         return {
             "status": "reopened",

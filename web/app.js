@@ -1581,7 +1581,8 @@ const app = {
     const container = document.getElementById('benchmark-container');
     try {
       const json = await this.apiFetch('/api/benchmark');
-      const { metrics, baselines, ground_truth_total, matched_gt_count, details } = json.data;
+      const { metrics, baselines, ground_truth_total, matched_gt_count, details, finding_feedback } = json.data;
+      const fb = finding_feedback || metrics.finding_feedback || { total: 0, confirm: 0, dismiss: 0, reopen: 0 };
 
       const fmtPct = (val) => (typeof val === 'number' ? `${val}%` : (val || 'Not Measured'));
       const fmtVal = (val, unit = '') => (typeof val === 'number' ? `${val}${unit}` : (val || 'Not Measured'));
@@ -1651,6 +1652,19 @@ const app = {
             <div class="metric-val">${esc(fmtVal(metrics.processing_latency_ms, ' ms'))}</div>
             <div class="metric-lbl">Median Latency</div>
           </div>
+        </div>
+
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <strong style="color: #34d399;">Developer Finding Feedback (Measured Data)</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+              Recorded review actions on automated drift and rejected-idea findings:
+              Confirmed: <strong>${esc(fb.confirm || 0)}</strong> •
+              Dismissed: <strong>${esc(fb.dismiss || 0)}</strong> •
+              Reopened Decisions: <strong>${esc(fb.reopen || 0)}</strong> (Total: <strong>${esc(fb.total || 0)}</strong>)
+            </p>
+          </div>
+          <span class="badge" style="background: #059669; color: #fff; font-size: 0.75rem;">Measured Feedback</span>
         </div>
 
         <h3 style="font-size: 1.15rem; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>

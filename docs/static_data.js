@@ -4,266 +4,232 @@ window.__CIF_STATIC_DATA__ = {
     "artifacts_all": {
       "data": [
         {
-          "aliases": [],
-          "canonical_path": ".env.example",
-          "current_state_summary": "Referenced artifact .env.example",
+          "aliases": [
+            "redis ==4.5.4",
+            "redis"
+          ],
+          "canonical_path": "deps::redis",
+          "current_state_summary": "Dependency package redis (==4.5.4)",
           "decision_count": 1,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker__env_example",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [],
-          "canonical_path": "README.md",
-          "current_state_summary": "Referenced artifact README.md",
-          "decision_count": 1,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_README_md",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
+          "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
+          "entity_type": "dependency",
+          "repo": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
-            "app.py",
-            "app.py"
+            "scipy ==1.11.2",
+            "scipy"
           ],
-          "canonical_path": "app.py",
-          "current_state_summary": "Repository source file: app.py",
+          "canonical_path": "deps::scipy",
+          "current_state_summary": "Dependency package scipy (==1.11.2)",
+          "decision_count": 1,
+          "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
+          "entity_type": "dependency",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "docs/adr/0004-pid-thermal-regulation.md",
+            "0004-pid-thermal-regulation.md"
+          ],
+          "canonical_path": "docs/adr/0004-pid-thermal-regulation.md",
+          "current_state_summary": "ADR 0004 documentation",
+          "decision_count": 0,
+          "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+          "entity_type": "file",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "src/cache/store.py",
+            "store.py"
+          ],
+          "canonical_path": "src/cache/store.py",
+          "current_state_summary": "Distributed caching implementation",
           "decision_count": 2,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_app_py",
+          "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
           "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
-            "database.py",
-            "database.py"
+            "src/thermal/control.py",
+            "control.py"
           ],
-          "canonical_path": "database.py",
-          "current_state_summary": "Repository source file: database.py",
-          "decision_count": 0,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_database_py",
+          "canonical_path": "src/thermal/control.py",
+          "current_state_summary": "Core thermal regulation module",
+          "decision_count": 2,
+          "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
           "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
-            "email_utils.py",
-            "email_utils.py"
+            "store.py::cache_get",
+            "cache_get"
           ],
-          "canonical_path": "email_utils.py",
-          "current_state_summary": "Repository source file: email_utils.py",
-          "decision_count": 1,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_email_utils_py",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [],
-          "canonical_path": "placement.db",
-          "current_state_summary": "Referenced artifact placement.db",
-          "decision_count": 1,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_placement_db",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [],
-          "canonical_path": "requirements.txt",
-          "current_state_summary": "Referenced artifact requirements.txt",
-          "decision_count": 4,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "test_email.py",
-            "test_email.py"
-          ],
-          "canonical_path": "test_email.py",
-          "current_state_summary": "Repository source file: test_email.py",
-          "decision_count": 0,
-          "entity_id": "ent_file_nagarwal00_Placement-Tracker_test_email_py",
-          "entity_type": "file",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::add_company",
-            "add_company"
-          ],
-          "canonical_path": "app.py::add_company",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_add_company",
+          "canonical_path": "src/cache/store.py::cache_get",
+          "current_state_summary": "Fetch key from cache cluster",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
           "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
-            "app.py::companies",
-            "companies"
+            "store.py::cache_set",
+            "cache_set"
           ],
-          "canonical_path": "app.py::companies",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_companies",
+          "canonical_path": "src/cache/store.py::cache_set",
+          "current_state_summary": "Write key-value pair to cluster with TTL",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
           "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
-            "app.py::dashboard",
-            "dashboard"
+            "control.py::read_telemetry_sensor",
+            "read_telemetry_sensor"
           ],
-          "canonical_path": "app.py::dashboard",
-          "current_state_summary": "Function declared at line 1",
+          "canonical_path": "src/thermal/control.py::read_telemetry_sensor",
+          "current_state_summary": "Reads raw temperature sensor hardware bus",
           "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_dashboard",
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
           "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
-            "app.py::delete_company",
-            "delete_company"
+            "control.py::regulate_temperature",
+            "regulate_temperature"
           ],
-          "canonical_path": "app.py::delete_company",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_delete_company",
+          "canonical_path": "src/thermal/control.py::regulate_temperature",
+          "current_state_summary": "Applies feedback loop control algorithm",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
           "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::edit_company",
-            "edit_company"
-          ],
-          "canonical_path": "app.py::edit_company",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_edit_company",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::home",
-            "home"
-          ],
-          "canonical_path": "app.py::home",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_home",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::login",
-            "login"
-          ],
-          "canonical_path": "app.py::login",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_login",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::logout",
-            "logout"
-          ],
-          "canonical_path": "app.py::logout",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_logout",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::prep",
-            "prep"
-          ],
-          "canonical_path": "app.py::prep",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_prep",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::register",
-            "register"
-          ],
-          "canonical_path": "app.py::register",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_register",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::send_company_reminder",
-            "send_company_reminder"
-          ],
-          "canonical_path": "app.py::send_company_reminder",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_send_company_reminder",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "app.py::valid_password",
-            "valid_password"
-          ],
-          "canonical_path": "app.py::valid_password",
-          "current_state_summary": "Function declared at line 1",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_app_py_valid_password",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "database.py::init_db",
-            "init_db"
-          ],
-          "canonical_path": "database.py::init_db",
-          "current_state_summary": "Function declared at line 3",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_database_py_init_db",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
-        },
-        {
-          "aliases": [
-            "email_utils.py::send_reminder",
-            "send_reminder"
-          ],
-          "canonical_path": "email_utils.py::send_reminder",
-          "current_state_summary": "Function declared at line 17",
-          "decision_count": 0,
-          "entity_id": "ent_fn_nagarwal00_Placement-Tracker_email_utils_py_send_reminder",
-          "entity_type": "function",
-          "repo": "nagarwal00/Placement-Tracker"
+          "repo": "acme-eng/thermal-control-system"
         }
       ],
       "status": "success"
     },
     "artifacts_cache": {
-      "data": [],
+      "data": [
+        {
+          "aliases": [
+            "redis ==4.5.4",
+            "redis"
+          ],
+          "canonical_path": "deps::redis",
+          "current_state_summary": "Dependency package redis (==4.5.4)",
+          "decision_count": 1,
+          "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
+          "entity_type": "dependency",
+          "repo": "acme-eng/distributed-cache-service"
+        },
+        {
+          "aliases": [
+            "src/cache/store.py",
+            "store.py"
+          ],
+          "canonical_path": "src/cache/store.py",
+          "current_state_summary": "Distributed caching implementation",
+          "decision_count": 2,
+          "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+          "entity_type": "file",
+          "repo": "acme-eng/distributed-cache-service"
+        },
+        {
+          "aliases": [
+            "store.py::cache_get",
+            "cache_get"
+          ],
+          "canonical_path": "src/cache/store.py::cache_get",
+          "current_state_summary": "Fetch key from cache cluster",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+          "entity_type": "function",
+          "repo": "acme-eng/distributed-cache-service"
+        },
+        {
+          "aliases": [
+            "store.py::cache_set",
+            "cache_set"
+          ],
+          "canonical_path": "src/cache/store.py::cache_set",
+          "current_state_summary": "Write key-value pair to cluster with TTL",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+          "entity_type": "function",
+          "repo": "acme-eng/distributed-cache-service"
+        }
+      ],
       "status": "success"
     },
     "artifacts_thermal": {
-      "data": [],
+      "data": [
+        {
+          "aliases": [
+            "scipy ==1.11.2",
+            "scipy"
+          ],
+          "canonical_path": "deps::scipy",
+          "current_state_summary": "Dependency package scipy (==1.11.2)",
+          "decision_count": 1,
+          "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
+          "entity_type": "dependency",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "docs/adr/0004-pid-thermal-regulation.md",
+            "0004-pid-thermal-regulation.md"
+          ],
+          "canonical_path": "docs/adr/0004-pid-thermal-regulation.md",
+          "current_state_summary": "ADR 0004 documentation",
+          "decision_count": 0,
+          "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+          "entity_type": "file",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "src/thermal/control.py",
+            "control.py"
+          ],
+          "canonical_path": "src/thermal/control.py",
+          "current_state_summary": "Core thermal regulation module",
+          "decision_count": 2,
+          "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+          "entity_type": "file",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "control.py::read_telemetry_sensor",
+            "read_telemetry_sensor"
+          ],
+          "canonical_path": "src/thermal/control.py::read_telemetry_sensor",
+          "current_state_summary": "Reads raw temperature sensor hardware bus",
+          "decision_count": 0,
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+          "entity_type": "function",
+          "repo": "acme-eng/thermal-control-system"
+        },
+        {
+          "aliases": [
+            "control.py::regulate_temperature",
+            "regulate_temperature"
+          ],
+          "canonical_path": "src/thermal/control.py::regulate_temperature",
+          "current_state_summary": "Applies feedback loop control algorithm",
+          "decision_count": 2,
+          "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+          "entity_type": "function",
+          "repo": "acme-eng/thermal-control-system"
+        }
+      ],
       "status": "success"
     },
     "benchmark": {
@@ -277,16 +243,16 @@ window.__CIF_STATIC_DATA__ = {
             "status": "not measured"
           },
           "baseline_docs_only": {
-            "decision_recall": 0.0,
-            "found_count": 0,
+            "decision_recall": 50.0,
+            "found_count": 2,
             "name": "Baseline B: Documentation/ADRs Only",
             "status": "measured",
             "top_k": 5,
             "total_count": 4
           },
           "baseline_keyword": {
-            "decision_recall": 0.0,
-            "found_count": 0,
+            "decision_recall": 75.0,
+            "found_count": 3,
             "name": "Baseline A: Keyword Search (Grep/BM25)",
             "status": "measured",
             "top_k": 5,
@@ -311,181 +277,248 @@ window.__CIF_STATIC_DATA__ = {
           "tp": 4
         },
         "details": {
-          "found": [],
+          "found": [
+            {
+              "decision_id": "dec_thermal_pid_accepted",
+              "expected_state": "accepted",
+              "gt_id": "PILOT_GT_TH_01",
+              "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+              "system_state": "accepted"
+            },
+            {
+              "decision_id": "dec_cache_redis_accepted",
+              "expected_state": "accepted",
+              "gt_id": "PILOT_GT_CACHE_01",
+              "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+              "system_state": "accepted"
+            },
+            {
+              "decision_id": "dec_cache_local_lru_proposed",
+              "expected_state": "rejected",
+              "gt_id": "PILOT_GT_CACHE_02",
+              "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+              "system_state": "superseded"
+            }
+          ],
           "missed": [
             {
               "expected_evidence": [
-                "evt_git_thermal_a1b2c3d4",
-                "evt_adr_thermal_0004"
-              ],
-              "gt_id": "PILOT_GT_TH_01",
-              "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
-            },
-            {
-              "expected_evidence": [
-                "evt_issue_thermal_12_sarah",
-                "evt_issue_thermal_12_comm"
+                "evt_issue_thermal_12_comm",
+                "evt_issue_thermal_12_sarah"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
-            },
-            {
-              "expected_evidence": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
-              ],
-              "gt_id": "PILOT_GT_CACHE_01",
-              "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
-            },
-            {
-              "expected_evidence": [
-                "evt_pr_cache_38"
-              ],
-              "gt_id": "PILOT_GT_CACHE_02",
-              "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap"
             }
           ],
-          "wrong_state": []
+          "wrong_state": [
+            {
+              "decision_id": "dec_cache_local_lru_proposed",
+              "expected_state": "rejected",
+              "gt_id": "PILOT_GT_CACHE_02",
+              "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+              "system_state": "superseded"
+            }
+          ]
         },
         "drift_evaluation": {
-          "fn": 10,
+          "fn": 0,
           "fp": 0,
-          "precision": 0.0,
-          "recall": 0.0,
+          "precision": 100.0,
+          "recall": 100.0,
           "status": "measured",
           "tn": 10,
           "total_cases": 20,
-          "tp": 0
+          "tp": 10
+        },
+        "finding_feedback": {
+          "confirm": 0,
+          "dismiss": 0,
+          "reopen": 0,
+          "total": 0
         },
         "ground_truth_total": 4,
-        "matched_gt_count": 0,
+        "matched_gt_count": 3,
         "metrics": {
-          "claim_support_rate": 100.0,
+          "claim_support_rate": 0.0,
           "contradiction_precision": 100.0,
           "contradiction_recall": 100.0,
           "decision_extraction_f1": "not measured",
           "decision_extraction_precision": "not measured",
-          "decision_extraction_recall": 0.0,
-          "drift_precision": 0.0,
-          "drift_recall": 0.0,
+          "decision_extraction_recall": 75.0,
+          "drift_precision": 100.0,
+          "drift_recall": 100.0,
           "evidence_link_accuracy": 100.0,
-          "processing_latency_ms": 0.79,
-          "state_accuracy": "not measured",
-          "unsupported_claim_rate": 0.0
+          "finding_feedback_confirmed": 0,
+          "finding_feedback_dismissed": 0,
+          "finding_feedback_reopened": 0,
+          "finding_feedback_total": 0,
+          "processing_latency_ms": 14.99,
+          "state_accuracy": 66.7,
+          "unsupported_claim_rate": 100.0
         },
-        "system_decisions_evaluated": 6
+        "system_decisions_evaluated": 7
       },
       "status": "success"
     },
     "decisions_all": {
       "data": [
         {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ],
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "confidence": 0.97,
+          "decision_id": "dec_cache_redis_accepted",
           "evidence_assessment": "insufficient",
-          "evidence_count": 1,
+          "evidence_count": 2,
           "freshness": "fresh",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
         },
         {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "confidence": 0.8,
+          "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
           "freshness": "fresh",
-          "made_at": "2026-07-01T10:15:22Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added password hashing",
-          "repo": "nagarwal00/Placement-Tracker",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_cache_redis_01"
+        },
+        {
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ],
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "confidence": 0.82,
+          "decision_id": "dec_cache_local_lru_proposed",
+          "evidence_assessment": "weak",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-02-03T14:30:00Z",
+          "made_by": "marcus_vance",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "superseded",
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "supersedes_decision_id": null,
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+        },
+        {
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.98,
+          "decision_id": "dec_thermal_pid_accepted",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added password hashing"
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
         },
         {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_pid_01",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
           "freshness": "fresh",
-          "made_at": "2026-07-01T09:56:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added gunicorn for deployment",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added gunicorn for deployment"
+          "title": "Architectural Decision dec_thermal_pid_01"
+        },
+        {
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.96,
+          "decision_id": "dec_thermal_deadband_rejected",
+          "evidence_assessment": "weak",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "auto_confirmed",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control"
         },
         {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_bangbang_02",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
           "freshness": "fresh",
-          "made_at": "2026-07-01T09:40:07Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added PostgreSQL"
-        },
-        {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:27:23Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added requirements.txt",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added requirements.txt"
-        },
-        {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-06-30T09:08:56Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added README"
+          "title": "Architectural Decision dec_thermal_bangbang_02"
         }
       ],
       "status": "success"
@@ -494,496 +527,440 @@ window.__CIF_STATIC_DATA__ = {
       "data": {
         "links": [
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_95196dd8_ent_file_nagarwal00_Placement-Tracker__env_example",
+            "id": "edge_evidenced_by_dec_thermal_dead_evt_rev_thermal_",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "target": "ent_file_nagarwal00_Placement-Tracker__env_example",
-            "type": "affects",
-            "valid_from": "2026-07-02T10:23:53Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_95196dd8_ent_file_nagarwal00_Placement-Tracker_app_py",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "target": "ent_file_nagarwal00_Placement-Tracker_app_py",
-            "type": "affects",
-            "valid_from": "2026-07-02T10:23:53Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_95196dd8_ent_file_nagarwal00_Placement-Tracker_email_utils_py",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "target": "ent_file_nagarwal00_Placement-Tracker_email_utils_py",
-            "type": "affects",
-            "valid_from": "2026-07-02T10:23:53Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_95196dd8_ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "target": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-            "type": "affects",
-            "valid_from": "2026-07-02T10:23:53Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_95196dd8_95196dd8",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "target": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "source": "dec_thermal_deadband_rejected",
+            "target": "evt_rev_thermal_comm1",
             "type": "evidenced_by",
-            "valid_from": "2026-07-02T10:23:53Z",
+            "valid_from": "2026-01-12T15:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_628c0790_ent_file_nagarwal00_Placement-Tracker_app_py",
+            "id": "edge_affects_dec_thermal_dead_ent_file_acme-en",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "target": "ent_file_nagarwal00_Placement-Tracker_app_py",
+            "source": "dec_thermal_deadband_rejected",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
             "type": "affects",
-            "valid_from": "2026-07-01T10:15:22Z",
+            "valid_from": "2026-01-12T15:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_628c0790_628c0790",
+            "id": "edge_affects_dec_thermal_dead_ent_fn_acme-eng_",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "target": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
+            "source": "dec_thermal_deadband_rejected",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_evidenced_by_dec_thermal_pid__evt_adr_thermal_",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_adr_thermal_0004",
             "type": "evidenced_by",
-            "valid_from": "2026-07-01T10:15:22Z",
+            "valid_from": "2026-01-15T16:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_a77c6518_ent_file_nagarwal00_Placement-Tracker_requirements_txt",
+            "id": "edge_evidenced_by_dec_thermal_pid__evt_git_thermal_",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "target": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-            "type": "affects",
-            "valid_from": "2026-07-01T09:56:53Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_a77c6518_a77c6518",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "target": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_git_thermal_a1b2c3d4",
             "type": "evidenced_by",
-            "valid_from": "2026-07-01T09:56:53Z",
+            "valid_from": "2026-01-15T16:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_ac2fb893_ent_file_nagarwal00_Placement-Tracker_requirements_txt",
+            "id": "edge_affects_dec_thermal_pid__ent_file_acme-en",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "target": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
             "type": "affects",
-            "valid_from": "2026-07-01T09:40:07Z",
+            "valid_from": "2026-01-15T16:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_ac2fb893_ac2fb893",
+            "id": "edge_affects_dec_thermal_pid__ent_fn_acme-eng_",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "target": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_pid__ent_dep_acme-eng",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_evidenced_by_dec_cache_local__evt_pr_cache_38",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "evt_pr_cache_38",
             "type": "evidenced_by",
-            "valid_from": "2026-07-01T09:40:07Z",
-            "valid_to": null
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_6659d260_ent_file_nagarwal00_Placement-Tracker_placement_db",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "target": "ent_file_nagarwal00_Placement-Tracker_placement_db",
+            "id": "edge_affects_dec_cache_local__ent_file_acme-en",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
             "type": "affects",
-            "valid_from": "2026-07-01T09:27:23Z",
-            "valid_to": null
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_6659d260_ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "target": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
+            "id": "edge_affects_dec_cache_local__ent_fn_acme-eng_",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
             "type": "affects",
-            "valid_from": "2026-07-01T09:27:23Z",
-            "valid_to": null
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
           },
           {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_6659d260_6659d260",
+            "id": "edge_evidenced_by_dec_cache_redis__evt_adr_cache_00",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "target": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_adr_cache_0009",
             "type": "evidenced_by",
-            "valid_from": "2026-07-01T09:27:23Z",
+            "valid_from": "2026-02-06T15:00:00Z",
             "valid_to": null
           },
           {
-            "id": "edge_affects_dec_nagarwal00_Placement-Tracker_9038b668_ent_file_nagarwal00_Placement-Tracker_README_md",
+            "id": "edge_evidenced_by_dec_cache_redis__evt_rev_cache_c2",
             "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_9038b668",
-            "target": "ent_file_nagarwal00_Placement-Tracker_README_md",
-            "type": "affects",
-            "valid_from": "2026-06-30T09:08:56Z",
-            "valid_to": null
-          },
-          {
-            "id": "edge_evidence_dec_nagarwal00_Placement-Tracker_9038b668_9038b668",
-            "is_active": true,
-            "source": "dec_nagarwal00_Placement-Tracker_9038b668",
-            "target": "evt_git_nagarwal00_Placement-Tracker_669038b668",
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_rev_cache_c201",
             "type": "evidenced_by",
-            "valid_from": "2026-06-30T09:08:56Z",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_file_acme-en",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_fn_acme-eng_",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_dep_acme-eng",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_supersedes_dec_cache_redis__dec_cache_local_",
+            "is_active": false,
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
+          },
+          {
+            "id": "edge_super_dec_cache_redis_accepted_dec_cache_local_lru_proposed",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_conflicts_with_dec_cache_local__dec_cache_redis_",
+            "is_active": true,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "dec_cache_redis_accepted",
+            "type": "conflicts_with",
+            "valid_from": "2026-02-06T15:00:00Z",
             "valid_to": null
           }
         ],
         "nodes": [
           {
+            "color": "#ef4444",
+            "confidence": 0.96,
+            "id": "dec_thermal_deadband_rejected",
+            "label": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "auto_confirmed",
+            "state": "rejected",
+            "type": "decision"
+          },
+          {
             "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "label": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-            "made_at": "2026-07-02T10:23:53Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
+            "confidence": 0.98,
+            "id": "dec_thermal_pid_accepted",
+            "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "auto_confirmed",
+            "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#8b5cf6",
+            "confidence": 0.82,
+            "id": "dec_cache_local_lru_proposed",
+            "label": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "made_at": "2026-02-03T14:30:00Z",
+            "made_by": "marcus_vance",
+            "repo": "acme-eng/distributed-cache-service",
+            "review_status": "pending_review",
+            "state": "superseded",
+            "type": "decision"
+          },
+          {
+            "color": "#10b981",
+            "confidence": 0.97,
+            "id": "dec_cache_redis_accepted",
+            "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "repo": "acme-eng/distributed-cache-service",
             "review_status": "auto_confirmed",
             "state": "accepted",
             "type": "decision"
           },
           {
             "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "label": "Added password hashing",
-            "made_at": "2026-07-01T10:15:22Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
-            "review_status": "auto_confirmed",
+            "confidence": 0.8,
+            "id": "dec_thermal_pid_01",
+            "label": "Architectural Decision dec_thermal_pid_01",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "pending_review",
             "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#ef4444",
+            "confidence": 0.8,
+            "id": "dec_thermal_bangbang_02",
+            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "pending_review",
+            "state": "rejected",
             "type": "decision"
           },
           {
             "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "label": "Added gunicorn for deployment",
-            "made_at": "2026-07-01T09:56:53Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
-            "review_status": "auto_confirmed",
-            "state": "accepted",
-            "type": "decision"
-          },
-          {
-            "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "label": "Added PostgreSQL",
-            "made_at": "2026-07-01T09:40:07Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
-            "review_status": "auto_confirmed",
-            "state": "accepted",
-            "type": "decision"
-          },
-          {
-            "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "label": "Added requirements.txt",
-            "made_at": "2026-07-01T09:27:23Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
-            "review_status": "auto_confirmed",
-            "state": "accepted",
-            "type": "decision"
-          },
-          {
-            "color": "#10b981",
-            "confidence": 0.88,
-            "id": "dec_nagarwal00_Placement-Tracker_9038b668",
-            "label": "Added README",
-            "made_at": "2026-06-30T09:08:56Z",
-            "made_by": "Nistha Agarwal",
-            "repo": "nagarwal00/Placement-Tracker",
-            "review_status": "auto_confirmed",
+            "confidence": 0.8,
+            "id": "dec_cache_redis_01",
+            "label": "Architectural Decision dec_cache_redis_01",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "repo": "acme-eng/distributed-cache-service",
+            "review_status": "pending_review",
             "state": "accepted",
             "type": "decision"
           },
           {
             "color": "#3b82f6",
             "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_app_py",
-            "label": "app.py",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Repository source file: app.py",
+            "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "label": "src/thermal/control.py",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Core thermal regulation module",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
             "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_valid_password",
-            "label": "app.py::valid_password",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "label": "src/thermal/control.py::regulate_temperature",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Applies feedback loop control algorithm",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
             "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_home",
-            "label": "app.py::home",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_add_company",
-            "label": "app.py::add_company",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_companies",
-            "label": "app.py::companies",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_prep",
-            "label": "app.py::prep",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_dashboard",
-            "label": "app.py::dashboard",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_edit_company",
-            "label": "app.py::edit_company",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_delete_company",
-            "label": "app.py::delete_company",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_send_company_reminder",
-            "label": "app.py::send_company_reminder",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_register",
-            "label": "app.py::register",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_login",
-            "label": "app.py::login",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_app_py_logout",
-            "label": "app.py::logout",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 1",
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+            "label": "src/thermal/control.py::read_telemetry_sensor",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Reads raw temperature sensor hardware bus",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
             "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_database_py",
-            "label": "database.py",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Repository source file: database.py",
+            "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+            "label": "docs/adr/0004-pid-thermal-regulation.md",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "ADR 0004 documentation",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "dependency",
+            "id": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "label": "deps::scipy",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Dependency package scipy (==1.11.2)",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "file",
+            "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "label": "src/cache/store.py",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Distributed caching implementation",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
             "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_database_py_init_db",
-            "label": "database.py::init_db",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 3",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_email_utils_py",
-            "label": "email_utils.py",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Repository source file: email_utils.py",
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "label": "src/cache/store.py::cache_get",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Fetch key from cache cluster",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
             "entity_type": "function",
-            "id": "ent_fn_nagarwal00_Placement-Tracker_email_utils_py_send_reminder",
-            "label": "email_utils.py::send_reminder",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Function declared at line 17",
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "label": "src/cache/store.py::cache_set",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Write key-value pair to cluster with TTL",
             "type": "entity"
           },
           {
             "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_test_email_py",
-            "label": "test_email.py",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Repository source file: test_email.py",
+            "entity_type": "dependency",
+            "id": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "label": "deps::redis",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Dependency package redis (==4.5.4)",
             "type": "entity"
           },
           {
-            "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker__env_example",
-            "label": ".env.example",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Referenced artifact .env.example",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_requirements_txt",
-            "label": "requirements.txt",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Referenced artifact requirements.txt",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_placement_db",
-            "label": "placement.db",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Referenced artifact placement.db",
-            "type": "entity"
-          },
-          {
-            "color": "#3b82f6",
-            "entity_type": "file",
-            "id": "ent_file_nagarwal00_Placement-Tracker_README_md",
-            "label": "README.md",
-            "repo": "nagarwal00/Placement-Tracker",
-            "summary": "Referenced artifact README.md",
-            "type": "entity"
-          },
-          {
-            "author": "Nistha Agarwal",
+            "author": "alex_rodriguez",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "label": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "timestamp": "2026-07-02T10:23:53Z",
+            "id": "evt_issue_thermal_12",
+            "label": "#12: Severe chamber overheating observed under 80% duty cycle",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12",
+            "timestamp": "2026-01-10T09:15:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "marcus_vance",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
-            "label": "Added password hashing",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
-            "timestamp": "2026-07-01T10:15:22Z",
+            "id": "evt_rev_thermal_comm1",
+            "label": "Marcus on Issue #12: Proposed deadband tuning",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "sarah_chen",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
-            "label": "Added gunicorn for deployment",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "timestamp": "2026-07-01T09:56:53Z",
+            "id": "evt_rev_thermal_comm2",
+            "label": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "sarah_chen",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
-            "label": "Added PostgreSQL",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "timestamp": "2026-07-01T09:40:07Z",
+            "id": "evt_adr_thermal_0004",
+            "label": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "timestamp": "2026-01-15T16:00:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "sarah_chen",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "label": "Added requirements.txt",
-            "repo": "nagarwal00/Placement-Tracker",
+            "id": "evt_git_thermal_a1b2c3d4",
+            "label": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "repo": "acme-eng/thermal-control-system",
             "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "timestamp": "2026-07-01T09:27:23Z",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "alex_rodriguez",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
-            "label": "Added README",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-            "timestamp": "2026-06-30T09:08:56Z",
+            "id": "evt_issue_cache_34",
+            "label": "#34: Worker node OOMKilled under 50,000 req/sec spike",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/issues/34",
+            "timestamp": "2026-02-01T10:00:00Z",
             "type": "event"
           },
           {
-            "author": "Nistha Agarwal",
+            "author": "marcus_vance",
             "color": "#ec4899",
-            "id": "evt_git_nagarwal00_Placement-Tracker_878f071c11",
-            "label": "Initial commit",
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/878f071c11ea4e74d09e9fafbe0da1feaa37d51a",
-            "timestamp": "2026-06-30T08:06:42Z",
+            "id": "evt_pr_cache_38",
+            "label": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "type": "event"
+          },
+          {
+            "author": "priya_patel",
+            "color": "#ec4899",
+            "id": "evt_rev_cache_c201",
+            "label": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "type": "event"
+          },
+          {
+            "author": "priya_patel",
+            "color": "#ec4899",
+            "id": "evt_adr_cache_0009",
+            "label": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
             "type": "event"
           }
         ]
@@ -992,15 +969,454 @@ window.__CIF_STATIC_DATA__ = {
     },
     "graph_cache": {
       "data": {
-        "links": [],
-        "nodes": []
+        "links": [
+          {
+            "id": "edge_evidenced_by_dec_cache_local__evt_pr_cache_38",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "evt_pr_cache_38",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
+          },
+          {
+            "id": "edge_affects_dec_cache_local__ent_file_acme-en",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "type": "affects",
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
+          },
+          {
+            "id": "edge_affects_dec_cache_local__ent_fn_acme-eng_",
+            "is_active": false,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "type": "affects",
+            "valid_from": "2026-02-03T14:30:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
+          },
+          {
+            "id": "edge_evidenced_by_dec_cache_redis__evt_adr_cache_00",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_adr_cache_0009",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_evidenced_by_dec_cache_redis__evt_rev_cache_c2",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "evt_rev_cache_c201",
+            "type": "evidenced_by",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_file_acme-en",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_fn_acme-eng_",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_cache_redis__ent_dep_acme-eng",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "type": "affects",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_supersedes_dec_cache_redis__dec_cache_local_",
+            "is_active": false,
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": "2026-02-06T15:00:00Z"
+          },
+          {
+            "id": "edge_super_dec_cache_redis_accepted_dec_cache_local_lru_proposed",
+            "is_active": true,
+            "source": "dec_cache_redis_accepted",
+            "target": "dec_cache_local_lru_proposed",
+            "type": "supersedes",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_conflicts_with_dec_cache_local__dec_cache_redis_",
+            "is_active": true,
+            "source": "dec_cache_local_lru_proposed",
+            "target": "dec_cache_redis_accepted",
+            "type": "conflicts_with",
+            "valid_from": "2026-02-06T15:00:00Z",
+            "valid_to": null
+          }
+        ],
+        "nodes": [
+          {
+            "color": "#8b5cf6",
+            "confidence": 0.82,
+            "id": "dec_cache_local_lru_proposed",
+            "label": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "made_at": "2026-02-03T14:30:00Z",
+            "made_by": "marcus_vance",
+            "repo": "acme-eng/distributed-cache-service",
+            "review_status": "pending_review",
+            "state": "superseded",
+            "type": "decision"
+          },
+          {
+            "color": "#10b981",
+            "confidence": 0.97,
+            "id": "dec_cache_redis_accepted",
+            "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "repo": "acme-eng/distributed-cache-service",
+            "review_status": "auto_confirmed",
+            "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#10b981",
+            "confidence": 0.8,
+            "id": "dec_cache_redis_01",
+            "label": "Architectural Decision dec_cache_redis_01",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "repo": "acme-eng/distributed-cache-service",
+            "review_status": "pending_review",
+            "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "file",
+            "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "label": "src/cache/store.py",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Distributed caching implementation",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "function",
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "label": "src/cache/store.py::cache_get",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Fetch key from cache cluster",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "function",
+            "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "label": "src/cache/store.py::cache_set",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Write key-value pair to cluster with TTL",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "dependency",
+            "id": "ent_dep_acme-eng_distributed-cache-service_redis",
+            "label": "deps::redis",
+            "repo": "acme-eng/distributed-cache-service",
+            "summary": "Dependency package redis (==4.5.4)",
+            "type": "entity"
+          },
+          {
+            "author": "alex_rodriguez",
+            "color": "#ec4899",
+            "id": "evt_issue_cache_34",
+            "label": "#34: Worker node OOMKilled under 50,000 req/sec spike",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/issues/34",
+            "timestamp": "2026-02-01T10:00:00Z",
+            "type": "event"
+          },
+          {
+            "author": "marcus_vance",
+            "color": "#ec4899",
+            "id": "evt_pr_cache_38",
+            "label": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "type": "event"
+          },
+          {
+            "author": "priya_patel",
+            "color": "#ec4899",
+            "id": "evt_rev_cache_c201",
+            "label": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "type": "event"
+          },
+          {
+            "author": "priya_patel",
+            "color": "#ec4899",
+            "id": "evt_adr_cache_0009",
+            "label": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "repo": "acme-eng/distributed-cache-service",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "type": "event"
+          }
+        ]
       },
       "status": "success"
     },
     "graph_thermal": {
       "data": {
-        "links": [],
-        "nodes": []
+        "links": [
+          {
+            "id": "edge_evidenced_by_dec_thermal_dead_evt_rev_thermal_",
+            "is_active": true,
+            "source": "dec_thermal_deadband_rejected",
+            "target": "evt_rev_thermal_comm1",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_dead_ent_file_acme-en",
+            "is_active": true,
+            "source": "dec_thermal_deadband_rejected",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "type": "affects",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_dead_ent_fn_acme-eng_",
+            "is_active": true,
+            "source": "dec_thermal_deadband_rejected",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-12T15:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_evidenced_by_dec_thermal_pid__evt_adr_thermal_",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_adr_thermal_0004",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_evidenced_by_dec_thermal_pid__evt_git_thermal_",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "evt_git_thermal_a1b2c3d4",
+            "type": "evidenced_by",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_pid__ent_file_acme-en",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_pid__ent_fn_acme-eng_",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          },
+          {
+            "id": "edge_affects_dec_thermal_pid__ent_dep_acme-eng",
+            "is_active": true,
+            "source": "dec_thermal_pid_accepted",
+            "target": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "type": "affects",
+            "valid_from": "2026-01-15T16:00:00Z",
+            "valid_to": null
+          }
+        ],
+        "nodes": [
+          {
+            "color": "#ef4444",
+            "confidence": 0.96,
+            "id": "dec_thermal_deadband_rejected",
+            "label": "Reject Simple Deadband Hysteresis for Thermal Control",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "auto_confirmed",
+            "state": "rejected",
+            "type": "decision"
+          },
+          {
+            "color": "#10b981",
+            "confidence": 0.98,
+            "id": "dec_thermal_pid_accepted",
+            "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "auto_confirmed",
+            "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#10b981",
+            "confidence": 0.8,
+            "id": "dec_thermal_pid_01",
+            "label": "Architectural Decision dec_thermal_pid_01",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "pending_review",
+            "state": "accepted",
+            "type": "decision"
+          },
+          {
+            "color": "#ef4444",
+            "confidence": 0.8,
+            "id": "dec_thermal_bangbang_02",
+            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "repo": "acme-eng/thermal-control-system",
+            "review_status": "pending_review",
+            "state": "rejected",
+            "type": "decision"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "file",
+            "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "label": "src/thermal/control.py",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Core thermal regulation module",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "function",
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "label": "src/thermal/control.py::regulate_temperature",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Applies feedback loop control algorithm",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "function",
+            "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
+            "label": "src/thermal/control.py::read_telemetry_sensor",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Reads raw temperature sensor hardware bus",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "file",
+            "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
+            "label": "docs/adr/0004-pid-thermal-regulation.md",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "ADR 0004 documentation",
+            "type": "entity"
+          },
+          {
+            "color": "#3b82f6",
+            "entity_type": "dependency",
+            "id": "ent_dep_acme-eng_thermal-control-system_scipy",
+            "label": "deps::scipy",
+            "repo": "acme-eng/thermal-control-system",
+            "summary": "Dependency package scipy (==1.11.2)",
+            "type": "entity"
+          },
+          {
+            "author": "alex_rodriguez",
+            "color": "#ec4899",
+            "id": "evt_issue_thermal_12",
+            "label": "#12: Severe chamber overheating observed under 80% duty cycle",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "github_issue",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12",
+            "timestamp": "2026-01-10T09:15:00Z",
+            "type": "event"
+          },
+          {
+            "author": "marcus_vance",
+            "color": "#ec4899",
+            "id": "evt_rev_thermal_comm1",
+            "label": "Marcus on Issue #12: Proposed deadband tuning",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "type": "event"
+          },
+          {
+            "author": "sarah_chen",
+            "color": "#ec4899",
+            "id": "evt_rev_thermal_comm2",
+            "label": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "type": "event"
+          },
+          {
+            "author": "sarah_chen",
+            "color": "#ec4899",
+            "id": "evt_adr_thermal_0004",
+            "label": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "type": "event"
+          },
+          {
+            "author": "sarah_chen",
+            "color": "#ec4899",
+            "id": "evt_git_thermal_a1b2c3d4",
+            "label": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "repo": "acme-eng/thermal-control-system",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "type": "event"
+          }
+        ]
       },
       "status": "success"
     },
@@ -1008,123 +1424,169 @@ window.__CIF_STATIC_DATA__ = {
       "data": [
         {
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_pid_01",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "title": "Architectural Decision dec_thermal_pid_01"
         },
         {
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_bangbang_02",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-07-01T10:15:22Z",
-          "made_by": "Nistha Agarwal",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Added password hashing",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added password hashing"
+          "title": "Architectural Decision dec_thermal_bangbang_02"
         },
         {
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "confidence": 0.8,
+          "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-07-01T09:56:53Z",
-          "made_by": "Nistha Agarwal",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Added gunicorn for deployment",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added gunicorn for deployment"
+          "title": "Architectural Decision dec_cache_redis_01"
         },
         {
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-          "evidence_assessment": "insufficient",
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "confidence": 0.82,
+          "decision_id": "dec_cache_local_lru_proposed",
+          "evidence_assessment": "weak",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-07-01T09:40:07Z",
-          "made_by": "Nistha Agarwal",
-          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
+          "made_at": "2026-02-03T14:30:00Z",
+          "made_by": "marcus_vance",
+          "queue_reason": "Evidence quality assessed as 'weak': single source group without independent corroboration",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "superseded",
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
           "supersedes_decision_id": null,
-          "title": "Added PostgreSQL"
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap"
         },
         {
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-          "evidence_assessment": "insufficient",
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.96,
+          "decision_id": "dec_thermal_deadband_rejected",
+          "evidence_assessment": "weak",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-07-01T09:27:23Z",
-          "made_by": "Nistha Agarwal",
-          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Added requirements.txt",
-          "repo": "nagarwal00/Placement-Tracker",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "queue_reason": "Evidence quality assessed as 'weak': single source group without independent corroboration",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "repo": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
-          "state": "accepted",
+          "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added requirements.txt"
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control"
         },
         {
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "confidence": 0.97,
+          "decision_id": "dec_cache_redis_accepted",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
           "item_type": "decision",
-          "made_at": "2026-06-30T09:08:56Z",
-          "made_by": "Nistha Agarwal",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "auto_confirmed",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        {
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.98,
+          "decision_id": "dec_thermal_pid_accepted",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
+          "item_type": "decision",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added README"
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+        },
+        {
+          "confidence": 0.88,
+          "edge_id": "edge_conflicts_with_dec_cache_local__dec_cache_redis_",
+          "from_id": "dec_cache_local_lru_proposed",
+          "item_type": "conflict",
+          "made_at": "2026-02-06T15:00:00Z",
+          "queue_reason": "Contributor/Architectural Disagreement Detected",
+          "review_status": "pending_review",
+          "title": "Conflict: 'Retain In-Memory LRU Cache with Process Memory Cap' vs 'Migrate from In-Memory LRU to Distributed Redis Cluster'",
+          "to_id": "dec_cache_redis_accepted"
+        },
+        {
+          "confidence": 0.93,
+          "decision_id": "dec_thermal_pid_01",
+          "edge_id": "edge_drift_src/ther_dec_ther",
+          "entity_id": "src/thermal/control.py",
+          "item_type": "drift",
+          "made_at": "2026-10-12T10:56:10.135188+00:00",
+          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
+          "review_status": "pending_review",
+          "title": "Drift on artifact"
         }
       ],
       "status": "success"
     },
     "stats": {
       "data": {
-        "conflicts": 0,
-        "decisions": 6,
-        "drifts": 0,
-        "edges": 16,
-        "entities": 22,
-        "events": 7
+        "conflicts": 1,
+        "decisions": 7,
+        "drifts": 1,
+        "edges": 20,
+        "entities": 9,
+        "events": 9,
+        "finding_feedback": {
+          "confirm": 0,
+          "dismiss": 0,
+          "reopen": 0,
+          "total": 0
+        }
       },
       "status": "success"
     },
@@ -1133,217 +1595,501 @@ window.__CIF_STATIC_DATA__ = {
         {
           "affected_artifacts": [
             {
-              "canonical_path": "README.md",
-              "entity_type": "file"
-            }
-          ],
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-06-30T09:08:56Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added README"
-        },
-        {
-          "affected_artifacts": [
-            {
-              "canonical_path": "placement.db",
+              "canonical_path": "src/thermal/control.py",
               "entity_type": "file"
             },
             {
-              "canonical_path": "requirements.txt",
-              "entity_type": "file"
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
             }
           ],
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.96,
+          "decision_id": "dec_thermal_deadband_rejected",
+          "evidence_assessment": "weak",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "auto_confirmed",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+        },
+        {
+          "affected_artifacts": [],
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_bangbang_02",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
           "freshness": "fresh",
-          "made_at": "2026-07-01T09:27:23Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added requirements.txt",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added requirements.txt"
+          "title": "Architectural Decision dec_thermal_bangbang_02"
         },
         {
           "affected_artifacts": [
             {
-              "canonical_path": "requirements.txt",
-              "entity_type": "file"
-            }
-          ],
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:40:07Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added PostgreSQL"
-        },
-        {
-          "affected_artifacts": [
+              "canonical_path": "deps::scipy",
+              "entity_type": "dependency"
+            },
             {
-              "canonical_path": "requirements.txt",
-              "entity_type": "file"
-            }
-          ],
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:56:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added gunicorn for deployment",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added gunicorn for deployment"
-        },
-        {
-          "affected_artifacts": [
-            {
-              "canonical_path": "app.py",
-              "entity_type": "file"
-            }
-          ],
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-          "evidence_assessment": "insufficient",
-          "evidence_count": 1,
-          "freshness": "fresh",
-          "made_at": "2026-07-01T10:15:22Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added password hashing",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added password hashing"
-        },
-        {
-          "affected_artifacts": [
-            {
-              "canonical_path": ".env.example",
+              "canonical_path": "src/thermal/control.py",
               "entity_type": "file"
             },
             {
-              "canonical_path": "app.py",
-              "entity_type": "file"
-            },
-            {
-              "canonical_path": "email_utils.py",
-              "entity_type": "file"
-            },
-            {
-              "canonical_path": "requirements.txt",
-              "entity_type": "file"
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
             }
           ],
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.98,
+          "decision_id": "dec_thermal_pid_accepted",
           "evidence_assessment": "insufficient",
-          "evidence_count": 1,
+          "evidence_count": 2,
           "freshness": "fresh",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+        },
+        {
+          "affected_artifacts": [],
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_pid_01",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_thermal_pid_01"
+        },
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ],
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "confidence": 0.82,
+          "decision_id": "dec_cache_local_lru_proposed",
+          "evidence_assessment": "weak",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-02-03T14:30:00Z",
+          "made_by": "marcus_vance",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "superseded",
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "supersedes_decision_id": null,
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+        },
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::redis",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ],
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "confidence": 0.97,
+          "decision_id": "dec_cache_redis_accepted",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "auto_confirmed",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        {
+          "affected_artifacts": [],
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_cache_redis_01",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_cache_redis_01"
         }
       ],
       "status": "success"
     },
     "timeline_cache": {
-      "data": [],
+      "data": [
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ],
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "confidence": 0.82,
+          "decision_id": "dec_cache_local_lru_proposed",
+          "evidence_assessment": "weak",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-02-03T14:30:00Z",
+          "made_by": "marcus_vance",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "superseded",
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
+          "supersedes_decision_id": null,
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+        },
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::redis",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/cache/store.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_get",
+              "entity_type": "function"
+            },
+            {
+              "canonical_path": "src/cache/store.py::cache_set",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ],
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "confidence": 0.97,
+          "decision_id": "dec_cache_redis_accepted",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "auto_confirmed",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        {
+          "affected_artifacts": [],
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_cache_redis_01",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_cache_redis_01"
+        }
+      ],
       "status": "success"
     },
     "timeline_thermal": {
-      "data": [],
+      "data": [
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.96,
+          "decision_id": "dec_thermal_deadband_rejected",
+          "evidence_assessment": "weak",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "auto_confirmed",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+        },
+        {
+          "affected_artifacts": [],
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_bangbang_02",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_thermal_bangbang_02"
+        },
+        {
+          "affected_artifacts": [
+            {
+              "canonical_path": "deps::scipy",
+              "entity_type": "dependency"
+            },
+            {
+              "canonical_path": "src/thermal/control.py",
+              "entity_type": "file"
+            },
+            {
+              "canonical_path": "src/thermal/control.py::regulate_temperature",
+              "entity_type": "function"
+            }
+          ],
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.98,
+          "decision_id": "dec_thermal_pid_accepted",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 2,
+          "freshness": "fresh",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "auto_confirmed",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+        },
+        {
+          "affected_artifacts": [],
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_pid_01",
+          "evidence_assessment": "insufficient",
+          "evidence_count": 1,
+          "freshness": "fresh",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_thermal_pid_01"
+        }
+      ],
       "status": "success"
     }
   },
   "evidences": {
-    "dec_nagarwal00_Placement-Tracker_628c0790": {
+    "dec_cache_local_lru_proposed": {
       "data": {
         "conflicting_evidence": [
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "made_at": "2026-07-02T10:23:53Z",
+            "decision_id": "dec_cache_redis_accepted",
+            "made_at": "2026-02-06T15:00:00Z",
             "state": "accepted",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
             "type": "related_decision_on_entity"
           }
         ],
         "decision": {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-          "evidence_assessment": "insufficient",
+          "alternatives_considered": [
+            {
+              "description": "Redis cluster deployment",
+              "evidence_event_ids": [
+                "evt_pr_cache_38"
+              ],
+              "rejection_reason": "Adds operational complexity and 1-2ms network hop over in-process memory"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
+          "confidence": 0.82,
+          "decision_id": "dec_cache_local_lru_proposed",
+          "evidence_assessment": "weak",
           "freshness": "fresh",
-          "made_at": "2026-07-01T10:15:22Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added password hashing",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
+          "made_at": "2026-02-03T14:30:00Z",
+          "made_by": "marcus_vance",
+          "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
+          "state": "superseded",
+          "superseded_by_decision_id": "dec_cache_redis_accepted",
           "supersedes_decision_id": null,
-          "title": "Added password hashing"
+          "title": "Retain In-Memory LRU Cache with Process Memory Cap"
         },
         "direct_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-01T10:15:22Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
-            "passage_end": 22,
-            "passage_start": 0,
+            "author": "marcus_vance",
+            "date": "2026-02-03T14:30:00Z",
+            "event_id": "evt_pr_cache_38",
+            "passage_end": 203,
+            "passage_start": 155,
             "relation": "direct",
-            "relevant_passage": "Added password hashing",
-            "source_group": "commit:d4628c0790e1506727351fd762abed6e02d70b46",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
-            "source_type": "git_commit",
-            "title": "Added password hashing",
+            "relevant_passage": "Keeps caching local with sub-millisecond access.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "source_type": "github_pr",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
             "url_format_ok": true
           }
         ],
@@ -1354,138 +2100,40 @@ window.__CIF_STATIC_DATA__ = {
         "evidence_events": [
           {
             "artifacts_touched": [
-              "app.py"
+              "src/cache/store.py"
             ],
-            "author": "Nistha Agarwal",
-            "body": "Added password hashing",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
-            "parent_event_ids": [],
-            "raw_metadata": {
-              "commit_sha": "d4628c0790e1506727351fd762abed6e02d70b46",
-              "diff_summary": "Modified 1 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "d4628c0"
-            },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "d4628c0790e1506727351fd762abed6e02d70b46",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
-            "title": "Added password hashing",
-            "ts": "2026-07-01T10:15:22Z"
+            "author": "marcus_vance",
+            "body": "Adds a maximum memory threshold to local Python process memory before aggressive eviction. Keeps caching local with sub-millisecond access.",
+            "event_id": "evt_pr_cache_38",
+            "parent_event_ids": [
+              "evt_issue_cache_34"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/distributed-cache-service",
+            "source_id": "38",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+            "ts": "2026-02-03T14:30:00Z"
           }
         ],
-        "indirect_support": [],
-        "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "state_history": [
+        "indirect_support": [
           {
-            "changed_at": "2026-07-01T10:15:22Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_628c0790",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
-            "state": "accepted"
-          }
-        ]
-      },
-      "status": "success"
-    },
-    "dec_nagarwal00_Placement-Tracker_6659d260": {
-      "data": {
-        "conflicting_evidence": [
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "made_at": "2026-07-02T10:23:53Z",
-            "state": "accepted",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
-          }
-        ],
-        "decision": {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-          "evidence_assessment": "insufficient",
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:27:23Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added requirements.txt",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added requirements.txt"
-        },
-        "direct_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-01T09:27:23Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "passage_end": 19,
-            "passage_start": 0,
-            "relation": "direct",
-            "relevant_passage": "Added requirements.",
-            "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "source_type": "git_commit",
-            "title": "Added requirements.txt",
+            "author": "marcus_vance",
+            "date": "2026-02-03T14:30:00Z",
+            "event_id": "evt_pr_cache_38",
+            "passage_end": null,
+            "passage_start": null,
+            "relation": "indirect",
+            "relevant_passage": null,
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "source_type": "github_pr",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
             "url_format_ok": true
           }
         ],
-        "discussion_events": [],
-        "evidence_assessment": {
-          "label": "weak"
-        },
-        "evidence_events": [
-          {
-            "artifacts_touched": [
-              "placement.db",
-              "requirements.txt"
-            ],
-            "author": "Nistha Agarwal",
-            "body": "Added requirements.txt",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "parent_event_ids": [],
-            "raw_metadata": {
-              "commit_sha": "846659d26005c8e95012399d343e6495265d7c8a",
-              "diff_summary": "Modified 2 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "846659d"
-            },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "846659d26005c8e95012399d343e6495265d7c8a",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "title": "Added requirements.txt",
-            "ts": "2026-07-01T09:27:23Z"
-          }
-        ],
-        "indirect_support": [],
-        "lifecycle_state": "accepted",
+        "lifecycle_state": "superseded",
         "missing_corroboration": [
           "no independent corroborating source recorded (single source group)",
           "no outcome/test evidence linked"
@@ -1493,38 +2141,304 @@ window.__CIF_STATIC_DATA__ = {
         "needs_review": true,
         "state_history": [
           {
-            "changed_at": "2026-07-01T09:27:23Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "changed_at": "2026-02-03T14:30:00Z",
+            "changed_by": "marcus_vance",
+            "decision_id": "dec_cache_local_lru_proposed",
             "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_6659d260",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
+            "history_id": "hist_init_dec_cache_local_lru_proposed_1791802569932891100_80f194",
+            "notes": "Initial state: proposed. Reason: Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "reconstructed": 0,
+            "state": "proposed"
+          },
+          {
+            "changed_at": "2026-02-04T10:00:00Z",
+            "changed_by": "marcus_vance",
+            "decision_id": "dec_cache_local_lru_proposed",
+            "from_state": "proposed",
+            "history_id": "hist_dec_cache_local_lru_proposed_1791802569979622000_cda5bc",
+            "notes": "Transition: proposed -> accepted. Reason: Accepted temporary in-memory LRU cache with soft memory cap",
+            "reconstructed": 0,
             "state": "accepted"
+          },
+          {
+            "changed_at": "2026-02-06T15:00:00Z",
+            "changed_by": "priya_patel",
+            "decision_id": "dec_cache_local_lru_proposed",
+            "from_state": "accepted",
+            "history_id": "hist_dec_cache_local_lru_proposed_1791802570043053900_572e11",
+            "notes": "Transition: accepted -> superseded. Reason: ADR 0009: Migrated from in-memory cache to distributed Redis cluster",
+            "reconstructed": 0,
+            "state": "superseded"
           }
         ]
       },
       "status": "success"
     },
-    "dec_nagarwal00_Placement-Tracker_9038b668": {
+    "dec_cache_redis_01": {
       "data": {
         "conflicting_evidence": [],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "confidence": 0.8,
+          "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
-          "made_at": "2026-06-30T09:08:56Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Added README"
+          "title": "Architectural Decision dec_cache_redis_01"
+        },
+        "direct_support": [
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 293,
+            "passage_start": 284,
+            "relation": "direct",
+            "relevant_passage": "Decision:",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          }
+        ],
+        "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
+        "evidence_events": [
+          {
+            "artifacts_touched": [
+              "src/cache/store.py",
+              "docs/adr/0009-redis-cluster-cache.md"
+            ],
+            "author": "priya_patel",
+            "body": "Status: accepted\n\nContext:\nIn-memory LRU caching caused node OOM crashes (#34) and replica cache incoherence. PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.\n\nDecision:\nDecommission in-memory LRU dict in store.py and implement Redis cluster client with sentinel failover and connection pooling.\n\nConsequences:\n- Resilient distributed cache state across all container instances.\n- Solves memory leak and OOM termination.\n- Network overhead ~1.2ms per roundtrip.",
+            "event_id": "evt_adr_cache_0009",
+            "parent_event_ids": [],
+            "raw_metadata": {
+              "parsed_adr": {
+                "consequences": "Resilient cache state across all pods; solves OOM crashes.",
+                "context": "Local in-memory cache caused OOM crashes. Local memory capping cannot sync across pods.",
+                "decision": "Decommission in-memory cache and migrate to Redis cluster.",
+                "status": "accepted",
+                "title": "Migrate to Redis Cluster for Distributed Caching"
+              }
+            },
+            "repo": "acme-eng/distributed-cache-service",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "ts": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent source besides the ADR",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-02-06T15:00:00Z",
+            "changed_by": "priya_patel",
+            "decision_id": "dec_cache_redis_01",
+            "from_state": null,
+            "history_id": "hist_init_dec_cache_redis_01_1791802570113587600_482019",
+            "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
+            "reconstructed": 0,
+            "state": "accepted"
+          }
+        ]
+      },
+      "status": "success"
+    },
+    "dec_cache_redis_accepted": {
+      "data": {
+        "conflicting_evidence": [
+          {
+            "event_id": "evt_rev_cache_c201",
+            "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "relation": "contradicting",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "type": "contradicting_passage"
+          },
+          {
+            "decision_id": "dec_cache_local_lru_proposed",
+            "made_at": "2026-02-03T14:30:00Z",
+            "state": "superseded",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "type": "related_decision_on_entity"
+          }
+        ],
+        "decision": {
+          "alternatives_considered": [
+            {
+              "description": "In-memory LRU cache with soft memory cap (PR #38)",
+              "evidence_event_ids": [
+                "evt_rev_cache_c201"
+              ],
+              "rejection_reason": "Rejected: Local cache causes cache stampedes and memory duplication across container replicas"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"In-memory LRU cache with soft memory cap (PR #38)\", \"rejection_reason\": \"Rejected: Local cache causes cache stampedes and memory duplication across container replicas\", \"evidence_event_ids\": [\"evt_rev_cache_c201\"]}]",
+          "confidence": 0.97,
+          "decision_id": "dec_cache_redis_accepted",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "review_status": "auto_confirmed",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": "dec_cache_local_lru_proposed",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        "direct_support": [
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 282,
+            "passage_start": 169,
+            "relation": "direct",
+            "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 58,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-04T09:00:00Z",
+            "event_id": "evt_rev_cache_c201",
+            "passage_end": 220,
+            "passage_start": 184,
+            "relation": "direct",
+            "relevant_passage": "We need a distributed Redis cluster.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "source_type": "pr_review_comment",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "url_format_ok": true
+          }
+        ],
+        "discussion_events": [],
+        "evidence_assessment": {
+          "label": "contradicted"
+        },
+        "evidence_events": [
+          {
+            "artifacts_touched": [
+              "src/cache/store.py"
+            ],
+            "author": "priya_patel",
+            "body": "Local LRU will never solve cache stampedes across multiple container replicas. Each pod will maintain cold caches. We need a distributed Redis cluster.",
+            "event_id": "evt_rev_cache_c201",
+            "parent_event_ids": [
+              "evt_pr_cache_38"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/distributed-cache-service",
+            "source_id": "c201",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "ts": "2026-02-04T09:00:00Z"
+          },
+          {
+            "artifacts_touched": [
+              "src/cache/store.py",
+              "docs/adr/0009-redis-cluster-cache.md"
+            ],
+            "author": "priya_patel",
+            "body": "Status: accepted\n\nContext:\nIn-memory LRU caching caused node OOM crashes (#34) and replica cache incoherence. PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.\n\nDecision:\nDecommission in-memory LRU dict in store.py and implement Redis cluster client with sentinel failover and connection pooling.\n\nConsequences:\n- Resilient distributed cache state across all container instances.\n- Solves memory leak and OOM termination.\n- Network overhead ~1.2ms per roundtrip.",
+            "event_id": "evt_adr_cache_0009",
+            "parent_event_ids": [],
+            "raw_metadata": {
+              "parsed_adr": {
+                "consequences": "Resilient cache state across all pods; solves OOM crashes.",
+                "context": "Local in-memory cache caused OOM crashes. Local memory capping cannot sync across pods.",
+                "decision": "Decommission in-memory cache and migrate to Redis cluster.",
+                "status": "accepted",
+                "title": "Migrate to Redis Cluster for Distributed Caching"
+              }
+            },
+            "repo": "acme-eng/distributed-cache-service",
+            "source_id": "docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "ts": "2026-02-06T15:00:00Z"
+          }
+        ],
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-02-06T15:00:00Z",
+            "changed_by": "priya_patel",
+            "decision_id": "dec_cache_redis_accepted",
+            "from_state": null,
+            "history_id": "hist_init_dec_cache_redis_accepted_1791802569986703100_4d5cc5",
+            "notes": "Initial state: accepted. Reason: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "reconstructed": 0,
+            "state": "accepted"
+          }
+        ]
+      },
+      "status": "success"
+    },
+    "dec_thermal_bangbang_02": {
+      "data": {
+        "conflicting_evidence": [],
+        "decision": {
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_bangbang_02",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_thermal_bangbang_02"
         },
         "direct_support": [],
         "discussion_events": [],
@@ -1534,40 +2448,276 @@ window.__CIF_STATIC_DATA__ = {
         "evidence_events": [
           {
             "artifacts_touched": [
-              "README.md"
+              "src/thermal/control.py"
             ],
-            "author": "Nistha Agarwal",
-            "body": "Added README",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
-            "parent_event_ids": [],
-            "raw_metadata": {
-              "commit_sha": "669038b668eb00cfbdd21995552a80b9013494de",
-              "diff_summary": "Modified 1 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "669038b"
-            },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "669038b668eb00cfbdd21995552a80b9013494de",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-            "title": "Added README",
-            "ts": "2026-06-30T09:08:56Z"
+            "author": "sarah_chen",
+            "body": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "event_id": "evt_rev_thermal_comm2",
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "c102",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "ts": "2026-01-12T14:45:00Z"
           }
         ],
         "indirect_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-06-30T09:08:56Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
+            "author": "sarah_chen",
+            "date": "2026-01-12T14:45:00Z",
+            "event_id": "evt_rev_thermal_comm2",
             "passage_end": null,
             "passage_start": null,
             "relation": "indirect",
             "relevant_passage": null,
-            "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-            "source_type": "git_commit",
-            "title": "Added README",
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "source_type": "pr_review_comment",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "url_format_ok": true
+          }
+        ],
+        "lifecycle_state": "rejected",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no direct passage evidence supporting claims (indirect only)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-01-12T15:00:00Z",
+            "changed_by": "sarah_chen",
+            "decision_id": "dec_thermal_bangbang_02",
+            "from_state": null,
+            "history_id": "hist_init_dec_thermal_bangbang_02_1791802570087292500_53b481",
+            "notes": "Initial state: rejected. Reason: Governing architectural baseline decision",
+            "reconstructed": 0,
+            "state": "rejected"
+          }
+        ]
+      },
+      "status": "success"
+    },
+    "dec_thermal_deadband_rejected": {
+      "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_thermal_pid_accepted",
+            "made_at": "2026-01-15T16:00:00Z",
+            "state": "accepted",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+            "type": "related_decision_on_entity"
+          }
+        ],
+        "decision": {
+          "alternatives_considered": [
+            {
+              "description": "Deadband on-off threshold control +/- 1.5C",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.96,
+          "decision_id": "dec_thermal_deadband_rejected",
+          "evidence_assessment": "weak",
+          "freshness": "fresh",
+          "made_at": "2026-01-12T15:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "auto_confirmed",
+          "state": "rejected",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+        },
+        "direct_support": [
+          {
+            "author": "marcus_vance",
+            "date": "2026-01-11T11:20:00Z",
+            "event_id": "evt_rev_thermal_comm1",
+            "passage_end": 130,
+            "passage_start": 127,
+            "relation": "direct",
+            "relevant_passage": "5C.",
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "source_type": "pr_review_comment",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-12T14:45:00Z",
+            "event_id": "evt_rev_thermal_comm2",
+            "passage_end": 196,
+            "passage_start": 156,
+            "relation": "direct",
+            "relevant_passage": "2C overshoot on rapid thermal transient.",
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "source_type": "pr_review_comment",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "url_format_ok": true
+          },
+          {
+            "author": "marcus_vance",
+            "date": "2026-01-11T11:20:00Z",
+            "event_id": "evt_rev_thermal_comm1",
+            "passage_end": 45,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Marcus on Issue #12: Proposed deadband tuning",
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "source_type": "pr_review_comment",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-12T14:45:00Z",
+            "event_id": "evt_rev_thermal_comm2",
+            "passage_end": 106,
+            "passage_start": 62,
+            "relation": "direct",
+            "relevant_passage": "I benchmarked deadband tuning in simulation.",
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "source_type": "pr_review_comment",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "url_format_ok": true
+          }
+        ],
+        "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
+        "evidence_events": [
+          {
+            "artifacts_touched": [
+              "src/thermal/control.py"
+            ],
+            "author": "marcus_vance",
+            "body": "We could tighten the deadband on the simple threshold on-off controller to +/- 1.5C. That requires zero external math libraries.",
+            "event_id": "evt_rev_thermal_comm1",
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "c101",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "title": "Marcus on Issue #12: Proposed deadband tuning",
+            "ts": "2026-01-11T11:20:00Z"
+          },
+          {
+            "artifacts_touched": [
+              "src/thermal/control.py"
+            ],
+            "author": "sarah_chen",
+            "body": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "event_id": "evt_rev_thermal_comm2",
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "c102",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "ts": "2026-01-12T14:45:00Z"
+          }
+        ],
+        "indirect_support": [],
+        "lifecycle_state": "rejected",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-01-12T15:00:00Z",
+            "changed_by": "sarah_chen",
+            "decision_id": "dec_thermal_deadband_rejected",
+            "from_state": null,
+            "history_id": "hist_init_dec_thermal_deadband_rejected_1791802569780099100_c753a5",
+            "notes": "Initial state: rejected. Reason: Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+            "reconstructed": 0,
+            "state": "rejected"
+          }
+        ]
+      },
+      "status": "success"
+    },
+    "dec_thermal_pid_01": {
+      "data": {
+        "conflicting_evidence": [],
+        "decision": {
+          "alternatives_considered": [],
+          "alternatives_json": "[]",
+          "confidence": 0.8,
+          "decision_id": "dec_thermal_pid_01",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "Governing architectural baseline decision",
+          "repo": "acme-eng/thermal-control-system",
+          "review_status": "pending_review",
+          "state": "accepted",
+          "superseded_by_decision_id": null,
+          "supersedes_decision_id": null,
+          "title": "Architectural Decision dec_thermal_pid_01"
+        },
+        "direct_support": [],
+        "discussion_events": [],
+        "evidence_assessment": {
+          "label": "insufficient"
+        },
+        "evidence_events": [
+          {
+            "artifacts_touched": [
+              "src/thermal/control.py"
+            ],
+            "author": "sarah_chen",
+            "body": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "event_id": "evt_rev_thermal_comm2",
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {},
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "c102",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+            "ts": "2026-01-12T14:45:00Z"
+          }
+        ],
+        "indirect_support": [
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-12T14:45:00Z",
+            "event_id": "evt_rev_thermal_comm2",
+            "passage_end": null,
+            "passage_start": null,
+            "relation": "indirect",
+            "relevant_passage": null,
+            "source_group": "thread:acme-eng/thermal-control-system#12",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "source_type": "pr_review_comment",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
             "url_format_ok": true
           }
         ],
@@ -1580,348 +2730,164 @@ window.__CIF_STATIC_DATA__ = {
         "needs_review": true,
         "state_history": [
           {
-            "changed_at": "2026-06-30T09:08:56Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+            "changed_at": "2026-01-15T16:00:00Z",
+            "changed_by": "sarah_chen",
+            "decision_id": "dec_thermal_pid_01",
             "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_9038b668",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
+            "history_id": "hist_init_dec_thermal_pid_01_1791802570068329100_7962b6",
+            "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
+            "reconstructed": 0,
             "state": "accepted"
           }
         ]
       },
       "status": "success"
     },
-    "dec_nagarwal00_Placement-Tracker_95196dd8": {
+    "dec_thermal_pid_accepted": {
       "data": {
         "conflicting_evidence": [
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "made_at": "2026-07-01T10:15:22Z",
-            "state": "accepted",
-            "title": "Added password hashing",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
+            "event_id": "evt_adr_thermal_0004",
+            "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+            "relation": "contradicting",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "type": "contradicting_passage"
           }
         ],
         "decision": {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "alternatives_considered": [
+            {
+              "description": "On-off hysteresis deadband controller",
+              "evidence_event_ids": [
+                "evt_rev_thermal_comm2"
+              ],
+              "rejection_reason": "Caused 17% latency increase and 6.2C overshoot in thermal transient tests"
+            }
+          ],
+          "alternatives_json": "[{\"description\": \"On-off hysteresis deadband controller\", \"rejection_reason\": \"Caused 17% latency increase and 6.2C overshoot in thermal transient tests\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+          "confidence": 0.98,
+          "decision_id": "dec_thermal_pid_accepted",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
         },
         "direct_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-02T10:23:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "passage_end": 114,
-            "passage_start": 0,
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 135,
+            "passage_start": 79,
             "relation": "direct",
-            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
             "source_type": "git_commit",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-15T16:00:00Z",
+            "event_id": "evt_adr_thermal_0004",
+            "passage_end": 540,
+            "passage_start": 525,
+            "relation": "direct",
+            "relevant_passage": "4C of setpoint.",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "source_type": "adr",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 156,
+            "passage_start": 136,
+            "relation": "direct",
+            "relevant_passage": "Implements ADR 0004.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
             "url_format_ok": true
           }
         ],
         "discussion_events": [],
         "evidence_assessment": {
-          "label": "weak"
+          "label": "contradicted"
         },
         "evidence_events": [
           {
             "artifacts_touched": [
-              ".env.example",
-              "app.py",
-              "email_utils.py",
-              "requirements.txt"
+              "src/thermal/control.py",
+              "docs/adr/0004-pid-thermal-regulation.md"
             ],
-            "author": "Nistha Agarwal",
-            "body": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "author": "sarah_chen",
+            "body": "Status: accepted\n\nContext:\nPrevious bang-bang / on-off controller caused severe thermal oscillations and triggered chamber shutdown (Issue #12). Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.\n\nDecision:\nImplement discrete PID control with anti-windup clamping in regulate_temperature(). Use scipy interpolation for telemetry curve smoothing.\n\nConsequences:\n- Smooth thermal trajectory within +/- 0.4C of setpoint.\n- Added dependency on scipy.\n- Slightly higher CPU compute per control cycle.",
+            "event_id": "evt_adr_thermal_0004",
             "parent_event_ids": [],
             "raw_metadata": {
-              "commit_sha": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-              "diff_summary": "Modified 4 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "3695196"
+              "parsed_adr": {
+                "consequences": "Maintains temperature within +/- 0.4C setpoint with anti-windup.",
+                "context": "Previous bang-bang / on-off controller caused severe thermal oscillations. Deadband tuning increased latency by 17%.",
+                "decision": "Implement discrete PID control with anti-windup clamping in regulate_temperature().",
+                "status": "accepted",
+                "title": "Adopt Discrete PID Algorithm for Thermal Regulation"
+              }
             },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "docs/adr/0004-pid-thermal-regulation.md",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "ts": "2026-01-15T16:00:00Z"
+          },
+          {
+            "artifacts_touched": [
+              "src/thermal/control.py",
+              "requirements.txt"
+            ],
+            "author": "sarah_chen",
+            "body": "Replaces on-off controller with discrete PID controller. Implements ADR 0004. Closes #12.",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "parent_event_ids": [
+              "evt_issue_thermal_12"
+            ],
+            "raw_metadata": {
+              "diff_summary": "@@ -14,6 +14,24 @@ def regulate_temperature(current_temp, target_temp):\n- if current_temp > target_temp: fan_on()\n+ error = target_temp - current_temp\n+ p_term = Kp * error\n+ i_term = Ki * (integral + error * dt)\n+ output = clamp(p_term + i_term + d_term, 0.0, 100.0)"
+            },
+            "repo": "acme-eng/thermal-control-system",
+            "source_id": "a1b2c3d4e5f67890",
             "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "ts": "2026-07-02T10:23:53Z"
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "ts": "2026-01-18T10:00:00Z"
           }
         ],
         "indirect_support": [],
         "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no outcome/test evidence linked"
-        ],
+        "missing_corroboration": [],
         "needs_review": true,
         "state_history": [
           {
-            "changed_at": "2026-07-02T10:23:53Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "changed_at": "2026-01-15T16:00:00Z",
+            "changed_by": "sarah_chen",
+            "decision_id": "dec_thermal_pid_accepted",
             "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_95196dd8",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
-            "state": "accepted"
-          }
-        ]
-      },
-      "status": "success"
-    },
-    "dec_nagarwal00_Placement-Tracker_a77c6518": {
-      "data": {
-        "conflicting_evidence": [
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "made_at": "2026-07-02T10:23:53Z",
-            "state": "accepted",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
-          }
-        ],
-        "decision": {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-          "evidence_assessment": "insufficient",
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:56:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added gunicorn for deployment",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added gunicorn for deployment"
-        },
-        "direct_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-01T09:56:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
-            "passage_end": 29,
-            "passage_start": 0,
-            "relation": "direct",
-            "relevant_passage": "Added gunicorn for deployment",
-            "source_group": "commit:08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "source_type": "git_commit",
-            "title": "Added gunicorn for deployment",
-            "url_format_ok": true
-          }
-        ],
-        "discussion_events": [],
-        "evidence_assessment": {
-          "label": "weak"
-        },
-        "evidence_events": [
-          {
-            "artifacts_touched": [
-              "requirements.txt"
-            ],
-            "author": "Nistha Agarwal",
-            "body": "Added gunicorn for deployment",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
-            "parent_event_ids": [],
-            "raw_metadata": {
-              "commit_sha": "08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-              "diff_summary": "Modified 1 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "08a77c6"
-            },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "title": "Added gunicorn for deployment",
-            "ts": "2026-07-01T09:56:53Z"
-          }
-        ],
-        "indirect_support": [],
-        "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "state_history": [
-          {
-            "changed_at": "2026-07-01T09:56:53Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_a77c6518",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
-            "state": "accepted"
-          }
-        ]
-      },
-      "status": "success"
-    },
-    "dec_nagarwal00_Placement-Tracker_ac2fb893": {
-      "data": {
-        "conflicting_evidence": [
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "made_at": "2026-07-02T10:23:53Z",
-            "state": "accepted",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          }
-        ],
-        "decision": {
-          "alternatives_considered": [],
-          "alternatives_json": "[]",
-          "confidence": 0.88,
-          "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-          "evidence_assessment": "insufficient",
-          "freshness": "fresh",
-          "made_at": "2026-07-01T09:40:07Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "review_status": "auto_confirmed",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Added PostgreSQL"
-        },
-        "direct_support": [],
-        "discussion_events": [],
-        "evidence_assessment": {
-          "label": "insufficient"
-        },
-        "evidence_events": [
-          {
-            "artifacts_touched": [
-              "requirements.txt"
-            ],
-            "author": "Nistha Agarwal",
-            "body": "Added PostgreSQL",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
-            "parent_event_ids": [],
-            "raw_metadata": {
-              "commit_sha": "fcac2fb89372d1ddd97d90026bea99ce4c905095",
-              "diff_summary": "Modified 1 files",
-              "modified_functions": [],
-              "parent_shas": [],
-              "short_sha": "fcac2fb"
-            },
-            "repo": "nagarwal00/Placement-Tracker",
-            "source_id": "fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "title": "Added PostgreSQL",
-            "ts": "2026-07-01T09:40:07Z"
-          }
-        ],
-        "indirect_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-01T09:40:07Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
-            "passage_end": null,
-            "passage_start": null,
-            "relation": "indirect",
-            "relevant_passage": null,
-            "source_group": "commit:fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "source_type": "git_commit",
-            "title": "Added PostgreSQL",
-            "url_format_ok": true
-          }
-        ],
-        "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no direct passage evidence supporting claims (indirect only)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "state_history": [
-          {
-            "changed_at": "2026-07-01T09:40:07Z",
-            "changed_by": "system:backfill",
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "from_state": null,
-            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "notes": "reconstructed from current state at backfill",
-            "reconstructed": 1,
+            "history_id": "hist_init_dec_thermal_pid_accepted_1791802569828514400_0aedec",
+            "notes": "Initial state: accepted. Reason: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "reconstructed": 0,
             "state": "accepted"
           }
         ]
@@ -1930,532 +2896,768 @@ window.__CIF_STATIC_DATA__ = {
     }
   },
   "explains": {
-    ".env.example": {
+    "deps::redis": {
       "data": {
-        "artifact": ".env.example",
+        "artifact": "deps::redis",
         "chain": [
           {
             "conflicting_evidence": [
               {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-                "made_at": "2026-07-01T10:15:22Z",
-                "state": "accepted",
-                "title": "Added password hashing",
-                "type": "related_decision_on_entity"
+                "event_id": "evt_rev_cache_c201",
+                "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "relation": "contradicting",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "type": "contradicting_passage"
               },
               {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
+                "decision_id": "dec_cache_local_lru_proposed",
+                "made_at": "2026-02-03T14:30:00Z",
+                "state": "superseded",
+                "title": "Retain In-Memory LRU Cache with Process Memory Cap",
                 "type": "related_decision_on_entity"
               }
             ],
             "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-              "made_at": "2026-07-02T10:23:53Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+              "decision_id": "dec_cache_redis_accepted",
+              "made_at": "2026-02-06T15:00:00Z",
+              "made_by": "priya_patel",
+              "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
             },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "decision_id": "dec_cache_redis_accepted",
             "direct_support": [
               {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-02T10:23:53Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-                "passage_end": 114,
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 282,
+                "passage_start": 169,
+                "relation": "direct",
+                "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 58,
                 "passage_start": 0,
                 "relation": "direct",
-                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-04T09:00:00Z",
+                "event_id": "evt_rev_cache_c201",
+                "passage_end": 220,
+                "passage_start": 184,
+                "relation": "direct",
+                "relevant_passage": "We need a distributed Redis cluster.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "source_type": "pr_review_comment",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
                 "url_format_ok": true
               }
             ],
             "evidence_assessment": {
-              "label": "weak"
+              "label": "contradicted"
             },
             "indirect_support": [],
             "lifecycle_state": "accepted",
-            "made_at": "2026-07-02T10:23:53Z",
-            "made_by": "Nistha Agarwal",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
             "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
               "no outcome/test evidence linked"
             ],
             "needs_review": true,
-            "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
             "state": "accepted",
             "step_number": 1,
-            "summary": "[ACCEPTED] Fix security issues: move secrets to env vars, add auth checks on edit/delete/re (by Nistha Agarwal on 2026-07-02)",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
           }
         ],
         "citations": [
           {
-            "author": "Nistha Agarwal",
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "author": "priya_patel",
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "timestamp": "2026-07-02T10:23:53Z",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "relation": "direct",
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "We need a distributed Redis cluster.",
+            "relation": "direct",
+            "source_id": "evt_rev_cache_c201",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas"
           }
         ],
-        "claim_support_rate": 0.5,
+        "claim_support_rate": 0.0,
         "conflicting_evidence": [
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "made_at": "2026-07-01T10:15:22Z",
-            "state": "accepted",
-            "title": "Added password hashing",
-            "type": "related_decision_on_entity"
+            "event_id": "evt_rev_cache_c201",
+            "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "relation": "contradicting",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "type": "contradicting_passage"
           },
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
+            "decision_id": "dec_cache_local_lru_proposed",
+            "made_at": "2026-02-03T14:30:00Z",
+            "state": "superseded",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
             "type": "related_decision_on_entity"
           }
         ],
-        "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
         "current_state": "accepted",
         "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "decision_id": "dec_cache_redis_accepted",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
         },
         "direct_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-02T10:23:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "passage_end": 114,
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 282,
+            "passage_start": 169,
+            "relation": "direct",
+            "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 58,
             "passage_start": 0,
             "relation": "direct",
-            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_type": "git_commit",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-04T09:00:00Z",
+            "event_id": "evt_rev_cache_c201",
+            "passage_end": 220,
+            "passage_start": 184,
+            "relation": "direct",
+            "relevant_passage": "We need a distributed Redis cluster.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "source_type": "pr_review_comment",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
             "url_format_ok": true
           }
         ],
         "evidence_assessment": {
-          "label": "weak"
+          "label": "contradicted"
         },
-        "explanation": "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\n",
+        "explanation": "Artifact 'deps::redis' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\n",
         "indirect_support": [],
         "lifecycle_state": "accepted",
         "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
           "no outcome/test evidence linked"
         ],
         "needs_review": true,
         "statements": [
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "event_id": "evt_adr_cache_0009",
             "flagged_unsupported": true,
-            "overlap_ratio": 0.47,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "overlap_ratio": 0.27,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
             "supported": false,
-            "text": "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+            "text": "Artifact 'deps::redis' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06."
           },
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.93,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": true,
-            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.39,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods."
           }
         ],
         "status": "grounded",
         "unsupported_sentences": [
-          "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+          "Artifact 'deps::redis' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.",
+          "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods."
         ]
       },
       "status": "success"
     },
-    "README.md": {
+    "deps::scipy": {
       "data": {
-        "artifact": "README.md",
-        "chain": [
-          {
-            "conflicting_evidence": [],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
-              "made_at": "2026-06-30T09:08:56Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added README"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
-            "direct_support": [],
-            "evidence_assessment": {
-              "label": "insufficient"
-            },
-            "indirect_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-06-30T09:08:56Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
-                "passage_end": null,
-                "passage_start": null,
-                "relation": "indirect",
-                "relevant_passage": null,
-                "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-                "source_type": "git_commit",
-                "title": "Added README",
-                "url_format_ok": true
-              }
-            ],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-06-30T09:08:56Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no direct passage evidence supporting claims (indirect only)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-            "state": "accepted",
-            "step_number": 1,
-            "summary": "[ACCEPTED] Added README (by Nistha Agarwal on 2026-06-30)",
-            "title": "Added README"
-          }
-        ],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "conflicting_evidence": [],
-        "current_decision": "Added README",
-        "current_state": "accepted",
-        "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
-          "made_at": "2026-06-30T09:08:56Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Added README"
-        },
-        "direct_support": [],
-        "evidence_assessment": {
-          "label": "insufficient"
-        },
-        "explanation": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
-        "indirect_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-06-30T09:08:56Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
-            "passage_end": null,
-            "passage_start": null,
-            "relation": "indirect",
-            "relevant_passage": null,
-            "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-            "source_type": "git_commit",
-            "title": "Added README",
-            "url_format_ok": true
-          }
-        ],
-        "lifecycle_state": "accepted",
-        "message": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no direct passage evidence supporting claims (indirect only)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "statements": [],
-        "status": "insufficient_evidence",
-        "unsupported_sentences": []
-      },
-      "message": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
-      "status": "insufficient_evidence"
-    },
-    "app.py": {
-      "data": {
-        "artifact": "app.py",
+        "artifact": "deps::scipy",
         "chain": [
           {
             "conflicting_evidence": [
               {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-                "made_at": "2026-07-02T10:23:53Z",
-                "state": "accepted",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-                "type": "related_decision_on_entity"
+                "event_id": "evt_adr_thermal_0004",
+                "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+                "relation": "contradicting",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "type": "contradicting_passage"
               }
             ],
             "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-              "made_at": "2026-07-01T10:15:22Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Added password hashing",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added password hashing"
+              "decision_id": "dec_thermal_pid_accepted",
+              "made_at": "2026-01-15T16:00:00Z",
+              "made_by": "sarah_chen",
+              "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+              "repo": "acme-eng/thermal-control-system",
+              "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
             },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "decision_id": "dec_thermal_pid_accepted",
             "direct_support": [
               {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-01T10:15:22Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
-                "passage_end": 22,
-                "passage_start": 0,
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 135,
+                "passage_start": 79,
                 "relation": "direct",
-                "relevant_passage": "Added password hashing",
-                "source_group": "commit:d4628c0790e1506727351fd762abed6e02d70b46",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
+                "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
                 "source_type": "git_commit",
-                "title": "Added password hashing",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-15T16:00:00Z",
+                "event_id": "evt_adr_thermal_0004",
+                "passage_end": 540,
+                "passage_start": 525,
+                "relation": "direct",
+                "relevant_passage": "4C of setpoint.",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "source_type": "adr",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 156,
+                "passage_start": 136,
+                "relation": "direct",
+                "relevant_passage": "Implements ADR 0004.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "source_type": "git_commit",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
                 "url_format_ok": true
               }
             ],
             "evidence_assessment": {
-              "label": "weak"
+              "label": "contradicted"
             },
             "indirect_support": [],
             "lifecycle_state": "accepted",
-            "made_at": "2026-07-01T10:15:22Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "missing_corroboration": [],
             "needs_review": true,
-            "rationale": "Added password hashing",
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
             "state": "accepted",
             "step_number": 1,
-            "summary": "[ACCEPTED] Added password hashing (by Nistha Agarwal on 2026-07-01)",
-            "title": "Added password hashing"
-          },
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-                "made_at": "2026-07-01T10:15:22Z",
-                "state": "accepted",
-                "title": "Added password hashing",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-              "made_at": "2026-07-02T10:23:53Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "direct_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-02T10:23:53Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-                "passage_end": 114,
-                "passage_start": 0,
-                "relation": "direct",
-                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "url_format_ok": true
-              }
-            ],
-            "evidence_assessment": {
-              "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-02T10:23:53Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "state": "accepted",
-            "step_number": 2,
-            "summary": "[ACCEPTED] Fix security issues: move secrets to env vars, add auth checks on edit/delete/re (by Nistha Agarwal on 2026-07-02)",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
           }
         ],
         "citations": [
           {
-            "author": "Nistha Agarwal",
-            "passage": "Added password hashing",
+            "author": "sarah_chen",
+            "passage": "Replaces on-off controller with discrete PID controller.",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
+            "source_id": "evt_git_thermal_a1b2c3d4",
             "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
-            "timestamp": "2026-07-01T10:15:22Z",
-            "title": "Added password hashing"
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
           },
           {
-            "author": "Nistha Agarwal",
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "author": "sarah_chen",
+            "passage": "4C of setpoint.",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "source_id": "evt_adr_thermal_0004",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "Implements ADR 0004.",
+            "relation": "direct",
+            "source_id": "evt_git_thermal_a1b2c3d4",
             "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "timestamp": "2026-07-02T10:23:53Z",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
           }
         ],
-        "claim_support_rate": 0.67,
+        "claim_support_rate": 0.0,
         "conflicting_evidence": [
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "made_at": "2026-07-01T10:15:22Z",
-            "state": "accepted",
-            "title": "Added password hashing",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
+            "event_id": "evt_adr_thermal_0004",
+            "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+            "relation": "contradicting",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "type": "contradicting_passage"
           }
         ],
-        "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
         "current_state": "accepted",
         "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "decision_id": "dec_thermal_pid_accepted",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
         },
         "direct_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-02T10:23:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "passage_end": 114,
-            "passage_start": 0,
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 135,
+            "passage_start": 79,
             "relation": "direct",
-            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
             "source_type": "git_commit",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-15T16:00:00Z",
+            "event_id": "evt_adr_thermal_0004",
+            "passage_end": 540,
+            "passage_start": 525,
+            "relation": "direct",
+            "relevant_passage": "4C of setpoint.",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "source_type": "adr",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 156,
+            "passage_start": 136,
+            "relation": "direct",
+            "relevant_passage": "Implements ADR 0004.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
             "url_format_ok": true
           }
         ],
         "evidence_assessment": {
-          "label": "weak"
+          "label": "contradicted"
         },
-        "explanation": "Artifact 'app.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "explanation": "Artifact 'deps::scipy' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\n",
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.19,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Artifact 'deps::scipy' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15."
+          },
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.15,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'deps::scipy' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.",
+          "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle."
+        ]
+      },
+      "status": "success"
+    },
+    "docs/adr/0004-pid-thermal-regulation.md": {
+      "data": {
+        "artifact": "docs/adr/0004-pid-thermal-regulation.md",
+        "chain": [],
+        "citations": [],
+        "claim_support_rate": 0.0,
+        "explanation": "No recorded architectural decisions found for artifact 'docs/adr/0004-pid-thermal-regulation.md' in project history.",
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
+      },
+      "status": "success"
+    },
+    "src/cache/store.py": {
+      "data": {
+        "artifact": "src/cache/store.py",
+        "chain": [
+          {
+            "conflicting_evidence": [
+              {
+                "decision_id": "dec_cache_redis_accepted",
+                "made_at": "2026-02-06T15:00:00Z",
+                "state": "accepted",
+                "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_cache_local_lru_proposed",
+              "made_at": "2026-02-03T14:30:00Z",
+              "made_by": "marcus_vance",
+              "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+            },
+            "decision_id": "dec_cache_local_lru_proposed",
+            "direct_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
+                "passage_end": 203,
+                "passage_start": 155,
+                "relation": "direct",
+                "relevant_passage": "Keeps caching local with sub-millisecond access.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
+                "passage_end": null,
+                "passage_start": null,
+                "relation": "indirect",
+                "relevant_passage": null,
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "url_format_ok": true
+              }
+            ],
+            "lifecycle_state": "superseded",
+            "made_at": "2026-02-03T14:30:00Z",
+            "made_by": "marcus_vance",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "state": "superseded",
+            "step_number": 1,
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+          },
+          {
+            "conflicting_evidence": [
+              {
+                "event_id": "evt_rev_cache_c201",
+                "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "relation": "contradicting",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "type": "contradicting_passage"
+              },
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "made_at": "2026-02-03T14:30:00Z",
+                "state": "superseded",
+                "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_cache_redis_accepted",
+              "made_at": "2026-02-06T15:00:00Z",
+              "made_by": "priya_patel",
+              "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+            },
+            "decision_id": "dec_cache_redis_accepted",
+            "direct_support": [
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 282,
+                "passage_start": 169,
+                "relation": "direct",
+                "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 58,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-04T09:00:00Z",
+                "event_id": "evt_rev_cache_c201",
+                "passage_end": 220,
+                "passage_start": 184,
+                "relation": "direct",
+                "relevant_passage": "We need a distributed Redis cluster.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "source_type": "pr_review_comment",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "contradicted"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "missing_corroboration": [
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "state": "accepted",
+            "step_number": 2,
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+          }
+        ],
+        "citations": [
+          {
+            "author": "marcus_vance",
+            "passage": "Keeps caching local with sub-millisecond access.",
+            "relation": "direct",
+            "source_id": "evt_pr_cache_38",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "relation": "direct",
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "relation": "direct",
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "We need a distributed Redis cluster.",
+            "relation": "direct",
+            "source_id": "evt_rev_cache_c201",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas"
+          }
+        ],
+        "claim_support_rate": 0.0,
+        "conflicting_evidence": [
+          {
+            "event_id": "evt_rev_cache_c201",
+            "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "relation": "contradicting",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "type": "contradicting_passage"
+          },
+          {
+            "decision_id": "dec_cache_local_lru_proposed",
+            "made_at": "2026-02-03T14:30:00Z",
+            "state": "superseded",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "type": "related_decision_on_entity"
+          }
+        ],
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_cache_redis_accepted",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        "direct_support": [
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 282,
+            "passage_start": 169,
+            "relation": "direct",
+            "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 58,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-04T09:00:00Z",
+            "event_id": "evt_rev_cache_c201",
+            "passage_end": 220,
+            "passage_start": 184,
+            "relation": "direct",
+            "relevant_passage": "We need a distributed Redis cluster.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "source_type": "pr_review_comment",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "contradicted"
+        },
+        "explanation": "Artifact 'src/cache/store.py' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
         "indirect_support": [],
         "lifecycle_state": "accepted",
         "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
           "no outcome/test evidence linked"
         ],
         "needs_review": true,
         "statements": [
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.5,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": true,
-            "text": "Artifact 'app.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.33,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Artifact 'src/cache/store.py' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06."
           },
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.93,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": true,
-            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.39,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods."
           },
           {
             "event_id": null,
@@ -2469,963 +3671,314 @@ window.__CIF_STATIC_DATA__ = {
         ],
         "status": "grounded",
         "unsupported_sentences": [
+          "Artifact 'src/cache/store.py' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.",
+          "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
         ]
       },
       "status": "success"
     },
-    "app.py::add_company": {
+    "src/cache/store.py::cache_get": {
       "data": {
-        "artifact": "app.py::add_company",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::add_company' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::companies": {
-      "data": {
-        "artifact": "app.py::companies",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::companies' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::dashboard": {
-      "data": {
-        "artifact": "app.py::dashboard",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::dashboard' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::delete_company": {
-      "data": {
-        "artifact": "app.py::delete_company",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::delete_company' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::edit_company": {
-      "data": {
-        "artifact": "app.py::edit_company",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::edit_company' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::home": {
-      "data": {
-        "artifact": "app.py::home",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::home' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::login": {
-      "data": {
-        "artifact": "app.py::login",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::login' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::logout": {
-      "data": {
-        "artifact": "app.py::logout",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::logout' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::prep": {
-      "data": {
-        "artifact": "app.py::prep",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::prep' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::register": {
-      "data": {
-        "artifact": "app.py::register",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::register' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::send_company_reminder": {
-      "data": {
-        "artifact": "app.py::send_company_reminder",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::send_company_reminder' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "app.py::valid_password": {
-      "data": {
-        "artifact": "app.py::valid_password",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'app.py::valid_password' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "database.py": {
-      "data": {
-        "artifact": "database.py",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'database.py' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "database.py::init_db": {
-      "data": {
-        "artifact": "database.py::init_db",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'database.py::init_db' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "email_utils.py": {
-      "data": {
-        "artifact": "email_utils.py",
+        "artifact": "src/cache/store.py::cache_get",
         "chain": [
           {
             "conflicting_evidence": [
               {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-                "made_at": "2026-07-01T10:15:22Z",
+                "decision_id": "dec_cache_redis_accepted",
+                "made_at": "2026-02-06T15:00:00Z",
                 "state": "accepted",
-                "title": "Added password hashing",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
+                "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "type": "related_decision_on_entity"
               }
             ],
             "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-              "made_at": "2026-07-02T10:23:53Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+              "decision_id": "dec_cache_local_lru_proposed",
+              "made_at": "2026-02-03T14:30:00Z",
+              "made_by": "marcus_vance",
+              "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Retain In-Memory LRU Cache with Process Memory Cap"
             },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "decision_id": "dec_cache_local_lru_proposed",
             "direct_support": [
               {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-02T10:23:53Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-                "passage_end": 114,
-                "passage_start": 0,
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
+                "passage_end": 203,
+                "passage_start": 155,
                 "relation": "direct",
-                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "relevant_passage": "Keeps caching local with sub-millisecond access.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
                 "url_format_ok": true
               }
             ],
             "evidence_assessment": {
               "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-02T10:23:53Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "state": "accepted",
-            "step_number": 1,
-            "summary": "[ACCEPTED] Fix security issues: move secrets to env vars, add auth checks on edit/delete/re (by Nistha Agarwal on 2026-07-02)",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
-          }
-        ],
-        "citations": [
-          {
-            "author": "Nistha Agarwal",
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "timestamp": "2026-07-02T10:23:53Z",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
-          }
-        ],
-        "claim_support_rate": 0.5,
-        "conflicting_evidence": [
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "made_at": "2026-07-01T10:15:22Z",
-            "state": "accepted",
-            "title": "Added password hashing",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
-          }
-        ],
-        "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-        "current_state": "accepted",
-        "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
-        },
-        "direct_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-02T10:23:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "passage_end": 114,
-            "passage_start": 0,
-            "relation": "direct",
-            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_type": "git_commit",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "url_format_ok": true
-          }
-        ],
-        "evidence_assessment": {
-          "label": "weak"
-        },
-        "explanation": "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\n",
-        "indirect_support": [],
-        "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "statements": [
-          {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": true,
-            "overlap_ratio": 0.47,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": false,
-            "text": "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
-          },
-          {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.93,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": true,
-            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
-          }
-        ],
-        "status": "grounded",
-        "unsupported_sentences": [
-          "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
-        ]
-      },
-      "status": "success"
-    },
-    "email_utils.py::send_reminder": {
-      "data": {
-        "artifact": "email_utils.py::send_reminder",
-        "chain": [],
-        "citations": [],
-        "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'email_utils.py::send_reminder' in project history.",
-        "statements": [],
-        "status": "not_found",
-        "unsupported_sentences": []
-      },
-      "status": "success"
-    },
-    "placement.db": {
-      "data": {
-        "artifact": "placement.db",
-        "chain": [
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-                "made_at": "2026-07-02T10:23:53Z",
-                "state": "accepted",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-              "made_at": "2026-07-01T09:27:23Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Added requirements.txt",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added requirements.txt"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "direct_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-01T09:27:23Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-                "passage_end": 19,
-                "passage_start": 0,
-                "relation": "direct",
-                "relevant_passage": "Added requirements.",
-                "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-                "source_type": "git_commit",
-                "title": "Added requirements.txt",
-                "url_format_ok": true
-              }
-            ],
-            "evidence_assessment": {
-              "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-01T09:27:23Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Added requirements.txt",
-            "state": "accepted",
-            "step_number": 1,
-            "summary": "[ACCEPTED] Added requirements.txt (by Nistha Agarwal on 2026-07-01)",
-            "title": "Added requirements.txt"
-          }
-        ],
-        "citations": [
-          {
-            "author": "Nistha Agarwal",
-            "passage": "Added requirements.",
-            "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "timestamp": "2026-07-01T09:27:23Z",
-            "title": "Added requirements.txt"
-          }
-        ],
-        "claim_support_rate": 0.5,
-        "conflicting_evidence": [
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "made_at": "2026-07-02T10:23:53Z",
-            "state": "accepted",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
-            "type": "related_decision_on_entity"
-          }
-        ],
-        "current_decision": "Added requirements.txt",
-        "current_state": "accepted",
-        "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-          "made_at": "2026-07-01T09:27:23Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Added requirements.txt",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Added requirements.txt"
-        },
-        "direct_support": [
-          {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-01T09:27:23Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "passage_end": 19,
-            "passage_start": 0,
-            "relation": "direct",
-            "relevant_passage": "Added requirements.",
-            "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "source_type": "git_commit",
-            "title": "Added requirements.txt",
-            "url_format_ok": true
-          }
-        ],
-        "evidence_assessment": {
-          "label": "weak"
-        },
-        "explanation": "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01.\n\nKey Rationale: Added requirements.txt\n\n",
-        "indirect_support": [],
-        "lifecycle_state": "accepted",
-        "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
-          "no outcome/test evidence linked"
-        ],
-        "needs_review": true,
-        "statements": [
-          {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "flagged_unsupported": true,
-            "overlap_ratio": 0.17,
-            "passage": "Added requirements.",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "supported": false,
-            "text": "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01."
-          },
-          {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.67,
-            "passage": "Added requirements.",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "supported": true,
-            "text": "Key Rationale: Added requirements.txt"
-          }
-        ],
-        "status": "grounded",
-        "unsupported_sentences": [
-          "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01."
-        ]
-      },
-      "status": "success"
-    },
-    "requirements.txt": {
-      "data": {
-        "artifact": "requirements.txt",
-        "chain": [
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-                "made_at": "2026-07-02T10:23:53Z",
-                "state": "accepted",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-              "made_at": "2026-07-01T09:27:23Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Added requirements.txt",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added requirements.txt"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "direct_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-01T09:27:23Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-                "passage_end": 19,
-                "passage_start": 0,
-                "relation": "direct",
-                "relevant_passage": "Added requirements.",
-                "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-                "source_type": "git_commit",
-                "title": "Added requirements.txt",
-                "url_format_ok": true
-              }
-            ],
-            "evidence_assessment": {
-              "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-01T09:27:23Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Added requirements.txt",
-            "state": "accepted",
-            "step_number": 1,
-            "summary": "[ACCEPTED] Added requirements.txt (by Nistha Agarwal on 2026-07-01)",
-            "title": "Added requirements.txt"
-          },
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-                "made_at": "2026-07-02T10:23:53Z",
-                "state": "accepted",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-              "made_at": "2026-07-01T09:40:07Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added PostgreSQL"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "direct_support": [],
-            "evidence_assessment": {
-              "label": "insufficient"
             },
             "indirect_support": [
               {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-01T09:40:07Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
                 "passage_end": null,
                 "passage_start": null,
                 "relation": "indirect",
                 "relevant_passage": null,
-                "source_group": "commit:fcac2fb89372d1ddd97d90026bea99ce4c905095",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-                "source_type": "git_commit",
-                "title": "Added PostgreSQL",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
                 "url_format_ok": true
               }
             ],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-01T09:40:07Z",
-            "made_by": "Nistha Agarwal",
+            "lifecycle_state": "superseded",
+            "made_at": "2026-02-03T14:30:00Z",
+            "made_by": "marcus_vance",
             "missing_corroboration": [
               "no independent corroborating source recorded (single source group)",
-              "no direct passage evidence supporting claims (indirect only)",
               "no outcome/test evidence linked"
             ],
             "needs_review": true,
-            "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "state": "superseded",
+            "step_number": 1,
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+          },
+          {
+            "conflicting_evidence": [
+              {
+                "event_id": "evt_rev_cache_c201",
+                "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "relation": "contradicting",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "type": "contradicting_passage"
+              },
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "made_at": "2026-02-03T14:30:00Z",
+                "state": "superseded",
+                "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_cache_redis_accepted",
+              "made_at": "2026-02-06T15:00:00Z",
+              "made_by": "priya_patel",
+              "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+            },
+            "decision_id": "dec_cache_redis_accepted",
+            "direct_support": [
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 282,
+                "passage_start": 169,
+                "relation": "direct",
+                "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 58,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-04T09:00:00Z",
+                "event_id": "evt_rev_cache_c201",
+                "passage_end": 220,
+                "passage_start": 184,
+                "relation": "direct",
+                "relevant_passage": "We need a distributed Redis cluster.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "source_type": "pr_review_comment",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "contradicted"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "missing_corroboration": [
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
             "state": "accepted",
             "step_number": 2,
-            "summary": "[ACCEPTED] Added PostgreSQL (by Nistha Agarwal on 2026-07-01)",
-            "title": "Added PostgreSQL"
-          },
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-                "made_at": "2026-07-02T10:23:53Z",
-                "state": "accepted",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-              "made_at": "2026-07-01T09:56:53Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Added gunicorn for deployment",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Added gunicorn for deployment"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "direct_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-01T09:56:53Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
-                "passage_end": 29,
-                "passage_start": 0,
-                "relation": "direct",
-                "relevant_passage": "Added gunicorn for deployment",
-                "source_group": "commit:08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-                "source_type": "git_commit",
-                "title": "Added gunicorn for deployment",
-                "url_format_ok": true
-              }
-            ],
-            "evidence_assessment": {
-              "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-01T09:56:53Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Added gunicorn for deployment",
-            "state": "accepted",
-            "step_number": 3,
-            "summary": "[ACCEPTED] Added gunicorn for deployment (by Nistha Agarwal on 2026-07-01)",
-            "title": "Added gunicorn for deployment"
-          },
-          {
-            "conflicting_evidence": [
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-                "made_at": "2026-07-01T10:15:22Z",
-                "state": "accepted",
-                "title": "Added password hashing",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-                "made_at": "2026-07-01T09:27:23Z",
-                "state": "accepted",
-                "title": "Added requirements.txt",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-                "made_at": "2026-07-01T09:56:53Z",
-                "state": "accepted",
-                "title": "Added gunicorn for deployment",
-                "type": "related_decision_on_entity"
-              },
-              {
-                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-                "made_at": "2026-07-01T09:40:07Z",
-                "state": "accepted",
-                "title": "Added PostgreSQL",
-                "type": "related_decision_on_entity"
-              }
-            ],
-            "decision": {
-              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-              "made_at": "2026-07-02T10:23:53Z",
-              "made_by": "Nistha Agarwal",
-              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-              "repo": "nagarwal00/Placement-Tracker",
-              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
-            },
-            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-            "direct_support": [
-              {
-                "author": "Nistha Agarwal",
-                "date": "2026-07-02T10:23:53Z",
-                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-                "passage_end": 114,
-                "passage_start": 0,
-                "relation": "direct",
-                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-                "url_format_ok": true
-              }
-            ],
-            "evidence_assessment": {
-              "label": "weak"
-            },
-            "indirect_support": [],
-            "lifecycle_state": "accepted",
-            "made_at": "2026-07-02T10:23:53Z",
-            "made_by": "Nistha Agarwal",
-            "missing_corroboration": [
-              "no independent corroborating source recorded (single source group)",
-              "no outcome/test evidence linked"
-            ],
-            "needs_review": true,
-            "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "state": "accepted",
-            "step_number": 4,
-            "summary": "[ACCEPTED] Fix security issues: move secrets to env vars, add auth checks on edit/delete/re (by Nistha Agarwal on 2026-07-02)",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
           }
         ],
         "citations": [
           {
-            "author": "Nistha Agarwal",
-            "passage": "Added requirements.",
+            "author": "marcus_vance",
+            "passage": "Keeps caching local with sub-millisecond access.",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-            "timestamp": "2026-07-01T09:27:23Z",
-            "title": "Added requirements.txt"
+            "source_id": "evt_pr_cache_38",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)"
           },
           {
-            "author": "Nistha Agarwal",
-            "passage": "Added gunicorn for deployment",
+            "author": "priya_patel",
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-            "timestamp": "2026-07-01T09:56:53Z",
-            "title": "Added gunicorn for deployment"
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
           },
           {
-            "author": "Nistha Agarwal",
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "author": "priya_patel",
+            "passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
             "relation": "direct",
-            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "timestamp": "2026-07-02T10:23:53Z",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "We need a distributed Redis cluster.",
+            "relation": "direct",
+            "source_id": "evt_rev_cache_c201",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas"
           }
         ],
-        "claim_support_rate": 0.33,
+        "claim_support_rate": 0.0,
         "conflicting_evidence": [
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
-            "made_at": "2026-07-01T10:15:22Z",
-            "state": "accepted",
-            "title": "Added password hashing",
-            "type": "related_decision_on_entity"
+            "event_id": "evt_rev_cache_c201",
+            "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "relation": "contradicting",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "type": "contradicting_passage"
           },
           {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
-            "made_at": "2026-07-01T09:27:23Z",
-            "state": "accepted",
-            "title": "Added requirements.txt",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
-            "made_at": "2026-07-01T09:56:53Z",
-            "state": "accepted",
-            "title": "Added gunicorn for deployment",
-            "type": "related_decision_on_entity"
-          },
-          {
-            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
-            "made_at": "2026-07-01T09:40:07Z",
-            "state": "accepted",
-            "title": "Added PostgreSQL",
+            "decision_id": "dec_cache_local_lru_proposed",
+            "made_at": "2026-02-03T14:30:00Z",
+            "state": "superseded",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
             "type": "related_decision_on_entity"
           }
         ],
-        "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
         "current_state": "accepted",
         "decision": {
-          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
-          "made_at": "2026-07-02T10:23:53Z",
-          "made_by": "Nistha Agarwal",
-          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-          "repo": "nagarwal00/Placement-Tracker",
-          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+          "decision_id": "dec_cache_redis_accepted",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
         },
         "direct_support": [
           {
-            "author": "Nistha Agarwal",
-            "date": "2026-07-02T10:23:53Z",
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "passage_end": 114,
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 282,
+            "passage_start": 169,
+            "relation": "direct",
+            "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 58,
             "passage_start": 0,
             "relation": "direct",
-            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "source_type": "git_commit",
-            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-04T09:00:00Z",
+            "event_id": "evt_rev_cache_c201",
+            "passage_end": 220,
+            "passage_start": 184,
+            "relation": "direct",
+            "relevant_passage": "We need a distributed Redis cluster.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "source_type": "pr_review_comment",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
             "url_format_ok": true
           }
         ],
         "evidence_assessment": {
-          "label": "weak"
+          "label": "contradicted"
         },
-        "explanation": "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\nEvolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals.",
+        "explanation": "Artifact 'src/cache/store.py::cache_get' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
         "indirect_support": [],
         "lifecycle_state": "accepted",
         "missing_corroboration": [
-          "no independent corroborating source recorded (single source group)",
           "no outcome/test evidence linked"
         ],
         "needs_review": true,
         "statements": [
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "event_id": "evt_adr_cache_0009",
             "flagged_unsupported": true,
-            "overlap_ratio": 0.47,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "overlap_ratio": 0.31,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
             "supported": false,
-            "text": "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+            "text": "Artifact 'src/cache/store.py::cache_get' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06."
           },
           {
-            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
-            "flagged_unsupported": false,
-            "overlap_ratio": 0.93,
-            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
-            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-            "supported": true,
-            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.39,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods."
           },
           {
             "event_id": null,
@@ -3434,27 +3987,1067 @@ window.__CIF_STATIC_DATA__ = {
             "passage": null,
             "source_link": null,
             "supported": false,
-            "text": "Evolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals."
+            "text": "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
           }
         ],
         "status": "grounded",
         "unsupported_sentences": [
-          "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.",
-          "Evolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals."
+          "Artifact 'src/cache/store.py::cache_get' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.",
+          "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
         ]
       },
       "status": "success"
     },
-    "test_email.py": {
+    "src/cache/store.py::cache_set": {
       "data": {
-        "artifact": "test_email.py",
+        "artifact": "src/cache/store.py::cache_set",
+        "chain": [
+          {
+            "conflicting_evidence": [
+              {
+                "decision_id": "dec_cache_redis_accepted",
+                "made_at": "2026-02-06T15:00:00Z",
+                "state": "accepted",
+                "title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_cache_local_lru_proposed",
+              "made_at": "2026-02-03T14:30:00Z",
+              "made_by": "marcus_vance",
+              "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+            },
+            "decision_id": "dec_cache_local_lru_proposed",
+            "direct_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
+                "passage_end": 203,
+                "passage_start": 155,
+                "relation": "direct",
+                "relevant_passage": "Keeps caching local with sub-millisecond access.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-02-03T14:30:00Z",
+                "event_id": "evt_pr_cache_38",
+                "passage_end": null,
+                "passage_start": null,
+                "relation": "indirect",
+                "relevant_passage": null,
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+                "source_type": "github_pr",
+                "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)",
+                "url_format_ok": true
+              }
+            ],
+            "lifecycle_state": "superseded",
+            "made_at": "2026-02-03T14:30:00Z",
+            "made_by": "marcus_vance",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
+            "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
+            "state": "superseded",
+            "step_number": 1,
+            "summary": "[SUPERSEDED] Retain In-Memory LRU Cache with Process Memory Cap (by marcus_vance on 2026-02-03)",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap"
+          },
+          {
+            "conflicting_evidence": [
+              {
+                "event_id": "evt_rev_cache_c201",
+                "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "relation": "contradicting",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "type": "contradicting_passage"
+              },
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "made_at": "2026-02-03T14:30:00Z",
+                "state": "superseded",
+                "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_cache_redis_accepted",
+              "made_at": "2026-02-06T15:00:00Z",
+              "made_by": "priya_patel",
+              "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+              "repo": "acme-eng/distributed-cache-service",
+              "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+            },
+            "decision_id": "dec_cache_redis_accepted",
+            "direct_support": [
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 282,
+                "passage_start": 169,
+                "relation": "direct",
+                "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-06T15:00:00Z",
+                "event_id": "evt_adr_cache_0009",
+                "passage_end": 58,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+                "source_type": "adr",
+                "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+                "url_format_ok": true
+              },
+              {
+                "author": "priya_patel",
+                "date": "2026-02-04T09:00:00Z",
+                "event_id": "evt_rev_cache_c201",
+                "passage_end": 220,
+                "passage_start": 184,
+                "relation": "direct",
+                "relevant_passage": "We need a distributed Redis cluster.",
+                "source_group": "thread:acme-eng/distributed-cache-service#38",
+                "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+                "source_type": "pr_review_comment",
+                "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "contradicted"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
+            "made_at": "2026-02-06T15:00:00Z",
+            "made_by": "priya_patel",
+            "missing_corroboration": [
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
+            "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+            "state": "accepted",
+            "step_number": 2,
+            "summary": "[ACCEPTED] Migrate from In-Memory LRU to Distributed Redis Cluster (by priya_patel on 2026-02-06)",
+            "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+          }
+        ],
+        "citations": [
+          {
+            "author": "marcus_vance",
+            "passage": "Keeps caching local with sub-millisecond access.",
+            "relation": "direct",
+            "source_id": "evt_pr_cache_38",
+            "source_type": "github_pr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
+            "timestamp": "2026-02-03T14:30:00Z",
+            "title": "PR #38: Add soft memory cap to in-memory LRU cache (Closes #34)"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "relation": "direct",
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "relation": "direct",
+            "source_id": "evt_adr_cache_0009",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "timestamp": "2026-02-06T15:00:00Z",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching"
+          },
+          {
+            "author": "priya_patel",
+            "passage": "We need a distributed Redis cluster.",
+            "relation": "direct",
+            "source_id": "evt_rev_cache_c201",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "timestamp": "2026-02-04T09:00:00Z",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas"
+          }
+        ],
+        "claim_support_rate": 0.0,
+        "conflicting_evidence": [
+          {
+            "event_id": "evt_rev_cache_c201",
+            "passage_text": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "relation": "contradicting",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "type": "contradicting_passage"
+          },
+          {
+            "decision_id": "dec_cache_local_lru_proposed",
+            "made_at": "2026-02-03T14:30:00Z",
+            "state": "superseded",
+            "title": "Retain In-Memory LRU Cache with Process Memory Cap",
+            "type": "related_decision_on_entity"
+          }
+        ],
+        "current_decision": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+        "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_cache_redis_accepted",
+          "made_at": "2026-02-06T15:00:00Z",
+          "made_by": "priya_patel",
+          "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "repo": "acme-eng/distributed-cache-service",
+          "title": "Migrate from In-Memory LRU to Distributed Redis Cluster"
+        },
+        "direct_support": [
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 282,
+            "passage_start": 169,
+            "relation": "direct",
+            "relevant_passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-06T15:00:00Z",
+            "event_id": "evt_adr_cache_0009",
+            "passage_end": 58,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "source_group": "doc:acme-eng/distributed-cache-service:docs/adr/0009-redis-cluster-cache.md",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "source_type": "adr",
+            "title": "ADR 0009: Migrate to Redis Cluster for Distributed Caching",
+            "url_format_ok": true
+          },
+          {
+            "author": "priya_patel",
+            "date": "2026-02-04T09:00:00Z",
+            "event_id": "evt_rev_cache_c201",
+            "passage_end": 220,
+            "passage_start": 184,
+            "relation": "direct",
+            "relevant_passage": "We need a distributed Redis cluster.",
+            "source_group": "thread:acme-eng/distributed-cache-service#38",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
+            "source_type": "pr_review_comment",
+            "title": "Priya review on PR #38: In-memory cache cannot scale across replicas",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "contradicted"
+        },
+        "explanation": "Artifact 'src/cache/store.py::cache_set' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.\n\nKey Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.31,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Artifact 'src/cache/store.py::cache_set' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06."
+          },
+          {
+            "event_id": "evt_adr_cache_0009",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.39,
+            "passage": "PR #38 attempted local memory capping but was rejected because container autoscaling requires shared cache state.",
+            "source_link": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods."
+          },
+          {
+            "event_id": null,
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.0,
+            "passage": null,
+            "source_link": null,
+            "supported": false,
+            "text": "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'src/cache/store.py::cache_set' is governed primarily by accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster', established by priya_patel on 2026-02-06.",
+          "Key Rationale: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
+          "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+        ]
+      },
+      "status": "success"
+    },
+    "src/thermal/control.py": {
+      "data": {
+        "artifact": "src/thermal/control.py",
+        "chain": [
+          {
+            "conflicting_evidence": [
+              {
+                "decision_id": "dec_thermal_pid_accepted",
+                "made_at": "2026-01-15T16:00:00Z",
+                "state": "accepted",
+                "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_thermal_deadband_rejected",
+              "made_at": "2026-01-12T15:00:00Z",
+              "made_by": "sarah_chen",
+              "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+              "repo": "acme-eng/thermal-control-system",
+              "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+            },
+            "decision_id": "dec_thermal_deadband_rejected",
+            "direct_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-01-11T11:20:00Z",
+                "event_id": "evt_rev_thermal_comm1",
+                "passage_end": 130,
+                "passage_start": 127,
+                "relation": "direct",
+                "relevant_passage": "5C.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "source_type": "pr_review_comment",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-12T14:45:00Z",
+                "event_id": "evt_rev_thermal_comm2",
+                "passage_end": 196,
+                "passage_start": 156,
+                "relation": "direct",
+                "relevant_passage": "2C overshoot on rapid thermal transient.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "source_type": "pr_review_comment",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "marcus_vance",
+                "date": "2026-01-11T11:20:00Z",
+                "event_id": "evt_rev_thermal_comm1",
+                "passage_end": 45,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Marcus on Issue #12: Proposed deadband tuning",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "source_type": "pr_review_comment",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-12T14:45:00Z",
+                "event_id": "evt_rev_thermal_comm2",
+                "passage_end": 106,
+                "passage_start": 62,
+                "relation": "direct",
+                "relevant_passage": "I benchmarked deadband tuning in simulation.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "source_type": "pr_review_comment",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "rejected",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)"
+            ],
+            "needs_review": true,
+            "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+            "state": "rejected",
+            "step_number": 1,
+            "summary": "[REJECTED] Reject Simple Deadband Hysteresis for Thermal Control (by sarah_chen on 2026-01-12)",
+            "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+          },
+          {
+            "conflicting_evidence": [
+              {
+                "event_id": "evt_adr_thermal_0004",
+                "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+                "relation": "contradicting",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "type": "contradicting_passage"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_thermal_pid_accepted",
+              "made_at": "2026-01-15T16:00:00Z",
+              "made_by": "sarah_chen",
+              "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+              "repo": "acme-eng/thermal-control-system",
+              "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+            },
+            "decision_id": "dec_thermal_pid_accepted",
+            "direct_support": [
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 135,
+                "passage_start": 79,
+                "relation": "direct",
+                "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "source_type": "git_commit",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-15T16:00:00Z",
+                "event_id": "evt_adr_thermal_0004",
+                "passage_end": 540,
+                "passage_start": 525,
+                "relation": "direct",
+                "relevant_passage": "4C of setpoint.",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "source_type": "adr",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 156,
+                "passage_start": 136,
+                "relation": "direct",
+                "relevant_passage": "Implements ADR 0004.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "source_type": "git_commit",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "contradicted"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "missing_corroboration": [],
+            "needs_review": true,
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "state": "accepted",
+            "step_number": 2,
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+          }
+        ],
+        "citations": [
+          {
+            "author": "marcus_vance",
+            "passage": "5C.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm1",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "2C overshoot on rapid thermal transient.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
+          },
+          {
+            "author": "marcus_vance",
+            "passage": "Marcus on Issue #12: Proposed deadband tuning",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm1",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "I benchmarked deadband tuning in simulation.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "Replaces on-off controller with discrete PID controller.",
+            "relation": "direct",
+            "source_id": "evt_git_thermal_a1b2c3d4",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "4C of setpoint.",
+            "relation": "direct",
+            "source_id": "evt_adr_thermal_0004",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "Implements ADR 0004.",
+            "relation": "direct",
+            "source_id": "evt_git_thermal_a1b2c3d4",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
+          }
+        ],
+        "claim_support_rate": 0.0,
+        "conflicting_evidence": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+            "relation": "contradicting",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "type": "contradicting_passage"
+          }
+        ],
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+        "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_thermal_pid_accepted",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+        },
+        "direct_support": [
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 135,
+            "passage_start": 79,
+            "relation": "direct",
+            "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-15T16:00:00Z",
+            "event_id": "evt_adr_thermal_0004",
+            "passage_end": 540,
+            "passage_start": 525,
+            "relation": "direct",
+            "relevant_passage": "4C of setpoint.",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "source_type": "adr",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 156,
+            "passage_start": 136,
+            "relation": "direct",
+            "relevant_passage": "Implements ADR 0004.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "contradicted"
+        },
+        "explanation": "Artifact 'src/thermal/control.py' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.25,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Artifact 'src/thermal/control.py' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15."
+          },
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.15,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle."
+          },
+          {
+            "event_id": null,
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.0,
+            "passage": null,
+            "source_link": null,
+            "supported": false,
+            "text": "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'src/thermal/control.py' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.",
+          "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+        ]
+      },
+      "status": "success"
+    },
+    "src/thermal/control.py::read_telemetry_sensor": {
+      "data": {
+        "artifact": "src/thermal/control.py::read_telemetry_sensor",
         "chain": [],
         "citations": [],
         "claim_support_rate": 0.0,
-        "explanation": "No recorded architectural decisions found for artifact 'test_email.py' in project history.",
+        "explanation": "No recorded architectural decisions found for artifact 'src/thermal/control.py::read_telemetry_sensor' in project history.",
         "statements": [],
         "status": "not_found",
         "unsupported_sentences": []
+      },
+      "status": "success"
+    },
+    "src/thermal/control.py::regulate_temperature": {
+      "data": {
+        "artifact": "src/thermal/control.py::regulate_temperature",
+        "chain": [
+          {
+            "conflicting_evidence": [
+              {
+                "decision_id": "dec_thermal_pid_accepted",
+                "made_at": "2026-01-15T16:00:00Z",
+                "state": "accepted",
+                "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+                "type": "related_decision_on_entity"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_thermal_deadband_rejected",
+              "made_at": "2026-01-12T15:00:00Z",
+              "made_by": "sarah_chen",
+              "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+              "repo": "acme-eng/thermal-control-system",
+              "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+            },
+            "decision_id": "dec_thermal_deadband_rejected",
+            "direct_support": [
+              {
+                "author": "marcus_vance",
+                "date": "2026-01-11T11:20:00Z",
+                "event_id": "evt_rev_thermal_comm1",
+                "passage_end": 130,
+                "passage_start": 127,
+                "relation": "direct",
+                "relevant_passage": "5C.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "source_type": "pr_review_comment",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-12T14:45:00Z",
+                "event_id": "evt_rev_thermal_comm2",
+                "passage_end": 196,
+                "passage_start": 156,
+                "relation": "direct",
+                "relevant_passage": "2C overshoot on rapid thermal transient.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "source_type": "pr_review_comment",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "marcus_vance",
+                "date": "2026-01-11T11:20:00Z",
+                "event_id": "evt_rev_thermal_comm1",
+                "passage_end": 45,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Marcus on Issue #12: Proposed deadband tuning",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+                "source_type": "pr_review_comment",
+                "title": "Marcus on Issue #12: Proposed deadband tuning",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-12T14:45:00Z",
+                "event_id": "evt_rev_thermal_comm2",
+                "passage_end": 106,
+                "passage_start": 62,
+                "relation": "direct",
+                "relevant_passage": "I benchmarked deadband tuning in simulation.",
+                "source_group": "thread:acme-eng/thermal-control-system#12",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+                "source_type": "pr_review_comment",
+                "title": "Sarah on Issue #12: Benchmark results against deadband tuning",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "rejected",
+            "made_at": "2026-01-12T15:00:00Z",
+            "made_by": "sarah_chen",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)"
+            ],
+            "needs_review": true,
+            "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+            "state": "rejected",
+            "step_number": 1,
+            "summary": "[REJECTED] Reject Simple Deadband Hysteresis for Thermal Control (by sarah_chen on 2026-01-12)",
+            "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+          },
+          {
+            "conflicting_evidence": [
+              {
+                "event_id": "evt_adr_thermal_0004",
+                "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+                "relation": "contradicting",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "type": "contradicting_passage"
+              }
+            ],
+            "decision": {
+              "decision_id": "dec_thermal_pid_accepted",
+              "made_at": "2026-01-15T16:00:00Z",
+              "made_by": "sarah_chen",
+              "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+              "repo": "acme-eng/thermal-control-system",
+              "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+            },
+            "decision_id": "dec_thermal_pid_accepted",
+            "direct_support": [
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 135,
+                "passage_start": 79,
+                "relation": "direct",
+                "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "source_type": "git_commit",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-15T16:00:00Z",
+                "event_id": "evt_adr_thermal_0004",
+                "passage_end": 540,
+                "passage_start": 525,
+                "relation": "direct",
+                "relevant_passage": "4C of setpoint.",
+                "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+                "source_type": "adr",
+                "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+                "url_format_ok": true
+              },
+              {
+                "author": "sarah_chen",
+                "date": "2026-01-18T10:00:00Z",
+                "event_id": "evt_git_thermal_a1b2c3d4",
+                "passage_end": 156,
+                "passage_start": 136,
+                "relation": "direct",
+                "relevant_passage": "Implements ADR 0004.",
+                "source_group": "commit:a1b2c3d4e5f67890",
+                "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+                "source_type": "git_commit",
+                "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "contradicted"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
+            "made_at": "2026-01-15T16:00:00Z",
+            "made_by": "sarah_chen",
+            "missing_corroboration": [],
+            "needs_review": true,
+            "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+            "state": "accepted",
+            "step_number": 2,
+            "summary": "[ACCEPTED] Adopt Discrete PID Controller for Chamber Temperature Regulation (by sarah_chen on 2026-01-15)",
+            "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+          }
+        ],
+        "citations": [
+          {
+            "author": "marcus_vance",
+            "passage": "5C.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm1",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "2C overshoot on rapid thermal transient.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
+          },
+          {
+            "author": "marcus_vance",
+            "passage": "Marcus on Issue #12: Proposed deadband tuning",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm1",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
+            "timestamp": "2026-01-11T11:20:00Z",
+            "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "I benchmarked deadband tuning in simulation.",
+            "relation": "direct",
+            "source_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "timestamp": "2026-01-12T14:45:00Z",
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "Replaces on-off controller with discrete PID controller.",
+            "relation": "direct",
+            "source_id": "evt_git_thermal_a1b2c3d4",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "4C of setpoint.",
+            "relation": "direct",
+            "source_id": "evt_adr_thermal_0004",
+            "source_type": "adr",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "timestamp": "2026-01-15T16:00:00Z",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation"
+          },
+          {
+            "author": "sarah_chen",
+            "passage": "Implements ADR 0004.",
+            "relation": "direct",
+            "source_id": "evt_git_thermal_a1b2c3d4",
+            "source_type": "git_commit",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "timestamp": "2026-01-18T10:00:00Z",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
+          }
+        ],
+        "claim_support_rate": 0.0,
+        "conflicting_evidence": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "passage_text": "Deadband tuning was tested and rejected because it increased control latency by 17% and failed transient tests.",
+            "relation": "contradicting",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "type": "contradicting_passage"
+          }
+        ],
+        "current_decision": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+        "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_thermal_pid_accepted",
+          "made_at": "2026-01-15T16:00:00Z",
+          "made_by": "sarah_chen",
+          "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "repo": "acme-eng/thermal-control-system",
+          "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
+        },
+        "direct_support": [
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 135,
+            "passage_start": 79,
+            "relation": "direct",
+            "relevant_passage": "Replaces on-off controller with discrete PID controller.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-15T16:00:00Z",
+            "event_id": "evt_adr_thermal_0004",
+            "passage_end": 540,
+            "passage_start": 525,
+            "relation": "direct",
+            "relevant_passage": "4C of setpoint.",
+            "source_group": "doc:acme-eng/thermal-control-system:docs/adr/0004-pid-thermal-regulation.md",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "source_type": "adr",
+            "title": "ADR 0004: Adopt Discrete PID Algorithm for Thermal Regulation",
+            "url_format_ok": true
+          },
+          {
+            "author": "sarah_chen",
+            "date": "2026-01-18T10:00:00Z",
+            "event_id": "evt_git_thermal_a1b2c3d4",
+            "passage_end": 156,
+            "passage_start": 136,
+            "relation": "direct",
+            "relevant_passage": "Implements ADR 0004.",
+            "source_group": "commit:a1b2c3d4e5f67890",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
+            "source_type": "git_commit",
+            "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "contradicted"
+        },
+        "explanation": "Artifact 'src/thermal/control.py::regulate_temperature' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.\n\nKey Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.24,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Artifact 'src/thermal/control.py::regulate_temperature' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15."
+          },
+          {
+            "event_id": "evt_adr_thermal_0004",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.15,
+            "passage": "4C of setpoint.",
+            "source_link": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
+            "supported": false,
+            "text": "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle."
+          },
+          {
+            "event_id": null,
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.0,
+            "passage": null,
+            "source_link": null,
+            "supported": false,
+            "text": "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'src/thermal/control.py::regulate_temperature' is governed primarily by accepted decision 'Adopt Discrete PID Controller for Chamber Temperature Regulation', established by sarah_chen on 2026-01-15.",
+          "Key Rationale: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
+          "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+        ]
       },
       "status": "success"
     }

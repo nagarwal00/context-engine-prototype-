@@ -472,3 +472,33 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Verified: `tests/test_rejected_idea_guard.py` (6 tests pass covering $\ge 5$ true matches including paraphrased proposal, $\ge 8$ non-matches, reopen flow changing advisory message, dismiss persistence, never blocks assertion, and CI check `--strict` flag).
      - Full test discovery suite: **148 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+
+### Step 3.6 (P1-g) — Developer Feedback Loop & Review Routing
+- Status: **RESOLVED**
+- Files: `backend/db.py`, `backend/engine/rejected_idea_guard.py`, `backend/api.py`, `backend/evaluation/benchmark.py`, `web/app.js`, `docs/app.js`, `tests/test_feedback.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Feedback Persistence & Measured Feedback Counts (`backend/db.py`, `backend/api.py`):
+     - Implemented `ambiguous_findings` table tracking ambiguous findings (`finding_id`, `source`, `item_type`, `decision_id`, `pr_id`, `tier`, `queue_reason`, `status`, `actor`, `created_at`, `resolved_at`).
+     - Added `get_finding_feedback_counts()` returning distinct counts for `confirm`, `dismiss`, `reopen`, and `total`.
+     - Added `record_ambiguous_finding()`, `resolve_ambiguous_finding()`, and `get_pending_ambiguous_findings()`.
+     - Added `GET /api/findings/feedback` returning measured feedback history and aggregate action counts (authenticated viewer/reviewer).
+     - Connected measured feedback counts into `GET /api/stats` and `GET /api/benchmark`.
+  2. Review Routing for Ambiguous Findings (`backend/api.py`, `backend/engine/rejected_idea_guard.py`):
+     - Updated `evaluate_proposal` in `RejectedIdeaGuard` to automatically route `tier == "possible"` findings to `ambiguous_findings` with explicit `queue_reason` ("Ambiguous finding ('possible' tier) requires reviewer triage").
+     - Updated `GET /api/review-queue` to combine:
+       * `decision` items requiring review (`needs_review == 1` or evidence assessment in `weak`, `insufficient`, `contradicted`).
+       * `supersession_candidate` edges with explicit ambiguous candidate reasons.
+       * `possible_rejected_idea` findings awaiting reviewer triage.
+     - Updated `POST /api/review-action` and `POST /api/findings/feedback` to support resolving ambiguous findings, transitioning their status and updating the review queue dynamically.
+  3. UI Integration (`web/app.js`, `docs/app.js`):
+     - Added Developer Feedback panel card displaying measured feedback counts (Total feedback, Confirmed, Dismissed, Reopened) under benchmark metrics.
+     - Regenerated static bundle with `tools/build_static.py`.
+  4. Acceptance & Verification:
+     - Auth boundary: `POST /api/findings/feedback` requires reviewer role (viewer returns 403, unauthenticated returns 401).
+     - Action persistence: `confirm` and `dismiss` persist to SQLite; dismissing suppresses subsequent checks on the same PR + decision while remaining active on other PRs.
+     - Decision reopen: transitions `rejected -> reopened`, logs state history, and changes subsequent advisory behavior.
+     - Review queue: all ambiguous categories (`possible` tier, supersession candidates, weak/insufficient evidence) routed with human-readable reasons; resolution purges item from pending queue.
+     - Measured data: feedback counts verified non-zero and consistent across `/api/findings/feedback`, `/api/stats`, and `/api/benchmark`.
+     - Verified: `tests/test_feedback.py` (6 tests pass). Full test discovery suite: **154 tests passing**. Demo runner: **21/21 checks passing**.
+     - Tagged `phase3-done`.

@@ -131,6 +131,9 @@ class BenchmarkRunner:
         # 6. Baselines
         baselines = self.baseline_eval.evaluate_all(gt_dataset)
 
+        # 7. Developer Finding Feedback (Measured Data - Step 3.6)
+        feedback_counts = self.db.get_finding_feedback_counts()
+
         return {
             "metrics": {
                 "decision_extraction_precision": precision_val if precision_val != "not measured" else "not measured",
@@ -144,7 +147,11 @@ class BenchmarkRunner:
                 "drift_recall": drift_metrics.get("recall", "not measured"),
                 "claim_support_rate": claim_support_metrics.get("support_rate", "not measured"),
                 "unsupported_claim_rate": claim_support_metrics.get("unsupported_rate", 0.0),
-                "processing_latency_ms": latency_ms
+                "processing_latency_ms": latency_ms,
+                "finding_feedback_total": feedback_counts["total"],
+                "finding_feedback_confirmed": feedback_counts["confirm"],
+                "finding_feedback_dismissed": feedback_counts["dismiss"],
+                "finding_feedback_reopened": feedback_counts["reopen"]
             },
             "ground_truth_total": total_gt,
             "matched_gt_count": matched_gt_count,
@@ -156,6 +163,7 @@ class BenchmarkRunner:
             },
             "conflict_evaluation": conflict_metrics,
             "drift_evaluation": drift_metrics,
+            "finding_feedback": feedback_counts,
             "baselines": baselines
         }
 

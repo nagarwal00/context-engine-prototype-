@@ -188,9 +188,28 @@ class Database:
             """)
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_finding_feedback_target ON finding_feedback(pr_id, decision_id);")
             cursor.execute("CREATE INDEX IF NOT EXISTS idx_finding_feedback_finding ON finding_feedback(finding_id);")
+
+            # 11. Ambiguous Findings Review Queue Table (Step 3.6)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS ambiguous_findings (
+                finding_id TEXT PRIMARY KEY,
+                pr_id TEXT NOT NULL,
+                repo TEXT NOT NULL,
+                decision_id TEXT NOT NULL,
+                decision_title TEXT NOT NULL,
+                tier TEXT NOT NULL,
+                signals_matched TEXT NOT NULL,
+                rejection_reason TEXT,
+                message TEXT,
+                pr_comment TEXT,
+                status TEXT NOT NULL DEFAULT 'pending_review',
+                created_at TEXT NOT NULL
+            );
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_ambiguous_findings_status ON ambiguous_findings(status);")
             conn.commit()
 
-            # 10. Schema Migrations (Step 2.0)
+            # 12. Schema Migrations (Step 2.0)
             run_migrations(conn)
 
     # --- Upsert & Query Methods ---
@@ -1026,4 +1045,76 @@ class Database:
             else:
                 cursor.execute("SELECT * FROM finding_feedback ORDER BY created_at DESC")
             return [dict(r) for r in cursor.fetchall()]
+
+    def get_finding_feedback_counts(self) -> Dict[str, int]:
+        """Returns counts of finding feedback grouped by action."""
+        counts = {"total": 0, "confirm": 0, "dismiss": 0, "reopen": 0}
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT action, COUNT(*) as c FROM finding_feedback GROUP BY action")
+            for row in cursor.fetchall():
+                act = row["action"]
+                cnt = row["c"]
+                if act in counts:
+                    counts[act] = cnt
+                counts["total"] += cnt
+        return counts
+
+    def record_ambiguous_finding(
+        self,
+        finding_id: str,
+        pr_id: str,
+        repo: str,
+        decision_id: str,
+        decision_title: str,
+        tier: str,
+        signals_matched: List[str],
+        rejection_reason: str,
+        message: str,
+        pr_comment: str,
+        created_at: Optional[str] = None
+    ) -> str:
+        """Records an ambiguous finding ('possible' tier) for human review queue."""
+        if not created_at:
+            from datetime import datetime, timezone
+            created_at = datetime.now(timezone.utc).isoformat()
+        signals_json = json.dumps(signals_matched)
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT OR REPLACE INTO ambiguous_findings (
+                finding_id, pr_id, repo, decision_id, decision_title, tier, signals_matched, rejection_reason, message, pr_comment, status, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_review', ?)
+            """, (finding_id, pr_id, repo, decision_id, decision_title, tier, signals_json, rejection_reason, message, pr_comment, created_at))
+            conn.commit()
+            return finding_id
+
+    def resolve_ambiguous_finding(self, finding_id: str, action: str) -> bool:
+        """Marks an ambiguous finding as resolved (confirmed, dismissed, reopened)."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("UPDATE ambiguous_findings SET status = ? WHERE finding_id = ?", (action, finding_id))
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def get_pending_ambiguous_findings(self) -> List[Dict[str, Any]]:
+        """Retrieves pending ambiguous findings that have not been dismissed."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT af.* FROM ambiguous_findings af
+            WHERE af.status = 'pending_review'
+              AND NOT EXISTS (
+                  SELECT 1 FROM finding_feedback ff
+                  WHERE ((ff.pr_id = af.pr_id AND ff.decision_id = af.decision_id) OR ff.finding_id = af.finding_id)
+                    AND ff.action = 'dismiss'
+              )
+            ORDER BY af.created_at DESC
+            """)
+            rows = []
+            for r in cursor.fetchall():
+                d = dict(r)
+                d["signals_matched"] = json.loads(d["signals_matched"]) if d["signals_matched"] else []
+                rows.append(d)
+            return rows
 
