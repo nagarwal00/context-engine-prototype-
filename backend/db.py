@@ -298,8 +298,11 @@ class Database:
                 placeholders = ",".join("?" for _ in decision_ids)
                 cursor.execute(f"DELETE FROM guard_rules WHERE decision_id IN ({placeholders})", decision_ids)
                 counts["guard_rules"] = cursor.rowcount
+                cursor.execute(f"DELETE FROM decision_assumptions WHERE decision_id IN ({placeholders})", decision_ids)
+                counts["decision_assumptions"] = cursor.rowcount
             else:
                 counts["guard_rules"] = 0
+                counts["decision_assumptions"] = 0
 
             # 3. Delete state history
             if decision_ids:

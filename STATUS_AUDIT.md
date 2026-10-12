@@ -820,3 +820,27 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Created `tests/test_local_only.py` (4 tests): verifies complete LLM client deactivation, network blocking, local folder ingestion, and API rejection under `CIF_LOCAL_ONLY=1`.
      - Full test discovery suite: **195 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 5.2 — Decision Half-Life / Staleness
+- Status: **RESOLVED**
+- Files: `backend/migrations/006_decision_assumptions.py`, `backend/engine/staleness.py`, `backend/db.py`, `backend/api.py`, `tests/test_staleness.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Assumptions Schema & Migration (`backend/migrations/006_decision_assumptions.py`):
+     - Created `decision_assumptions` table with columns: `assumption_id`, `decision_id`, `text`, `watch_type`, `watch_params_json`, `status`, `last_checked_at`, `trigger_event_id`, `trigger_notes`.
+     - Supported `watch_type` categories: `dependency_version`, `config_value`, `file_exists`, `infrastructure_note`, `manual`.
+     - Status constraint: `valid`, `broken`, `under_review`.
+     - Automatic cascade deletion in `Database.purge_repo`.
+  2. Staleness Evaluation Engine (`backend/engine/staleness.py`):
+     - Guaranteed invariant: Decisions **never** expire by age alone.
+     - Dependency version upgrades evaluated via semver comparison (`parse_semver`, `check_version_violation`) against commit messages, PR descriptions, and dependency diffs.
+     - Config changes and watched file deletion triggers automatically flag assumptions as `broken` and transition `decisions.freshness` from `fresh` to `stale`.
+     - Non-breaking upgrades and unrelated commits leave decisions `fresh` with `valid` assumptions.
+  3. Review Queue Integration & Stale-Days Counter:
+     - `GET /api/review-queue` returns `stale_decision` items naming the triggering change and source link (`trigger_url`).
+     - Real-time `stale_days` counter computed from triggering event timestamp.
+  4. Decision Revalidation Workflow:
+     - `POST /api/review-action` supports `action="revalidate"`: sets `decisions.freshness = 'revalidated'`, resets assumptions to `valid`, and records audit row in `state_history` with reviewer notes.
+  5. Acceptance & Verification:
+     - Created `tests/test_staleness.py` (5 tests): proves no age-based expiration, breaking vs non-breaking dependency upgrades, config/file triggers, review-queue payload with trigger links, and revalidation history logging.
+     - Full test discovery suite: **200 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

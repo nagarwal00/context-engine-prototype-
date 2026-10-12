@@ -299,6 +299,12 @@ class APIHandler:
                         "made_at": af["created_at"]
                     })
 
+                # Stale decisions (Step 5.2 Decision Half-Life)
+                from backend.engine.staleness import StalenessEngine
+                stale_items = StalenessEngine(self.db).get_stale_review_items()
+                for si in stale_items:
+                    queue.append(si)
+
             return {"status": "success", "data": queue}
 
         # 8. Evaluation & Benchmark
@@ -585,7 +591,7 @@ class APIHandler:
                 }
 
             if not reason:
-                if action in ("reopen", "mark_tested"):
+                if action in ("reopen", "mark_tested", "revalidate"):
                     return {
                         "status": "error",
                         "status_code": 400,
@@ -607,7 +613,7 @@ class APIHandler:
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
 
-                if item_type == "decision":
+                if item_type in ("decision", "stale_decision"):
                     cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (target_id,))
                     d_row = cursor.fetchone()
                     if not d_row:
@@ -736,6 +742,30 @@ class APIHandler:
                                 review_status = 'human_corrected'
                             WHERE decision_id = ?
                             """, (new_title, new_rationale, target_id))
+
+                        elif action == "revalidate":
+                            from backend.engine.staleness import StalenessEngine
+                            StalenessEngine(self.db).revalidate_decision(target_id, actor=actor, reason=reason, at=now_iso)
+
+                        elif action == "mark_stale":
+                            cursor.execute("UPDATE decisions SET freshness = 'stale' WHERE decision_id = ?", (target_id,))
+                            hist_id = f"hist_stale_{target_id}_{time.time_ns()}_{uuid.uuid4().hex[:6]}"
+                            cursor.execute("PRAGMA table_info(state_history)")
+                            sh_cols = {r["name"] for r in cursor.fetchall()}
+                            notes_entry = f"Marked stale: {reason}"
+                            if "reconstructed" in sh_cols:
+                                cursor.execute("""
+                                INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes, reconstructed)
+                                VALUES (?, ?, ?, ?, ?, ?, 0)
+                                """, (hist_id, target_id, cur_state, now_iso, actor, notes_entry))
+                            else:
+                                cursor.execute("""
+                                INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
+                                VALUES (?, ?, ?, ?, ?, ?)
+                                """, (hist_id, target_id, cur_state, now_iso, actor, notes_entry))
+
+                        elif action == "mark_under_review":
+                            cursor.execute("UPDATE decisions SET freshness = 'under_review' WHERE decision_id = ?", (target_id,))
 
                         else:
                             return {
