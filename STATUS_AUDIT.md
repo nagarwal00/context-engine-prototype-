@@ -441,3 +441,34 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Seeded active pilot constraints and test fixtures.
      - `drift_cases.json` 20-case suite re-evaluated: **100.0% precision, 100.0% recall** (10 True Positives, 10 True Negatives, 0 False Positives, 0 False Negatives).
      - Verified: `tests/test_drift_rules.py` (4 tests pass covering grep keyword check, 7 positive diffs, 11 negative diffs with near-misses, and full `drift_cases.json` suite); full test discovery suite (142 tests pass); demo runner (21/21 checks pass).
+
+### Step 3.5 — Rejected-Idea Guard (Headline Novelty)
+- Status: **RESOLVED**
+- Files: `backend/migrations/005_finding_feedback.py`, `backend/db.py`, `backend/engine/rejected_idea_guard.py`, `backend/api.py`, `tools/ci_check.py`, `tests/test_rejected_idea_guard.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Additive Migration 005 & Data Model:
+     - Created `backend/migrations/005_finding_feedback.py` implementing `finding_feedback` table:
+       `feedback_id`, `finding_id`, `finding_type`, `action`, `reason`, `actor`, `pr_id`, `decision_id`, `created_at`.
+     - Added helper methods in `backend/db.py`: `record_finding_feedback`, `is_finding_dismissed`, `get_finding_feedback`, `get_decision`, `get_all_decisions`.
+  2. Rejected-Idea Guard Engine (`backend/engine/rejected_idea_guard.py`):
+     - Design extraction: deterministic parser extracting added imports/dependencies, function calls/definitions, variable assignments, config keys, and tokens from proposal text and diffs. Filters out historical decommissioning documentation comments (`decommissioned`, `deprecated`, `replaced by`, `superseded`) from active code analysis.
+     - Candidate retrieval: retrieves all rejected decisions and rejected alternatives, including candidate rationale and evidence passages.
+     - Substance comparison on 4 signals:
+       * (a) Entity / path overlap: resolves entity IDs to canonical file paths via database `entities` table.
+       * (b) Signature / guard-rule match: checks active decision constraints (`forbid_import`, `forbid_pattern`) and concept signatures across code lines and identifiers.
+       * (c) Dependency / library match: compares proposal added imports against candidate rejection rationale and library references.
+       * (d) Text similarity: pure Python standard library TF-IDF cosine similarity (`compute_tfidf_cosine`).
+     - Explicit Tiers:
+       * `strong`: $\ge 2$ independent signals including a structural/substance match (e.g. entity overlap + code signature match).
+       * `possible`: 1 structural code signature / dependency match, or high text similarity ($\ge 0.55$), or entity overlap with moderate text similarity ($\ge 0.20$).
+       * No finding for keyword coincidence alone or file touch without substance.
+     - Advisory findings (`advisory: true`): never auto-blocks. Generates PR review notice ("Possible reintroduction of a previously rejected approach — please review").
+     - Changed-circumstances hints: time elapsed since decision, later related decisions modifying overlapping components, and reopened status reminders.
+     - Developer feedback loop: `confirm`, `dismiss` (persists for PR + decision, suppressing duplicate alerts on subsequent runs), and `reopen_decision` (transitions decision `rejected -> reopened` via reconciled lifecycle engine with PR evidence).
+  3. Integration:
+     - `tools/ci_check.py`: integrated rejected-idea guard check; default invocation exits code 0 on advisory findings; `--strict` flag blocks with exit code 1 if advisories are present.
+     - `backend/api.py`: hooked guard into `/api/drift-check`, `handle_webhook` (posts advisory comments to PRs), and `POST /api/findings/feedback`.
+  4. Acceptance & Verification:
+     - Verified: `tests/test_rejected_idea_guard.py` (6 tests pass covering $\ge 5$ true matches including paraphrased proposal, $\ge 8$ non-matches, reopen flow changing advisory message, dismiss persistence, never blocks assertion, and CI check `--strict` flag).
+     - Full test discovery suite: **148 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

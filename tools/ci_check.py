@@ -79,12 +79,20 @@ def main():
         default=str(DEFAULT_RULES_FILE),
         help=f"Path to exported cif_rules.json (default: {DEFAULT_RULES_FILE})"
     )
+    parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Treat advisory findings as blocking (exit 1). By default, advisory findings exit 0."
+    )
+    parser.add_argument("--repo", default="test/repo", help="Repository full name")
+    parser.add_argument("--title", default="", help="PR title")
+    parser.add_argument("--body", default="", help="PR body")
+    parser.add_argument("--db", default=None, help="Database path for rejected-idea guard (optional)")
     args = parser.parse_args()
 
     rules = load_rules(args.rules)
     if not rules:
         print("[CI_CHECK] PASS: No active rules to check.", file=sys.stderr)
-        sys.exit(0)
 
     print(f"[CI_CHECK] Comparing {args.base}..{args.head}", file=sys.stderr)
     diff_text = get_diff_text(args.base, args.head)
@@ -95,16 +103,18 @@ def main():
     changed_files = get_changed_files(diff_text)
     print(f"[CI_CHECK] Changed files: {changed_files}", file=sys.stderr)
 
-    # Import the guard rules checker (stdlib only inside it)
-    try:
-        from backend.engine.guard_rules import check_diff_against_guard_rules_with_report
-    except ImportError as e:
-        print(f"[CI_CHECK] ERROR importing guard_rules: {e}", file=sys.stderr)
-        sys.exit(2)
-
-    report = check_diff_against_guard_rules_with_report(rules, changed_files, diff_text)
-    violations = report.get("violations", [])
-    errors = report.get("errors", [])
+    # 1. Guard Rules Evaluation (Blocking)
+    violations = []
+    errors = []
+    if rules:
+        try:
+            from backend.engine.guard_rules import check_diff_against_guard_rules_with_report
+            report = check_diff_against_guard_rules_with_report(rules, changed_files, diff_text)
+            violations = report.get("violations", [])
+            errors = report.get("errors", [])
+        except ImportError as e:
+            print(f"[CI_CHECK] ERROR importing guard_rules: {e}", file=sys.stderr)
+            sys.exit(2)
 
     if errors:
         print(f"\n[CI_CHECK] INCOMPLETE: {len(errors)} guard rule(s) encountered evaluation errors:\n", file=sys.stderr)
@@ -124,9 +134,49 @@ def main():
             print(f"  CITATION: {v.get('citation', '')}")
             print()
         sys.exit(1)
-    else:
-        print(f"[CI_CHECK] PASS: No guard rule violations in {len(changed_files)} file(s).")
-        sys.exit(0)
+
+    # 2. Rejected-Idea Guard Evaluation (Advisory - Never auto-blocks unless --strict)
+    advisory_findings = []
+    try:
+        from backend.db import Database
+        from backend.engine.rejected_idea_guard import RejectedIdeaGuard
+        db_path = args.db or str(PROJECT_ROOT / "context_intelligence.db")
+        if os.path.exists(db_path):
+            db = Database(db_path)
+            guard = RejectedIdeaGuard(db)
+            rej_eval = guard.evaluate_proposal(
+                repo=args.repo,
+                pr_id=f"pr_ci_{args.head[:7]}",
+                title=args.title,
+                body=args.body,
+                diff_text=diff_text,
+                changed_files=changed_files
+            )
+            advisory_findings = rej_eval.get("findings", [])
+    except Exception as e:
+        print(f"[CI_CHECK] Notice: Rejected-idea guard evaluation skipped: {e}", file=sys.stderr)
+
+    if advisory_findings:
+        print(f"\n[CI_CHECK] ADVISORY: {len(advisory_findings)} previously rejected approach finding(s) detected (advisory only — please review):\n")
+        for f in advisory_findings:
+            print(f"  TIER: {f.get('tier', 'possible').upper()}")
+            print(f"  DECISION: {f.get('decision_title')} ({f.get('decision_id')}) [State: {f.get('decision_state')}]")
+            print(f"  REJECTION REASON: {f.get('rejection_reason')}")
+            print(f"  COMMENT: {f.get('pr_comment')}")
+            if f.get("changed_circumstances"):
+                for hint in f["changed_circumstances"]:
+                    print(f"    - Hint: {hint}")
+            print()
+
+        if args.strict:
+            print("[CI_CHECK] FAIL: Blocking on advisory findings because --strict is set.\n", file=sys.stderr)
+            sys.exit(1)
+        else:
+            print("[CI_CHECK] PASS: Advisory findings reported without blocking (use --strict to block).")
+            sys.exit(0)
+
+    print(f"[CI_CHECK] PASS: No violations in {len(changed_files)} file(s).")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

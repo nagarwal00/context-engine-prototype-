@@ -54,6 +54,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("POST", "/api/guard-rules/approve"): ROLE_REVIEWER,
     ("POST", "/api/guard-rules/disable"): ROLE_REVIEWER,
     ("POST", "/api/drift-check"): ROLE_REVIEWER,
+    ("POST", "/api/findings/feedback"): ROLE_REVIEWER,
 
     # POST routes (admin)
     ("POST", "/api/reseed"): ROLE_ADMIN,
@@ -72,6 +73,8 @@ class APIHandler:
         self.reconciliation = ReconciliationEngine(db)
         self.drift_detector = DriftDetector(db)
         self.benchmark_runner = BenchmarkRunner(db)
+        from backend.engine.rejected_idea_guard import RejectedIdeaGuard
+        self.rejected_idea_guard = RejectedIdeaGuard(db)
 
     def check_authorization(
         self,
@@ -798,12 +801,15 @@ class APIHandler:
             return {"status": "success", "rule_id": rule_id, "disabled": success}
 
 
-        # 2. Live Drift Check (Section 8.3)
+        # 2. Live Drift Check (Section 8.3 & Step 3.5 Rejected-Idea Guard)
         elif path == "/api/drift-check":
             repo = body.get("repo", "acme-eng/thermal-control-system")
             diff_text = body.get("diff_text", "")
             files = body.get("files", ["src/thermal/control.py"])
             author = body.get("author", "developer")
+            title = body.get("title", "")
+            pr_body = body.get("body", "")
+
             report = self.drift_detector.analyze_diff_for_drift(
                 repo=repo,
                 commit_or_pr_id="live_ci_check",
@@ -812,10 +818,23 @@ class APIHandler:
                 diff_text=diff_text
             )
             findings = report.get("findings", [])
+
+            rej_eval = self.rejected_idea_guard.evaluate_proposal(
+                repo=repo,
+                pr_id="live_ci_check",
+                title=title,
+                body=pr_body,
+                diff_text=diff_text,
+                changed_files=files,
+                author=author
+            )
+            rejected_ideas = rej_eval.get("findings", [])
+
             return {
                 "status": "success",
-                "drift_detected": len(findings) > 0,
+                "drift_detected": (len(findings) > 0 or len(rejected_ideas) > 0),
                 "results": findings,
+                "rejected_ideas": rejected_ideas,
                 "check_status": report.get("status", "complete"),
                 "errors": report.get("errors", []),
                 "report": report
@@ -866,6 +885,31 @@ class APIHandler:
             from backend.ingestion.live_github import LiveGitHubIngestor
             LiveGitHubIngestor(self.db).clear_database()
             return {"status": "success", "message": "Dashboard database cleared successfully. Ready for custom repository."}
+
+        # 6. Findings Feedback (Step 3.5 & Step 3.6)
+        elif path == "/api/findings/feedback":
+            finding_id = body.get("finding_id", "")
+            action = body.get("action", "")
+            reason = body.get("reason", "")
+            pr_id = body.get("pr_id", "")
+            decision_id = body.get("decision_id", "")
+            actor = body.get("actor", "reviewer")
+
+            if not finding_id or not action:
+                return {"status": "error", "status_code": 400, "message": "Missing required fields: finding_id, action"}
+
+            if action not in ("confirm", "dismiss", "reopen"):
+                return {"status": "error", "status_code": 400, "message": f"Invalid action '{action}'. Must be confirm, dismiss, or reopen."}
+
+            if action == "dismiss":
+                res = self.rejected_idea_guard.dismiss_finding(finding_id, pr_id, decision_id, actor, reason)
+                return {"status": "success", "data": res}
+            elif action == "confirm":
+                res = self.rejected_idea_guard.confirm_finding(finding_id, pr_id, decision_id, actor, reason)
+                return {"status": "success", "data": res}
+            elif action == "reopen":
+                res = self.rejected_idea_guard.reopen_decision(decision_id, pr_id, actor, reason)
+                return {"status": "success", "data": res}
 
         return {"status": "error", "message": f"Unknown POST endpoint {path}"}
 
@@ -951,16 +995,36 @@ class APIHandler:
         )
         findings = report.get("findings", [])
 
-        # Post PR comment if violations and token available
+        # Run rejected-idea guard analysis (Advisory)
+        rej_report = self.rejected_idea_guard.evaluate_proposal(
+            repo=repo_full,
+            pr_id=f"pr_{pr_number}",
+            title=pr.get("title", ""),
+            body=pr.get("body", ""),
+            diff_text=diff_text,
+            changed_files=changed_files,
+            author=pr.get("user", {}).get("login", "unknown")
+        )
+        rejected_ideas = rej_report.get("findings", [])
+
+        # Post PR comment if violations or advisory findings and token available
         comment_posted = False
-        if findings and token and comments_url:
-            lines = ["**⚠️ Context Intelligence Framework — Decision Guard Violations**", ""]
-            for f in findings[:5]:
-                lines.append(f"- **{f.get('violation_type','drift')}**: {f.get('message', '')[:200]}")
-                if f.get("decision_url"):
-                    lines.append(f"  📋 [Evidence]({f['decision_url']})")
-            lines.append("")
-            lines.append("*Posted by CIF Decision Guard. See [full evidence].*")
+        all_report_items = findings + rejected_ideas
+        if all_report_items and token and comments_url:
+            lines = ["**⚠️ Context Intelligence Framework — Decision Guard Review**", ""]
+            if findings:
+                lines.append("### Guard Rule Violations")
+                for f in findings[:5]:
+                    lines.append(f"- **{f.get('violation_type','drift')}**: {f.get('message', '')[:200]}")
+                    if f.get("decision_url"):
+                        lines.append(f"  📋 [Evidence]({f['decision_url']})")
+                lines.append("")
+            if rejected_ideas:
+                lines.append("### Previously Rejected Approaches (Advisory)")
+                for r in rejected_ideas[:5]:
+                    lines.append(f"- **{r.get('tier', 'advisory').upper()}**: {r.get('pr_comment', '')[:250]}")
+                lines.append("")
+            lines.append("*Posted by CIF Decision Guard. Advisory findings do not block merge unless strict mode is enabled.*")
             comment_body = "\n".join(lines)
             try:
                 req = urllib.request.Request(
@@ -977,8 +1041,8 @@ class APIHandler:
                 comment_posted = True
             except urllib.error.URLError:
                 pass
-        elif findings and not token:
-            print(f"[CIF] {len(findings)} drift finding(s) for PR#{pr_number} stored. "
+        elif all_report_items and not token:
+            print(f"[CIF] {len(findings)} drift finding(s) and {len(rejected_ideas)} advisory finding(s) for PR#{pr_number} stored. "
                   "Set GITHUB_TOKEN to enable PR comment posting.")
 
         return ({
@@ -986,6 +1050,7 @@ class APIHandler:
             "repo": repo_full,
             "pr": pr_number,
             "findings_count": len(findings),
+            "rejected_ideas_count": len(rejected_ideas),
             "check_status": report.get("status", "complete"),
             "errors": report.get("errors", []),
             "comment_posted": comment_posted,

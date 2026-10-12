@@ -171,6 +171,23 @@ class Database:
             SELECT rule_id AS constraint_id, decision_id, rule_type, params_json, status, polarity, applies_to, source, created_by, created_at, approved_by, approved_at
             FROM guard_rules;
             """)
+
+            # 10. Finding Feedback Table (Step 3.5 & Step 3.6)
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS finding_feedback (
+                feedback_id TEXT PRIMARY KEY,
+                finding_id TEXT NOT NULL,
+                finding_type TEXT NOT NULL,
+                action TEXT NOT NULL,
+                reason TEXT,
+                actor TEXT NOT NULL,
+                pr_id TEXT,
+                decision_id TEXT,
+                created_at TEXT NOT NULL
+            );
+            """)
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_finding_feedback_target ON finding_feedback(pr_id, decision_id);")
+            cursor.execute("CREATE INDEX IF NOT EXISTS idx_finding_feedback_finding ON finding_feedback(finding_id);")
             conn.commit()
 
             # 10. Schema Migrations (Step 2.0)
@@ -526,6 +543,64 @@ class Database:
     def upsert_decision(self, decision: Decision) -> str:
         """Alias for save_decision."""
         return self.save_decision(decision)
+
+    def get_decision(self, decision_id: str) -> Optional[Decision]:
+        """Retrieves a Decision by decision_id."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+
+            d_dict = dict(row)
+            cursor.execute("SELECT event_id FROM decision_evidence WHERE decision_id = ?", (decision_id,))
+            eids = [r["event_id"] for r in cursor.fetchall()]
+
+            cursor.execute("SELECT entity_id FROM decision_artifacts WHERE decision_id = ?", (decision_id,))
+            aids = [r["entity_id"] for r in cursor.fetchall()]
+
+            cursor.execute("SELECT * FROM state_history WHERE decision_id = ? ORDER BY changed_at ASC", (decision_id,))
+            sh = [dict(r) for r in cursor.fetchall()]
+
+            alts = json.loads(d_dict["alternatives_json"]) if d_dict.get("alternatives_json") else []
+
+            return Decision(
+                decision_id=d_dict["decision_id"],
+                title=d_dict["title"],
+                state=d_dict["state"],
+                made_by=d_dict["made_by"] or "unknown",
+                made_at=d_dict["made_at"],
+                artifacts_affected=aids,
+                alternatives_considered=alts,
+                rationale=d_dict["rationale"] or "",
+                evidence_event_ids=eids,
+                confidence=d_dict.get("confidence", 0.0),
+                review_status=d_dict.get("review_status", "pending_review"),
+                supersedes_decision_id=d_dict.get("supersedes_decision_id"),
+                superseded_by_decision_id=d_dict.get("superseded_by_decision_id"),
+                repo=d_dict.get("repo", "unknown"),
+                state_history=sh,
+                evidence_assessment=d_dict.get("evidence_assessment", "insufficient"),
+                freshness=d_dict.get("freshness", "current")
+            )
+
+    def get_all_decisions(self, repo: Optional[str] = None) -> List[Decision]:
+        """Retrieves all Decisions from the database."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            if repo:
+                cursor.execute("SELECT decision_id FROM decisions WHERE repo = ? ORDER BY made_at ASC", (repo,))
+            else:
+                cursor.execute("SELECT decision_id FROM decisions ORDER BY made_at ASC")
+            rows = cursor.fetchall()
+
+        decisions = []
+        for r in rows:
+            dec = self.get_decision(r["decision_id"])
+            if dec:
+                decisions.append(dec)
+        return decisions
 
     def save_claim(self, claim: DecisionClaim) -> str:
         claim.validate()
@@ -898,4 +973,57 @@ class Database:
             """, (status, approved_by, approved_at, rule_id))
             conn.commit()
             return cursor.rowcount > 0
+
+    def record_finding_feedback(
+        self,
+        feedback_id: str,
+        finding_id: str,
+        finding_type: str,
+        action: str,
+        reason: Optional[str],
+        actor: str,
+        pr_id: Optional[str] = None,
+        decision_id: Optional[str] = None,
+        created_at: Optional[str] = None
+    ) -> str:
+        """Records developer feedback (confirm, dismiss, reopen) on a finding."""
+        if not created_at:
+            from datetime import datetime, timezone
+            created_at = datetime.now(timezone.utc).isoformat()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT OR REPLACE INTO finding_feedback (
+                feedback_id, finding_id, finding_type, action, reason, actor, pr_id, decision_id, created_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (feedback_id, finding_id, finding_type, action, reason, actor, pr_id, decision_id, created_at))
+            conn.commit()
+            return feedback_id
+
+    def is_finding_dismissed(self, pr_id: str, decision_id: str) -> bool:
+        """Checks if a finding for a given PR and decision was dismissed."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT 1 FROM finding_feedback
+            WHERE ((pr_id = ? AND decision_id = ?) OR finding_id = ?) AND action = 'dismiss'
+            LIMIT 1
+            """, (pr_id, decision_id, f"rej_{decision_id[:8]}"))
+            return cursor.fetchone() is not None
+
+    def get_finding_feedback(
+        self,
+        finding_id: Optional[str] = None,
+        pr_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """Retrieves stored developer feedback records."""
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            if finding_id:
+                cursor.execute("SELECT * FROM finding_feedback WHERE finding_id = ? ORDER BY created_at DESC", (finding_id,))
+            elif pr_id:
+                cursor.execute("SELECT * FROM finding_feedback WHERE pr_id = ? ORDER BY created_at DESC", (pr_id,))
+            else:
+                cursor.execute("SELECT * FROM finding_feedback ORDER BY created_at DESC")
+            return [dict(r) for r in cursor.fetchall()]
 
