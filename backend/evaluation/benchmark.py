@@ -6,14 +6,104 @@ import os
 import re
 import json
 import time
+import hashlib
 import statistics
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from backend.db import Database
 from backend.evaluation.ground_truth import GROUND_TRUTH_DATASET
 from backend.evaluation.baselines import BaselineEvaluator, STOP_WORDS, tokenize
 from backend.engine.explanation import ExplanationGenerator
 from backend.engine.reconciliation import ReconciliationEngine
 from backend.engine.drift_detector import DriftDetector
+
+def compute_db_sha256(db_path: str) -> str:
+    """Computes SHA-256 hash of a SQLite database file (Step 4.5)."""
+    if not db_path or not os.path.exists(db_path):
+        return ""
+    hasher = hashlib.sha256()
+    with open(db_path, "rb") as f:
+        while chunk := f.read(65536):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+def evaluate_precision_labels(db_path: str, labels_file_or_dir: str = None) -> Tuple[Any, str]:
+    """
+    Evaluates decision precision from a human-labelled sample (Step 4.5).
+    Refuses to use labels whose db_snapshot_sha256 does not match the DB being evaluated.
+
+    Returns (precision_val, reason_str).
+    precision_val is either float (0.0 - 100.0) or string 'not measured'.
+    """
+    labels_file = None
+    if labels_file_or_dir:
+        if os.path.isfile(labels_file_or_dir):
+            labels_file = labels_file_or_dir
+        elif os.path.isdir(labels_file_or_dir):
+            candidate = os.path.join(labels_file_or_dir, "precision_labels.json")
+            if os.path.exists(candidate):
+                labels_file = candidate
+
+    if not labels_file:
+        base_eval_dir = os.path.dirname(os.path.abspath(__file__))
+        candidates = [
+            os.path.join(base_eval_dir, "precision_labels.json"),
+            os.path.join(base_eval_dir, "whybench", "precision_labels.json")
+        ]
+        for c in candidates:
+            if os.path.exists(c):
+                labels_file = c
+                break
+
+    if not labels_file or not os.path.exists(labels_file):
+        return "not measured", "precision label file not found"
+
+    try:
+        with open(labels_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as e:
+        return "not measured", f"error reading label file: {e}"
+
+    if isinstance(data, list):
+        items = data
+        label_snapshot_hash = items[0].get("db_snapshot_sha256") if items else None
+    elif isinstance(data, dict):
+        items = data.get("samples", [])
+        label_snapshot_hash = data.get("db_snapshot_sha256")
+    else:
+        return "not measured", "invalid label file structure"
+
+    if not items:
+        return "not measured", "label file contains 0 sampled items"
+
+    # Enforce DB snapshot hash verification (prevents stale-ID labels)
+    current_db_hash = compute_db_sha256(db_path)
+    if not current_db_hash:
+        return "not measured", f"database file not found or inaccessible at '{db_path}'"
+
+    # Refuse labels if snapshot hash does not match
+    if not label_snapshot_hash or label_snapshot_hash != current_db_hash:
+        return "not measured", (
+            f"snapshot hash mismatch: labels generated from '{label_snapshot_hash or 'unknown'}', "
+            f"current DB hash is '{current_db_hash}'"
+        )
+
+    # Check per-item snapshot hash consistency
+    for item in items:
+        item_hash = item.get("db_snapshot_sha256")
+        if item_hash and item_hash != current_db_hash:
+            return "not measured", (
+                f"snapshot hash mismatch: item '{item.get('decision_id')}' generated from '{item_hash}', "
+                f"current DB hash is '{current_db_hash}'"
+            )
+
+    # Filter items filled in by a human (correct is not None)
+    evaluated = [it for it in items if it.get("correct") is not None]
+    if not evaluated:
+        return "not measured", "awaiting human labels (H2: all items have correct=null)"
+
+    correct_count = sum(1 for it in evaluated if it.get("correct") is True)
+    precision = round((correct_count / len(evaluated)) * 100, 1)
+    return precision, f"evaluated {len(evaluated)}/{len(items)} human-labelled items ({correct_count} correct)"
 
 def compute_decision_matching(
     gt_dataset: List[Dict[str, Any]],
@@ -250,8 +340,8 @@ class BenchmarkRunner:
         decision_recall = strict["recall"]
         state_accuracy = strict["state_accuracy"]
 
-        # Decision Precision (from precision_labels.json)
-        precision_val = self._evaluate_precision(system_decisions)
+        # Decision Precision (from precision_labels.json with snapshot hash check)
+        precision_val, precision_reason = self._evaluate_precision(system_decisions)
         if isinstance(precision_val, (int, float)) and isinstance(decision_recall, (int, float)):
             f1_val = round((2 * precision_val * decision_recall) / (precision_val + decision_recall), 1) if (precision_val + decision_recall) > 0 else 0.0
         else:
@@ -331,13 +421,15 @@ class BenchmarkRunner:
             "matched_gt_count_lenient": lenient["matched_gt_count"],
             "unmatched_system_decisions_count": strict["unmatched_system_count"],
             "system_decisions_evaluated": len(system_decisions),
+            "precision_reason": precision_reason,
             "details": {
                 "found": strict["found"],
                 "missed": strict["missed"],
                 "wrong_state": strict["wrong_state"],
                 "strict": strict,
                 "lenient": lenient,
-                "overcounting_detected": match_results["overcounting_detected"]
+                "overcounting_detected": match_results["overcounting_detected"],
+                "precision_reason": precision_reason
             },
             "conflict_evaluation": conflict_metrics,
             "drift_evaluation": drift_metrics,
@@ -345,23 +437,9 @@ class BenchmarkRunner:
             "baselines": baselines
         }
 
-    def _evaluate_precision(self, system_decisions: List[Dict[str, Any]]) -> Any:
-        labels_file = os.path.join(os.path.dirname(__file__), "precision_labels.json")
-        if not os.path.exists(labels_file):
-            return "not measured"
-
-        try:
-            with open(labels_file, "r", encoding="utf-8") as f:
-                labels = json.load(f)
-        except Exception:
-            return "not measured"
-
-        evaluated = [item for item in labels if item.get("correct") is not None]
-        if not evaluated:
-            return "not measured"
-
-        correct_count = sum(1 for item in evaluated if item.get("correct") is True)
-        return round((correct_count / len(evaluated)) * 100, 1)
+    def _evaluate_precision(self, system_decisions: List[Dict[str, Any]]) -> Tuple[Any, str]:
+        db_path = getattr(self.db, "db_path", None)
+        return evaluate_precision_labels(db_path, os.path.dirname(__file__))
 
     def _evaluate_drift_cases(self) -> Dict[str, Any]:
         cases_file = os.path.join(os.path.dirname(__file__), "drift_cases.json")

@@ -244,8 +244,8 @@
       "title": "Migrate refund math to integer cents and Decimal representation",
       "state": "accepted",
       "cites": [
-        "evt_why_pay_issue_11",
-        "evt_why_pay_pr_29"
+        "evt_why_pay_pr_29",
+        "evt_why_pay_issue_11"
       ],
       "reason": "System decision extracted from repository history does not match any evaluated ground-truth question"
     },

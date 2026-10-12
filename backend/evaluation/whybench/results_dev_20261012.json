@@ -1,7 +1,7 @@
 {
   "benchmark": "WhyBench",
   "split": "dev",
-  "date": "2026-10-12T19:29:40.085430",
+  "date": "2026-10-12T19:41:59.227319",
   "extractor_mode": "heuristic",
   "questions_evaluated": 24,
   "standard_questions": 18,
@@ -14,7 +14,9 @@
     "state_accuracy": 100.0,
     "state_accuracy_strict": 100.0,
     "state_accuracy_lenient": 94.4,
-    "refusal_accuracy": 100.0
+    "refusal_accuracy": 100.0,
+    "decision_precision": "not measured",
+    "decision_precision_reason": "snapshot hash mismatch: labels generated from 'da83ba4a7ab8d836a977d287062a88701aac701e522dca29ae591f1e630dcbac', current DB hash is 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee'"
   },
   "tasks": {
     "task_1_evidence_retrieval": {
@@ -31,6 +33,8 @@
       "cif_lenient_recall": 100.0,
       "cif_state_accuracy": 100.0,
       "cif_refusal_accuracy": 100.0,
+      "cif_precision": "not measured",
+      "cif_precision_reason": "snapshot hash mismatch: labels generated from 'da83ba4a7ab8d836a977d287062a88701aac701e522dca29ae591f1e630dcbac', current DB hash is 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee'",
       "baseline_keyword": {
         "strict_recall": "n/a",
         "state_accuracy": "n/a",

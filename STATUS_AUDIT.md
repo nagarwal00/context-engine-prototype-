@@ -620,3 +620,38 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `test_extractor_filters_trivial_events`: Validates that non-decision events return empty extraction and do not invent dummy decisions.
      - Full test discovery suite: **164 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+
+### Step 4.5 — Human-Labelled Precision & Snapshot Hash Protection
+- Status: **RESOLVED**
+- Files: `tools/make_precision_sample.py`, `backend/evaluation/benchmark.py`, `tools/run_whybench.py`, `backend/evaluation/precision_labels.json`, `tests/test_precision_sampling.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Hashed Snapshot Sampling (`tools/make_precision_sample.py`):
+     - Implemented `make_precision_sample` sampling up to 40 decisions per repository (fixed random seed 1234) from a named SQLite snapshot.
+     - Computes cryptographic SHA-256 hash of the snapshot database (`compute_db_sha256`).
+     - Emits `precision_labels.json` template with required metadata per row:
+       * `dataset_version`: string (e.g., `whybench_v1`)
+       * `db_snapshot_sha256`: 64-character SHA-256 hex string
+       * `repo`: repository name
+       * `decision_id`: system decision identifier
+       * `title`, `state`, `confidence`, `rationale`
+       * `correct`: `null` (strictly preserved until human fills in `true` or `false`)
+       * `note`: annotator comment field
+  2. Snapshot Hash Invariant Enforcement (`backend/evaluation/benchmark.py` & `tools/run_whybench.py`):
+     - Implemented `evaluate_precision_labels(db_path, labels_file_or_dir)`:
+       * Computes runtime SHA-256 hash of the database currently evaluated.
+       * Compares against the label file's `db_snapshot_sha256` (both file-level and per-row).
+       * **Refuses to use labels** if the snapshot hash does not match, returning `"not measured"` with explicit reason citing the mismatch (`snapshot hash mismatch: labels generated from ..., current DB hash is ...`). This mechanically prevents stale-ID label errors.
+       * If all rows have `correct: null`, returns `"not measured"` with reason `"awaiting human labels (H2: all items have correct=null)"`.
+       * If valid human labels are present with matching hash, computes exact percentage: $\frac{\sum \text{correct == True}}{\text{total filled labels}}$.
+  3. WhyBench Runner Integration:
+     - `tools/run_whybench.py` evaluates and displays human precision under Task 2 metrics, reporting `"not measured"` with the reason string.
+  4. Acceptance & Verification:
+     - Added 5 unit tests in `tests/test_precision_sampling.py`:
+       * `test_make_precision_sample_schema_and_per_row_metadata`: Verifies all required fields and correct=null per row.
+       * `test_snapshot_hash_mismatch_refuses_labels_with_clear_reason`: Verifies refused evaluation on wrong hash.
+       * `test_unfilled_labels_reports_not_measured_awaiting_human`: Verifies 'not measured' when awaiting human labels.
+       * `test_valid_matching_labels_computes_exact_precision`: Verifies precision calculation on matching human labels.
+       * `test_sampling_determinism_and_cap_per_repo`: Verifies seed 1234 determinism and 40-decision-per-repo cap.
+     - Full test discovery suite: **169 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
