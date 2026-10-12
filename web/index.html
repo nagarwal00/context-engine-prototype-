@@ -108,6 +108,10 @@
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             <span>Metrics & Baselines</span>
           </a>
+          <a class="nav-item" data-surface="bus-factor" onclick="app.navigate('bus-factor')">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Bus Factor Map</span>
+          </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -422,6 +426,25 @@
           </div>
           <div class="benchmark-grid" id="benchmark-container">
             <!-- Benchmark metrics cards and comparative table injected here -->
+          </div>
+        </section>
+
+        <!-- EXTRA SURFACE: Bus Factor & Knowledge Concentration Map (Step 5.3) -->
+        <section id="surface-bus-factor" class="surface-view">
+          <div class="view-header">
+            <div>
+              <h1 class="view-title">Bus Factor &amp; Knowledge Concentration Map</h1>
+              <p class="view-desc">Module-level knowledge concentration derived from substantive architectural decisions, ADR authors, and code reviewers (raw commit counts excluded).</p>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-secondary btn-sm" onclick="app.loadBusFactorData()">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Refresh Map
+              </button>
+            </div>
+          </div>
+          <div id="bus-factor-container" class="bus-factor-wrapper">
+            <!-- Rendered dynamically by app.js -->
           </div>
         </section>
 

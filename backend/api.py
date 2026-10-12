@@ -49,6 +49,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/decision-history"): ROLE_VIEWER,
     ("GET", "/api/as-of"): ROLE_VIEWER,
     ("GET", "/api/findings/feedback"): ROLE_VIEWER,
+    ("GET", "/api/bus-factor"): ROLE_VIEWER,
 
     # POST routes (reviewer)
     ("POST", "/api/review-action"): ROLE_REVIEWER,
@@ -566,6 +567,18 @@ class APIHandler:
                     "items": items
                 }
             }
+
+        elif path == "/api/bus-factor":
+            repo = query_params.get("repo", [None])[0]
+            if not repo:
+                with self.db.get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT DISTINCT repo FROM decisions LIMIT 1")
+                    r = cursor.fetchone()
+                    repo = r["repo"] if r else "acme-ecommerce/payment-core"
+            from backend.engine.bus_factor import BusFactorEngine
+            engine = BusFactorEngine(self.db)
+            return engine.analyze_repository(repo)
 
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 

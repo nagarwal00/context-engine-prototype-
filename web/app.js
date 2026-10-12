@@ -67,6 +67,8 @@ const app = {
       this.populateEvidenceSelect();
     } else if (surfaceId === 'review') {
       this.loadReviewQueue();
+    } else if (surfaceId === 'bus-factor') {
+      this.loadBusFactorData();
     }
   },
 
@@ -2135,7 +2137,131 @@ const app = {
       return (staticData.endpoints && staticData.endpoints.benchmark) || { status: 'success', data: { metrics: {}, baselines: {} } };
     }
 
+    if (path === '/api/bus-factor') {
+      return (staticData.endpoints && staticData.endpoints.bus_factor) || {
+        status: 'success',
+        overall_bus_factor: 1,
+        total_modules: 0,
+        modules: []
+      };
+    }
+
     return { status: 'error', message: `Unknown endpoint ${path}` };
+  },
+
+  async loadBusFactorData() {
+    const container = document.getElementById('bus-factor-container');
+    if (!container) return;
+    container.innerHTML = '<div style="padding: 24px; color: #94a3b8;">Computing knowledge concentration map...</div>';
+
+    try {
+      const repoQuery = this.selectedRepo ? `?repo=${encodeURIComponent(this.selectedRepo)}` : '';
+      const json = await this.apiFetch(`/api/bus-factor${repoQuery}`);
+      if (json.status !== 'success' || !json.modules) {
+        container.innerHTML = `<div style="padding: 24px; color: #ef4444;">Failed to load bus factor data: ${esc(json.message || 'Unknown error')}</div>`;
+        return;
+      }
+
+      const overall = json.overall_bus_factor || 1;
+      const modules = json.modules || [];
+      const highRiskCount = modules.filter(m => m.risk_level === 'high').length;
+
+      let html = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Overall Bus Factor</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#ef4444' : overall === 2 ? '#f59e0b' : '#10b981'}; margin-top: 4px;">${esc(overall)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Min contributors required to maintain modules</div>
+          </div>
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Modules Analyzed</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #f3f4f6; margin-top: 4px;">${esc(modules.length)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">High-level package domains in repo</div>
+          </div>
+          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">High Concentration Risk</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#ef4444' : '#10b981'}; margin-top: 4px;">${esc(highRiskCount)}</div>
+            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Modules dependent on a single contributor</div>
+          </div>
+        </div>
+
+        <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #f3f4f6; margin: 0;">Module Concentration Heat Map</h3>
+            <span style="font-size: 0.78rem; color: #9ca3af;">Ranked by concentration severity</span>
+          </div>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 1px solid #1f2937; color: #9ca3af; background: #0b0f17;">
+                  <th style="padding: 12px 16px;">Module</th>
+                  <th style="padding: 12px 16px;">Risk Level</th>
+                  <th style="padding: 12px 16px;">Bus Factor</th>
+                  <th style="padding: 12px 16px;">Top Contributor</th>
+                  <th style="padding: 12px 16px;">Decisions</th>
+                  <th style="padding: 12px 16px;">Doc Coverage</th>
+                  <th style="padding: 12px 16px;">Onboarding / Transfer Guidance</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      if (modules.length === 0) {
+        html += `
+          <tr>
+            <td colspan="7" style="padding: 24px; text-align: center; color: #6b7280;">No important decisions recorded yet for this repository.</td>
+          </tr>
+        `;
+      } else {
+        modules.forEach(m => {
+          const badgeBg = m.risk_level === 'high' ? 'rgba(239, 68, 68, 0.15)' : m.risk_level === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)';
+          const badgeColor = m.risk_level === 'high' ? '#ef4444' : m.risk_level === 'medium' ? '#f59e0b' : '#10b981';
+          const docPct = Math.round((m.documentation_coverage || 0) * 100);
+          const topPct = Math.round((m.top_contributor_share || 0) * 100);
+
+          html += `
+            <tr style="border-bottom: 1px solid #1f2937;">
+              <td style="padding: 14px 16px; font-weight: 600; color: #f9fafb; font-family: monospace;">${esc(m.module)}</td>
+              <td style="padding: 14px 16px;">
+                <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: ${badgeBg}; color: ${badgeColor};">
+                  ${esc(m.risk_level)}
+                </span>
+              </td>
+              <td style="padding: 14px 16px; font-weight: 700; color: ${badgeColor}; font-size: 1rem;">
+                ${esc(m.bus_factor)}
+              </td>
+              <td style="padding: 14px 16px;">
+                <div style="font-weight: 500; color: #e5e7eb;">${esc(m.top_contributor)}</div>
+                <div style="font-size: 0.72rem; color: #9ca3af;">${esc(topPct)}% knowledge share</div>
+              </td>
+              <td style="padding: 14px 16px; color: #cbd5e1;">${esc(m.important_decisions_count)}</td>
+              <td style="padding: 14px 16px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <div style="flex: 1; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; min-width: 60px;">
+                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#10b981' : '#f59e0b'};"></div>
+                  </div>
+                  <span style="font-size: 0.75rem; color: #9ca3af;">${docPct}%</span>
+                </div>
+              </td>
+              <td style="padding: 14px 16px; font-size: 0.78rem; color: #9ca3af; max-width: 280px; line-height: 1.4;">
+                ${esc(m.onboarding_hint)}
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      container.innerHTML = html;
+    } catch (err) {
+      container.innerHTML = `<div style="padding: 24px; color: #ef4444;">Error loading bus factor: ${esc(err.message)}</div>`;
+    }
   },
 
 };

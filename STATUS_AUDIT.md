@@ -26,13 +26,13 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 | ID | Finding | Location | Reproduction | Verdict |
 |---|---|---|---|---|
-| **P0-a** | SSL verification can be disabled (unverified-context fallback) | `backend/ingestion/live_github.py:42-44, 79-82` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('backend/ingestion/live_github.py'),1) if re.search('unverified\|CERT_NONE\|check_hostname', l)]"` found `ssl._create_unverified_context()` and `ssl.CERT_NONE`. | `CONFIRMED` |
-| **P0-b** | No authorization on destructive/write endpoints; wildcard CORS | `server.py:71, 79`, `backend/api.py:310, 336` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('server.py'),1) if 'Access-Control-Allow-Origin' in l]"` shows wildcard CORS `*`; `/api/clear-db` in `backend/api.py:336` executes `LiveGitHubIngestor(self.db).clear_database()` with zero token or role verification. | `CONFIRMED` |
+| **P0-a** | SSL verification can be disabled (unverified-context fallback) | `bbackend/ingestion/live_github.py:42-44, 79-82` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('bbackend/ingestion/live_github.py'),1) if re.search('unverified\|CERT_NONE\|check_hostname', l)]"` found `ssl._create_unverified_context()` and `ssl.CERT_NONE`. | `CONFIRMED` |
+| **P0-b** | No authorization on destructive/write endpoints; wildcard CORS | `server.py:71, 79`, `bbackend/api.py:310, 336` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('server.py'),1) if 'Access-Control-Allow-Origin' in l]"` shows wildcard CORS `*`; `/api/clear-db` in `bbackend/api.py:336` executes `LiveGitHubIngestor(self.db).clear_database()` with zero token or role verification. | `CONFIRMED` |
 | **P0-c** | Repository text inserted with `innerHTML` (XSS) | `web/app.js` (38 occurrences), `docs/app.js` (38 occurrences) | `python -c "print(len([l for l in open('web/app.js', encoding='utf-8') if 'innerHTML' in l]))"` returns 38 instances interpolating raw decision title, rationale, author without escaping. | `CONFIRMED` |
-| **P1-a** | Rejected-idea/drift detection depends on hard-coded keywords and PID/Redis scenarios | `backend/engine/drift_detector.py:96-130` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('backend/engine/drift_detector.py'),1) if re.search('pid\|redis\|dict_cache', l)]"` identifies hardcoded literal checks for `'pid'`, `'redis'`, `'dict_cache = {}'` and confidence literals `0.89`, `0.94`. | `CONFIRMED` |
-| **P1-b** | Guard-rule failures swallowed silently in `drift_detector.py` | `backend/engine/drift_detector.py:152-154` | `python -c "lines=open('backend/engine/drift_detector.py').readlines(); print(lines[151:154])"` reveals `except Exception: pass` silently masking rule evaluation errors. | `CONFIRMED` |
-| **P1-c** | `TemporalGraph.add_edge()` defaults `valid_from` to a fixed date | `backend/engine/graph.py:38` | `python -c "print([l.strip() for l in open('backend/engine/graph.py') if '2026-01-01' in l])"` shows `valid_from=valid_from or '2026-01-01T00:00:00Z'`. | `CONFIRMED` |
-| **P1-d** | Supersession matching links unrelated decisions by title-word overlap | `backend/engine/reconciliation.py:111` | `python -c "older={'title':'Optimize database query'}; body='We use a local cache instead of memory database'; print(any(w in body.lower() for w in older['title'].lower().split() if len(w)>4))"` returns `True` linking unrelated decisions on word 'database'. | `CONFIRMED` |
+| **P1-a** | Rejected-idea/drift detection depends on hard-coded keywords and PID/Redis scenarios | `bbackend/engine/drift_detector.py:96-130` | `python -c "import re; [print(f'{i}:{l.strip()}') for i,l in enumerate(open('bbackend/engine/drift_detector.py'),1) if re.search('pid\|redis\|dict_cache', l)]"` identifies hardcoded literal checks for `'pid'`, `'redis'`, `'dict_cache = {}'` and confidence literals `0.89`, `0.94`. | `CONFIRMED` |
+| **P1-b** | Guard-rule failures swallowed silently in `drift_detector.py` | `bbackend/engine/drift_detector.py:152-154` | `python -c "lines=open('bbackend/engine/drift_detector.py').readlines(); print(lines[151:154])"` reveals `except Exception: pass` silently masking rule evaluation errors. | `CONFIRMED` |
+| **P1-c** | `TemporalGraph.add_edge()` defaults `valid_from` to a fixed date | `bbackend/engine/graph.py:38` | `python -c "print([l.strip() for l in open('bbackend/engine/graph.py') if '2026-01-01' in l])"` shows `valid_from=valid_from or '2026-01-01T00:00:00Z'`. | `CONFIRMED` |
+| **P1-d** | Supersession matching links unrelated decisions by title-word overlap | `bbackend/engine/reconciliation.py:111` | `python -c "older={'title':'Optimize database query'}; body='We use a local cache instead of memory database'; print(any(w in body.lower() for w in older['title'].lower().split() if len(w)>4))"` returns `True` linking unrelated decisions on word 'database'. | `CONFIRMED` |
 
 ---
 
@@ -40,20 +40,20 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 | Feature | Status | What is needed | Location in Codebase | Reproduction / Evidence | Verdict |
 |---|---|---|---|---|---|
-| **Decision Lifecycle Engine** | P | Transition rules, history, reopening, review workflow, audit view, reconcile state definitions | `backend/models.py:59`, `backend/db.py:69` | DB check constraint only permits `('proposed', 'accepted', 'rejected', 'superseded', 'unresolved')`. No transition graph or reopening workflow. | `CONFIRMED` (P) |
-| **Evidence and Confidence Engine** | P | Claim-level evidence, independence, contradiction handling, source trace, abstention, no fake probabilities | `backend/models.py:63`, `backend/engine/extractor.py:136, 160` | Conflates evidence quality with heuristic confidence floats (e.g. 0.85 for PR, 0.75 for commit); lacks claim-level independent corroboration. | `CONFIRMED` (P) |
-| **Decision–Code Drift Detector** | P | Per-decision machine-checkable constraints instead of hard-coded scenarios, negatives, feedback | `backend/engine/drift_detector.py:96-130` | Lacks dynamic per-decision constraint rules; uses hard-coded text matches and silent exception suppression. | `CONFIRMED` (P) |
-| **Temporal & Counterfactual Explorer** | P | "As of" queries, documented-alternative explanations, no speculation | `backend/engine/explanation.py`, `backend/engine/counterfactual.py` | Lacks historical point-in-time point queries against frozen graph state; counterfactuals are heuristic templates. | `CONFIRMED` (P) |
-| **Adaptive Developer Onboarding** | P | Personalised paths by role/module/files from decision evidence | `backend/engine/onboarding.py:1-60` | Generates generic path sequences without role/module/file scoping from decision evidence. | `CONFIRMED` (P) |
-| **Temporal Context Graph** | I | Temporal consistency, traversal and historical-query correctness | `backend/engine/graph.py:1-150` | Functional graph structure implemented with SQLite backing, but relies on arbitrary fixed default dates (`valid_from`). | `CONFIRMED` (I/P) |
-| **Decision half-life / staleness** | M | Assumptions, triggers, freshness status, review reminders | N/A (Missing) | File search across `backend/` yields zero references to freshness, staleness decay, or expiration triggers. | `CONFIRMED` (M) |
-| **Time-travel questions** | P | Historical snapshots, not just a timeline | `backend/engine/temporal_engine.py` | Filters events along a linear timeline but does not reconstruct complete decision-state snapshots at historical timestamps. | `CONFIRMED` (P) |
-| **Bus-factor map** | M | Knowledge concentration per module/decision/contributor | N/A (Missing) | File search across `backend/` yields zero references to bus-factor or knowledge concentration scoring. | `CONFIRMED` (M) |
-| **Privacy-first ingestion** | M | Redaction before persistence, safe logging, local-only mode | `backend/ingestion/` | Raw commit and PR text stored directly in database with no PII/secret scrubbing or redaction layer. | `CONFIRMED` (M) |
-| **Rejected-idea guard** | P | Match proposals to rejected approaches, retrieve original evidence and reason | `backend/engine/drift_detector.py:75-90` | Searches for rejected decisions but relies on basic string overlap without evidence provenance or constraint verification. | `CONFIRMED` (P) |
-| **Evidence-graded decisions** | P | Independent corroboration vs repeated copies | `backend/engine/extractor.py:160` | Counts evidence items without distinguishing multiple copies of identical commits from distinct independent corroborations. | `CONFIRMED` (P) |
-| **Measured benchmark** | P | Recall, label validation, fair baselines, reproducible results | `backend/evaluation/benchmark.py:57-90` | Decision matching permits one system decision to satisfy multiple ground-truth items; link validation checks URL scheme only. | `CONFIRMED` (P) |
-| **Real GitHub integration** | P | Install/config, end-to-end webhook validation, CI deployment test | `backend/ingestion/live_github.py:42-82`, `server.py` | Basic polling and webhook handler exist, but SSL verification has insecure fallback and installation auth flow is partial. | `CONFIRMED` (P) |
+| **Decision Lifecycle Engine** | P | Transition rules, history, reopening, review workflow, audit view, reconcile state definitions | `bbackend/models.py:59`, `bbackend/db.py:69` | DB check constraint only permits `('proposed', 'accepted', 'rejected', 'superseded', 'unresolved')`. No transition graph or reopening workflow. | `CONFIRMED` (P) |
+| **Evidence and Confidence Engine** | P | Claim-level evidence, independence, contradiction handling, source trace, abstention, no fake probabilities | `bbackend/models.py:63`, `bbackend/engine/extractor.py:136, 160` | Conflates evidence quality with heuristic confidence floats (e.g. 0.85 for PR, 0.75 for commit); lacks claim-level independent corroboration. | `CONFIRMED` (P) |
+| **Decision–Code Drift Detector** | P | Per-decision machine-checkable constraints instead of hard-coded scenarios, negatives, feedback | `bbackend/engine/drift_detector.py:96-130` | Lacks dynamic per-decision constraint rules; uses hard-coded text matches and silent exception suppression. | `CONFIRMED` (P) |
+| **Temporal & Counterfactual Explorer** | P | "As of" queries, documented-alternative explanations, no speculation | `bbackend/engine/explanation.py`, `bbackend/engine/counterfactual.py` | Lacks historical point-in-time point queries against frozen graph state; counterfactuals are heuristic templates. | `CONFIRMED` (P) |
+| **Adaptive Developer Onboarding** | P | Personalised paths by role/module/files from decision evidence | `bbackend/engine/onboarding.py:1-60` | Generates generic path sequences without role/module/file scoping from decision evidence. | `CONFIRMED` (P) |
+| **Temporal Context Graph** | I | Temporal consistency, traversal and historical-query correctness | `bbackend/engine/graph.py:1-150` | Functional graph structure implemented with SQLite backing, but relies on arbitrary fixed default dates (`valid_from`). | `CONFIRMED` (I/P) |
+| **Decision half-life / staleness** | M | Assumptions, triggers, freshness status, review reminders | N/A (Missing) | File search across `bbackend/` yields zero references to freshness, staleness decay, or expiration triggers. | `CONFIRMED` (M) |
+| **Time-travel questions** | P | Historical snapshots, not just a timeline | `bbackend/engine/temporal_engine.py` | Filters events along a linear timeline but does not reconstruct complete decision-state snapshots at historical timestamps. | `CONFIRMED` (P) |
+| **Bus-factor map** | M | Knowledge concentration per module/decision/contributor | N/A (Missing) | File search across `bbackend/` yields zero references to bus-factor or knowledge concentration scoring. | `CONFIRMED` (M) |
+| **Privacy-first ingestion** | M | Redaction before persistence, safe logging, local-only mode | `bbackend/ingestion/` | Raw commit and PR text stored directly in database with no PII/secret scrubbing or redaction layer. | `CONFIRMED` (M) |
+| **Rejected-idea guard** | P | Match proposals to rejected approaches, retrieve original evidence and reason | `bbackend/engine/drift_detector.py:75-90` | Searches for rejected decisions but relies on basic string overlap without evidence provenance or constraint verification. | `CONFIRMED` (P) |
+| **Evidence-graded decisions** | P | Independent corroboration vs repeated copies | `bbackend/engine/extractor.py:160` | Counts evidence items without distinguishing multiple copies of identical commits from distinct independent corroborations. | `CONFIRMED` (P) |
+| **Measured benchmark** | P | Recall, label validation, fair baselines, reproducible results | `bbackend/evaluation/benchmark.py:57-90` | Decision matching permits one system decision to satisfy multiple ground-truth items; link validation checks URL scheme only. | `CONFIRMED` (P) |
+| **Real GitHub integration** | P | Install/config, end-to-end webhook validation, CI deployment test | `bbackend/ingestion/live_github.py:42-82`, `server.py` | Basic polling and webhook handler exist, but SSL verification has insecure fallback and installation auth flow is partial. | `CONFIRMED` (P) |
 | **Slack integration** | M | Only if kept in scope | N/A (Missing) | No Slack app, webhook, or socket adapter implemented. | `CONFIRMED` (M) |
 
 ---
@@ -62,11 +62,11 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 | Item | Location | Evidence / Reproduction | Verdict |
 |---|---|---|---|
-| **Hard-coded drift confidences** | `backend/engine/drift_detector.py:107, 124, 147` | Code contains hard-coded confidence values `0.89`, `0.94`, `1.0` instead of computed calibrated values. | `CONFIRMED` |
+| **Hard-coded drift confidences** | `bbackend/engine/drift_detector.py:107, 124, 147` | Code contains hard-coded confidence values `0.89`, `0.94`, `1.0` instead of computed calibrated values. | `CONFIRMED` |
 | **`state_history` empty in shipped DB** | `context_intelligence.db` | `SELECT count(*) FROM state_history` returns `0`. | `CONFIRMED` |
-| **Benchmark overcounting** | `backend/evaluation/benchmark.py:57-90` | Loop does not consume matched system decisions; a single system decision satisfies multiple GT items (reproduced: 2 GT items matched 1 system decision). | `CONFIRMED` |
-| **Evidence-link validity only checks URL format** | `backend/evaluation/benchmark.py:118` | `valid_links = [l for l in links if l["source_url"] and (l["source_url"].startswith("http://") or l["source_url"].startswith("https://"))]` — only checks URL prefix, not whether target exists or supports claim. | `CONFIRMED` |
-| **Confidence and evidence quality conflated** | `backend/models.py:63`, `backend/engine/extractor.py:160-161`, `backend/api.py:236` | Review status and extraction confidence conflated (`confidence = 0.85 if ev.source_type == 'github_pr' else 0.75`; review_status set to 'auto_confirmed' if >= 0.8; `confidence = 1.0` on review). | `CONFIRMED` |
+| **Benchmark overcounting** | `bbackend/evaluation/benchmark.py:57-90` | Loop does not consume matched system decisions; a single system decision satisfies multiple GT items (reproduced: 2 GT items matched 1 system decision). | `CONFIRMED` |
+| **Evidence-link validity only checks URL format** | `bbackend/evaluation/benchmark.py:118` | `valid_links = [l for l in links if l["source_url"] and (l["source_url"].startswith("http://") or l["source_url"].startswith("https://"))]` — only checks URL prefix, not whether target exists or supports claim. | `CONFIRMED` |
+| **Confidence and evidence quality conflated** | `bbackend/models.py:63`, `bbackend/engine/extractor.py:160-161`, `bbackend/api.py:236` | Review status and extraction confidence conflated (`confidence = 0.85 if ev.source_type == 'github_pr' else 0.75`; review_status set to 'auto_confirmed' if >= 0.8; `confidence = 1.0` on review). | `CONFIRMED` |
 | **Demo vs deployed product unclear** | `run_demo.py`, `server.py` | Demo environment relies on synthetic/mocked seeds without explicit separation between demonstration mock modes and production deployment modes. | `CONFIRMED` |
 | **DB / Git hygiene** | `.gitignore`, repository index | `context_intelligence.db` was previously tracked; `.db` files required manual untracking via `git rm --cached`. | `CONFIRMED` |
 | **Test gaps** | `tests/` | No test coverage for TLS certificate validation failure handling, API authentication/role authorization, frontend XSS escaping, or temporal edge ranges. | `CONFIRMED` |
@@ -77,12 +77,12 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 1.1 (P0-a) — TLS Certificate Verification Safety
 - Status: **RESOLVED**
-- Files: `backend/ingestion/live_github.py`, `tests/test_tls_safety.py`
+- Files: `bbackend/ingestion/live_github.py`, `tests/test_tls_safety.py`
 - Verification: `python -m unittest tests/test_tls_safety.py` (3 tests pass). Unverified fallbacks removed; custom CA bundle via `CIF_CA_BUNDLE` supported; secrets never leaked in exceptions.
 
 ### Step 1.2 (P0-b) — API Authorization & Boundaries
 - Status: **RESOLVED**
-- Files: `backend/security.py`, `backend/api.py`, `server.py`, `tests/test_api_auth.py`
+- Files: `bbackend/security.py`, `bbackend/api.py`, `server.py`, `tests/test_api_auth.py`
 - Verification: `python -m unittest tests/test_api_auth.py` (8 tests pass). Role-based token auth (`viewer`, `reviewer`, `admin`) enforced via constant-time comparison; wildcard CORS replaced with strict origin check; destructive routes require exact database name confirmation; 1MB request body limit enforced.
 
 ### Step 1.3 (P0-c) — Frontend HTML Injection (XSS) Prevention
@@ -98,7 +98,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 1.4 (P1-b) — No More Silent Detector Failures
 - Status: **RESOLVED**
-- Files: `backend/engine/drift_detector.py`, `backend/engine/guard_rules.py`, `backend/db.py`, `backend/api.py`, `tools/ci_check.py`, `web/app.js`, `docs/app.js`, `tests/test_drift_errors.py`
+- Files: `bbackend/engine/drift_detector.py`, `bbackend/engine/guard_rules.py`, `bbackend/db.py`, `bbackend/api.py`, `tools/ci_check.py`, `web/app.js`, `docs/app.js`, `tests/test_drift_errors.py`
 - Resolution:
   1. Removed broad `except Exception: pass` from `drift_detector.py`.
   2. Updated `analyze_diff_for_drift` to return a report object `{ "status": "complete" | "incomplete", "findings": [...], "errors": [ { "stage", "rule_id", "error_type", "message" } ] }`.
@@ -110,7 +110,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 1.5 (P1-c) — Correct Temporal Defaults
 - Status: **RESOLVED**
-- Files: `backend/engine/graph.py`, `backend/engine/drift_detector.py`, `tools/repair_edge_validity.py`, `tests/test_graph_temporal.py`
+- Files: `bbackend/engine/graph.py`, `bbackend/engine/drift_detector.py`, `tools/repair_edge_validity.py`, `tests/test_graph_temporal.py`
 - Resolution:
   1. Removed fixed default placeholder timestamp `2026-01-01T00:00:00Z` from `add_edge`.
   2. Made `valid_from` required in `TemporalGraph.add_edge()` and on `Edge` models.
@@ -121,9 +121,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 1.6 (P1-d) — Evidence-Based Supersession Matching
 - Status: **RESOLVED**
-- Files: `backend/engine/reconciliation.py`, `backend/api.py`, `tests/test_supersession.py`
+- Files: `bbackend/engine/reconciliation.py`, `bbackend/api.py`, `tests/test_supersession.py`
 - Resolution:
-  1. Defined `GENERIC_STOP_WORDS` and `REPLACEMENT_CUES` constants in `backend/engine/reconciliation.py`.
+  1. Defined `GENERIC_STOP_WORDS` and `REPLACEMENT_CUES` constants in `bbackend/engine/reconciliation.py`.
   2. Implemented candidate priority:
      - Priority 1: Explicit reference (decision ID, ADR number, `#PR/issue` number, title match with cue).
      - Priority 2: Shared affected entity (≥ 1 common entity) AND later in time AND replacement cue present.
@@ -152,22 +152,22 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 2.0 — Migration Framework
 - Status: **RESOLVED**
-- Files: `backend/migrations/__init__.py`, `backend/migrations/runner.py`, `backend/db.py`, `tools/migrate_db.py`, `tests/test_migrations.py`
+- Files: `bbackend/migrations/__init__.py`, `bbackend/migrations/runner.py`, `bbackend/db.py`, `tools/migrate_db.py`, `tests/test_migrations.py`
 - Resolution:
   1. Created `schema_migrations(version INTEGER PRIMARY KEY, name TEXT NOT NULL, applied_at TEXT NOT NULL)` tracking table.
-  2. Implemented transactional migration runner in `backend/migrations/runner.py`:
-     - Discovers migration modules in `backend/migrations/` matching `^(\d+)_(.+)\.py$`.
+  2. Implemented transactional migration runner in `bbackend/migrations/runner.py`:
+     - Discovers migration modules in `bbackend/migrations/` matching `^(\d+)_(.+)\.py$`.
      - Executes each pending migration inside its own transaction (`PRAGMA foreign_keys = OFF; BEGIN; upgrade(conn); ... COMMIT; PRAGMA foreign_keys = ON; PRAGMA foreign_key_check;`).
      - On failure, rolls back transaction and leaves database unchanged.
      - Running twice is guaranteed to be a no-op.
      - Supports `--dry-run` to inspect pending migrations without applying.
-  3. Integrated runner into `Database._init_schema()` in `backend/db.py` to ensure all databases automatically run pending migrations.
+  3. Integrated runner into `Database._init_schema()` in `bbackend/db.py` to ensure all databases automatically run pending migrations.
   4. Created CLI `tools/migrate_db.py --db PATH [--dry-run]`.
   5. Verified via `tests/test_migrations.py` (6 tests pass): fresh DB creation, idempotency, transaction rollback on failure, dry-run mode, CLI execution, and zero-data-loss validation against a copy of `backups/context_intelligence.pre_v2.db`.
 
 ### Step 2.1 — Reconcile State Definitions (Migration 001)
 - Status: **RESOLVED**
-- Files: `backend/migrations/001_reconcile_state_definitions.py`, `backend/models.py`, `backend/db.py`, `backend/engine/extractor.py`, `backend/engine/llm_extractor.py`, `tests/test_extractor.py`, `web/index.html`, `web/style.css`, `docs/index.html`, `docs/style.css`, `tests/test_state_model.py`
+- Files: `bbackend/migrations/001_reconcile_state_definitions.py`, `bbackend/models.py`, `bbackend/db.py`, `bbackend/engine/extractor.py`, `bbackend/engine/llm_extractor.py`, `tests/test_extractor.py`, `web/index.html`, `web/style.css`, `docs/index.html`, `docs/style.css`, `tests/test_state_model.py`
 - Resolution:
   1. Rebuilt `decisions` table via Migration 001 with new CHECK constraints:
      - `state IN ('proposed', 'tested', 'accepted', 'rejected', 'superseded', 'reopened')`
@@ -175,16 +175,16 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - `freshness IN ('fresh', 'stale', 'under_review', 'revalidated')` (default `'fresh'`)
   2. Migrated legacy `unresolved` state to `state='proposed'`, `evidence_assessment='insufficient'`. Added compatibility alias in `Decision.__post_init__`.
   3. Enforced new evidence invariant: states `tested`, `accepted`, `rejected`, `superseded` require ≥ 1 evidence event; `proposed` and `reopened` may have zero only when `evidence_assessment='insufficient'`.
-  4. Updated `save_decision` in `backend/db.py` to persist `evidence_assessment` and `freshness` with mechanical validation.
+  4. Updated `save_decision` in `bbackend/db.py` to persist `evidence_assessment` and `freshness` with mechanical validation.
   5. Updated fallback extractor and LLM anti-hallucination grounding validator to emit `state='proposed'` with `evidence_assessment='insufficient'`.
   6. Updated frontend UI tabs and CSS status tag styling (`.status-tag.tested`, `.status-tag.reopened`) in both `web/` and `docs/`.
   7. Verification: `tests/test_state_model.py` (7 tests pass covering every allowed state, illegal state rejection, illegal assessment/freshness rejection, invariant enforcement, compatibility alias, and zero-data-loss validation against `backups/context_intelligence.pre_v2.db`). Full suite (74 tests) and demo suite (21/21) pass.
 
 ### Step 2.2 — Lifecycle Engine
 - Status: **RESOLVED**
-- Files: `backend/engine/lifecycle.py`, `tests/test_lifecycle.py`
+- Files: `bbackend/engine/lifecycle.py`, `tests/test_lifecycle.py`
 - Resolution:
-  1. Implemented data-driven lifecycle transition engine in `backend/engine/lifecycle.py`:
+  1. Implemented data-driven lifecycle transition engine in `bbackend/engine/lifecycle.py`:
      - Dictionary table `ALLOWED_TRANSITIONS`:
        - `proposed -> tested, accepted, rejected`
        - `tested -> accepted, rejected`
@@ -202,14 +202,14 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 2.3 — Record History Everywhere and Backfill
 - Status: **RESOLVED**
-- Files: `backend/migrations/002_backfill_state_history.py`, `tools/backfill_state_history.py`, `backend/db.py`, `backend/engine/lifecycle.py`, `backend/engine/reconciliation.py`, `backend/seed_data.py`, `backend/api.py`, `tests/test_history_recorded.py`
+- Files: `bbackend/migrations/002_backfill_state_history.py`, `tools/backfill_state_history.py`, `bbackend/db.py`, `bbackend/engine/lifecycle.py`, `bbackend/engine/reconciliation.py`, `bbackend/seed_data.py`, `bbackend/api.py`, `tests/test_history_recorded.py`
 - Resolution:
   1. Found and routed all direct decision state mutations through `lifecycle.transition`:
-     - In `backend/db.py`: `save_decision` validates state changes against `ALLOWED_TRANSITIONS` (raises `InvalidTransition`), records initial history for new decisions (`from_state = NULL`), and records transition history with actor, reason, and timestamp.
-     - In `backend/engine/reconciliation.py`: supersession links route through `lifecycle.transition(conn, older_id, 'superseded', ...)`.
-     - In `backend/seed_data.py`: `dec_cache_local_lru_proposed` undergoes explicit lifecycle progression `proposed -> accepted -> superseded` via `lifecycle.transition`.
-     - In `backend/api.py`: review queue triage and decision corrections route state changes through `lifecycle.transition`.
-  2. Implemented Migration 002 (`backend/migrations/002_backfill_state_history.py`):
+     - In `bbackend/db.py`: `save_decision` validates state changes against `ALLOWED_TRANSITIONS` (raises `InvalidTransition`), records initial history for new decisions (`from_state = NULL`), and records transition history with actor, reason, and timestamp.
+     - In `bbackend/engine/reconciliation.py`: supersession links route through `lifecycle.transition(conn, older_id, 'superseded', ...)`.
+     - In `bbackend/seed_data.py`: `dec_cache_local_lru_proposed` undergoes explicit lifecycle progression `proposed -> accepted -> superseded` via `lifecycle.transition`.
+     - In `bbackend/api.py`: review queue triage and decision corrections route state changes through `lifecycle.transition`.
+  2. Implemented Migration 002 (`bbackend/migrations/002_backfill_state_history.py`):
      - Adds `from_state TEXT` and `reconstructed INTEGER DEFAULT 0` columns to `state_history` if missing.
      - Backfills one audit record per decision lacking history with `notes="reconstructed from current state at backfill"`, `changed_by="system:backfill"`, `changed_at=decision.made_at`, `from_state=NULL`, and `reconstructed=1`.
      - Applied Migration 002 to active `context_intelligence.db`, populating previously empty `state_history` (0 -> 6 records).
@@ -224,7 +224,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 2.4 — Review Workflow for Lifecycle
 - Status: **RESOLVED**
-- Files: `backend/api.py`, `backend/security.py`, `server.py`, `tests/test_review_actions.py`
+- Files: `bbackend/api.py`, `bbackend/security.py`, `server.py`, `tests/test_review_actions.py`
 - Resolution:
   1. Extended `/api/review-action` with full lifecycle transition integration:
      - Supported actions: `confirm`, `reject`, `merge`, `correct`, `reopen`, `mark_tested`.
@@ -235,7 +235,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - `merge` merges target decision into `into_decision_id`, superseding it via `lifecycle.transition`.
      - `correct` allows human correction of state, title, and rationale with audit history logging.
   2. Implemented reviewer identity resolution:
-     - Added `get_authenticated_role(headers, client_ip)` in `backend/security.py` returning `admin`, `reviewer`, or `viewer`.
+     - Added `get_authenticated_role(headers, client_ip)` in `bbackend/security.py` returning `admin`, `reviewer`, or `viewer`.
      - Formats actor as `token_role:display_name` (e.g., `reviewer:Alice`) when display name or reviewer name is supplied.
   3. Enforced reason requirements:
      - `reopen` and `mark_tested` strictly require a non-empty reason; missing returns HTTP 400.
@@ -245,7 +245,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 2.5 — Lifecycle UI and Audit View
 - Status: **RESOLVED**
-- Files: `backend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_decision_history_api.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_decision_history_api.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Added `GET /api/decision-history` route with `viewer` authorization:
      - With `decision_id`: retrieves decision metadata, full chronological state `transitions` (with `from_state`, `to_state`, `changed_at`, `changed_by`, `notes`, `reconstructed` boolean), and `supersession_chain` (preceding ancestors, current node, succeeding descendants). Returns HTTP 404 if decision is not found.
@@ -263,9 +263,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 2.6 — Historical "As Of" Queries and Counterfactual Explorer
 - Status: **RESOLVED**
-- Files: `backend/engine/as_of.py`, `backend/engine/graph.py`, `backend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_as_of.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/engine/as_of.py`, `bbackend/engine/graph.py`, `bbackend/api.py`, `web/index.html`, `web/app.js`, `web/style.css`, `docs/index.html`, `docs/app.js`, `docs/style.css`, `tests/test_as_of.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Implemented historical belief engine `as_of(db, repo, cutoff, artifact)` in `backend/engine/as_of.py`:
+  1. Implemented historical belief engine `as_of(db, repo, cutoff, artifact)` in `bbackend/engine/as_of.py`:
      - Timezone-aware cutoff parsing supporting ISO-8601 timestamps and date strings (`YYYY-MM-DD` normalized to end-of-day UTC).
      - Decisions filtered by `made_at <= cutoff` with state as of cutoff reconstructed strictly from `state_history` (latest transition `<= cutoff`, never current state). Flagged `has_reconstructed_history_only` if all history prior to cutoff is backfilled/reconstructed.
      - Graph edges filtered by `valid_from <= cutoff` and (`valid_to IS NULL` or `valid_to > cutoff`).
@@ -273,8 +273,8 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Non-speculative counterfactual rules: documented alternatives show recorded reasons; untried alternatives state `"no recorded outcome — consequences of the untried alternative are unknown."`.
      - `changed_afterwards` lists subsequent state transitions, supersessions, and new decisions on the same entities.
      - Optional `artifact` parameter filters decisions and entity associations.
-  2. Implemented `get_edges_as_of(cutoff)` in `TemporalGraph` (`backend/engine/graph.py`).
-  3. Added `GET /api/as-of` endpoint with `ROLE_VIEWER` authorization in `backend/api.py`.
+  2. Implemented `get_edges_as_of(cutoff)` in `TemporalGraph` (`bbackend/engine/graph.py`).
+  3. Added `GET /api/as-of` endpoint with `ROLE_VIEWER` authorization in `bbackend/api.py`.
   4. Implemented interactive UI in `web/index.html`, `web/app.js`, `web/style.css` (mirrored to `docs/`):
      - Added Historical "As Of" Query card with date picker, artifact filter, quick prompt chips, grounded belief banner, and 3-column breakdown.
   5. Created `tests/test_as_of.py` (9 tests covering empty before decision, query on 1 March never showing 15 March, supersession on 5 March vs 12 March, later evidence segregation, reconstructed history flag, counterfactual rules, edge validity ranges, API error handling, and artifact filtering).
@@ -303,9 +303,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ## Phase 2 Exit Check
 - Fresh DB records history: **PASS** (proven via migration 002, `test_history_recorded.py`, and `tools/verify_lifecycle_fresh_db.py`).
-- All state changes pass lifecycle engine: **PASS** (proven via `backend/engine/lifecycle.py`, `ALLOWED_TRANSITIONS`, `InvalidTransition` enforcement in `backend/db.py` and `/api/review-action`).
+- All state changes pass lifecycle engine: **PASS** (proven via `bbackend/engine/lifecycle.py`, `ALLOWED_TRANSITIONS`, `InvalidTransition` enforcement in `bbackend/db.py` and `/api/review-action`).
 - Migrations tested on DB copy: **PASS** (proven via migration tests against `backups/context_intelligence.pre_v2.db`).
-- As-of queries correct on boundary dates: **PASS** (proven via `backend/engine/as_of.py` and `tests/test_as_of.py`).
+- As-of queries correct on boundary dates: **PASS** (proven via `bbackend/engine/as_of.py` and `tests/test_as_of.py`).
 - Git Tag: `phase2-done`
 
 ---
@@ -314,16 +314,16 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.1 — Claim-Level Evidence and Independence
 - Status: **RESOLVED**
-- Files: `backend/migrations/003_claim_evidence_independence.py`, `backend/models.py`, `backend/engine/independence.py`, `backend/db.py`, `tests/test_independence.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/migrations/003_claim_evidence_independence.py`, `bbackend/models.py`, `bbackend/engine/independence.py`, `bbackend/db.py`, `tests/test_independence.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Additive Database Migration (`003_claim_evidence_independence.py`):
      - Created `decision_claims` table with `claim_id TEXT PRIMARY KEY`, `decision_id TEXT NOT NULL`, `claim_type TEXT NOT NULL CHECK (claim_type IN ('rationale', 'alternative_rejected', 'outcome', 'constraint'))`, and `text TEXT NOT NULL`, cascading on decision deletion.
      - Created `claim_evidence` table with `(claim_id, event_id)` composite primary key, `relation TEXT NOT NULL CHECK (relation IN ('direct', 'indirect', 'contradicting'))`, `passage_text TEXT`, `passage_start INTEGER`, `passage_end INTEGER`, and `source_group TEXT NOT NULL`.
      - Built indexes on `decision_claims(decision_id)`, `claim_evidence(event_id)`, and `claim_evidence(source_group)`.
      - Includes automatic backfill of claims and claim evidence for existing decisions during migration upgrade.
-  2. Data Models (`backend/models.py`):
+  2. Data Models (`bbackend/models.py`):
      - Added `DecisionClaim` and `ClaimEvidence` dataclasses with `validate()` methods asserting allowed claim types (`ALLOWED_CLAIM_TYPES`) and relations (`ALLOWED_CLAIM_RELATIONS`).
-  3. Source Independence Engine (`backend/engine/independence.py`):
+  3. Source Independence Engine (`bbackend/engine/independence.py`):
      - Implemented pure function `independence_key(event, all_events=None) -> str`:
        * Same issue/PR thread (issue, PR, review comments, issue comments) -> `thread:<repo>#<number>`
        * Commit and the PR containing it -> `thread:<repo>#<number>` (else `commit:<sha>`)
@@ -337,7 +337,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * If score >= threshold: checks for contradiction cues ("rejected", "bottlenecks", "failed", etc.); returns exact passage text, offsets, and `direct` or `contradicting` relation.
        * If score < threshold: returns `(None, None, None, 'indirect')`.
      - Implemented claim extraction (`extract_claims_from_decision`) and independent source counting (`calculate_independent_sources`, `get_independent_source_count`).
-  4. Database Layer Integration (`backend/db.py`):
+  4. Database Layer Integration (`bbackend/db.py`):
      - Added `save_claim`, `get_claims_for_decision`, `save_claim_evidence`, `get_claim_evidence`, and `get_all_claim_evidence_for_decision`.
      - Hooked automatic claim and evidence synchronization into `save_decision`.
   5. Acceptance & Verification:
@@ -351,9 +351,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.2 — Evidence Assessment and Abstention
 - Status: **RESOLVED**
-- Files: `backend/engine/evidence.py`, `backend/engine/explanation.py`, `backend/api.py`, `backend/db.py`, `backend/evaluation/METRICS.md`, `METRICS.md`, `web/app.js`, `docs/app.js`, `tests/test_assessment.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/engine/evidence.py`, `bbackend/engine/explanation.py`, `bbackend/api.py`, `bbackend/db.py`, `bbackend/evaluation/METRICS.md`, `METRICS.md`, `web/app.js`, `docs/app.js`, `tests/test_assessment.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Evidence Assessment Engine (`backend/engine/evidence.py`):
+  1. Evidence Assessment Engine (`bbackend/engine/evidence.py`):
      - Implemented deterministic assessment function `assess(decision, db=None, all_events=None, claim_evidences=None)`:
        * `contradicted`: at least one `contradicting` relation from an active source (not superseded).
        * `strong`: $\ge 2$ independent source groups with direct support ($\ge 2$ direct groups).
@@ -362,13 +362,13 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `insufficient`: no evidence, or only 1 indirect group.
      - Generated human-readable `missing_corroboration` notes (e.g. "no independent source besides the ADR", "no outcome/test evidence linked", "no direct passage evidence supporting claims").
      - Generated structured `conflicting_evidence` listing contradicting passages and related decisions on the same entities.
-     - Documented the rule and explicit design choice statement in code comments, `backend/evaluation/METRICS.md`, and root `METRICS.md`.
-  2. Database Layer Integration (`backend/db.py`):
+     - Documented the rule and explicit design choice statement in code comments, `bbackend/evaluation/METRICS.md`, and root `METRICS.md`.
+  2. Database Layer Integration (`bbackend/db.py`):
      - Automatically recomputes assessment and persists label in `decisions.evidence_assessment` inside `_sync_decision_claims`.
      - Added `recompute_evidence_assessment(decision_id)` method.
-  3. Review Routing (`backend/api.py`):
+  3. Review Routing (`bbackend/api.py`):
      - Route `/api/review-queue` automatically includes decisions with `evidence_assessment IN ('weak', 'insufficient', 'contradicted')` and `review_status NOT IN ('human_rejected', 'human_confirmed')` with descriptive queue reasons.
-  4. Abstention (`backend/engine/explanation.py` & `backend/api.py`):
+  4. Abstention (`bbackend/engine/explanation.py` & `bbackend/api.py`):
      - `/api/explain` and `ExplanationGenerator.explain_artifact` / `explain_decision` return `{ "status": "insufficient_evidence", "message": "..." }` when the governing decision has `evidence_assessment == "insufficient"` and no stronger source exists.
   5. UI Confidence Label Calibration Renaming (`web/app.js`, `docs/app.js`):
      - Display `evidence_assessment` as primary status indicator pill.
@@ -382,9 +382,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.3 — Evidence-Aware Explanation Output
 - Status: **RESOLVED**
-- Files: `backend/engine/explanation.py`, `backend/api.py`, `web/app.js`, `docs/app.js`, `web/static_data.js`, `docs/static_data.js`, `tests/test_explanation.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/engine/explanation.py`, `bbackend/api.py`, `web/app.js`, `docs/app.js`, `web/static_data.js`, `docs/static_data.js`, `tests/test_explanation.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Explanation Payload Structure (`backend/engine/explanation.py`):
+  1. Explanation Payload Structure (`bbackend/engine/explanation.py`):
      - Implemented `build_decision_evidence_block(db, dec)` returning:
        * `decision`: `{ decision_id, title, rationale, made_by, made_at, repo }`
        * `lifecycle_state`: current decision state string
@@ -402,14 +402,14 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `date`: ISO timestamp
        * `relation`: `direct` or `indirect`
        * `source_group`: canonical independence group key
-  2. Sentence-Level Support Check (`backend/engine/explanation.py`):
+  2. Sentence-Level Support Check (`bbackend/engine/explanation.py`):
      - Implemented `verify_sentence_support(text, evidence_items)`:
        * Splits explanation text into distinct sentences.
        * Tokenizes content words (length > 3, stop-words removed) per `METRICS.md` Section 6.
        * Compares sentence content tokens against evidence passages and event titles.
        * Sentence is marked supported if $\ge 50\%$ content words appear in evidence.
        * Flags unsupported sentences (`flagged_unsupported: True`) and returns `(statements, unsupported_sentences, claim_support_rate)`.
-  3. API Endpoints (`backend/api.py`):
+  3. API Endpoints (`bbackend/api.py`):
      - `/api/explain`: returns Step 3.3 payload including sentence support verification, statements, unsupported sentences, claim support rate, and abstention on insufficient evidence.
      - `/api/evidence`: updated to return `lifecycle_state`, `needs_review`, `evidence_assessment`, `direct_support`, `indirect_support`, `missing_corroboration`, and `conflicting_evidence` alongside raw events.
   4. Frontend Evidence Panel & Explanation View (`web/app.js`, `docs/app.js`):
@@ -423,15 +423,15 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.4 (P1-a) — Decision-Specific Constraints & General Drift Detector
 - Status: **RESOLVED**
-- Files: `backend/migrations/004_decision_constraints.py`, `backend/models.py`, `backend/db.py`, `backend/engine/drift_detector.py`, `backend/engine/guard_rules.py`, `backend/seed_data.py`, `tests/test_guard_rules.py`, `tests/test_drift_rules.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/migrations/004_decision_constraints.py`, `bbackend/models.py`, `bbackend/db.py`, `bbackend/engine/drift_detector.py`, `bbackend/engine/guard_rules.py`, `bbackend/seed_data.py`, `tests/test_guard_rules.py`, `tests/test_drift_rules.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Additive Migration 004 & Data Model:
-     - Created `backend/migrations/004_decision_constraints.py` adding `polarity` (`must` | `must_not`), `applies_to` (JSON array of entity IDs or path globs), and `source` (`human` | `proposed`) to `guard_rules`.
+     - Created `bbackend/migrations/004_decision_constraints.py` adding `polarity` (`must` | `must_not`), `applies_to` (JSON array of entity IDs or path globs), and `source` (`human` | `proposed`) to `guard_rules`.
      - Created `decision_constraints` view referencing `guard_rules` with alias `DecisionConstraint = GuardRule`.
      - Backfilled `polarity`, `applies_to`, and `source` from rule params.
-     - Added `get_decision_evidence_passages` to `backend/db.py`.
+     - Added `get_decision_evidence_passages` to `bbackend/db.py`.
   2. Pure Constraint-Driven Evaluation (0 Domain Keywords):
-     - Completely removed hard-coded scenario branches (`redis`, `pid`, `hysteresis`) from `backend/engine/drift_detector.py`. Grep test asserts 0 domain keywords remain in source code.
+     - Completely removed hard-coded scenario branches (`redis`, `pid`, `hysteresis`) from `bbackend/engine/drift_detector.py`. Grep test asserts 0 domain keywords remain in source code.
      - Implemented `parse_diff` with hunk headers, line numbers, added/removed line separation, and comment classification (`is_pure_comment`, `is_historical`).
      - Query touched entities and active human-approved constraints overlapping touched entities/paths.
      - Evaluated active rules against added lines (and removed lines for `require_*`), properly handling historical notes (`is_historical` e.g. decommissioned/deprecated notes) as clean changes.
@@ -444,13 +444,13 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.5 — Rejected-Idea Guard (Headline Novelty)
 - Status: **RESOLVED**
-- Files: `backend/migrations/005_finding_feedback.py`, `backend/db.py`, `backend/engine/rejected_idea_guard.py`, `backend/api.py`, `tools/ci_check.py`, `tests/test_rejected_idea_guard.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/migrations/005_finding_feedback.py`, `bbackend/db.py`, `bbackend/engine/rejected_idea_guard.py`, `bbackend/api.py`, `tools/ci_check.py`, `tests/test_rejected_idea_guard.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Additive Migration 005 & Data Model:
-     - Created `backend/migrations/005_finding_feedback.py` implementing `finding_feedback` table:
+     - Created `bbackend/migrations/005_finding_feedback.py` implementing `finding_feedback` table:
        `feedback_id`, `finding_id`, `finding_type`, `action`, `reason`, `actor`, `pr_id`, `decision_id`, `created_at`.
-     - Added helper methods in `backend/db.py`: `record_finding_feedback`, `is_finding_dismissed`, `get_finding_feedback`, `get_decision`, `get_all_decisions`.
-  2. Rejected-Idea Guard Engine (`backend/engine/rejected_idea_guard.py`):
+     - Added helper methods in `bbackend/db.py`: `record_finding_feedback`, `is_finding_dismissed`, `get_finding_feedback`, `get_decision`, `get_all_decisions`.
+  2. Rejected-Idea Guard Engine (`bbackend/engine/rejected_idea_guard.py`):
      - Design extraction: deterministic parser extracting added imports/dependencies, function calls/definitions, variable assignments, config keys, and tokens from proposal text and diffs. Filters out historical decommissioning documentation comments (`decommissioned`, `deprecated`, `replaced by`, `superseded`) from active code analysis.
      - Candidate retrieval: retrieves all rejected decisions and rejected alternatives, including candidate rationale and evidence passages.
      - Substance comparison on 4 signals:
@@ -467,7 +467,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Developer feedback loop: `confirm`, `dismiss` (persists for PR + decision, suppressing duplicate alerts on subsequent runs), and `reopen_decision` (transitions decision `rejected -> reopened` via reconciled lifecycle engine with PR evidence).
   3. Integration:
      - `tools/ci_check.py`: integrated rejected-idea guard check; default invocation exits code 0 on advisory findings; `--strict` flag blocks with exit code 1 if advisories are present.
-     - `backend/api.py`: hooked guard into `/api/drift-check`, `handle_webhook` (posts advisory comments to PRs), and `POST /api/findings/feedback`.
+     - `bbackend/api.py`: hooked guard into `/api/drift-check`, `handle_webhook` (posts advisory comments to PRs), and `POST /api/findings/feedback`.
   4. Acceptance & Verification:
      - Verified: `tests/test_rejected_idea_guard.py` (6 tests pass covering $\ge 5$ true matches including paraphrased proposal, $\ge 8$ non-matches, reopen flow changing advisory message, dismiss persistence, never blocks assertion, and CI check `--strict` flag).
      - Full test discovery suite: **148 tests passing** (0 failures, 0 errors).
@@ -476,15 +476,15 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 3.6 (P1-g) — Developer Feedback Loop & Review Routing
 - Status: **RESOLVED**
-- Files: `backend/db.py`, `backend/engine/rejected_idea_guard.py`, `backend/api.py`, `backend/evaluation/benchmark.py`, `web/app.js`, `docs/app.js`, `tests/test_feedback.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/db.py`, `bbackend/engine/rejected_idea_guard.py`, `bbackend/api.py`, `bbackend/evaluation/benchmark.py`, `web/app.js`, `docs/app.js`, `tests/test_feedback.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Feedback Persistence & Measured Feedback Counts (`backend/db.py`, `backend/api.py`):
+  1. Feedback Persistence & Measured Feedback Counts (`bbackend/db.py`, `bbackend/api.py`):
      - Implemented `ambiguous_findings` table tracking ambiguous findings (`finding_id`, `source`, `item_type`, `decision_id`, `pr_id`, `tier`, `queue_reason`, `status`, `actor`, `created_at`, `resolved_at`).
      - Added `get_finding_feedback_counts()` returning distinct counts for `confirm`, `dismiss`, `reopen`, and `total`.
      - Added `record_ambiguous_finding()`, `resolve_ambiguous_finding()`, and `get_pending_ambiguous_findings()`.
      - Added `GET /api/findings/feedback` returning measured feedback history and aggregate action counts (authenticated viewer/reviewer).
      - Connected measured feedback counts into `GET /api/stats` and `GET /api/benchmark`.
-  2. Review Routing for Ambiguous Findings (`backend/api.py`, `backend/engine/rejected_idea_guard.py`):
+  2. Review Routing for Ambiguous Findings (`bbackend/api.py`, `bbackend/engine/rejected_idea_guard.py`):
      - Updated `evaluate_proposal` in `RejectedIdeaGuard` to automatically route `tier == "possible"` findings to `ambiguous_findings` with explicit `queue_reason` ("Ambiguous finding ('possible' tier) requires reviewer triage").
      - Updated `GET /api/review-queue` to combine:
        * `decision` items requiring review (`needs_review == 1` or evidence assessment in `weak`, `insufficient`, `contradicted`).
@@ -506,9 +506,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.1 — Audit the Matching Protocol
 - Status: **RESOLVED**
-- Files: `backend/evaluation/benchmark.py`, `backend/evaluation/ground_truth.py`, `tools/run_whybench.py`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/evaluation/benchmark.py`, `bbackend/evaluation/ground_truth.py`, `tools/run_whybench.py`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Strict One-to-One Bipartite Matching (`backend/evaluation/benchmark.py`):
+  1. Strict One-to-One Bipartite Matching (`bbackend/evaluation/benchmark.py`):
      - Implemented `compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)`:
        * Builds candidate bipartite edges between GT items and system decisions sharing $\ge 1$ evidence event ID.
        * Greedily assigns candidate edges in descending order of shared evidence overlap count (secondary tie-breaker: state match).
@@ -538,7 +538,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.2 — Compare Equivalent Tasks Only
 - Status: **RESOLVED**
-- Files: `backend/evaluation/baselines.py`, `tools/run_whybench.py`, `evaluation_results.md`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/evaluation/baselines.py`, `tools/run_whybench.py`, `evaluation_results.md`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Formal Split Benchmark Task Definitions (`METRICS.md` Section 10):
      - **Task 1 — Evidence Retrieval** ("Find the sources that explain X"):
@@ -551,7 +551,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * Systems evaluated: CIF (reconciled lifecycle state machine, structured candidate extraction, context graph) vs Baselines C & D (LLM / Copilot) when configured.
        * Metrics: Strict one-to-one decision recall, decision state accuracy, grounded rationale & alternatives, and refusal accuracy.
        * Non-reconstructing baselines (A & B) cannot extract decisions, states, or alternatives, and are explicitly marked `n/a` across all Task 2 columns rather than misleadingly scored as 0.0%.
-  2. Baseline Evaluator Separation (`backend/evaluation/baselines.py`):
+  2. Baseline Evaluator Separation (`bbackend/evaluation/baselines.py`):
      - Updated `run_baseline_keyword` and `run_baseline_docs_only` to compute `task_1_hit_rate` (measured) while marking `task_2_decision_recall`, `task_2_state_accuracy` as `n/a`, and `task_2_refusal_accuracy` as `n/a (always answers)`.
   3. WhyBench Runner Reporting (`tools/run_whybench.py`):
      - Added CIF Task 1 hit rate calculation.
@@ -593,11 +593,11 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.4 — Improve Recall from Analysis (Dev Split Only)
 - Status: **RESOLVED**
-- Files: `backend/engine/extractor.py`, `tools/sweep_thresholds.py`, `docs_changelog.md`, `tests/test_extractor.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/engine/extractor.py`, `tools/sweep_thresholds.py`, `docs_changelog.md`, `tests/test_extractor.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Failure Category Remediation:
      - Prioritized error categories by count from Step 4.3: `wrong_evidence` (5 misses) and `no_candidate` (3 misses).
-     - **Source Types**: Expanded `backend/engine/extractor.py` to support `git_commit` and `github_issue` in addition to `github_pr`, `pr_review_comment`, and `adr`.
+     - **Source Types**: Expanded `bbackend/engine/extractor.py` to support `git_commit` and `github_issue` in addition to `github_pr`, `pr_review_comment`, and `adr`.
      - **Rejection Cue Detection & Classification**: Introduced `REJECTION_PATTERNS` (`reject`, `rejected`, `must reject`, `cannot use`, `not viable`, `abandoned`). Rejection comments now extract decisions with `state="rejected"`, recording rejected proposals in `alternatives_considered` with `confidence=0.85` (`WB_PAY_03`, `WB_CH_02`, `WB_CLI_02`).
      - **Affirmative Architectural Intent Markers**: Broadened action cues (`implement`, `adopt`, `migrat*`, `switch to`, `enable`, `introduce`, `support`, `isolate`, `batch`, `pinning`, `feat:`, `refactor:`).
      - **Parent Event ID Grounding**: PR decisions closing issues now propagate `[ev.event_id] + list(ev.parent_event_ids)` into `evidence_event_ids`, grounding the decision across the PR and closed issue (`WB_PAY_02`, `WB_CH_06`, `WB_CLI_04`).
@@ -624,7 +624,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.5 — Human-Labelled Precision & Snapshot Hash Protection
 - Status: **RESOLVED**
-- Files: `tools/make_precision_sample.py`, `backend/evaluation/benchmark.py`, `tools/run_whybench.py`, `backend/evaluation/precision_labels.json`, `tests/test_precision_sampling.py`, `STATUS_AUDIT.md`
+- Files: `tools/make_precision_sample.py`, `bbackend/evaluation/benchmark.py`, `tools/run_whybench.py`, `bbackend/evaluation/precision_labels.json`, `tests/test_precision_sampling.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Hashed Snapshot Sampling (`tools/make_precision_sample.py`):
      - Implemented `make_precision_sample` sampling up to 40 decisions per repository (fixed random seed 1234) from a named SQLite snapshot.
@@ -637,7 +637,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `title`, `state`, `confidence`, `rationale`
        * `correct`: `null` (strictly preserved until human fills in `true` or `false`)
        * `note`: annotator comment field
-  2. Snapshot Hash Invariant Enforcement (`backend/evaluation/benchmark.py` & `tools/run_whybench.py`):
+  2. Snapshot Hash Invariant Enforcement (`bbackend/evaluation/benchmark.py` & `tools/run_whybench.py`):
      - Implemented `evaluate_precision_labels(db_path, labels_file_or_dir)`:
        * Computes runtime SHA-256 hash of the database currently evaluated.
        * Compares against the label file's `db_snapshot_sha256` (both file-level and per-row).
@@ -658,7 +658,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.6 — Representative Negative Cases (Unrecorded & Mention-Without-Decision Mix)
 - Status: **RESOLVED**
-- Files: `backend/evaluation/whybench/questions.json`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `tools/analyze_failures.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/evaluation/whybench/questions.json`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `tools/analyze_failures.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Negative Cases Extension:
      - Extended WhyBench question suite to 134 items (63 dev, 71 test).
@@ -681,9 +681,9 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.7 — Confidence Quality and Calibration
 - Status: **RESOLVED**
-- Files: `backend/evaluation/calibration.py`, `tools/run_whybench.py`, `evaluation_results.md`, `tests/test_calibration.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/evaluation/calibration.py`, `tools/run_whybench.py`, `evaluation_results.md`, `tests/test_calibration.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Calibration Engine (`backend/evaluation/calibration.py`):
+  1. Calibration Engine (`bbackend/evaluation/calibration.py`):
      - Implemented `compute_calibration(labelled_items, num_bins=5, min_labels_for_ece=100)`:
        * Filters items with valid human boolean labels.
        * Computes accuracy by `evidence_assessment` tier (`strong`, `moderate`, `weak`).
@@ -708,7 +708,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.8 — Per-Repository and Reproducible Reporting
 - Status: **RESOLVED**
-- Files: `tools/generate_evaluation_report.py`, `tools/run_whybench.py`, `tools/ingest_whybench.py`, `backend/evaluation/benchmark.py`, `evaluation_results.md`, `STATUS_AUDIT.md`
+- Files: `tools/generate_evaluation_report.py`, `tools/run_whybench.py`, `tools/ingest_whybench.py`, `bbackend/evaluation/benchmark.py`, `evaluation_results.md`, `STATUS_AUDIT.md`
 - Resolution:
   1. Per-Repository Metrics Breakdown:
      - Extended WhyBench runner to compute and report metrics per repository as well as overall.
@@ -731,7 +731,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 4.9 — New Frozen Test Split `test_v2`
 - Status: **RESOLVED**
-- Files: `backend/evaluation/whybench/questions.json`, `backend/evaluation/whybench/FROZEN.md`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/evaluation/whybench/questions.json`, `bbackend/evaluation/whybench/FROZEN.md`, `tools/validate_whybench.py`, `tools/run_whybench.py`, `STATUS_AUDIT.md`
 - Resolution:
   1. Frozen Test Split Composition (`test_v2`):
      - Split off new headline evaluation test split `test_v2` containing 71 total questions (100% verified):
@@ -739,8 +739,8 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `cli/cli`: 23 questions (8 standard, 15 negatives)
        * `cloud-hypervisor/cloud-hypervisor`: 23 questions (8 standard, 15 negatives)
      - Meets the requirement of >= 20 verified questions per repository in `test_v2`.
-  2. Cryptographic Immutability (`backend/evaluation/whybench/FROZEN.md`):
-     - Created `backend/evaluation/whybench/FROZEN.md` recording SHA-256 hash digests:
+  2. Cryptographic Immutability (`bbackend/evaluation/whybench/FROZEN.md`):
+     - Created `bbackend/evaluation/whybench/FROZEN.md` recording SHA-256 hash digests:
        * Full questions file: `1e46e50dd8a35f6d6a7c33b7b5472521e982b4ff907cd91584a0bb962f9d94ab`
        * Canonical `test_v2` subset: `48c8e99e19cdf0e3069c39e51dbed7dcf6c3b3617927f1db4caf7559078f4a5b`
   3. Strict Anti-Overfitting Runner Guards:
@@ -782,15 +782,15 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   - Representative negative cases (15 per repo in dev and test_v2, 53.3% type b).
   - Confidence calibration engine with 100-label threshold guard and uncalibrated UI pills.
   - Reproducible manifests (`results/<run_id>/manifest.json`) and dynamic markdown generation (`tools/generate_evaluation_report.py`).
-  - Frozen test split `test_v2` with SHA-256 recorded in `backend/evaluation/whybench/FROZEN.md`.
+  - Frozen test split `test_v2` with SHA-256 recorded in `bbackend/evaluation/whybench/FROZEN.md`.
   - Comprehensive evaluation test suite (184 unit tests passing).
 
 
 ### Step 5.1 — Privacy-First Ingestion
 - Status: **RESOLVED**
-- Files: `backend/ingestion/sanitizer.py`, `PRIVACY.md`, `backend/db.py`, `backend/ingestion/git_adapter.py`, `backend/ingestion/github_adapter.py`, `backend/ingestion/adr_adapter.py`, `backend/ingestion/live_github.py`, `backend/engine/llm_client.py`, `backend/api.py`, `tests/test_sanitizer.py`, `tests/test_local_only.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/ingestion/sanitizer.py`, `PRIVACY.md`, `bbackend/db.py`, `bbackend/ingestion/git_adapter.py`, `bbackend/ingestion/github_adapter.py`, `bbackend/ingestion/adr_adapter.py`, `bbackend/ingestion/live_github.py`, `bbackend/engine/llm_client.py`, `bbackend/api.py`, `tests/test_sanitizer.py`, `tests/test_local_only.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Automated Redaction Engine (`backend/ingestion/sanitizer.py`):
+  1. Automated Redaction Engine (`bbackend/ingestion/sanitizer.py`):
      - `sanitize_event(event) -> event` redacts secret strings in `title`, `body`, `source_url` (query parameter values and basic auth credentials), `author` (when configured or containing tokens/PII), and all values across `raw_metadata` (recursively).
      - Standard replacement tokens implemented:
        * GitHub tokens (`ghp_`, `gho_`, `ghs_`, `ghr_`, `github_pat_`) -> `[REDACTED:GITHUB_TOKEN]`
@@ -812,7 +812,7 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - `POST /api/ingest-repo` rejects non-local directory targets with HTTP 403.
   4. Repository Purge & Retention (`POST /api/purge-repo`):
      - Implemented `Database.purge_repo(repo)` in a single transaction cascading deletion across `events`, `entities`, `decisions`, `decision_evidence`, `decision_artifacts`, `decision_claims`, `claim_evidence`, `edges`, `guard_rules`, and `state_history`.
-     - Route added to `backend/api.py` with `ROLE_ADMIN` requirement and explicit body confirmation `{"confirm": "<repo>"}`.
+     - Route added to `bbackend/api.py` with `ROLE_ADMIN` requirement and explicit body confirmation `{"confirm": "<repo>"}`.
   5. Privacy Documentation (`PRIVACY.md`):
      - Complete documentation of privacy principles, secret patterns, database storage scope, LLM isolation guarantees, local-only configuration, and retention/purge API.
   6. Acceptance & Verification:
@@ -823,14 +823,14 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 
 ### Step 5.2 — Decision Half-Life / Staleness
 - Status: **RESOLVED**
-- Files: `backend/migrations/006_decision_assumptions.py`, `backend/engine/staleness.py`, `backend/db.py`, `backend/api.py`, `tests/test_staleness.py`, `STATUS_AUDIT.md`
+- Files: `bbackend/migrations/006_decision_assumptions.py`, `bbackend/engine/staleness.py`, `bbackend/db.py`, `bbackend/api.py`, `tests/test_staleness.py`, `STATUS_AUDIT.md`
 - Resolution:
-  1. Assumptions Schema & Migration (`backend/migrations/006_decision_assumptions.py`):
+  1. Assumptions Schema & Migration (`bbackend/migrations/006_decision_assumptions.py`):
      - Created `decision_assumptions` table with columns: `assumption_id`, `decision_id`, `text`, `watch_type`, `watch_params_json`, `status`, `last_checked_at`, `trigger_event_id`, `trigger_notes`.
      - Supported `watch_type` categories: `dependency_version`, `config_value`, `file_exists`, `infrastructure_note`, `manual`.
      - Status constraint: `valid`, `broken`, `under_review`.
      - Automatic cascade deletion in `Database.purge_repo`.
-  2. Staleness Evaluation Engine (`backend/engine/staleness.py`):
+  2. Staleness Evaluation Engine (`bbackend/engine/staleness.py`):
      - Guaranteed invariant: Decisions **never** expire by age alone.
      - Dependency version upgrades evaluated via semver comparison (`parse_semver`, `check_version_violation`) against commit messages, PR descriptions, and dependency diffs.
      - Config changes and watched file deletion triggers automatically flag assumptions as `broken` and transition `decisions.freshness` from `fresh` to `stale`.
@@ -843,4 +843,28 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   5. Acceptance & Verification:
      - Created `tests/test_staleness.py` (5 tests): proves no age-based expiration, breaking vs non-breaking dependency upgrades, config/file triggers, review-queue payload with trigger links, and revalidation history logging.
      - Full test discovery suite: **200 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
+
+### Step 5.3 — Bus-Factor / Knowledge-Concentration Map
+- Status: **RESOLVED**
+- Files: backend/engine/bus_factor.py, backend/api.py, web/index.html, web/app.js, tests/test_bus_factor.py, STATUS_AUDIT.md
+- Resolution:
+  1. Knowledge Scoring Engine (backend/engine/bus_factor.py):
+     - Identified important decisions: state in ('accepted', 'rejected', 'superseded') AND (evidence_assessment in ('strong', 'moderate') OR touching >= 2 entities).
+     - Weighted contributor scoring per decision: Decision author (made_by) = 3.0, ADR/Doc author = 2.5, PR reviewer comment author = 2.0, substantive discussion comment (>= 30 chars) = 1.5.
+     - Critical Invariant Enforced: Raw commits explicitly assign 0.0 weight to prevent prolific committers from masking quiet architects.
+     - Module-level metrics: Bus factor (contributors needed to cover >= 50% knowledge), concentration risk level (high, medium, low), top contributor share, single-contributor decision share, documentation coverage (ADR/doc backing), and actionable onboarding transfer hints.
+     - Risk-ranked module ordering: modules with high concentration rank first.
+  2. API Endpoint (GET /api/bus-factor):
+     - Added endpoint to backend/api.py under ROLE_VIEWER authorization.
+     - Returns repository-level bus factor, total modules, and per-module breakdown with top contributors, doc coverage, and onboarding hints.
+  3. UI Surface & Heat Map (web/index.html, web/app.js):
+     - Added Bus Factor navigation tab and #surface-bus-factor section.
+     - Interactive table and heat map visualization color-coded by risk level (red for high risk / bus factor 1, orange for medium, green for low).
+     - Full fallback mock data supported for static snapshot mode.
+  4. Acceptance & Verification:
+     - Created tests/test_bus_factor.py (2 tests):
+       * Prolific committer (50 commits, distributed decisions) vs quiet architect (1 commit, authored all ADRs and decisions alone): proves Module B has bus factor = 1 and high risk, ranks above Module A, and raw commits do not inflate contributor scores.
+       * API endpoint verification: authorization check, schema validation, and onboarding hints.
+     - Full test discovery suite: **202 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
