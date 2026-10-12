@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
-from backend.models import Event, Decision, Entity, Edge, Identity, GuardRule
+from backend.models import Event, Decision, Entity, Edge, Identity, GuardRule, DecisionClaim, ClaimEvidence
 from backend.migrations import run_migrations
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "context_intelligence.db")
@@ -427,12 +427,155 @@ class Database:
                         VALUES (?, ?, ?, ?, ?, ?)
                         """, (hist_id, decision.decision_id, decision.state, decision.made_at, decision.made_by or "system:ingestion", notes_text))
 
+            # Step 3.1: Automatically sync decision claims and evidence links
+            self._sync_decision_claims(cursor, decision)
+
             conn.commit()
             return decision.decision_id
+
+    def _sync_decision_claims(self, cursor: sqlite3.Cursor, decision: Decision) -> None:
+        """Helper to extract and sync claims and evidence for a decision inside an active cursor."""
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='decision_claims'")
+            if not cursor.fetchone():
+                return
+            from backend.engine.independence import extract_claims_from_decision, extract_best_passage, independence_key
+
+            claims = extract_claims_from_decision(decision)
+            for clm in claims:
+                cursor.execute("""
+                INSERT OR REPLACE INTO decision_claims (claim_id, decision_id, claim_type, text)
+                VALUES (?, ?, ?, ?)
+                """, (clm.claim_id, clm.decision_id, clm.claim_type, clm.text))
+
+                cursor.execute("""
+                SELECT e.event_id, e.source_type, e.source_id, e.source_url, e.repo, e.title, e.body, e.raw_metadata, e.parent_event_ids
+                FROM decision_evidence de
+                JOIN events e ON de.event_id = e.event_id
+                WHERE de.decision_id = ?
+                """, (decision.decision_id,))
+                ev_rows = cursor.fetchall()
+                ev_dicts = []
+                for er in ev_rows:
+                    rm = {}
+                    if er["raw_metadata"]:
+                        try:
+                            rm = json.loads(er["raw_metadata"])
+                        except Exception:
+                            pass
+                    pe = []
+                    if er["parent_event_ids"]:
+                        try:
+                            pe = json.loads(er["parent_event_ids"])
+                        except Exception:
+                            pass
+                    ev_dicts.append({
+                        "event_id": er["event_id"],
+                        "source_type": er["source_type"],
+                        "source_id": er["source_id"],
+                        "source_url": er["source_url"],
+                        "repo": er["repo"],
+                        "title": er["title"],
+                        "body": er["body"],
+                        "raw_metadata": rm,
+                        "parent_event_ids": pe
+                    })
+
+                for ev in ev_dicts:
+                    sg = independence_key(ev, all_events=ev_dicts)
+                    full_text = f"{ev.get('title') or ''}\n{ev.get('body') or ''}".strip()
+                    p_text, p_start, p_end, rel = extract_best_passage(clm.text, full_text)
+                    cursor.execute("""
+                    INSERT OR REPLACE INTO claim_evidence (
+                        claim_id, event_id, relation, passage_text, passage_start, passage_end, source_group
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """, (clm.claim_id, ev["event_id"], rel, p_text, p_start, p_end, sg))
+        except Exception:
+            pass
 
     def upsert_decision(self, decision: Decision) -> str:
         """Alias for save_decision."""
         return self.save_decision(decision)
+
+    def save_claim(self, claim: DecisionClaim) -> str:
+        claim.validate()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT OR REPLACE INTO decision_claims (claim_id, decision_id, claim_type, text)
+            VALUES (?, ?, ?, ?)
+            """, (claim.claim_id, claim.decision_id, claim.claim_type, claim.text))
+            conn.commit()
+            return claim.claim_id
+
+    def get_claims_for_decision(self, decision_id: str) -> List[DecisionClaim]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT claim_id, decision_id, claim_type, text
+            FROM decision_claims
+            WHERE decision_id = ?
+            ORDER BY claim_id ASC
+            """, (decision_id,))
+            rows = cursor.fetchall()
+            return [
+                DecisionClaim(
+                    claim_id=r["claim_id"],
+                    decision_id=r["decision_id"],
+                    claim_type=r["claim_type"],
+                    text=r["text"]
+                )
+                for r in rows
+            ]
+
+    def save_claim_evidence(self, ce: ClaimEvidence) -> None:
+        ce.validate()
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT OR REPLACE INTO claim_evidence (
+                claim_id, event_id, relation, passage_text, passage_start, passage_end, source_group
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (ce.claim_id, ce.event_id, ce.relation, ce.passage_text, ce.passage_start, ce.passage_end, ce.source_group))
+            conn.commit()
+
+    def get_claim_evidence(self, claim_id: str) -> List[ClaimEvidence]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT claim_id, event_id, relation, passage_text, passage_start, passage_end, source_group
+            FROM claim_evidence
+            WHERE claim_id = ?
+            ORDER BY event_id ASC
+            """, (claim_id,))
+            rows = cursor.fetchall()
+            return [
+                ClaimEvidence(
+                    claim_id=r["claim_id"],
+                    event_id=r["event_id"],
+                    relation=r["relation"],
+                    passage_text=r["passage_text"],
+                    passage_start=r["passage_start"],
+                    passage_end=r["passage_end"],
+                    source_group=r["source_group"]
+                )
+                for r in rows
+            ]
+
+    def get_all_claim_evidence_for_decision(self, decision_id: str) -> List[Dict[str, Any]]:
+        with self.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+            SELECT dc.claim_id, dc.decision_id, dc.claim_type, dc.text AS claim_text,
+                   ce.event_id, ce.relation, ce.passage_text, ce.passage_start, ce.passage_end, ce.source_group,
+                   e.source_type, e.source_url, e.author, e.ts, e.title AS event_title
+            FROM decision_claims dc
+            JOIN claim_evidence ce ON dc.claim_id = ce.claim_id
+            JOIN events e ON ce.event_id = e.event_id
+            WHERE dc.decision_id = ?
+            ORDER BY dc.claim_id ASC, ce.event_id ASC
+            """, (decision_id,))
+            return [dict(r) for r in cursor.fetchall()]
 
     def upsert_edge(self, edge: Edge) -> str:
         with self.get_connection() as conn:

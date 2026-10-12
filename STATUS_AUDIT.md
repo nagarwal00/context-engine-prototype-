@@ -307,3 +307,44 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
 - Migrations tested on DB copy: **PASS** (proven via migration tests against `backups/context_intelligence.pre_v2.db`).
 - As-of queries correct on boundary dates: **PASS** (proven via `backend/engine/as_of.py` and `tests/test_as_of.py`).
 - Git Tag: `phase2-done`
+
+---
+
+## PHASE 3 — Strengthen Evidence and Rejection Memory
+
+### Step 3.1 — Claim-Level Evidence and Independence
+- Status: **RESOLVED**
+- Files: `backend/migrations/003_claim_evidence_independence.py`, `backend/models.py`, `backend/engine/independence.py`, `backend/db.py`, `tests/test_independence.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Additive Database Migration (`003_claim_evidence_independence.py`):
+     - Created `decision_claims` table with `claim_id TEXT PRIMARY KEY`, `decision_id TEXT NOT NULL`, `claim_type TEXT NOT NULL CHECK (claim_type IN ('rationale', 'alternative_rejected', 'outcome', 'constraint'))`, and `text TEXT NOT NULL`, cascading on decision deletion.
+     - Created `claim_evidence` table with `(claim_id, event_id)` composite primary key, `relation TEXT NOT NULL CHECK (relation IN ('direct', 'indirect', 'contradicting'))`, `passage_text TEXT`, `passage_start INTEGER`, `passage_end INTEGER`, and `source_group TEXT NOT NULL`.
+     - Built indexes on `decision_claims(decision_id)`, `claim_evidence(event_id)`, and `claim_evidence(source_group)`.
+     - Includes automatic backfill of claims and claim evidence for existing decisions during migration upgrade.
+  2. Data Models (`backend/models.py`):
+     - Added `DecisionClaim` and `ClaimEvidence` dataclasses with `validate()` methods asserting allowed claim types (`ALLOWED_CLAIM_TYPES`) and relations (`ALLOWED_CLAIM_RELATIONS`).
+  3. Source Independence Engine (`backend/engine/independence.py`):
+     - Implemented pure function `independence_key(event, all_events=None) -> str`:
+       * Same issue/PR thread (issue, PR, review comments, issue comments) -> `thread:<repo>#<number>`
+       * Commit and the PR containing it -> `thread:<repo>#<number>` (else `commit:<sha>`)
+       * ADR/doc file -> `doc:<repo>:<path>` (revisions map to same group)
+       * Slack -> `slack:<repo>:<channel>#<thread_ts>`
+       * Duplicate copy/quote (identical normalized body or >80% token overlap with an existing event) -> maps to original event's source group
+       * Author identity does not split source groups; different threads/documents do.
+     - Implemented `extract_best_passage(claim_text, event_text, threshold=0.25)`:
+       * Extracts candidate sentences with exact character offsets (`event_text[start:end] == passage_text`).
+       * Content-word overlap scoring excluding English stopwords.
+       * If score >= threshold: checks for contradiction cues ("rejected", "bottlenecks", "failed", etc.); returns exact passage text, offsets, and `direct` or `contradicting` relation.
+       * If score < threshold: returns `(None, None, None, 'indirect')`.
+     - Implemented claim extraction (`extract_claims_from_decision`) and independent source counting (`calculate_independent_sources`, `get_independent_source_count`).
+  4. Database Layer Integration (`backend/db.py`):
+     - Added `save_claim`, `get_claims_for_decision`, `save_claim_evidence`, `get_claim_evidence`, and `get_all_claim_evidence_for_decision`.
+     - Hooked automatic claim and evidence synchronization into `save_decision`.
+  5. Acceptance & Verification:
+     - Verified: 5 comments in one PR thread count as **1** independent source (`thread:acme/backend#42`).
+     - Verified: ADR plus a separate PR discussion count as **2** independent sources.
+     - Verified: Commit belonging to a PR plus the PR count as **1** independent source.
+     - Verified: Duplicate copy (>80% token overlap) maps to original event's group (**1** independent source).
+     - Verified: Passage extraction exact character offsets equality and contradiction cue detection.
+     - Verified: Schema migration 003 applied cleanly to active `context_intelligence.db`.
+     - Verified: `tests/test_independence.py` (9 tests pass); full test discovery suite (120 tests pass); demo runner (21/21 checks pass).

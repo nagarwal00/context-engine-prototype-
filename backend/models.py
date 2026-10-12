@@ -169,3 +169,44 @@ class GuardRule:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
+
+ALLOWED_CLAIM_TYPES = {"rationale", "alternative_rejected", "outcome", "constraint"}
+ALLOWED_CLAIM_RELATIONS = {"direct", "indirect", "contradicting"}
+
+@dataclass
+class DecisionClaim:
+    """Step 3.1 Claim-level unit of a decision"""
+    claim_id: str = field(default_factory=generate_uuid)
+    decision_id: str = ""
+    claim_type: str = "rationale"  # rationale | alternative_rejected | outcome | constraint
+    text: str = ""
+
+    def validate(self):
+        if self.claim_type not in ALLOWED_CLAIM_TYPES:
+            raise ValueError(f"Invalid claim_type: '{self.claim_type}'. Must be one of {sorted(ALLOWED_CLAIM_TYPES)}")
+        if not self.text or not self.text.strip():
+            raise ValueError("Claim text cannot be empty.")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
+@dataclass
+class ClaimEvidence:
+    """Step 3.1 Claim-level evidence link with passage offset and source group"""
+    claim_id: str = ""
+    event_id: str = ""
+    relation: str = "direct"  # direct | indirect | contradicting
+    passage_text: Optional[str] = None
+    passage_start: Optional[int] = None
+    passage_end: Optional[int] = None
+    source_group: str = ""
+
+    def validate(self):
+        if self.relation not in ALLOWED_CLAIM_RELATIONS:
+            raise ValueError(f"Invalid relation: '{self.relation}'. Must be one of {sorted(ALLOWED_CLAIM_RELATIONS)}")
+        if not self.source_group or not self.source_group.strip():
+            raise ValueError("source_group cannot be empty.")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
+
