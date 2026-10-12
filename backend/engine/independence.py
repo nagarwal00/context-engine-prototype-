@@ -218,9 +218,9 @@ def _base_independence_key(event: Any) -> str:
         return f"doc:{repo}:{norm_path}"
 
     # 4. Slack: one group per thread
-    if source_type == "slack":
-        channel = raw_meta.get("channel", "general")
-        thread_ts = raw_meta.get("thread_ts") or raw_meta.get("ts") or source_id
+    if source_type in ("slack", "slack_message"):
+        channel = raw_meta.get("slack_channel") or raw_meta.get("channel", "general")
+        thread_ts = raw_meta.get("thread_ts") or raw_meta.get("slack_ts") or raw_meta.get("ts") or source_id
         return f"slack:{repo}:{channel}#{thread_ts}"
 
     # Fallback default group
@@ -386,3 +386,10 @@ def calculate_independent_sources(claim_evidences: Sequence[Any]) -> Set[str]:
 def get_independent_source_count(claim_evidences: Sequence[Any]) -> int:
     """Returns the count of independent source groups."""
     return len(calculate_independent_sources(claim_evidences))
+
+
+def count_independent_sources(events: Sequence[Any], all_events: Optional[Sequence[Any]] = None) -> int:
+    """Computes the count of unique independent source groups for a list of events."""
+    groups = {independence_key(e, all_events=all_events) for e in events}
+    return len(groups)
+

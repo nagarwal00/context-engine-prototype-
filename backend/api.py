@@ -48,6 +48,7 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/auth-status"): ROLE_VIEWER,
     ("GET", "/api/decision-history"): ROLE_VIEWER,
     ("GET", "/api/as-of"): ROLE_VIEWER,
+    ("GET", "/api/findings/feedback"): ROLE_VIEWER,
     ("GET", "/api/bus-factor"): ROLE_VIEWER,
     ("GET", "/api/onboarding"): ROLE_VIEWER,
     ("POST", "/api/onboarding"): ROLE_VIEWER,

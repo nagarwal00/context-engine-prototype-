@@ -895,3 +895,24 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Created tests/test_onboarding.py (4 tests): verifies persona separation (< 50% overlap), 5-section ranking, GET/POST endpoints, and recall evaluation.
      - Full test discovery suite: **206 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 5.5 — Slack Ingestion Scope & Offline Adapter
+- Status: **RESOLVED**
+- Files: backend/ingestion/slack_adapter.py, backend/engine/independence.py, LIMITATIONS.md, tests/test_slack_adapter.py, STATUS_AUDIT.md
+- Resolution:
+  1. Offline Workspace Export Adapter (backend/ingestion/slack_adapter.py):
+     - Parses standard Slack workspace export directories: users.json, channels.json, and daily per-channel logs (YYYY-MM-DD.json).
+     - Resolves user IDs, names, and emails through users.json and IdentityResolver into canonical contributor identities.
+     - Maps messages to Event(source_type="slack_message") with clickable source URLs (https://slack.com/archives/<channel>/p<ts>).
+     - Parent linkage preserved: thread replies explicitly link to thread root event via parent_event_ids.
+  2. Thread-Level Independence Grouping:
+     - Messages within the same Slack thread are grouped by independence_key = slack:<repo>:<channel>#<thread_ts>.
+     - Multiple messages within the same thread count as 1 independent source; distinct threads count independently.
+  3. Pre-Persistence Privacy Sanitization:
+     - Passes every Event through sanitize_event(ev) before Database.upsert_event. Raw credentials (AWS keys, tokens, etc.) are scrubbed before reaching SQLite bytes.
+  4. Scope Documentation in LIMITATIONS.md:
+     - Documented honest scope boundary: live real-time bot connectors omitted due to lack of provisioned enterprise workspace credentials; offline workspace export adapter provided and verified.
+  5. Acceptance & Verification:
+     - Created tests/test_slack_adapter.py (2 tests): verifies parsing, identity mapping, thread independence key grouping, and secret redaction.
+     - Full test discovery suite: **208 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
