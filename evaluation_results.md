@@ -62,6 +62,18 @@ Evaluated via `python tools/run_whybench.py --split dev --extractor both`:
 
 ---
 
+### 1.3 Confidence Quality and Calibration (Step 4.7)
+
+> **Status**: *not measured* (not enough labels for calibration).
+> Labelled predictions: **0** / 100 required for calibration. Heuristic scores remain explicitly marked as **uncalibrated** in UI and API (`Heuristic score (uncalibrated): XX%`).
+
+Per Step 4.7:
+1. Expected Calibration Error (ECE) and reliability tables are evaluated only when $\ge 100$ verified human boolean labels exist (prevents misleading calibration claims on undersized samples).
+2. The calibration engine (`backend/evaluation/calibration.py`) computes 5 equal-width confidence bins, reports ECE, assesses monotonicity (whether higher scores yield strictly higher empirical accuracy), and computes accuracy by evidence assessment tier (`strong`, `moderate`, `weak`).
+3. If the score is not proven calibrated on $\ge 100$ ground-truth labels with $ECE \le 10\%$, all frontend and API surfaces strictly retain the **uncalibrated** disclosure pill. Verified via `tests/test_calibration.py`.
+
+---
+
 ## 2. Decision Guard Rules Evaluation (Step 5.5)
 
 Evaluated against `backend/evaluation/drift_cases.json` (20 labelled test cases, including 10 violation cases and 10 negative/ok cases):

@@ -678,3 +678,30 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - `python tools/run_whybench.py --split dev` evaluates all 45 dev negatives with refusal accuracy.
      - Full test discovery suite: **169 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 4.7 — Confidence Quality and Calibration
+- Status: **RESOLVED**
+- Files: `backend/evaluation/calibration.py`, `tools/run_whybench.py`, `evaluation_results.md`, `tests/test_calibration.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Calibration Engine (`backend/evaluation/calibration.py`):
+     - Implemented `compute_calibration(labelled_items, num_bins=5, min_labels_for_ece=100)`:
+       * Filters items with valid human boolean labels.
+       * Computes accuracy by `evidence_assessment` tier (`strong`, `moderate`, `weak`).
+       * Mechanically enforces the minimum threshold requirement: if valid labeled count < 100, returns `status="not measured"`, `reason="not enough labels for calibration"`, `calibrated=False`, `ece=None`.
+       * When >= 100 labels are present, partitions into 5 equal-width confidence bins, computes empirical accuracy, average confidence, calibration error per bin, and Expected Calibration Error (ECE = sum |Bb|/N * |acc - conf|).
+       * Evaluates monotonicity across bins, reporting whether higher scores are really more accurate (`higher_scores_more_accurate: "yes" | "no"`).
+       * Marks `calibrated: True` only if ECE <= 10% and monotonicity holds.
+  2. UI and Runner Protection:
+     - `tools/run_whybench.py` integrates calibration computation and outputs status to console and result manifest.
+     - `web/app.js` and `docs/app.js` explicitly preserve the `Heuristic score (uncalibrated): XX%` label with tooltip `Uncalibrated heuristic`.
+     - `evaluation_results.md` documents Section 1.3 with explicit `not measured` disclosure and explains the >= 100 labels guard.
+  3. Acceptance & Verification:
+     - Created `tests/test_calibration.py` with 6 unit tests:
+       * `test_sub_100_labels_reports_not_enough_labels`: verifies 'not measured' when sample size < 100.
+       * `test_unfilled_labels_are_filtered_out`: verifies null labels are excluded.
+       * `test_toy_dataset_perfect_calibration_ece_zero`: verifies exact analytical ECE = 0.0 on 100-item perfectly calibrated toy set.
+       * `test_toy_dataset_known_ece_ten_percent`: verifies exact analytical ECE = 0.100 (10.0%) on 100-item toy set with constant 0.1 error.
+       * `test_non_monotonic_confidence_fails_calibration`: verifies that higher confidence bins collapsing in accuracy fail calibration.
+       * `test_evidence_assessment_tier_breakdown`: verifies accuracy calculation across evidence assessment tiers.
+     - Full test discovery suite: **175 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

@@ -1,7 +1,7 @@
 {
   "benchmark": "WhyBench",
   "split": "dev",
-  "date": "2026-10-12T20:18:56.962598",
+  "date": "2026-10-12T20:23:35.184217",
   "extractor_mode": "heuristic",
   "questions_evaluated": 63,
   "standard_questions": 18,
@@ -16,7 +16,20 @@
     "state_accuracy_lenient": 94.4,
     "refusal_accuracy": 64.4,
     "decision_precision": "not measured",
-    "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'a90b0d96b9b27a64eddc8d1a3028ebaa072e7e19e0b419597e0a83964869956a'"
+    "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'ebd0ee5a6c3b314b89a5d1f4aac73602a94dc20fdf9a22d6669285db25805e1e'",
+    "calibration": {
+      "status": "not measured",
+      "reason": "not enough labels for calibration",
+      "labeled_count": 0,
+      "min_required": 100,
+      "calibrated": false,
+      "ece": null,
+      "ece_pct": null,
+      "reliability_table": [],
+      "assessment_accuracy": {},
+      "monotonic_confidence": null,
+      "higher_scores_more_accurate": null
+    }
   },
   "tasks": {
     "task_1_evidence_retrieval": {
@@ -34,7 +47,7 @@
       "cif_state_accuracy": 100.0,
       "cif_refusal_accuracy": 64.4,
       "cif_precision": "not measured",
-      "cif_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'a90b0d96b9b27a64eddc8d1a3028ebaa072e7e19e0b419597e0a83964869956a'",
+      "cif_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'ebd0ee5a6c3b314b89a5d1f4aac73602a94dc20fdf9a22d6669285db25805e1e'",
       "baseline_keyword": {
         "strict_recall": "n/a",
         "state_accuracy": "n/a",

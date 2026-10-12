@@ -16,6 +16,7 @@ if PROJECT_ROOT not in sys.path:
 from backend.db import Database
 from backend.evaluation.baselines import BaselineEvaluator, STOP_WORDS, tokenize
 from backend.evaluation.benchmark import BenchmarkRunner, compute_decision_matching, evaluate_precision_labels
+from backend.evaluation.calibration import compute_calibration, format_calibration_markdown
 from tools.ingest_whybench import build_whybench_db
 
 def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False, extractor_mode: str = "heuristic") -> Dict[str, Any]:
@@ -194,8 +195,23 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     baseline_evaluator = BaselineEvaluator(db)
     baselines_out = baseline_evaluator.evaluate_all(split_questions)
 
-    # Evaluate Human-Labelled Precision (Step 4.5)
+    # Evaluate Human-Labelled Precision (Step 4.5) & Calibration (Step 4.7)
     precision_val, precision_reason = evaluate_precision_labels(db.db_path, whybench_dir)
+
+    labels_file = os.path.join(whybench_dir, "precision_labels.json")
+    labelled_items = []
+    if os.path.exists(labels_file):
+        try:
+            with open(labels_file, "r", encoding="utf-8") as f:
+                raw_labels = json.load(f)
+                if isinstance(raw_labels, list):
+                    labelled_items = raw_labels
+                elif isinstance(raw_labels, dict):
+                    labelled_items = raw_labels.get("samples", [])
+        except Exception:
+            labelled_items = []
+
+    calibration_res = compute_calibration(labelled_items, num_bins=5, min_labels_for_ece=100)
 
     summary = {
         "benchmark": "WhyBench",
@@ -215,7 +231,8 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
             "state_accuracy_lenient": state_accuracy_lenient,
             "refusal_accuracy": refusal_accuracy,
             "decision_precision": precision_val,
-            "decision_precision_reason": precision_reason
+            "decision_precision_reason": precision_reason,
+            "calibration": calibration_res
         },
         "tasks": {
             "task_1_evidence_retrieval": {
@@ -274,6 +291,8 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     print(f"    CIF State Accuracy:           {state_accuracy}% ({strict_match['correct_state_count']}/{strict_match['matched_gt_count']})")
     print(f"    CIF Refusal Accuracy:         {refusal_accuracy}% ({refusal_correct_count}/{refusal_total})")
     print(f"    CIF Decision Precision:       {precision_val} ({precision_reason})")
+    cal_reason = calibration_res.get('reason') or f"ECE={calibration_res.get('ece_pct')}%"
+    print(f"    CIF Calibration (ECE):        {calibration_res['status']} ({cal_reason})")
     print(f"    Baseline A (Keyword BM25):    n/a (unstructured search only)")
     print(f"    Baseline B (Docs-only):       n/a (unstructured search only)")
     print(f"    Baseline C (Plain LLM):       {baselines_out['baseline_llm']['status']}")
