@@ -171,7 +171,21 @@ class APIHandler:
         # 6. Evidence Panel
         elif path == "/api/evidence":
             decision_id = query_params.get("decision_id", ["dec_thermal_pid_accepted"])[0]
-            return {"status": "success", "data": self.db.query_full_evidence_trail(decision_id)}
+            trail = self.db.query_full_evidence_trail(decision_id)
+            if not trail.get("decision"):
+                return {"status": "not_found", "message": f"Decision '{decision_id}' not found", "data": None}
+            from backend.engine.explanation import build_decision_evidence_block
+            evidence_block = build_decision_evidence_block(self.db, trail["decision"])
+            trail.update({
+                "lifecycle_state": evidence_block["lifecycle_state"],
+                "needs_review": evidence_block["needs_review"],
+                "evidence_assessment": evidence_block["evidence_assessment"],
+                "direct_support": evidence_block["direct_support"],
+                "indirect_support": evidence_block["indirect_support"],
+                "missing_corroboration": evidence_block["missing_corroboration"],
+                "conflicting_evidence": evidence_block["conflicting_evidence"],
+            })
+            return {"status": "success", "data": trail}
 
         # 7. Review Queue
         elif path == "/api/review-queue":

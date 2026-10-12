@@ -323,8 +323,8 @@ window.__CIF_STATIC_DATA__ = {
             },
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_comm",
-                "evt_issue_thermal_12_sarah"
+                "evt_issue_thermal_12_sarah",
+                "evt_issue_thermal_12_comm"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -369,7 +369,7 @@ window.__CIF_STATIC_DATA__ = {
           "drift_precision": 0.0,
           "drift_recall": 0.0,
           "evidence_link_accuracy": 100.0,
-          "processing_latency_ms": 0.98,
+          "processing_latency_ms": 0.79,
           "state_accuracy": "not measured",
           "unsupported_claim_rate": 0.0
         },
@@ -384,7 +384,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-02T10:23:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
@@ -400,7 +402,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T10:15:22Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added password hashing",
@@ -416,7 +420,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:56:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added gunicorn for deployment",
@@ -432,7 +438,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:40:07Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
@@ -448,7 +456,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:27:23Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added requirements.txt",
@@ -464,7 +474,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-06-30T09:08:56Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
@@ -998,10 +1010,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-07-02T10:23:53Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1014,10 +1028,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-07-01T10:15:22Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Added password hashing",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1030,10 +1046,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-07-01T09:56:53Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Added gunicorn for deployment",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1046,10 +1064,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-07-01T09:40:07Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1062,10 +1082,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-07-01T09:27:23Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Added requirements.txt",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1078,10 +1100,12 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "item_type": "decision",
           "made_at": "2026-06-30T09:08:56Z",
           "made_by": "Nistha Agarwal",
-          "queue_reason": "Low extraction confidence (88%) or pending review",
+          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
           "repo": "nagarwal00/Placement-Tracker",
           "review_status": "auto_confirmed",
@@ -1117,7 +1141,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-06-30T09:08:56Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
@@ -1143,7 +1169,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:27:23Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added requirements.txt",
@@ -1165,7 +1193,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:40:07Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
@@ -1187,7 +1217,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:56:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added gunicorn for deployment",
@@ -1209,7 +1241,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-01T10:15:22Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added password hashing",
@@ -1243,7 +1277,9 @@ window.__CIF_STATIC_DATA__ = {
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "evidence_assessment": "insufficient",
           "evidence_count": 1,
+          "freshness": "fresh",
           "made_at": "2026-07-02T10:23:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
@@ -1269,11 +1305,22 @@ window.__CIF_STATIC_DATA__ = {
   "evidences": {
     "dec_nagarwal00_Placement-Tracker_628c0790": {
       "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "made_at": "2026-07-02T10:23:53Z",
+            "state": "accepted",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-07-01T10:15:22Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added password hashing",
@@ -1284,7 +1331,26 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Added password hashing"
         },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-01T10:15:22Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
+            "passage_end": 22,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Added password hashing",
+            "source_group": "commit:d4628c0790e1506727351fd762abed6e02d70b46",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
+            "source_type": "git_commit",
+            "title": "Added password hashing",
+            "url_format_ok": true
+          }
+        ],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1309,17 +1375,60 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-07-01T10:15:22Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-07-01T10:15:22Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_628c0790",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     },
     "dec_nagarwal00_Placement-Tracker_6659d260": {
       "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "made_at": "2026-07-02T10:23:53Z",
+            "state": "accepted",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:27:23Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added requirements.txt",
@@ -1330,7 +1439,26 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Added requirements.txt"
         },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-01T09:27:23Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+            "passage_end": 19,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Added requirements.",
+            "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+            "source_type": "git_commit",
+            "title": "Added requirements.txt",
+            "url_format_ok": true
+          }
+        ],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1356,17 +1484,38 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-07-01T09:27:23Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-07-01T09:27:23Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_6659d260",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     },
     "dec_nagarwal00_Placement-Tracker_9038b668": {
       "data": {
+        "conflicting_evidence": [],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-06-30T09:08:56Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
@@ -1377,7 +1526,11 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Added README"
         },
+        "direct_support": [],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "insufficient"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1402,17 +1555,83 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-06-30T09:08:56Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-06-30T09:08:56Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
+            "passage_end": null,
+            "passage_start": null,
+            "relation": "indirect",
+            "relevant_passage": null,
+            "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
+            "source_type": "git_commit",
+            "title": "Added README",
+            "url_format_ok": true
+          }
+        ],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no direct passage evidence supporting claims (indirect only)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-06-30T09:08:56Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_9038b668",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     },
     "dec_nagarwal00_Placement-Tracker_95196dd8": {
       "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "made_at": "2026-07-01T10:15:22Z",
+            "state": "accepted",
+            "title": "Added password hashing",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-07-02T10:23:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
@@ -1423,7 +1642,26 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
         },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-02T10:23:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "passage_end": 114,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_type": "git_commit",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "url_format_ok": true
+          }
+        ],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1451,17 +1689,60 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-07-02T10:23:53Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-07-02T10:23:53Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_95196dd8",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     },
     "dec_nagarwal00_Placement-Tracker_a77c6518": {
       "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "made_at": "2026-07-02T10:23:53Z",
+            "state": "accepted",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:56:53Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Added gunicorn for deployment",
@@ -1472,7 +1753,26 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Added gunicorn for deployment"
         },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-01T09:56:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
+            "passage_end": 29,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Added gunicorn for deployment",
+            "source_group": "commit:08a77c6518c0e6928ef49afb9f902c708fa90a6f",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
+            "source_type": "git_commit",
+            "title": "Added gunicorn for deployment",
+            "url_format_ok": true
+          }
+        ],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1497,17 +1797,60 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-07-01T09:56:53Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-07-01T09:56:53Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_a77c6518",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     },
     "dec_nagarwal00_Placement-Tracker_ac2fb893": {
       "data": {
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "made_at": "2026-07-02T10:23:53Z",
+            "state": "accepted",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
           "confidence": 0.88,
           "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+          "evidence_assessment": "insufficient",
+          "freshness": "fresh",
           "made_at": "2026-07-01T09:40:07Z",
           "made_by": "Nistha Agarwal",
           "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
@@ -1518,7 +1861,11 @@ window.__CIF_STATIC_DATA__ = {
           "supersedes_decision_id": null,
           "title": "Added PostgreSQL"
         },
+        "direct_support": [],
         "discussion_events": [],
+        "evidence_assessment": {
+          "label": "insufficient"
+        },
         "evidence_events": [
           {
             "artifacts_touched": [
@@ -1543,7 +1890,41 @@ window.__CIF_STATIC_DATA__ = {
             "ts": "2026-07-01T09:40:07Z"
           }
         ],
-        "state_history": []
+        "indirect_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-01T09:40:07Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
+            "passage_end": null,
+            "passage_start": null,
+            "relation": "indirect",
+            "relevant_passage": null,
+            "source_group": "commit:fcac2fb89372d1ddd97d90026bea99ce4c905095",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
+            "source_type": "git_commit",
+            "title": "Added PostgreSQL",
+            "url_format_ok": true
+          }
+        ],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no direct passage evidence supporting claims (indirect only)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "state_history": [
+          {
+            "changed_at": "2026-07-01T09:40:07Z",
+            "changed_by": "system:backfill",
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "from_state": null,
+            "history_id": "hist_backfill_dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "notes": "reconstructed from current state at backfill",
+            "reconstructed": 1,
+            "state": "accepted"
+          }
+        ]
       },
       "status": "success"
     }
@@ -1554,20 +1935,73 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": ".env.example",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "timestamp": "2026-07-02T10:23:53Z",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+                "made_at": "2026-07-01T10:15:22Z",
+                "state": "accepted",
+                "title": "Added password hashing",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+              "made_at": "2026-07-02T10:23:53Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-02T10:23:53Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+                "passage_end": 114,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_type": "git_commit",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-02T10:23:53Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
             "state": "accepted",
             "step_number": 1,
@@ -1578,17 +2012,107 @@ window.__CIF_STATIC_DATA__ = {
         "citations": [
           {
             "author": "Nistha Agarwal",
-            "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
             "timestamp": "2026-07-02T10:23:53Z",
             "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
           }
         ],
+        "claim_support_rate": 0.5,
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "made_at": "2026-07-01T10:15:22Z",
+            "state": "accepted",
+            "title": "Added password hashing",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
         "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "made_at": "2026-07-02T10:23:53Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+        },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-02T10:23:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "passage_end": 114,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_type": "git_commit",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "explanation": "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\n",
-        "status": "grounded"
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.47,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": false,
+            "text": "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+          },
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.93,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": true,
+            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact '.env.example' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+        ]
       },
       "status": "success"
     },
@@ -1597,20 +2121,45 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "README.md",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+              "made_at": "2026-06-30T09:08:56Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added README"
+            },
+            "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+            "direct_support": [],
+            "evidence_assessment": {
+              "label": "insufficient"
+            },
+            "indirect_support": [
               {
                 "author": "Nistha Agarwal",
-                "source_id": "669038b668eb00cfbdd21995552a80b9013494de",
+                "date": "2026-06-30T09:08:56Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
+                "passage_end": null,
+                "passage_start": null,
+                "relation": "indirect",
+                "relevant_passage": null,
+                "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
                 "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-                "timestamp": "2026-06-30T09:08:56Z",
-                "title": "Added README"
+                "title": "Added README",
+                "url_format_ok": true
               }
             ],
-            "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+            "lifecycle_state": "accepted",
             "made_at": "2026-06-30T09:08:56Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no direct passage evidence supporting claims (indirect only)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
             "state": "accepted",
             "step_number": 1,
@@ -1618,42 +2167,106 @@ window.__CIF_STATIC_DATA__ = {
             "title": "Added README"
           }
         ],
-        "citations": [
-          {
-            "author": "Nistha Agarwal",
-            "source_id": "669038b668eb00cfbdd21995552a80b9013494de",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
-            "timestamp": "2026-06-30T09:08:56Z",
-            "title": "Added README"
-          }
-        ],
+        "citations": [],
+        "claim_support_rate": 0.0,
+        "conflicting_evidence": [],
         "current_decision": "Added README",
         "current_state": "accepted",
-        "explanation": "Artifact 'README.md' is governed primarily by accepted decision 'Added README', established by Nistha Agarwal on 2026-06-30.\n\nKey Rationale: Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.\n\n",
-        "status": "grounded"
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_9038b668",
+          "made_at": "2026-06-30T09:08:56Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Architectural change recorded in git_commit #669038b668eb00cfbdd21995552a80b9013494de by Nistha Agarwal.",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Added README"
+        },
+        "direct_support": [],
+        "evidence_assessment": {
+          "label": "insufficient"
+        },
+        "explanation": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
+        "indirect_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-06-30T09:08:56Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_669038b668",
+            "passage_end": null,
+            "passage_start": null,
+            "relation": "indirect",
+            "relevant_passage": null,
+            "source_group": "commit:669038b668eb00cfbdd21995552a80b9013494de",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/669038b668eb00cfbdd21995552a80b9013494de",
+            "source_type": "git_commit",
+            "title": "Added README",
+            "url_format_ok": true
+          }
+        ],
+        "lifecycle_state": "accepted",
+        "message": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no direct passage evidence supporting claims (indirect only)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [],
+        "status": "insufficient_evidence",
+        "unsupported_sentences": []
       },
-      "status": "success"
+      "message": "Insufficient evidence recorded to explain design decisions governing artifact 'README.md'.",
+      "status": "insufficient_evidence"
     },
     "app.py": {
       "data": {
         "artifact": "app.py",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "d4628c0790e1506727351fd762abed6e02d70b46",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
-                "timestamp": "2026-07-01T10:15:22Z",
-                "title": "Added password hashing"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+                "made_at": "2026-07-02T10:23:53Z",
+                "state": "accepted",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+              "made_at": "2026-07-01T10:15:22Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Added password hashing",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added password hashing"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-01T10:15:22Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
+                "passage_end": 22,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Added password hashing",
+                "source_group": "commit:d4628c0790e1506727351fd762abed6e02d70b46",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
+                "source_type": "git_commit",
+                "title": "Added password hashing",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-01T10:15:22Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Added password hashing",
             "state": "accepted",
             "step_number": 1,
@@ -1661,20 +2274,73 @@ window.__CIF_STATIC_DATA__ = {
             "title": "Added password hashing"
           },
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "timestamp": "2026-07-02T10:23:53Z",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+                "made_at": "2026-07-01T10:15:22Z",
+                "state": "accepted",
+                "title": "Added password hashing",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+              "made_at": "2026-07-02T10:23:53Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-02T10:23:53Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+                "passage_end": 114,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_type": "git_commit",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-02T10:23:53Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
             "state": "accepted",
             "step_number": 2,
@@ -1685,7 +2351,9 @@ window.__CIF_STATIC_DATA__ = {
         "citations": [
           {
             "author": "Nistha Agarwal",
-            "source_id": "d4628c0790e1506727351fd762abed6e02d70b46",
+            "passage": "Added password hashing",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_d4628c0790",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/d4628c0790e1506727351fd762abed6e02d70b46",
             "timestamp": "2026-07-01T10:15:22Z",
@@ -1693,17 +2361,116 @@ window.__CIF_STATIC_DATA__ = {
           },
           {
             "author": "Nistha Agarwal",
-            "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
             "timestamp": "2026-07-02T10:23:53Z",
             "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
           }
         ],
+        "claim_support_rate": 0.67,
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "made_at": "2026-07-01T10:15:22Z",
+            "state": "accepted",
+            "title": "Added password hashing",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
         "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "made_at": "2026-07-02T10:23:53Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+        },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-02T10:23:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "passage_end": 114,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_type": "git_commit",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "explanation": "Artifact 'app.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\nEvolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals.",
-        "status": "grounded"
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.5,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": true,
+            "text": "Artifact 'app.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+          },
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.93,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": true,
+            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+          },
+          {
+            "event_id": null,
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.0,
+            "passage": null,
+            "source_link": null,
+            "supported": false,
+            "text": "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Evolutionary History: This artifact progressed through 2 recorded decision milestones, including prior iterations or superseded proposals."
+        ]
       },
       "status": "success"
     },
@@ -1712,8 +2479,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::add_company",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::add_company' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1722,8 +2492,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::companies",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::companies' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1732,8 +2505,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::dashboard",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::dashboard' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1742,8 +2518,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::delete_company",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::delete_company' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1752,8 +2531,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::edit_company",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::edit_company' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1762,8 +2544,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::home",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::home' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1772,8 +2557,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::login",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::login' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1782,8 +2570,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::logout",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::logout' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1792,8 +2583,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::prep",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::prep' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1802,8 +2596,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::register",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::register' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1812,8 +2609,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::send_company_reminder",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::send_company_reminder' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1822,8 +2622,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "app.py::valid_password",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'app.py::valid_password' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1832,8 +2635,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "database.py",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'database.py' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1842,8 +2648,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "database.py::init_db",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'database.py::init_db' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1852,20 +2661,73 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "email_utils.py",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "timestamp": "2026-07-02T10:23:53Z",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+                "made_at": "2026-07-01T10:15:22Z",
+                "state": "accepted",
+                "title": "Added password hashing",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+              "made_at": "2026-07-02T10:23:53Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-02T10:23:53Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+                "passage_end": 114,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_type": "git_commit",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-02T10:23:53Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
             "state": "accepted",
             "step_number": 1,
@@ -1876,17 +2738,107 @@ window.__CIF_STATIC_DATA__ = {
         "citations": [
           {
             "author": "Nistha Agarwal",
-            "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
             "timestamp": "2026-07-02T10:23:53Z",
             "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
           }
         ],
+        "claim_support_rate": 0.5,
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "made_at": "2026-07-01T10:15:22Z",
+            "state": "accepted",
+            "title": "Added password hashing",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
         "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "made_at": "2026-07-02T10:23:53Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+        },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-02T10:23:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "passage_end": 114,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_type": "git_commit",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "explanation": "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\n",
-        "status": "grounded"
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.47,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": false,
+            "text": "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+          },
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.93,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": true,
+            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'email_utils.py' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+        ]
       },
       "status": "success"
     },
@@ -1895,8 +2847,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "email_utils.py::send_reminder",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'email_utils.py::send_reminder' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     },
@@ -1905,20 +2860,66 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "placement.db",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "846659d26005c8e95012399d343e6495265d7c8a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-                "timestamp": "2026-07-01T09:27:23Z",
-                "title": "Added requirements.txt"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+                "made_at": "2026-07-02T10:23:53Z",
+                "state": "accepted",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+              "made_at": "2026-07-01T09:27:23Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Added requirements.txt",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added requirements.txt"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-01T09:27:23Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+                "passage_end": 19,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Added requirements.",
+                "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+                "source_type": "git_commit",
+                "title": "Added requirements.txt",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-01T09:27:23Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Added requirements.txt",
             "state": "accepted",
             "step_number": 1,
@@ -1929,17 +2930,100 @@ window.__CIF_STATIC_DATA__ = {
         "citations": [
           {
             "author": "Nistha Agarwal",
-            "source_id": "846659d26005c8e95012399d343e6495265d7c8a",
+            "passage": "Added requirements.",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
             "timestamp": "2026-07-01T09:27:23Z",
             "title": "Added requirements.txt"
           }
         ],
+        "claim_support_rate": 0.5,
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "made_at": "2026-07-02T10:23:53Z",
+            "state": "accepted",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "current_decision": "Added requirements.txt",
         "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+          "made_at": "2026-07-01T09:27:23Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Added requirements.txt",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Added requirements.txt"
+        },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-01T09:27:23Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+            "passage_end": 19,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Added requirements.",
+            "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+            "source_type": "git_commit",
+            "title": "Added requirements.txt",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "explanation": "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01.\n\nKey Rationale: Added requirements.txt\n\n",
-        "status": "grounded"
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.17,
+            "passage": "Added requirements.",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+            "supported": false,
+            "text": "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01."
+          },
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.67,
+            "passage": "Added requirements.",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+            "supported": true,
+            "text": "Key Rationale: Added requirements.txt"
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'placement.db' is governed primarily by accepted decision 'Added requirements.txt', established by Nistha Agarwal on 2026-07-01."
+        ]
       },
       "status": "success"
     },
@@ -1948,20 +3032,66 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "requirements.txt",
         "chain": [
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "846659d26005c8e95012399d343e6495265d7c8a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
-                "timestamp": "2026-07-01T09:27:23Z",
-                "title": "Added requirements.txt"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+                "made_at": "2026-07-02T10:23:53Z",
+                "state": "accepted",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+              "made_at": "2026-07-01T09:27:23Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Added requirements.txt",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added requirements.txt"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-01T09:27:23Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
+                "passage_end": 19,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Added requirements.",
+                "source_group": "commit:846659d26005c8e95012399d343e6495265d7c8a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
+                "source_type": "git_commit",
+                "title": "Added requirements.txt",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-01T09:27:23Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Added requirements.txt",
             "state": "accepted",
             "step_number": 1,
@@ -1969,20 +3099,67 @@ window.__CIF_STATIC_DATA__ = {
             "title": "Added requirements.txt"
           },
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "fcac2fb89372d1ddd97d90026bea99ce4c905095",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-                "timestamp": "2026-07-01T09:40:07Z",
-                "title": "Added PostgreSQL"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+                "made_at": "2026-07-02T10:23:53Z",
+                "state": "accepted",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+              "made_at": "2026-07-01T09:40:07Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added PostgreSQL"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "direct_support": [],
+            "evidence_assessment": {
+              "label": "insufficient"
+            },
+            "indirect_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-01T09:40:07Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_fcac2fb893",
+                "passage_end": null,
+                "passage_start": null,
+                "relation": "indirect",
+                "relevant_passage": null,
+                "source_group": "commit:fcac2fb89372d1ddd97d90026bea99ce4c905095",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
+                "source_type": "git_commit",
+                "title": "Added PostgreSQL",
+                "url_format_ok": true
+              }
+            ],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-01T09:40:07Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no direct passage evidence supporting claims (indirect only)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Architectural change recorded in git_commit #fcac2fb89372d1ddd97d90026bea99ce4c905095 by Nistha Agarwal.",
             "state": "accepted",
             "step_number": 2,
@@ -1990,20 +3167,66 @@ window.__CIF_STATIC_DATA__ = {
             "title": "Added PostgreSQL"
           },
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
-                "timestamp": "2026-07-01T09:56:53Z",
-                "title": "Added gunicorn for deployment"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+                "made_at": "2026-07-02T10:23:53Z",
+                "state": "accepted",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+              "made_at": "2026-07-01T09:56:53Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Added gunicorn for deployment",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Added gunicorn for deployment"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-01T09:56:53Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
+                "passage_end": 29,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Added gunicorn for deployment",
+                "source_group": "commit:08a77c6518c0e6928ef49afb9f902c708fa90a6f",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
+                "source_type": "git_commit",
+                "title": "Added gunicorn for deployment",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-01T09:56:53Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Added gunicorn for deployment",
             "state": "accepted",
             "step_number": 3,
@@ -2011,20 +3234,73 @@ window.__CIF_STATIC_DATA__ = {
             "title": "Added gunicorn for deployment"
           },
           {
-            "alternatives_considered": [],
-            "citations": [
+            "conflicting_evidence": [
               {
-                "author": "Nistha Agarwal",
-                "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "source_type": "git_commit",
-                "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
-                "timestamp": "2026-07-02T10:23:53Z",
-                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+                "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+                "made_at": "2026-07-01T10:15:22Z",
+                "state": "accepted",
+                "title": "Added password hashing",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+                "made_at": "2026-07-01T09:27:23Z",
+                "state": "accepted",
+                "title": "Added requirements.txt",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+                "made_at": "2026-07-01T09:56:53Z",
+                "state": "accepted",
+                "title": "Added gunicorn for deployment",
+                "type": "related_decision_on_entity"
+              },
+              {
+                "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+                "made_at": "2026-07-01T09:40:07Z",
+                "state": "accepted",
+                "title": "Added PostgreSQL",
+                "type": "related_decision_on_entity"
               }
             ],
+            "decision": {
+              "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+              "made_at": "2026-07-02T10:23:53Z",
+              "made_by": "Nistha Agarwal",
+              "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+              "repo": "nagarwal00/Placement-Tracker",
+              "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+            },
             "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+            "direct_support": [
+              {
+                "author": "Nistha Agarwal",
+                "date": "2026-07-02T10:23:53Z",
+                "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+                "passage_end": 114,
+                "passage_start": 0,
+                "relation": "direct",
+                "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+                "source_type": "git_commit",
+                "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+                "url_format_ok": true
+              }
+            ],
+            "evidence_assessment": {
+              "label": "weak"
+            },
+            "indirect_support": [],
+            "lifecycle_state": "accepted",
             "made_at": "2026-07-02T10:23:53Z",
             "made_by": "Nistha Agarwal",
+            "missing_corroboration": [
+              "no independent corroborating source recorded (single source group)",
+              "no outcome/test evidence linked"
+            ],
+            "needs_review": true,
             "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
             "state": "accepted",
             "step_number": 4,
@@ -2035,7 +3311,9 @@ window.__CIF_STATIC_DATA__ = {
         "citations": [
           {
             "author": "Nistha Agarwal",
-            "source_id": "846659d26005c8e95012399d343e6495265d7c8a",
+            "passage": "Added requirements.",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_846659d260",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/846659d26005c8e95012399d343e6495265d7c8a",
             "timestamp": "2026-07-01T09:27:23Z",
@@ -2043,15 +3321,9 @@ window.__CIF_STATIC_DATA__ = {
           },
           {
             "author": "Nistha Agarwal",
-            "source_id": "fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "source_type": "git_commit",
-            "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/fcac2fb89372d1ddd97d90026bea99ce4c905095",
-            "timestamp": "2026-07-01T09:40:07Z",
-            "title": "Added PostgreSQL"
-          },
-          {
-            "author": "Nistha Agarwal",
-            "source_id": "08a77c6518c0e6928ef49afb9f902c708fa90a6f",
+            "passage": "Added gunicorn for deployment",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_08a77c6518",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/08a77c6518c0e6928ef49afb9f902c708fa90a6f",
             "timestamp": "2026-07-01T09:56:53Z",
@@ -2059,17 +3331,117 @@ window.__CIF_STATIC_DATA__ = {
           },
           {
             "author": "Nistha Agarwal",
-            "source_id": "3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "relation": "direct",
+            "source_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
             "source_type": "git_commit",
             "source_url": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
             "timestamp": "2026-07-02T10:23:53Z",
             "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
           }
         ],
+        "claim_support_rate": 0.33,
+        "conflicting_evidence": [
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_628c0790",
+            "made_at": "2026-07-01T10:15:22Z",
+            "state": "accepted",
+            "title": "Added password hashing",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_6659d260",
+            "made_at": "2026-07-01T09:27:23Z",
+            "state": "accepted",
+            "title": "Added requirements.txt",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_a77c6518",
+            "made_at": "2026-07-01T09:56:53Z",
+            "state": "accepted",
+            "title": "Added gunicorn for deployment",
+            "type": "related_decision_on_entity"
+          },
+          {
+            "decision_id": "dec_nagarwal00_Placement-Tracker_ac2fb893",
+            "made_at": "2026-07-01T09:40:07Z",
+            "state": "accepted",
+            "title": "Added PostgreSQL",
+            "type": "related_decision_on_entity"
+          }
+        ],
         "current_decision": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re",
         "current_state": "accepted",
+        "decision": {
+          "decision_id": "dec_nagarwal00_Placement-Tracker_95196dd8",
+          "made_at": "2026-07-02T10:23:53Z",
+          "made_by": "Nistha Agarwal",
+          "rationale": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+          "repo": "nagarwal00/Placement-Tracker",
+          "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/re"
+        },
+        "direct_support": [
+          {
+            "author": "Nistha Agarwal",
+            "date": "2026-07-02T10:23:53Z",
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "passage_end": 114,
+            "passage_start": 0,
+            "relation": "direct",
+            "relevant_passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_group": "commit:3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "source_type": "git_commit",
+            "title": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "url_format_ok": true
+          }
+        ],
+        "evidence_assessment": {
+          "label": "weak"
+        },
         "explanation": "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.\n\nKey Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule\n\nEvolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals.",
-        "status": "grounded"
+        "indirect_support": [],
+        "lifecycle_state": "accepted",
+        "missing_corroboration": [
+          "no independent corroborating source recorded (single source group)",
+          "no outcome/test evidence linked"
+        ],
+        "needs_review": true,
+        "statements": [
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.47,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": false,
+            "text": "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02."
+          },
+          {
+            "event_id": "evt_git_nagarwal00_Placement-Tracker_3695196dd8",
+            "flagged_unsupported": false,
+            "overlap_ratio": 0.93,
+            "passage": "Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule",
+            "source_link": "https://github.com/nagarwal00/Placement-Tracker/commit/3695196dd8636dd0f7e1edc13ff120748dd72d2a",
+            "supported": true,
+            "text": "Key Rationale: Fix security issues: move secrets to env vars, add auth checks on edit/delete/reminder routes, relax password rule"
+          },
+          {
+            "event_id": null,
+            "flagged_unsupported": true,
+            "overlap_ratio": 0.0,
+            "passage": null,
+            "source_link": null,
+            "supported": false,
+            "text": "Evolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals."
+          }
+        ],
+        "status": "grounded",
+        "unsupported_sentences": [
+          "Artifact 'requirements.txt' is governed primarily by accepted decision 'Fix security issues: move secrets to env vars, add auth checks on edit/delete/re', established by Nistha Agarwal on 2026-07-02.",
+          "Evolutionary History: This artifact progressed through 4 recorded decision milestones, including prior iterations or superseded proposals."
+        ]
       },
       "status": "success"
     },
@@ -2078,8 +3450,11 @@ window.__CIF_STATIC_DATA__ = {
         "artifact": "test_email.py",
         "chain": [],
         "citations": [],
+        "claim_support_rate": 0.0,
         "explanation": "No recorded architectural decisions found for artifact 'test_email.py' in project history.",
-        "status": "not_found"
+        "statements": [],
+        "status": "not_found",
+        "unsupported_sentences": []
       },
       "status": "success"
     }

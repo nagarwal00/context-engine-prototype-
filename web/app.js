@@ -654,25 +654,45 @@ const app = {
       const data = json.data;
 
       if (data.status === 'not_found') {
-        expContainer.innerHTML = `
+        const notFoundHtml = `
           <div class="placeholder-state" style="border-left: 4px solid var(--status-unresolved); padding: 16px;">
             ${esc(data.explanation)}
           </div>
         `;
+        expContainer.innerHTML = notFoundHtml;
         return;
       }
 
-      let stepsHtml = (data.chain || []).map(step => `
+      if (data.status === 'insufficient_evidence') {
+        const abstainHtml = `
+          <div class="placeholder-state" style="border-left: 4px solid var(--status-rejected); padding: 16px;">
+            <div style="font-weight: 600; color: #f87171; margin-bottom: 6px;">[Abstaining: Insufficient Evidence]</div>
+            <div>${esc(data.message || data.explanation)}</div>
+          </div>
+        `;
+        expContainer.innerHTML = abstainHtml;
+        return;
+      }
+
+      let stepsHtml = (data.chain || []).map(step => {
+        const stepState = step.lifecycle_state || step.state || 'proposed';
+        const ea = (step.evidence_assessment && step.evidence_assessment.label) || '';
+        const passage = (step.direct_support && step.direct_support[0] && step.direct_support[0].relevant_passage) || null;
+        return `
         <div class="chain-step-card">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span class="status-tag ${esc(step.state)}">${esc(step.state)}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px;">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <span class="status-tag ${esc(stepState)}">${esc(stepState)}</span>
+              ${ea ? `<span class="stat-pill" style="font-size: 0.72rem; padding: 2px 6px;">Assessment: <strong>${esc(ea)}</strong></span>` : ''}
+              ${step.needs_review ? `<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">Needs Review</span>` : ''}
+            </div>
             <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">Step ${esc(step.step_number)}</span>
           </div>
-          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${esc(step.title)}</h4>
-          <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale)}</p>
-          
+          <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${esc(step.title || (step.decision && step.decision.title))}</h4>
+          <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale || (step.decision && step.decision.rationale))}</p>
+          ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #3b82f6; padding: 6px 10px; margin: 6px 0 10px 0; font-style: italic; color: #e2e8f0; font-size: 0.82rem; line-height: 1.4;">“${esc(passage)}”</div>` : ''}
           <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">
-            Decided by <strong>${esc(step.made_by)}</strong> on ${esc(step.made_at ? step.made_at.substring(0, 10) : '')}
+            Decided by <strong>${esc(step.made_by || (step.decision && step.decision.made_by))}</strong> on ${esc(step.made_at ? step.made_at.substring(0, 10) : '')}
           </div>
 
           ${(step.citations || []).length > 0 ? `
@@ -685,16 +705,37 @@ const app = {
             </div>
           ` : ''}
         </div>
-      `).join('');
+      `;
+      }).join('');
 
-      expContainer.innerHTML = `
+      let supportRateHtml = '';
+      if (data.claim_support_rate !== undefined && data.claim_support_rate !== null) {
+        supportRateHtml = `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">Sentence Support Rate: <strong>${esc(Math.round(data.claim_support_rate * 100))}%</strong></div>`;
+      }
+
+      let unsupportedHtml = '';
+      if (data.unsupported_sentences && data.unsupported_sentences.length > 0) {
+        unsupportedHtml = `
+          <div style="margin-top: 10px; padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; border-radius: 4px; font-size: 0.82rem; color: #fca5a5;">
+            Flagged Unsupported Sentences:
+            <ul style="margin: 4px 0 0 16px; padding: 0;">
+              ${data.unsupported_sentences.map(s => `<li>${esc(s)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      const content = `
         <div class="explanation-banner">
           <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Why does <code>${esc(canonicalPath)}</code> look like this?</h3>
           <p style="font-size: 0.9rem; color: #cbd5e1;">${esc(data.explanation).replace(/\n\n/g, '<br><br>')}</p>
+          ${supportRateHtml}
+          ${unsupportedHtml}
         </div>
         <h4 style="font-size: 0.9rem; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; margin-bottom: 12px;">Grounded Decision Chain</h4>
         ${stepsHtml}
       `;
+      expContainer.innerHTML = content;
     } catch (e) {
       expContainer.innerHTML = `<div class="placeholder-state">Error explaining artifact: ${esc(e.message)}</div>`;
     }
@@ -1074,39 +1115,145 @@ const app = {
 
     try {
       const json = await this.apiFetch(`/api/evidence?decision_id=${encodeURIComponent(decisionId)}`);
-      const { decision, evidence_events, discussion_events } = json.data;
-
-      if (!decision) {
+      const data = json.data;
+      if (!data || !data.decision) {
         container.innerHTML = '<div class="placeholder-state">Decision not found.</div>';
         return;
       }
 
-      const allEvents = [...evidence_events, ...discussion_events];
+      const decision = data.decision;
+      const lifecycleState = data.lifecycle_state || decision.state || 'proposed';
+      const eaLabel = (data.evidence_assessment && data.evidence_assessment.label) || decision.evidence_assessment || 'insufficient';
+      const needsReview = Boolean(data.needs_review);
+      const directSupport = data.direct_support || [];
+      const indirectSupport = data.indirect_support || [];
+      const missingCorroboration = data.missing_corroboration || [];
+      const conflictingEvidence = data.conflicting_evidence || [];
+      const legacyEvents = [...(data.evidence_events || []), ...(data.discussion_events || [])];
 
-      if (allEvents.length === 0) {
-        container.innerHTML = '<div class="placeholder-state">No linked evidence found for this decision.</div>';
-        return;
-      }
-
-      container.innerHTML = allEvents.map(ev => {
-        const tsStr = ev.ts ? ev.ts.substring(0, 10) : '';
-        return `
-        <div class="evidence-card">
-          <div class="evidence-header">
-            <span class="source-badge">${esc(ev.source_type.toUpperCase())}</span>
-            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
+      let headerHtml = `
+        <div class="evidence-card" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="status-tag ${esc(lifecycleState)}">${esc(lifecycleState)}</span>
+              <span class="stat-pill" style="font-size: 0.75rem; padding: 2px 8px;">Evidence Assessment: <strong>${esc(eaLabel)}</strong></span>
+              ${needsReview ? '<span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239,68,68,0.4);">Needs Review</span>' : ''}
+            </div>
+            <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(decision.decision_id)}</span>
           </div>
-          <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${esc(ev.title || ev.source_id)}</h4>
-          <div class="evidence-body">${esc(ev.body)}</div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author)}</strong></span>
-            <a href="${safeUrl(ev.source_url)}" target="_blank" class="citation-link">
-              Open Verified Source URL ↗
-            </a>
+          <h3 style="font-size: 1.15rem; margin-bottom: 6px;">${esc(decision.title)}</h3>
+          <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(decision.rationale || 'No extracted rationale.')}</p>
+          <div style="font-size: 0.78rem; color: #64748b;">
+            Decided by <strong>${esc(decision.made_by)}</strong> on ${esc(decision.made_at ? decision.made_at.substring(0, 10) : '')}
           </div>
         </div>
       `;
-      }).join('');
+
+      let warningsHtml = '';
+      if (conflictingEvidence.length > 0) {
+        warningsHtml += `
+          <div style="margin-bottom: 16px; padding: 12px; background: rgba(239, 68, 68, 0.12); border-left: 4px solid #ef4444; border-radius: 4px;">
+            <div style="font-weight: 600; color: #f87171; font-size: 0.85rem; margin-bottom: 6px;">Conflicting Evidence Detected:</div>
+            <ul style="margin: 0; padding-left: 18px; font-size: 0.82rem; color: #fca5a5;">
+              ${conflictingEvidence.map(c => `<li>${esc(typeof c === 'string' ? c : (c.reason || c.text || JSON.stringify(c)))}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+      if (missingCorroboration.length > 0) {
+        warningsHtml += `
+          <div style="margin-bottom: 16px; padding: 12px; background: rgba(245, 158, 11, 0.12); border-left: 4px solid #f59e0b; border-radius: 4px;">
+            <div style="font-weight: 600; color: #fbbf24; font-size: 0.85rem; margin-bottom: 6px;">Missing Corroboration:</div>
+            <ul style="margin: 0; padding-left: 18px; font-size: 0.82rem; color: #fde68a;">
+              ${missingCorroboration.map(m => `<li>${esc(m)}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      let evidenceListHtml = '';
+      if (directSupport.length > 0 || indirectSupport.length > 0) {
+        if (directSupport.length > 0) {
+          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #60a5fa; letter-spacing: 0.05em; margin: 16px 0 10px 0;">Direct Support (${esc(directSupport.length)})</h4>`;
+          evidenceListHtml += directSupport.map(ev => {
+            const tsStr = ev.date ? ev.date.substring(0, 10) : '';
+            const passage = ev.relevant_passage;
+            return `
+              <div class="evidence-card" style="margin-bottom: 12px;">
+                <div class="evidence-header">
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <span class="source-badge">${esc((ev.source_type || 'SOURCE').toUpperCase())}</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Direct</span>
+                    <span style="font-size: 0.72rem; color: #94a3b8; font-family: monospace;">Group: ${esc(ev.source_group || 'single')}</span>
+                  </div>
+                  <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
+                </div>
+                <h4 style="font-size: 0.95rem; margin-bottom: 6px;">${esc(ev.title || ev.event_id)}</h4>
+                ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #3b82f6; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 6px;">
+                  <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author || 'unknown')}</strong></span>
+                  <a href="${safeUrl(ev.source_link)}" target="_blank" class="citation-link">
+                    Open Source ${ev.url_format_ok ? '(Format OK)' : ''} ↗
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        if (indirectSupport.length > 0) {
+          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #a78bfa; letter-spacing: 0.05em; margin: 20px 0 10px 0;">Indirect Support (${esc(indirectSupport.length)})</h4>`;
+          evidenceListHtml += indirectSupport.map(ev => {
+            const tsStr = ev.date ? ev.date.substring(0, 10) : '';
+            const passage = ev.relevant_passage;
+            return `
+              <div class="evidence-card" style="margin-bottom: 12px;">
+                <div class="evidence-header">
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <span class="source-badge">${esc((ev.source_type || 'SOURCE').toUpperCase())}</span>
+                    <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">Indirect</span>
+                    <span style="font-size: 0.72rem; color: #94a3b8; font-family: monospace;">Group: ${esc(ev.source_group || 'single')}</span>
+                  </div>
+                  <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
+                </div>
+                <h4 style="font-size: 0.95rem; margin-bottom: 6px;">${esc(ev.title || ev.event_id)}</h4>
+                ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #8b5cf6; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 6px;">
+                  <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author || 'unknown')}</strong></span>
+                  <a href="${safeUrl(ev.source_link)}" target="_blank" class="citation-link">
+                    Open Source ${ev.url_format_ok ? '(Format OK)' : ''} ↗
+                  </a>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      } else if (legacyEvents.length > 0) {
+        evidenceListHtml += legacyEvents.map(ev => {
+          const tsStr = ev.ts ? ev.ts.substring(0, 10) : '';
+          return `
+            <div class="evidence-card" style="margin-bottom: 12px;">
+              <div class="evidence-header">
+                <span class="source-badge">${esc(ev.source_type.toUpperCase())}</span>
+                <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
+              </div>
+              <h4 style="font-size: 0.95rem; margin-bottom: 8px;">${esc(ev.title || ev.source_id)}</h4>
+              <div class="evidence-body">${esc(ev.body)}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author)}</strong></span>
+                <a href="${safeUrl(ev.source_url)}" target="_blank" class="citation-link">
+                  Open Source URL ↗
+                </a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        evidenceListHtml = '<div class="placeholder-state">No linked evidence found for this decision.</div>';
+      }
+
+      const content = headerHtml + warningsHtml + evidenceListHtml;
+      container.innerHTML = content;
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
@@ -1490,7 +1637,7 @@ const app = {
           </div>
           <div class="metric-stat-box">
             <div class="metric-val">${esc(fmtPct(metrics.evidence_link_accuracy))}</div>
-            <div class="metric-lbl">Evidence Link Validity</div>
+            <div class="metric-lbl" title="Format check only: url_format_ok (does not verify evidentiary correctness)">URL Format OK (Format Only)</div>
           </div>
           <div class="metric-stat-box">
             <div class="metric-val">${esc(fmtPct(metrics.drift_precision))}</div>

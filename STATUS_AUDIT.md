@@ -379,3 +379,44 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Verified: abstention triggers on insufficient evidence for artifact and decision explanations.
      - Verified: review queue routes `weak`, `insufficient`, and `contradicted` items.
      - Verified: `tests/test_assessment.py` (10 tests pass); full test discovery suite (130 tests pass); demo runner (21/21 checks pass).
+
+### Step 3.3 — Evidence-Aware Explanation Output
+- Status: **RESOLVED**
+- Files: `backend/engine/explanation.py`, `backend/api.py`, `web/app.js`, `docs/app.js`, `web/static_data.js`, `docs/static_data.js`, `tests/test_explanation.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Explanation Payload Structure (`backend/engine/explanation.py`):
+     - Implemented `build_decision_evidence_block(db, dec)` returning:
+       * `decision`: `{ decision_id, title, rationale, made_by, made_at, repo }`
+       * `lifecycle_state`: current decision state string
+       * `needs_review`: boolean flag derived from `pending_review` status, low extraction confidence, or assessment in `('weak', 'insufficient', 'contradicted')`
+       * `evidence_assessment`: `{ label: assess_label }`
+       * `direct_support`: list of direct evidence items with passage extractions
+       * `indirect_support`: list of indirect evidence items
+       * `missing_corroboration`: list of corroboration gaps
+       * `conflicting_evidence`: list of conflicting evidence items
+     - Per evidence item fields:
+       * `source_link`: source URL string
+       * `url_format_ok`: boolean format check (starts with http/https), decoupled from evidentiary correctness
+       * `relevant_passage`: exact passage text quote from source event
+       * `author`: event author identity
+       * `date`: ISO timestamp
+       * `relation`: `direct` or `indirect`
+       * `source_group`: canonical independence group key
+  2. Sentence-Level Support Check (`backend/engine/explanation.py`):
+     - Implemented `verify_sentence_support(text, evidence_items)`:
+       * Splits explanation text into distinct sentences.
+       * Tokenizes content words (length > 3, stop-words removed) per `METRICS.md` Section 6.
+       * Compares sentence content tokens against evidence passages and event titles.
+       * Sentence is marked supported if $\ge 50\%$ content words appear in evidence.
+       * Flags unsupported sentences (`flagged_unsupported: True`) and returns `(statements, unsupported_sentences, claim_support_rate)`.
+  3. API Endpoints (`backend/api.py`):
+     - `/api/explain`: returns Step 3.3 payload including sentence support verification, statements, unsupported sentences, claim support rate, and abstention on insufficient evidence.
+     - `/api/evidence`: updated to return `lifecycle_state`, `needs_review`, `evidence_assessment`, `direct_support`, `indirect_support`, `missing_corroboration`, and `conflicting_evidence` alongside raw events.
+  4. Frontend Evidence Panel & Explanation View (`web/app.js`, `docs/app.js`):
+     - Evidence panel renders decision context, lifecycle state badge, evidence assessment pill, needs-review alert, direct support cards with highlighted relevant passage blockquotes, indirect support cards, and warnings for missing corroboration or conflicting evidence.
+     - Explanation view renders sentence support rate and flags unsupported sentences if any.
+     - Renamed legacy "Evidence Link Validity" metric label to **"URL Format OK (Format Only)"** with tooltip clarifying format check only.
+     - Regenerated static snapshot via `tools/build_static.py`.
+  5. Acceptance & Verification:
+     - Verified: every statement links to a passage; unsupported sentences are flagged with `flagged_unsupported: True` and collected in `unsupported_sentences`.
+     - Verified: `tests/test_explanation.py` (8 tests pass); full test discovery suite (138 tests pass); demo runner (21/21 checks pass).
