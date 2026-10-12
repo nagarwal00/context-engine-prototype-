@@ -19,9 +19,12 @@ from backend.engine.extractor import DecisionExtractor
 from backend.engine.llm_extractor import LLMDecisionExtractor
 from backend.engine.graph import TemporalGraph
 
-def build_whybench_db(db_path: str = None, extractor_mode: str = "heuristic") -> Database:
+def build_whybench_db(db_path: str = None, extractor_mode: str = "heuristic", rebuild: bool = True) -> Database:
     if db_path is None:
         db_path = os.path.join(PROJECT_ROOT, "whybench.db")
+
+    if not rebuild and os.path.exists(db_path):
+        return Database(db_path)
 
     if os.path.exists(db_path):
         try:

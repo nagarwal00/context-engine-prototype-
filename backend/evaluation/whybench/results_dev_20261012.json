@@ -1,114 +1,167 @@
 {
-  "benchmark": "WhyBench",
+  "manifest_version": "1.0",
+  "run_id": "repro_exact_2",
+  "timestamp": "2026-10-12T23:34:04.825089",
   "split": "dev",
-  "date": "2026-10-12T20:23:35.184217",
-  "extractor_mode": "heuristic",
   "questions_evaluated": 63,
   "standard_questions": 18,
   "refusal_questions": 45,
-  "metrics": {
-    "decision_recall": 100.0,
-    "decision_recall_strict": 100.0,
-    "decision_recall_lenient": 100.0,
-    "recall_difference": 0.0,
-    "state_accuracy": 100.0,
-    "state_accuracy_strict": 100.0,
-    "state_accuracy_lenient": 94.4,
-    "refusal_accuracy": 64.4,
-    "decision_precision": "not measured",
-    "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'ebd0ee5a6c3b314b89a5d1f4aac73602a94dc20fdf9a22d6669285db25805e1e'",
-    "calibration": {
-      "status": "not measured",
-      "reason": "not enough labels for calibration",
-      "labeled_count": 0,
-      "min_required": 100,
-      "calibrated": false,
-      "ece": null,
-      "ece_pct": null,
-      "reliability_table": [],
-      "assessment_accuracy": {},
-      "monotonic_confidence": null,
-      "higher_scores_more_accurate": null
-    }
+  "environment": {
+    "python_version": "3.11.6",
+    "platform": "win32",
+    "git_commit": "a6b76a4023f4d03e885e9ff7acb216a92b1866ff",
+    "git_clean": false
   },
-  "tasks": {
-    "task_1_evidence_retrieval": {
-      "name": "Task 1 \u2014 Evidence Retrieval (Top-5 Event Hit Rate)",
-      "description": "Find the sources/events that explain X",
-      "cif_hit_rate": 100.0,
-      "baseline_keyword_hit_rate": 63.5,
-      "baseline_docs_only_hit_rate": 14.3
-    },
-    "task_2_decision_reconstruction": {
-      "name": "Task 2 \u2014 Decision Reconstruction (State, Rationale, Alternatives)",
-      "description": "Reconstruct decision state, rationale, alternatives, supersession, and refusal",
-      "cif_strict_recall": 100.0,
-      "cif_lenient_recall": 100.0,
-      "cif_state_accuracy": 100.0,
-      "cif_refusal_accuracy": 64.4,
-      "cif_precision": "not measured",
-      "cif_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'ebd0ee5a6c3b314b89a5d1f4aac73602a94dc20fdf9a22d6669285db25805e1e'",
+  "configurations": {
+    "extractor_mode": "heuristic",
+    "llm_model": "none",
+    "decision_threshold": 0.85,
+    "random_seed": 1234
+  },
+  "dataset_hashes": {
+    "dataset_version": "whybench_v1",
+    "questions_sha256": "19c15238793ec1ac954c648c3f7d22e893008af527dba9ff17a3bddfb2a87b55",
+    "precision_labels_sha256": "f6e909fba6980907914805dae659daf0de9edf719f09c1f5a4e71455c001aafa",
+    "drift_cases_sha256": "1c9ee61e648ef1508faca6c00d7536ce0acb3447597cb91ab0cfb66998722f71",
+    "conflict_cases_sha256": "80f9337b9e01a7bad2c46402270c28151973610ef250cf7f867fe0d4aee2d548",
+    "db_snapshot_sha256": "b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838"
+  },
+  "metrics": {
+    "overall": {
+      "task_1_cif_hit_rate": 100.0,
+      "task_1_cif_hits": 18,
+      "decision_recall_strict": 100.0,
+      "strict_matched_gt_count": 18,
+      "decision_recall_lenient": 100.0,
+      "lenient_matched_gt_count": 18,
+      "recall_difference": 0.0,
+      "state_accuracy": 100.0,
+      "state_correct_count": 18,
+      "refusal_accuracy": 64.4,
+      "refusal_correct_count": 29,
+      "decision_precision": "not measured",
+      "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'",
+      "calibration": {
+        "status": "not measured",
+        "reason": "not enough labels for calibration",
+        "labeled_count": 0,
+        "min_required": 100,
+        "calibrated": false,
+        "ece": null,
+        "ece_pct": null,
+        "reliability_table": [],
+        "assessment_accuracy": {},
+        "monotonic_confidence": null,
+        "higher_scores_more_accurate": null
+      },
       "baseline_keyword": {
-        "strict_recall": "n/a",
-        "state_accuracy": "n/a",
-        "refusal_accuracy": "n/a (always answers)"
+        "name": "Baseline A: Keyword Search (Grep/BM25)",
+        "status": "measured",
+        "task_1_hit_rate": 63.5,
+        "task_1_top_k": 5,
+        "task_2_decision_recall": "n/a",
+        "task_2_state_accuracy": "n/a",
+        "task_2_refusal_accuracy": "n/a (always answers)",
+        "decision_recall": 63.5,
+        "found_count": 40,
+        "total_count": 63,
+        "top_k": 5,
+        "task_1_applicable": true,
+        "task_2_applicable": false,
+        "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
       },
       "baseline_docs_only": {
-        "strict_recall": "n/a",
-        "state_accuracy": "n/a",
-        "refusal_accuracy": "n/a (always answers)"
+        "name": "Baseline B: Documentation/ADRs Only",
+        "status": "measured",
+        "task_1_hit_rate": 14.3,
+        "task_1_top_k": 5,
+        "task_2_decision_recall": "n/a",
+        "task_2_state_accuracy": "n/a",
+        "task_2_refusal_accuracy": "n/a (always answers)",
+        "decision_recall": 14.3,
+        "found_count": 9,
+        "total_count": 63,
+        "top_k": 5,
+        "task_1_applicable": true,
+        "task_2_applicable": false,
+        "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
+      },
+      "baseline_llm": {
+        "name": "Baseline C: Plain LLM Q&A",
+        "status": "not measured",
+        "decision_recall": "not measured",
+        "evidence_grounding_accuracy": "not measured",
+        "note": "Requires CIF_LLM_API_KEY and CIF_LLM_MODEL environment variables"
+      },
+      "baseline_copilot": {
+        "name": "Baseline D: GitHub Copilot",
+        "status": "not measured",
+        "decision_recall": "not measured",
+        "hallucination_rate": "not measured",
+        "evaluated_samples": 0
+      }
+    },
+    "per_repository": {
+      "acme-ecommerce/payment-core": {
+        "questions_total": 21,
+        "standard_questions": 6,
+        "refusal_questions": 15,
+        "task_1_cif_hits": 6,
+        "task_1_cif_hit_rate": 100.0,
+        "baseline_keyword_hit_rate": 61.9,
+        "baseline_docs_only_hit_rate": 14.3,
+        "strict_matched_gt_count": 6,
+        "lenient_matched_gt_count": 6,
+        "decision_recall_strict": 100.0,
+        "decision_recall_lenient": 100.0,
+        "state_correct_count": 6,
+        "state_accuracy": 100.0,
+        "refusal_correct_count": 10,
+        "refusal_accuracy": 66.7,
+        "decision_precision": "not measured",
+        "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'"
+      },
+      "cli/cli": {
+        "questions_total": 21,
+        "standard_questions": 6,
+        "refusal_questions": 15,
+        "task_1_cif_hits": 6,
+        "task_1_cif_hit_rate": 100.0,
+        "baseline_keyword_hit_rate": 61.9,
+        "baseline_docs_only_hit_rate": 14.3,
+        "strict_matched_gt_count": 6,
+        "lenient_matched_gt_count": 6,
+        "decision_recall_strict": 100.0,
+        "decision_recall_lenient": 100.0,
+        "state_correct_count": 6,
+        "state_accuracy": 100.0,
+        "refusal_correct_count": 8,
+        "refusal_accuracy": 53.3,
+        "decision_precision": "not measured",
+        "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'"
+      },
+      "cloud-hypervisor/cloud-hypervisor": {
+        "questions_total": 21,
+        "standard_questions": 6,
+        "refusal_questions": 15,
+        "task_1_cif_hits": 6,
+        "task_1_cif_hit_rate": 100.0,
+        "baseline_keyword_hit_rate": 66.7,
+        "baseline_docs_only_hit_rate": 14.3,
+        "strict_matched_gt_count": 6,
+        "lenient_matched_gt_count": 6,
+        "decision_recall_strict": 100.0,
+        "decision_recall_lenient": 100.0,
+        "state_correct_count": 6,
+        "state_accuracy": 100.0,
+        "refusal_correct_count": 11,
+        "refusal_accuracy": 73.3,
+        "decision_precision": "not measured",
+        "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'"
       }
     }
   },
-  "baselines": {
-    "baseline_keyword": {
-      "name": "Baseline A: Keyword Search (Grep/BM25)",
-      "status": "measured",
-      "task_1_hit_rate": 63.5,
-      "task_1_top_k": 5,
-      "task_2_decision_recall": "n/a",
-      "task_2_state_accuracy": "n/a",
-      "task_2_refusal_accuracy": "n/a (always answers)",
-      "decision_recall": 63.5,
-      "found_count": 40,
-      "total_count": 63,
-      "top_k": 5,
-      "task_1_applicable": true,
-      "task_2_applicable": false,
-      "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
-    },
-    "baseline_docs_only": {
-      "name": "Baseline B: Documentation/ADRs Only",
-      "status": "measured",
-      "task_1_hit_rate": 14.3,
-      "task_1_top_k": 5,
-      "task_2_decision_recall": "n/a",
-      "task_2_state_accuracy": "n/a",
-      "task_2_refusal_accuracy": "n/a (always answers)",
-      "decision_recall": 14.3,
-      "found_count": 9,
-      "total_count": 63,
-      "top_k": 5,
-      "task_1_applicable": true,
-      "task_2_applicable": false,
-      "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a."
-    },
-    "baseline_llm": {
-      "name": "Baseline C: Plain LLM Q&A",
-      "status": "not measured",
-      "decision_recall": "not measured",
-      "evidence_grounding_accuracy": "not measured",
-      "note": "Requires CIF_LLM_API_KEY and CIF_LLM_MODEL environment variables"
-    },
-    "baseline_copilot": {
-      "name": "Baseline D: GitHub Copilot",
-      "status": "not measured",
-      "decision_recall": "not measured",
-      "hallucination_rate": "not measured",
-      "evaluated_samples": 0
-    }
-  },
-  "question_results": [
+  "predictions": [
     {
       "id": "WB_PAY_01",
       "repo": "acme-ecommerce/payment-core",

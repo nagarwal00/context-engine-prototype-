@@ -163,8 +163,8 @@ def compute_decision_matching(
                     "sd": sd
                 })
 
-    # Sort candidates greedily: descending overlap_count, then state_match
-    candidate_edges.sort(key=lambda e: (e["overlap_count"], e["state_match"]), reverse=True)
+    # Sort candidates greedily: descending overlap_count, then state_match, with deterministic tie-breaking
+    candidate_edges.sort(key=lambda e: (-e["overlap_count"], -e["state_match"], str(e["gt_id"]), str(e["sd_id"])))
 
     strict_matched_gt_ids = set()
     strict_matched_sd_ids = set()

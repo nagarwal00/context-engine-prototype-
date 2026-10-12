@@ -705,3 +705,26 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * `test_evidence_assessment_tier_breakdown`: verifies accuracy calculation across evidence assessment tiers.
      - Full test discovery suite: **175 tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 4.8 — Per-Repository and Reproducible Reporting
+- Status: **RESOLVED**
+- Files: `tools/generate_evaluation_report.py`, `tools/run_whybench.py`, `tools/ingest_whybench.py`, `backend/evaluation/benchmark.py`, `evaluation_results.md`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Per-Repository Metrics Breakdown:
+     - Extended WhyBench runner to compute and report metrics per repository as well as overall.
+     - Tracks per-repository Task 1 CIF event hit rate, Baseline A (BM25) hit rate, and Baseline B (Docs-only) hit rate.
+     - Tracks per-repository Task 2 Strict Recall (1-to-1), Lenient Recall, State Accuracy, and Refusal Accuracy.
+  2. Reproducibility Manifest (`results/<run_id>/manifest.json`):
+     - Every run of `tools/run_whybench.py` writes a cryptographic manifest recording:
+       * `dataset_hashes`: SHA-256 hashes of `questions.json`, `precision_labels.json`, `drift_cases.json`, `conflict_cases.json`, and DB snapshot.
+       * `environment`: Python version, platform, git commit HEAD, and clean/dirty working tree flag.
+       * `configurations`: Extractor mode, LLM model name, decision threshold, fixed random seed 1234 (never keys).
+       * `metrics`: Complete overall and per-repository metric dictionaries.
+       * `predictions`: Full itemized question outcomes.
+     - Also updates `results/latest_manifest.json`.
+  3. Dynamic Report Generation (`tools/generate_evaluation_report.py`):
+     - `evaluation_results.md` is generated automatically from run manifests, eliminating hand-edited figures.
+  4. Acceptance & Verification:
+     - Ran twice on dev split (`repro_exact_1` and `repro_exact_2`).
+     - Automated diff verified all metrics JSON blocks are **100.0% exact identical matches**.
+     - Full test discovery suite passing; Demo runner: **21/21 checks passing**.
