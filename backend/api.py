@@ -48,8 +48,9 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/auth-status"): ROLE_VIEWER,
     ("GET", "/api/decision-history"): ROLE_VIEWER,
     ("GET", "/api/as-of"): ROLE_VIEWER,
-    ("GET", "/api/findings/feedback"): ROLE_VIEWER,
     ("GET", "/api/bus-factor"): ROLE_VIEWER,
+    ("GET", "/api/onboarding"): ROLE_VIEWER,
+    ("POST", "/api/onboarding"): ROLE_VIEWER,
 
     # POST routes (reviewer)
     ("POST", "/api/review-action"): ROLE_REVIEWER,
@@ -580,6 +581,24 @@ class APIHandler:
             engine = BusFactorEngine(self.db)
             return engine.analyze_repository(repo)
 
+        elif path == "/api/onboarding":
+            repo = query_params.get("repo", [None])[0]
+            role = query_params.get("role", [None])[0]
+            module = query_params.get("module", [None])[0]
+            files_raw = query_params.get("files", [None])[0]
+            files = [f.strip() for f in files_raw.split(",") if f.strip()] if files_raw else []
+            task = query_params.get("task", [None])[0]
+
+            from backend.engine.onboarding import OnboardingEngine
+            engine = OnboardingEngine(self.db)
+            return engine.generate_learning_path(
+                repo=repo,
+                role=role,
+                module=module,
+                files=files,
+                task=task
+            )
+
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
     def handle_post(
@@ -1046,6 +1065,26 @@ class APIHandler:
             elif action == "reopen":
                 res = self.rejected_idea_guard.reopen_decision(decision_id, pr_id, actor, reason)
                 return {"status": "success", "message": f"Decision '{decision_id}' reopened", "data": res}
+
+        # 7. Adaptive Developer Onboarding (Step 5.4)
+        elif path == "/api/onboarding":
+            repo = body.get("repo")
+            role = body.get("role")
+            module = body.get("module")
+            files = body.get("files")
+            if isinstance(files, str):
+                files = [f.strip() for f in files.split(",") if f.strip()]
+            task = body.get("task")
+
+            from backend.engine.onboarding import OnboardingEngine
+            engine = OnboardingEngine(self.db)
+            return engine.generate_learning_path(
+                repo=repo,
+                role=role,
+                module=module,
+                files=files,
+                task=task
+            )
 
         return {"status": "error", "message": f"Unknown POST endpoint {path}"}
 

@@ -1,0 +1,60 @@
+[
+  {
+    "task_id": "task_thermal_01",
+    "task_name": "Onboard to Chamber Temperature Regulation",
+    "repo": "acme-eng/thermal-control-system",
+    "role": "control-systems-engineer",
+    "module": "thermal",
+    "files": ["src/thermal/control.py"],
+    "task_description": "Implement anti-windup thermal clamping for chamber temperature control",
+    "search_query": "thermal regulation temperature",
+    "required_decision_ids": [
+      "dec_thermal_pid_accepted",
+      "dec_thermal_deadband_rejected"
+    ]
+  },
+  {
+    "task_id": "task_cache_02",
+    "task_name": "Onboard to Distributed Cache Cluster",
+    "repo": "acme-eng/distributed-cache-service",
+    "role": "infrastructure-engineer",
+    "module": "cache",
+    "files": ["src/cache/store.py"],
+    "task_description": "Migrate session caching to Redis cluster and avoid replica stampedes",
+    "search_query": "cache redis cluster",
+    "required_decision_ids": [
+      "dec_cache_redis_accepted",
+      "dec_cache_local_lru_proposed"
+    ]
+  },
+  {
+    "task_id": "task_cli_auth_03",
+    "task_name": "Onboard to GitHub CLI Token Keyring Auth",
+    "repo": "cli/cli",
+    "role": "security-engineer",
+    "module": "keyring",
+    "files": ["pkg/cmd/auth/auth.go"],
+    "task_description": "Manage secure OAuth token storage using OS native keyring providers",
+    "search_query": "keyring credentials token",
+    "required_decision_ids": [
+      "dec_cli_cli_adr_docs_rfc_001-keyring-credentials_md",
+      "dec_cli_cli_github_pr_518",
+      "dec_cli_cli_pr_review_comment_c601"
+    ]
+  },
+  {
+    "task_id": "task_cli_ext_04",
+    "task_name": "Onboard to CLI Subprocess Extension Isolation",
+    "repo": "cli/cli",
+    "role": "systems-engineer",
+    "module": "extension",
+    "files": ["pkg/cmd/extension/manager.go"],
+    "task_description": "Safely execute third-party CLI extensions in isolated subprocess environments",
+    "search_query": "extension isolation subprocess",
+    "required_decision_ids": [
+      "dec_cli_cli_adr_docs_rfc_003-extension-isolation_md",
+      "dec_cli_cli_github_pr_670",
+      "dec_cli_cli_pr_review_comment_c712"
+    ]
+  }
+]

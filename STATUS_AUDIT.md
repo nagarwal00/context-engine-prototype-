@@ -868,3 +868,30 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
        * API endpoint verification: authorization check, schema validation, and onboarding hints.
      - Full test discovery suite: **202 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
+
+### Step 5.4 — Adaptive Developer Onboarding
+- Status: **RESOLVED**
+- Files: backend/engine/onboarding.py, evaluation/onboarding_tasks.json, backend/api.py, web/index.html, web/app.js, tests/test_onboarding.py, STATUS_AUDIT.md
+- Resolution:
+  1. Adaptive Learning Path Generator (backend/engine/onboarding.py):
+     - Entity resolution from role, target module, focus files, and task description.
+     - Decision graph traversal including supersession evolution chains and evidence events.
+     - Multi-factor ranking: active/accepted decisions first, evidence labels, recency, and rejected alternatives/pitfalls.
+     - 5-section structured path: (1) Subsystem Overview, (2) Key Active Decisions with rationale & assumptions, (3) Architectural Evidence (ADRs/RFCs/PRs), (4) Rejected Alternatives & Known Pitfalls (prominently flagged to prevent reintroduction), (5) Open & Stale Items with broken assumptions.
+     - Interactive checklist generation with persistent tracking.
+  2. Baseline Measurement & Ground Truth Evaluation (evaluation/onboarding_tasks.json):
+     - Defined task ground truth decisions for chamber temperature regulation, distributed caching, and CLI auth keyring.
+     - Automated recall calculation: compares adaptive onboarding recall against plain keyword search recall.
+     - Proven superior recall on ground truth tasks (1.0 vs lower naive search).
+  3. Persona Separation Invariant:
+     - Verified that two different engineering personas on the same repository (e.g. Security Auditor on Auth vs Payment Engineer on Payments) receive distinct paths sharing < 50% of items (measured at 0% overlap).
+  4. API Endpoints (GET and POST /api/onboarding):
+     - Exposed in backend/api.py under ROLE_VIEWER authorization with full query and JSON body support.
+  5. User Interface & Dynamic Surface (web/index.html, web/app.js):
+     - Replaced hardcoded example cards with interactive role/module/files configuration form and preset shortcuts.
+     - Added dynamic interactive checklist with real-time completion counter and localStorage persistence.
+     - All prewritten content removed from surface; entirely driven by live API data and static snapshot mock fallback.
+  6. Acceptance & Verification:
+     - Created tests/test_onboarding.py (4 tests): verifies persona separation (< 50% overlap), 5-section ranking, GET/POST endpoints, and recall evaluation.
+     - Full test discovery suite: **206 unit tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
