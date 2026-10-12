@@ -6,29 +6,40 @@ This document formally defines the metrics computed by the Context Intelligence 
 
 ## 1. Ground Truth Matching Rule (GT Decision ↔ System Decision)
 
-A ground-truth (GT) decision is considered **found** if and only if:
-1. There exists at least one system decision in the same repository that does not have `review_status == "human_rejected"`.
-2. The system decision shares at least one event ID with the GT item's `expected_evidence_contains` list.
+Matching between ground-truth (GT) labels and system decisions is performed strictly via shared evidence event IDs (never via fragile title keywords or substrings):
 
-*Note:* Title word overlap or semantic substring matching is explicitly **not** used for matching due to fragility and false positives.
+### 1.1 Strict Matching (One-to-One Bipartite Matching — Primary Metric)
+1. **Bipartite Candidate Graph**: Construct candidate edges for any pair $(\text{GT}_i, \text{System}_j)$ within the same repository that share $\ge 1$ evidence event ID.
+2. **Greedy Overlap Assignment**: Candidate edges are sorted in descending order of shared evidence overlap count (with state match as secondary tie-breaker).
+3. **Mutual Exclusion**: Edges are assigned greedily such that each ground-truth item is matched at most once, and each system decision is matched at most once.
+4. **Precision Accountability**: System decisions not matched to any ground-truth item count against extraction precision.
+
+### 1.2 Lenient Matching (Many-to-One Comparison)
+Each ground-truth item independently matches the first compatible system decision without mutual exclusion. Under lenient matching, a single system decision may satisfy multiple ground-truth items.
+
+### 1.3 Overcounting Gap
+$$\text{Recall Difference} = \text{Decision Recall}_{\text{lenient}} - \text{Decision Recall}_{\text{strict}}$$
+
+Reporting both strict and lenient recall exposes any previous overcounting where one system decision satisfied multiple benchmark questions.
 
 ---
 
 ## 2. Decision Recall
 
-$$\text{Decision Recall} = \frac{\text{Count of found GT decisions}}{\text{Total count of GT decisions}}$$
+$$\text{Decision Recall (Strict)} = \frac{\text{Count of uniquely matched GT decisions (One-to-One)}}{\text{Total count of GT decisions}}$$
 
+- Strict recall is the canonical reported recall metric.
 - If total GT decisions is 0, recall is reported as `not measured` or `0.0`.
-- The benchmark output must list detailed item IDs for `found` and `missed` GT decisions.
+- The benchmark output lists detailed item IDs for `found`, `missed`, and unmatched system decisions.
 
 ---
 
 ## 3. State Accuracy
 
-$$\text{State Accuracy} = \frac{\text{Count of found GT decisions where system } \texttt{state} == \text{GT } \texttt{expected\_state}}{\text{Count of found GT decisions}}$$
+$$\text{State Accuracy} = \frac{\text{Count of strictly matched GT decisions where system } \texttt{state} == \text{GT } \texttt{expected\_state}}{\text{Count of strictly matched GT decisions}}$$
 
 - If count of found GT decisions is 0, state accuracy is reported as `not measured` or `0.0`.
-- The benchmark output must list detailed item IDs for `wrong_state` decisions.
+- The benchmark output lists detailed item IDs for `wrong_state` decisions.
 
 ---
 
@@ -42,12 +53,17 @@ $$\text{Decision Precision} = \frac{\text{Count of sampled system decisions labe
 
 ---
 
-## 5. Evidence-Link Validity
+## 5. Evidence-Link Integrity and Grounding Verification (Replaces Legacy Validity)
 
-$$\text{Evidence-Link Validity} = \frac{\text{Count of decision evidence links where event exists in } \texttt{events} \text{ and has non-empty http(s) } \texttt{source\_url}}{\text{Total count of decision evidence links in DB}}$$
+Legacy "Evidence-Link Validity" checked only string syntax. Step 4.1 replaces this with three distinct, explicit integrity checks:
 
-- This metric mechanically validates link integrity and provenance availability (i.e., that the referenced event exists and links to a valid external URL).
-- It checks that the link exists and is well-formed, not subjective human correctness.
+1. **`url_format_ok` (Format Only)**:
+   $$\text{url\_format\_ok} = \frac{\text{Count of decision evidence links with well-formed } \texttt{http(s)://} \text{ URL}}{\text{Total count of decision evidence links in DB}}$$
+   *Explicitly designated as a format check only, never described as correctness or accuracy.*
+2. **`event_exists` (Referential Integrity)**:
+   $$\text{event\_exists} = \frac{\text{Count of decision evidence links where } \texttt{event\_id} \text{ exists in } \texttt{events} \text{ table}}{\text{Total count of decision evidence links in DB}}$$
+3. **`claim_supported` (Substantive Grounding)**:
+   Sentence-level support verification rate from Section 6. Legacy `evidence_link_accuracy` is retained only as an alias pointing to `url_format_ok`.
 
 ---
 

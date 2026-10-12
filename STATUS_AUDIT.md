@@ -502,3 +502,35 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Measured data: feedback counts verified non-zero and consistent across `/api/findings/feedback`, `/api/stats`, and `/api/benchmark`.
      - Verified: `tests/test_feedback.py` (6 tests pass). Full test discovery suite: **154 tests passing**. Demo runner: **21/21 checks passing**.
      - Tagged `phase3-done`.
+
+
+### Step 4.1 — Audit the Matching Protocol
+- Status: **RESOLVED**
+- Files: `backend/evaluation/benchmark.py`, `backend/evaluation/ground_truth.py`, `tools/run_whybench.py`, `METRICS.md`, `tests/test_benchmark.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Strict One-to-One Bipartite Matching (`backend/evaluation/benchmark.py`):
+     - Implemented `compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)`:
+       * Builds candidate bipartite edges between GT items and system decisions sharing $\ge 1$ evidence event ID.
+       * Greedily assigns candidate edges in descending order of shared evidence overlap count (secondary tie-breaker: state match).
+       * Enforces strict mutual exclusion: each GT item is matched at most once, and each system decision is matched at most once.
+       * Unmatched system decisions count against precision and are tracked in `unmatched_system_ids` and `unmatched_system_decisions`.
+  2. Lenient Matching Comparison & Overcounting Exposure:
+     - Simultaneously computes lenient (many-to-one) matching where a single system decision can satisfy multiple GT items.
+     - Reports `decision_recall_strict`, `decision_recall_lenient`, and `recall_difference` to expose previous overcounting gaps.
+  3. Evidence Integrity Metrics:
+     - Replaced weak legacy "evidence-link validity" with three explicit checks:
+       * `url_format_ok`: percentage of links where `source_url` starts with `http://` or `https://` (format check only, never described as correctness or accuracy).
+       * `event_exists`: percentage of decision evidence links whose `event_id` exists in the database `events` table.
+       * `claim_supported`: sentence-level support verification rate (anti-hallucination).
+       * Retained `evidence_link_accuracy` as alias pointing to `url_format_ok` for backward compatibility.
+  4. WhyBench Evaluation Protocol Alignment (`tools/run_whybench.py`):
+     - Integrated `compute_decision_matching` for standard questions.
+     - Reports both strict and lenient decision recall and state accuracy.
+  5. Acceptance & Verification:
+     - Added 4 unit tests to `tests/test_benchmark.py`:
+       * `test_one_to_one_matching_cannot_satisfy_two_labels_in_strict_mode`: Proves that 1 system decision cannot satisfy 2 labels in strict mode (strict recall = 50.0%, lenient recall = 100.0%, overcounting gap = +50.0%).
+       * `test_greedy_descending_overlap_bipartite_assignment`: Proves optimal greedy assignment by descending overlap.
+       * `test_unmatched_system_decisions_tracked`: Proves unlinked decisions count against precision.
+       * `test_evidence_link_replacement_metrics`: Proves `url_format_ok`, `event_exists`, `claim_supported`.
+     - Full test discovery suite: **158 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.

@@ -283,6 +283,11 @@ window.__CIF_STATIC_DATA__ = {
               "expected_state": "accepted",
               "gt_id": "PILOT_GT_TH_01",
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+              "overlap_count": 2,
+              "shared_events": [
+                "evt_git_thermal_a1b2c3d4",
+                "evt_adr_thermal_0004"
+              ],
               "system_state": "accepted"
             },
             {
@@ -290,6 +295,11 @@ window.__CIF_STATIC_DATA__ = {
               "expected_state": "accepted",
               "gt_id": "PILOT_GT_CACHE_01",
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+              "overlap_count": 2,
+              "shared_events": [
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
+              ],
               "system_state": "accepted"
             },
             {
@@ -297,19 +307,212 @@ window.__CIF_STATIC_DATA__ = {
               "expected_state": "rejected",
               "gt_id": "PILOT_GT_CACHE_02",
               "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+              "overlap_count": 1,
+              "shared_events": [
+                "evt_pr_cache_38"
+              ],
               "system_state": "superseded"
             }
           ],
+          "lenient": {
+            "correct_state_count": 2,
+            "found": [
+              {
+                "decision_id": "dec_thermal_pid_accepted",
+                "expected_state": "accepted",
+                "gt_id": "PILOT_GT_TH_01",
+                "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+                "system_state": "accepted"
+              },
+              {
+                "decision_id": "dec_cache_redis_accepted",
+                "expected_state": "accepted",
+                "gt_id": "PILOT_GT_CACHE_01",
+                "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+                "system_state": "accepted"
+              },
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "expected_state": "rejected",
+                "gt_id": "PILOT_GT_CACHE_02",
+                "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "system_state": "superseded"
+              }
+            ],
+            "matched_gt_count": 3,
+            "missed": [
+              {
+                "expected_evidence": [
+                  "evt_issue_thermal_12_sarah",
+                  "evt_issue_thermal_12_comm"
+                ],
+                "gt_id": "PILOT_GT_TH_02",
+                "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
+              }
+            ],
+            "recall": 75.0,
+            "state_accuracy": 66.7,
+            "wrong_state": [
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "expected_state": "rejected",
+                "gt_id": "PILOT_GT_CACHE_02",
+                "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "system_state": "superseded"
+              }
+            ]
+          },
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_comm",
-                "evt_issue_thermal_12_sarah"
+                "evt_issue_thermal_12_sarah",
+                "evt_issue_thermal_12_comm"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
             }
           ],
+          "overcounting_detected": false,
+          "strict": {
+            "correct_state_count": 2,
+            "found": [
+              {
+                "decision_id": "dec_thermal_pid_accepted",
+                "expected_state": "accepted",
+                "gt_id": "PILOT_GT_TH_01",
+                "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+                "overlap_count": 2,
+                "shared_events": [
+                  "evt_git_thermal_a1b2c3d4",
+                  "evt_adr_thermal_0004"
+                ],
+                "system_state": "accepted"
+              },
+              {
+                "decision_id": "dec_cache_redis_accepted",
+                "expected_state": "accepted",
+                "gt_id": "PILOT_GT_CACHE_01",
+                "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+                "overlap_count": 2,
+                "shared_events": [
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
+                ],
+                "system_state": "accepted"
+              },
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "expected_state": "rejected",
+                "gt_id": "PILOT_GT_CACHE_02",
+                "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "overlap_count": 1,
+                "shared_events": [
+                  "evt_pr_cache_38"
+                ],
+                "system_state": "superseded"
+              }
+            ],
+            "matched_gt_count": 3,
+            "matched_system_ids": [
+              "dec_cache_redis_accepted",
+              "dec_thermal_pid_accepted",
+              "dec_cache_local_lru_proposed"
+            ],
+            "missed": [
+              {
+                "expected_evidence": [
+                  "evt_issue_thermal_12_sarah",
+                  "evt_issue_thermal_12_comm"
+                ],
+                "gt_id": "PILOT_GT_TH_02",
+                "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
+              }
+            ],
+            "recall": 75.0,
+            "state_accuracy": 66.7,
+            "unmatched_system_count": 4,
+            "unmatched_system_decisions": [
+              {
+                "alternatives_json": "[{\"description\": \"Deadband on-off threshold control +/- 1.5C\", \"rejection_reason\": \"Benchmarking revealed 17% higher latency and persistent 6.2C transient overshoot\", \"evidence_event_ids\": [\"evt_rev_thermal_comm2\"]}]",
+                "confidence": 0.96,
+                "decision_id": "dec_thermal_deadband_rejected",
+                "evidence_assessment": "weak",
+                "freshness": "fresh",
+                "made_at": "2026-01-12T15:00:00Z",
+                "made_by": "sarah_chen",
+                "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
+                "repo": "acme-eng/thermal-control-system",
+                "review_status": "auto_confirmed",
+                "state": "rejected",
+                "superseded_by_decision_id": null,
+                "supersedes_decision_id": null,
+                "title": "Reject Simple Deadband Hysteresis for Thermal Control"
+              },
+              {
+                "alternatives_json": "[]",
+                "confidence": 0.8,
+                "decision_id": "dec_thermal_pid_01",
+                "evidence_assessment": "insufficient",
+                "freshness": "fresh",
+                "made_at": "2026-01-15T16:00:00Z",
+                "made_by": "sarah_chen",
+                "rationale": "Governing architectural baseline decision",
+                "repo": "acme-eng/thermal-control-system",
+                "review_status": "pending_review",
+                "state": "accepted",
+                "superseded_by_decision_id": null,
+                "supersedes_decision_id": null,
+                "title": "Architectural Decision dec_thermal_pid_01"
+              },
+              {
+                "alternatives_json": "[]",
+                "confidence": 0.8,
+                "decision_id": "dec_thermal_bangbang_02",
+                "evidence_assessment": "insufficient",
+                "freshness": "fresh",
+                "made_at": "2026-01-12T15:00:00Z",
+                "made_by": "sarah_chen",
+                "rationale": "Governing architectural baseline decision",
+                "repo": "acme-eng/thermal-control-system",
+                "review_status": "pending_review",
+                "state": "rejected",
+                "superseded_by_decision_id": null,
+                "supersedes_decision_id": null,
+                "title": "Architectural Decision dec_thermal_bangbang_02"
+              },
+              {
+                "alternatives_json": "[]",
+                "confidence": 0.8,
+                "decision_id": "dec_cache_redis_01",
+                "evidence_assessment": "insufficient",
+                "freshness": "fresh",
+                "made_at": "2026-02-06T15:00:00Z",
+                "made_by": "priya_patel",
+                "rationale": "Governing architectural baseline decision",
+                "repo": "acme-eng/distributed-cache-service",
+                "review_status": "pending_review",
+                "state": "accepted",
+                "superseded_by_decision_id": null,
+                "supersedes_decision_id": null,
+                "title": "Architectural Decision dec_cache_redis_01"
+              }
+            ],
+            "unmatched_system_ids": [
+              "dec_thermal_deadband_rejected",
+              "dec_thermal_pid_01",
+              "dec_thermal_bangbang_02",
+              "dec_cache_redis_01"
+            ],
+            "wrong_state": [
+              {
+                "decision_id": "dec_cache_local_lru_proposed",
+                "expected_state": "rejected",
+                "gt_id": "PILOT_GT_CACHE_02",
+                "gt_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+                "system_state": "superseded"
+              }
+            ]
+          },
           "wrong_state": [
             {
               "decision_id": "dec_cache_local_lru_proposed",
@@ -338,25 +541,36 @@ window.__CIF_STATIC_DATA__ = {
         },
         "ground_truth_total": 4,
         "matched_gt_count": 3,
+        "matched_gt_count_lenient": 3,
+        "matched_gt_count_strict": 3,
         "metrics": {
           "claim_support_rate": 0.0,
+          "claim_supported": 0.0,
           "contradiction_precision": 100.0,
           "contradiction_recall": 100.0,
           "decision_extraction_f1": "not measured",
           "decision_extraction_precision": "not measured",
           "decision_extraction_recall": 75.0,
+          "decision_recall_lenient": 75.0,
+          "decision_recall_strict": 75.0,
           "drift_precision": 100.0,
           "drift_recall": 100.0,
+          "event_exists": 100.0,
           "evidence_link_accuracy": 100.0,
           "finding_feedback_confirmed": 0,
           "finding_feedback_dismissed": 0,
           "finding_feedback_reopened": 0,
           "finding_feedback_total": 0,
-          "processing_latency_ms": 14.99,
+          "processing_latency_ms": 25.95,
+          "recall_difference": 0.0,
           "state_accuracy": 66.7,
-          "unsupported_claim_rate": 100.0
+          "state_accuracy_lenient": 66.7,
+          "state_accuracy_strict": 66.7,
+          "unsupported_claim_rate": 100.0,
+          "url_format_ok": 100.0
         },
-        "system_decisions_evaluated": 7
+        "system_decisions_evaluated": 7,
+        "unmatched_system_decisions_count": 4
       },
       "status": "success"
     },
@@ -1561,11 +1775,22 @@ window.__CIF_STATIC_DATA__ = {
         },
         {
           "confidence": 0.93,
+          "decision_id": "dec_cache_redis_01",
+          "edge_id": "edge_drift_src/cach_dec_cach",
+          "entity_id": "src/cache/store.py",
+          "item_type": "drift",
+          "made_at": "2026-10-12T11:35:57.749538+00:00",
+          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_cache_redis_01'",
+          "review_status": "pending_review",
+          "title": "Drift on artifact"
+        },
+        {
+          "confidence": 0.93,
           "decision_id": "dec_thermal_pid_01",
           "edge_id": "edge_drift_src/ther_dec_ther",
           "entity_id": "src/thermal/control.py",
           "item_type": "drift",
-          "made_at": "2026-10-12T10:56:10.135188+00:00",
+          "made_at": "2026-10-12T11:35:57.768508+00:00",
           "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
@@ -1577,8 +1802,8 @@ window.__CIF_STATIC_DATA__ = {
       "data": {
         "conflicts": 1,
         "decisions": 7,
-        "drifts": 1,
-        "edges": 20,
+        "drifts": 2,
+        "edges": 21,
         "entities": 9,
         "events": 9,
         "finding_feedback": {

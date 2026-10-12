@@ -15,6 +15,199 @@ from backend.engine.explanation import ExplanationGenerator
 from backend.engine.reconciliation import ReconciliationEngine
 from backend.engine.drift_detector import DriftDetector
 
+def compute_decision_matching(
+    gt_dataset: List[Dict[str, Any]],
+    system_decisions: List[Dict[str, Any]],
+    decision_to_evidence: Dict[str, set]
+) -> Dict[str, Any]:
+    """
+    Computes bipartite decision matching between ground-truth items and system decisions (Step 4.1).
+    
+    1. Strict Matching (One-to-One):
+       - Builds a bipartite candidate edge set where pair (gt, sd) shares >= 1 evidence event ID.
+       - Assigns greedily by descending shared evidence overlap count (secondary tie-breaker: state match).
+       - Each ground-truth item is matched at most once.
+       - Each system decision is matched at most once (one-to-one).
+       - Unmatched system decisions count against system extraction precision.
+       
+    2. Lenient Matching (Many-to-One):
+       - Each ground-truth item independently matches the first compatible system decision.
+       - A single system decision may satisfy multiple ground-truth items (overcounting).
+       
+    Returns dictionary with:
+       - 'strict': matched_gt_count, correct_state_count, recall, state_accuracy, found, missed, wrong_state,
+                   matched_system_ids, unmatched_system_ids, unmatched_system_decisions, unmatched_system_count
+       - 'lenient': matched_gt_count, correct_state_count, recall, state_accuracy, found, missed, wrong_state
+       - 'recall_difference': lenient['recall'] - strict['recall']
+       - 'overcounting_detected': bool
+    """
+    total_gt = len(gt_dataset)
+
+    # --- Strict Matching (One-to-One Bipartite Greedy Assignment) ---
+    candidate_edges = []
+    for gt in gt_dataset:
+        gt_id = gt.get("id")
+        gt_repo = gt.get("repo")
+        expected_events = set(gt.get("expected_evidence_contains", []) or gt.get("evidence_event_ids", []))
+        expected_state = gt.get("expected_state")
+        if not expected_events:
+            continue
+
+        for sd in system_decisions:
+            sd_id = sd.get("decision_id")
+            sd_repo = sd.get("repo")
+            if gt_repo and sd_repo and gt_repo != sd_repo:
+                continue
+            sd_events = decision_to_evidence.get(sd_id, set())
+            overlap = expected_events.intersection(sd_events)
+            if overlap:
+                state_match = (sd.get("state") == expected_state)
+                candidate_edges.append({
+                    "overlap_count": len(overlap),
+                    "state_match": 1 if state_match else 0,
+                    "gt_id": gt_id,
+                    "sd_id": sd_id,
+                    "overlap_events": list(overlap),
+                    "is_state_match": state_match,
+                    "gt": gt,
+                    "sd": sd
+                })
+
+    # Sort candidates greedily: descending overlap_count, then state_match
+    candidate_edges.sort(key=lambda e: (e["overlap_count"], e["state_match"]), reverse=True)
+
+    strict_matched_gt_ids = set()
+    strict_matched_sd_ids = set()
+    strict_found = []
+    strict_wrong_state = []
+    strict_correct_state_count = 0
+
+    for edge in candidate_edges:
+        gt_id = edge["gt_id"]
+        sd_id = edge["sd_id"]
+        if gt_id in strict_matched_gt_ids or sd_id in strict_matched_sd_ids:
+            continue
+        strict_matched_gt_ids.add(gt_id)
+        strict_matched_sd_ids.add(sd_id)
+
+        gt = edge["gt"]
+        sd = edge["sd"]
+        state_match = edge["is_state_match"]
+        if state_match:
+            strict_correct_state_count += 1
+        else:
+            strict_wrong_state.append({
+                "gt_id": gt_id,
+                "gt_title": gt.get("title"),
+                "expected_state": gt.get("expected_state"),
+                "system_state": sd.get("state"),
+                "decision_id": sd_id
+            })
+
+        strict_found.append({
+            "gt_id": gt_id,
+            "gt_title": gt.get("title"),
+            "decision_id": sd_id,
+            "system_state": sd.get("state"),
+            "expected_state": gt.get("expected_state"),
+            "overlap_count": edge["overlap_count"],
+            "shared_events": edge["overlap_events"]
+        })
+
+    strict_missed = []
+    for gt in gt_dataset:
+        if gt.get("id") not in strict_matched_gt_ids:
+            strict_missed.append({
+                "gt_id": gt.get("id"),
+                "gt_title": gt.get("title"),
+                "expected_evidence": list(set(gt.get("expected_evidence_contains", []) or gt.get("evidence_event_ids", [])))
+            })
+
+    unmatched_system_decisions = [sd for sd in system_decisions if sd.get("decision_id") not in strict_matched_sd_ids]
+    unmatched_system_ids = [sd.get("decision_id") for sd in unmatched_system_decisions]
+
+    strict_matched_count = len(strict_matched_gt_ids)
+    strict_recall = round((strict_matched_count / total_gt) * 100, 1) if total_gt > 0 else 0.0
+    strict_state_accuracy = round((strict_correct_state_count / strict_matched_count) * 100, 1) if strict_matched_count > 0 else "not measured"
+
+    # --- Lenient Matching (Many-to-One) ---
+    lenient_found = []
+    lenient_missed = []
+    lenient_wrong_state = []
+    lenient_matched_count = 0
+    lenient_correct_state_count = 0
+
+    for gt in gt_dataset:
+        expected_events = set(gt.get("expected_evidence_contains", []) or gt.get("evidence_event_ids", []))
+        gt_repo = gt.get("repo")
+        found_sd = None
+
+        for sd in system_decisions:
+            if gt_repo and sd.get("repo") and sd.get("repo") != gt_repo:
+                continue
+            sd_events = decision_to_evidence.get(sd["decision_id"], set())
+            if expected_events.intersection(sd_events):
+                found_sd = sd
+                break
+
+        if found_sd:
+            lenient_matched_count += 1
+            state_match = (found_sd.get("state") == gt.get("expected_state"))
+            if state_match:
+                lenient_correct_state_count += 1
+            else:
+                lenient_wrong_state.append({
+                    "gt_id": gt.get("id"),
+                    "gt_title": gt.get("title"),
+                    "expected_state": gt.get("expected_state"),
+                    "system_state": found_sd.get("state"),
+                    "decision_id": found_sd["decision_id"]
+                })
+            lenient_found.append({
+                "gt_id": gt.get("id"),
+                "gt_title": gt.get("title"),
+                "decision_id": found_sd["decision_id"],
+                "system_state": found_sd.get("state"),
+                "expected_state": gt.get("expected_state")
+            })
+        else:
+            lenient_missed.append({
+                "gt_id": gt.get("id"),
+                "gt_title": gt.get("title"),
+                "expected_evidence": list(expected_events)
+            })
+
+    lenient_recall = round((lenient_matched_count / total_gt) * 100, 1) if total_gt > 0 else 0.0
+    lenient_state_accuracy = round((lenient_correct_state_count / lenient_matched_count) * 100, 1) if lenient_matched_count > 0 else "not measured"
+    recall_difference = round(lenient_recall - strict_recall, 1)
+
+    return {
+        "strict": {
+            "matched_gt_count": strict_matched_count,
+            "correct_state_count": strict_correct_state_count,
+            "recall": strict_recall,
+            "state_accuracy": strict_state_accuracy,
+            "found": strict_found,
+            "missed": strict_missed,
+            "wrong_state": strict_wrong_state,
+            "matched_system_ids": list(strict_matched_sd_ids),
+            "unmatched_system_ids": unmatched_system_ids,
+            "unmatched_system_decisions": unmatched_system_decisions,
+            "unmatched_system_count": len(unmatched_system_decisions)
+        },
+        "lenient": {
+            "matched_gt_count": lenient_matched_count,
+            "correct_state_count": lenient_correct_state_count,
+            "recall": lenient_recall,
+            "state_accuracy": lenient_state_accuracy,
+            "found": lenient_found,
+            "missed": lenient_missed,
+            "wrong_state": lenient_wrong_state
+        },
+        "recall_difference": recall_difference,
+        "overcounting_detected": lenient_matched_count > strict_matched_count
+    }
+
 class BenchmarkRunner:
     def __init__(self, db: Database):
         self.db = db
@@ -27,7 +220,7 @@ class BenchmarkRunner:
         """
         Executes evaluation against ground truth dataset according to METRICS.md:
         1. Decision recall, state accuracy, and precision (human label file)
-        2. Evidence-link validity
+        2. Evidence-link validity (url_format_ok, event_exists, claim_supported)
         3. Conflict & drift precision/recall from labelled case files
         4. Claim support rate (anti-hallucination)
         5. Measured processing latency (median of >=5 runs)
@@ -47,57 +240,15 @@ class BenchmarkRunner:
             for r in evidence_rows:
                 decision_to_evidence.setdefault(r["decision_id"], set()).add(r["event_id"])
 
-        # 1. Decision Matching (GT Decision <-> System Decision via shared event IDs per METRICS.md §1)
-        found_list = []
-        missed_list = []
-        wrong_state_list = []
-        matched_gt_count = 0
-        correct_state_count = 0
-
-        for gt in gt_dataset:
-            expected_events = set(gt.get("expected_evidence_contains", []) or gt.get("evidence_event_ids", []))
-            gt_repo = gt.get("repo")
-            found_match = False
-
-            for sd in system_decisions:
-                if gt_repo and sd.get("repo") != gt_repo:
-                    continue
-                sd_events = decision_to_evidence.get(sd["decision_id"], set())
-                # Check for shared event id
-                if expected_events.intersection(sd_events):
-                    found_match = True
-                    matched_gt_count += 1
-                    is_correct_state = (sd.get("state") == gt.get("expected_state"))
-                    if is_correct_state:
-                        correct_state_count += 1
-                    else:
-                        wrong_state_list.append({
-                            "gt_id": gt.get("id"),
-                            "gt_title": gt.get("title"),
-                            "expected_state": gt.get("expected_state"),
-                            "system_state": sd.get("state"),
-                            "decision_id": sd["decision_id"]
-                        })
-
-                    found_list.append({
-                        "gt_id": gt.get("id"),
-                        "gt_title": gt.get("title"),
-                        "decision_id": sd["decision_id"],
-                        "system_state": sd.get("state"),
-                        "expected_state": gt.get("expected_state")
-                    })
-                    break
-
-            if not found_match:
-                missed_list.append({
-                    "gt_id": gt.get("id"),
-                    "gt_title": gt.get("title"),
-                    "expected_evidence": list(expected_events)
-                })
+        # 1. Decision Matching (Step 4.1: Strict one-to-one bipartite matching and lenient comparison)
+        match_results = compute_decision_matching(gt_dataset, system_decisions, decision_to_evidence)
+        strict = match_results["strict"]
+        lenient = match_results["lenient"]
+        recall_diff = match_results["recall_difference"]
 
         total_gt = len(gt_dataset)
-        decision_recall = round((matched_gt_count / total_gt) * 100, 1) if total_gt > 0 else 0.0
-        state_accuracy = round((correct_state_count / matched_gt_count) * 100, 1) if matched_gt_count > 0 else "not measured"
+        decision_recall = strict["recall"]
+        state_accuracy = strict["state_accuracy"]
 
         # Decision Precision (from precision_labels.json)
         precision_val = self._evaluate_precision(system_decisions)
@@ -106,17 +257,29 @@ class BenchmarkRunner:
         else:
             f1_val = "not measured"
 
-        # 2. Evidence-Link Validity
+        # 2. Evidence-Link Integrity and Grounding Verification (Step 4.1 Audit)
         with self.db.get_connection() as conn:
             cursor = conn.cursor()
+            cursor.execute("SELECT event_id FROM events")
+            existing_event_ids = {r["event_id"] for r in cursor.fetchall()}
+
             cursor.execute("""
-            SELECT de.decision_id, ev.event_id, ev.source_url
+            SELECT de.decision_id, de.event_id, ev.source_url
             FROM decision_evidence de
-            JOIN events ev ON de.event_id = ev.event_id
+            LEFT JOIN events ev ON de.event_id = ev.event_id
             """)
             links = cursor.fetchall()
-            valid_links = [l for l in links if l["source_url"] and (l["source_url"].startswith("http://") or l["source_url"].startswith("https://"))]
-            evidence_accuracy = round((len(valid_links) / len(links)) * 100, 1) if links else "not measured"
+            total_links = len(links)
+
+            if total_links > 0:
+                valid_urls = [l for l in links if l["source_url"] and (l["source_url"].startswith("http://") or l["source_url"].startswith("https://"))]
+                url_format_ok = round((len(valid_urls) / total_links) * 100, 1)
+
+                existing_links = [l for l in links if l["event_id"] in existing_event_ids]
+                event_exists = round((len(existing_links) / total_links) * 100, 1)
+            else:
+                url_format_ok = "not measured"
+                event_exists = "not measured"
 
         # 3. Conflict & Drift Metrics from labelled case files
         conflict_metrics = self._evaluate_conflict_cases()
@@ -124,6 +287,7 @@ class BenchmarkRunner:
 
         # 4. Claim Support Rate (Anti-Hallucination)
         claim_support_metrics = self._evaluate_claim_support()
+        claim_supported = claim_support_metrics.get("support_rate", "not measured")
 
         # 5. Measured Processing Latency (Median of >=5 runs)
         latency_ms = self._measure_latency()
@@ -138,14 +302,22 @@ class BenchmarkRunner:
             "metrics": {
                 "decision_extraction_precision": precision_val if precision_val != "not measured" else "not measured",
                 "decision_extraction_recall": decision_recall,
+                "decision_recall_strict": strict["recall"],
+                "decision_recall_lenient": lenient["recall"],
+                "recall_difference": recall_diff,
                 "decision_extraction_f1": f1_val,
                 "state_accuracy": state_accuracy,
-                "evidence_link_accuracy": evidence_accuracy,
+                "state_accuracy_strict": strict["state_accuracy"],
+                "state_accuracy_lenient": lenient["state_accuracy"],
+                "url_format_ok": url_format_ok,
+                "event_exists": event_exists,
+                "claim_supported": claim_supported,
+                "evidence_link_accuracy": url_format_ok,  # Legacy alias for backwards compatibility
                 "contradiction_precision": conflict_metrics.get("precision", "not measured"),
                 "contradiction_recall": conflict_metrics.get("recall", "not measured"),
                 "drift_precision": drift_metrics.get("precision", "not measured"),
                 "drift_recall": drift_metrics.get("recall", "not measured"),
-                "claim_support_rate": claim_support_metrics.get("support_rate", "not measured"),
+                "claim_support_rate": claim_supported,
                 "unsupported_claim_rate": claim_support_metrics.get("unsupported_rate", 0.0),
                 "processing_latency_ms": latency_ms,
                 "finding_feedback_total": feedback_counts["total"],
@@ -154,12 +326,18 @@ class BenchmarkRunner:
                 "finding_feedback_reopened": feedback_counts["reopen"]
             },
             "ground_truth_total": total_gt,
-            "matched_gt_count": matched_gt_count,
+            "matched_gt_count": strict["matched_gt_count"],
+            "matched_gt_count_strict": strict["matched_gt_count"],
+            "matched_gt_count_lenient": lenient["matched_gt_count"],
+            "unmatched_system_decisions_count": strict["unmatched_system_count"],
             "system_decisions_evaluated": len(system_decisions),
             "details": {
-                "found": found_list,
-                "missed": missed_list,
-                "wrong_state": wrong_state_list
+                "found": strict["found"],
+                "missed": strict["missed"],
+                "wrong_state": strict["wrong_state"],
+                "strict": strict,
+                "lenient": lenient,
+                "overcounting_detected": match_results["overcounting_detected"]
             },
             "conflict_evaluation": conflict_metrics,
             "drift_evaluation": drift_metrics,

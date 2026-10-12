@@ -15,7 +15,7 @@ if PROJECT_ROOT not in sys.path:
 
 from backend.db import Database
 from backend.evaluation.baselines import BaselineEvaluator, STOP_WORDS, tokenize
-from backend.evaluation.benchmark import BenchmarkRunner
+from backend.evaluation.benchmark import BenchmarkRunner, compute_decision_matching
 from tools.ingest_whybench import build_whybench_db
 
 def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False, extractor_mode: str = "heuristic") -> Dict[str, Any]:
@@ -92,22 +92,45 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
         for r in evidence_rows:
             decision_to_evidence.setdefault(r["decision_id"], set()).add(r["event_id"])
 
-    # Evaluate System Predictions
+    # Evaluate System Predictions (Step 4.1 Strict One-to-One Matching Protocol)
+    standard_questions = [q for q in split_questions if q.get("expected_state") != "unresolved"]
+    refusal_questions = [q for q in split_questions if q.get("expected_state") == "unresolved"]
+
+    match_results = compute_decision_matching(standard_questions, system_decisions, decision_to_evidence)
+    strict_match = match_results["strict"]
+    lenient_match = match_results["lenient"]
+    recall_difference = match_results["recall_difference"]
+
+    strict_found_map = {f["gt_id"]: f for f in strict_match["found"]}
     question_results = []
-    matched_count = 0
-    correct_state_count = 0
+
+    # 1. Standard questions (evaluated via strict one-to-one matching)
+    for q in standard_questions:
+        q_id = q["id"]
+        outcome: Dict[str, Any] = {
+            "id": q_id,
+            "repo": q["repo"],
+            "question": q["question"],
+            "expected_state": q.get("expected_state"),
+            "is_refusal_case": False
+        }
+        if q_id in strict_found_map:
+            m = strict_found_map[q_id]
+            state_match = (m["system_state"] == q.get("expected_state"))
+            outcome["status"] = "found"
+            outcome["system_decision_id"] = m["decision_id"]
+            outcome["system_state"] = m["system_state"]
+            outcome["state_match"] = state_match
+            outcome["overlap_count"] = m.get("overlap_count", 1)
+        else:
+            outcome["status"] = "missed"
+        question_results.append(outcome)
+
+    # 2. Refusal questions
     refusal_correct_count = 0
-    refusal_total = 0
-
-    for q in split_questions:
+    for q in refusal_questions:
         expected_events = set(q.get("evidence_event_ids", []))
-        expected_state = q.get("expected_state")
         repo = q.get("repo")
-        is_refusal_case = (expected_state == "unresolved")
-
-        if is_refusal_case:
-            refusal_total += 1
-
         matched_decision = None
         for sd in system_decisions:
             if repo and sd.get("repo") != repo:
@@ -117,41 +140,30 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
                 matched_decision = sd
                 break
 
-        outcome: Dict[str, Any] = {
+        outcome = {
             "id": q["id"],
             "repo": q["repo"],
             "question": q["question"],
-            "expected_state": expected_state,
-            "is_refusal_case": is_refusal_case
+            "expected_state": "unresolved",
+            "is_refusal_case": True
         }
-
-        if is_refusal_case:
-            # Correct refusal if no decision was hallucinated/matched
-            if matched_decision is None:
-                refusal_correct_count += 1
-                outcome["status"] = "correct_refusal"
-                outcome["system_answer"] = "No recorded architectural decision found (Refused)"
-            else:
-                outcome["status"] = "false_positive_decision"
-                outcome["system_decision_id"] = matched_decision["decision_id"]
+        if matched_decision is None:
+            refusal_correct_count += 1
+            outcome["status"] = "correct_refusal"
+            outcome["system_answer"] = "No recorded architectural decision found (Refused)"
         else:
-            if matched_decision is not None:
-                matched_count += 1
-                state_match = (matched_decision.get("state") == expected_state)
-                if state_match:
-                    correct_state_count += 1
-                outcome["status"] = "found"
-                outcome["system_decision_id"] = matched_decision["decision_id"]
-                outcome["system_state"] = matched_decision["state"]
-                outcome["state_match"] = state_match
-            else:
-                outcome["status"] = "missed"
-
+            outcome["status"] = "false_positive_decision"
+            outcome["system_decision_id"] = matched_decision["decision_id"]
         question_results.append(outcome)
 
-    total_standard_questions = len(split_questions) - refusal_total
-    decision_recall = round((matched_count / total_standard_questions) * 100, 1) if total_standard_questions > 0 else 0.0
-    state_accuracy = round((correct_state_count / matched_count) * 100, 1) if matched_count > 0 else 0.0
+    total_standard_questions = len(standard_questions)
+    refusal_total = len(refusal_questions)
+    decision_recall = strict_match["recall"]
+    decision_recall_strict = strict_match["recall"]
+    decision_recall_lenient = lenient_match["recall"]
+    state_accuracy = strict_match["state_accuracy"]
+    state_accuracy_strict = strict_match["state_accuracy"]
+    state_accuracy_lenient = lenient_match["state_accuracy"]
     refusal_accuracy = round((refusal_correct_count / refusal_total) * 100, 1) if refusal_total > 0 else 100.0
 
     # Evaluate Baselines
@@ -168,7 +180,12 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
         "refusal_questions": refusal_total,
         "metrics": {
             "decision_recall": decision_recall,
+            "decision_recall_strict": decision_recall_strict,
+            "decision_recall_lenient": decision_recall_lenient,
+            "recall_difference": recall_difference,
             "state_accuracy": state_accuracy,
+            "state_accuracy_strict": state_accuracy_strict,
+            "state_accuracy_lenient": state_accuracy_lenient,
             "refusal_accuracy": refusal_accuracy
         },
         "baselines": baselines_out,
@@ -184,10 +201,13 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     print("\n" + "=" * 65)
     print(f"  WHYBENCH RESULTS [{split.upper()} SPLIT]")
     print("=" * 65)
-    print(f"  Total Questions:          {len(split_questions)}")
-    print(f"  CIF Decision Recall:      {decision_recall}% ({matched_count}/{total_standard_questions})")
-    print(f"  CIF State Accuracy:       {state_accuracy}% ({correct_state_count}/{matched_count})")
-    print(f"  CIF Refusal Accuracy:     {refusal_accuracy}% ({refusal_correct_count}/{refusal_total})")
+    print(f"  Total Questions:              {len(split_questions)}")
+    print(f"  CIF Decision Recall (Strict): {decision_recall}% ({strict_match['matched_gt_count']}/{total_standard_questions})")
+    print(f"  CIF Decision Recall (Lenient):{decision_recall_lenient}% ({lenient_match['matched_gt_count']}/{total_standard_questions})")
+    if recall_difference > 0:
+        print(f"  Overcounting Gap:             +{recall_difference}%")
+    print(f"  CIF State Accuracy:           {state_accuracy}% ({strict_match['correct_state_count']}/{strict_match['matched_gt_count']})")
+    print(f"  CIF Refusal Accuracy:         {refusal_accuracy}% ({refusal_correct_count}/{refusal_total})")
     print("-" * 65)
     print(f"  Baseline A (Keyword):     {baselines_out['baseline_keyword']['decision_recall']}% recall")
     print(f"  Baseline B (Docs-only):   {baselines_out['baseline_docs_only']['decision_recall']}% recall")
