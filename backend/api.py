@@ -312,7 +312,15 @@ class APIHandler:
 
         # 8. Evaluation & Benchmark
         elif path == "/api/benchmark":
-            return {"status": "success", "data": self.benchmark_runner.run_full_evaluation()}
+            data = self.benchmark_runner.run_full_evaluation()
+            manifest_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "latest_manifest.json")
+            if os.path.exists(manifest_path):
+                try:
+                    with open(manifest_path, "r", encoding="utf-8") as f:
+                        data["whybench_manifest"] = json.load(f)
+                except Exception:
+                    pass
+            return {"status": "success", "data": data}
 
         # 9. Summary stats
         elif path == "/api/stats":

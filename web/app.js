@@ -1621,7 +1621,88 @@ const app = {
         }
       }
 
+      let whybenchHtml = '';
+      const wb = json.data && json.data.whybench_manifest;
+      if (wb && wb.metrics && wb.metrics.overall) {
+        const ov = wb.metrics.overall;
+        const repos = wb.metrics.per_repository || {};
+        let repoRows = '';
+        for (const [rName, rData] of Object.entries(repos)) {
+          repoRows += `
+            <tr>
+              <td><code>${esc(rName)}</code></td>
+              <td>${esc(fmtVal(rData.questions_total))} (${esc(fmtVal(rData.standard_questions))} std / ${esc(fmtVal(rData.refusal_questions))} ref)</td>
+              <td><strong>${esc(fmtPct(rData.task_1_cif_hit_rate))}</strong></td>
+              <td>${esc(fmtPct(rData.baseline_keyword_hit_rate))}</td>
+              <td>${esc(fmtPct(rData.baseline_docs_only_hit_rate))}</td>
+              <td><strong>${esc(fmtPct(rData.decision_recall_strict))}</strong></td>
+              <td>${esc(fmtPct(rData.state_accuracy))}</td>
+              <td>${esc(fmtPct(rData.refusal_accuracy))}</td>
+            </tr>
+          `;
+        }
+
+        const kwHit = (ov.baseline_keyword && typeof ov.baseline_keyword.task_1_hit_rate === 'number') ? `${ov.baseline_keyword.task_1_hit_rate}%` : 'BM25';
+        whybenchHtml = `
+          <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+              <div>
+                <strong style="color: #c084fc; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
+                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+                  Evaluated on real-world repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
+                  Total questions evaluated: <strong>${esc(wb.questions_evaluated)}</strong> (<strong>${esc(wb.standard_questions)}</strong> standard, <strong>${esc(wb.refusal_questions)}</strong> negative refusal).
+                </p>
+              </div>
+              <span class="badge" style="background: #9333ea; color: #fff; font-size: 0.75rem;">Measured Manifest Data</span>
+            </div>
+
+            <div class="benchmark-metrics-cards" style="margin-bottom: 16px;">
+              <div class="metric-stat-box">
+                <div class="metric-val" style="color: #a855f7;">${esc(fmtPct(ov.decision_recall_strict))}</div>
+                <div class="metric-lbl">Decision Recall (Strict)</div>
+              </div>
+              <div class="metric-stat-box">
+                <div class="metric-val" style="color: #38bdf8;">${esc(fmtPct(ov.task_1_cif_hit_rate))}</div>
+                <div class="metric-lbl">T1 Hit Rate (vs ${esc(kwHit)})</div>
+              </div>
+              <div class="metric-stat-box">
+                <div class="metric-val" style="color: #10b981;">${esc(fmtPct(ov.state_accuracy))}</div>
+                <div class="metric-lbl">State Accuracy</div>
+              </div>
+              <div class="metric-stat-box">
+                <div class="metric-val" style="color: #f59e0b;">${esc(fmtPct(ov.refusal_accuracy))}</div>
+                <div class="metric-lbl">Refusal Accuracy (Negative)</div>
+              </div>
+              <div class="metric-stat-box">
+                <div class="metric-val" style="color: #94a3b8; font-size: 1.1rem;">${esc(ov.decision_precision || 'not measured')}</div>
+                <div class="metric-lbl" title="${esc(ov.decision_precision_reason || '')}">Precision</div>
+              </div>
+            </div>
+
+            <h4 style="font-size: 0.95rem; margin: 14px 0 8px 0; color: #e2e8f0;">Per-Repository Benchmark Breakdown</h4>
+            <table class="benchmark-table" style="font-size: 0.85rem;">
+              <thead>
+                <tr>
+                  <th>Repository</th>
+                  <th>Questions</th>
+                  <th>CIF T1 Hits</th>
+                  <th>Base A (BM25)</th>
+                  <th>Base B (Docs)</th>
+                  <th>Strict Recall</th>
+                  <th>State Acc</th>
+                  <th>Refusal Acc</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${repoRows}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
       container.innerHTML = `
+        ${whybenchHtml}
         <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
           <div>
             <strong style="color: #60a5fa;">Synthetic Pilot Benchmark (Smoke Test)</strong>

@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "7f284a92b027f2c7fac90422651635146b261609707ac4acea4ee8c1d76079d3",
+  "db_snapshot_sha256": "5a58c9d40a899c7ae0147e54d4da59f2ae9d6e0c3b815216af10fd5b22372687",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -303,8 +303,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_rev_cache_c201",
-                "evt_adr_cache_0009"
+                "evt_adr_cache_0009",
+                "evt_rev_cache_c201"
               ],
               "system_state": "accepted"
             },
@@ -315,8 +315,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_git_thermal_a1b2c3d4",
-                "evt_adr_thermal_0004"
+                "evt_adr_thermal_0004",
+                "evt_git_thermal_a1b2c3d4"
               ],
               "system_state": "accepted"
             },
@@ -391,7 +391,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '7f284a92b027f2c7fac90422651635146b261609707ac4acea4ee8c1d76079d3'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '5a58c9d40a899c7ae0147e54d4da59f2ae9d6e0c3b815216af10fd5b22372687'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -402,8 +402,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_rev_cache_c201",
-                  "evt_adr_cache_0009"
+                  "evt_adr_cache_0009",
+                  "evt_rev_cache_c201"
                 ],
                 "system_state": "accepted"
               },
@@ -414,8 +414,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_git_thermal_a1b2c3d4",
-                  "evt_adr_thermal_0004"
+                  "evt_adr_thermal_0004",
+                  "evt_git_thermal_a1b2c3d4"
                 ],
                 "system_state": "accepted"
               },
@@ -434,8 +434,8 @@ window.__CIF_STATIC_DATA__ = {
             "matched_gt_count": 3,
             "matched_system_ids": [
               "dec_cache_redis_accepted",
-              "dec_cache_local_lru_proposed",
-              "dec_thermal_pid_accepted"
+              "dec_thermal_pid_accepted",
+              "dec_cache_local_lru_proposed"
             ],
             "missed": [
               {
@@ -580,7 +580,7 @@ window.__CIF_STATIC_DATA__ = {
           "finding_feedback_dismissed": 0,
           "finding_feedback_reopened": 0,
           "finding_feedback_total": 0,
-          "processing_latency_ms": 45.72,
+          "processing_latency_ms": 11.33,
           "recall_difference": 0.0,
           "state_accuracy": 66.7,
           "state_accuracy_lenient": 66.7,
@@ -588,9 +588,841 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '7f284a92b027f2c7fac90422651635146b261609707ac4acea4ee8c1d76079d3'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '5a58c9d40a899c7ae0147e54d4da59f2ae9d6e0c3b815216af10fd5b22372687'",
         "system_decisions_evaluated": 7,
-        "unmatched_system_decisions_count": 4
+        "unmatched_system_decisions_count": 4,
+        "whybench_manifest": {
+          "configurations": {
+            "decision_threshold": 0.85,
+            "extractor_mode": "heuristic",
+            "llm_model": "none",
+            "random_seed": 1234
+          },
+          "dataset_hashes": {
+            "conflict_cases_sha256": "80f9337b9e01a7bad2c46402270c28151973610ef250cf7f867fe0d4aee2d548",
+            "dataset_version": "whybench_v1",
+            "db_snapshot_sha256": "b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838",
+            "drift_cases_sha256": "1c9ee61e648ef1508faca6c00d7536ce0acb3447597cb91ab0cfb66998722f71",
+            "precision_labels_sha256": "f6e909fba6980907914805dae659daf0de9edf719f09c1f5a4e71455c001aafa",
+            "questions_sha256": "19c15238793ec1ac954c648c3f7d22e893008af527dba9ff17a3bddfb2a87b55"
+          },
+          "environment": {
+            "git_clean": false,
+            "git_commit": "a6b76a4023f4d03e885e9ff7acb216a92b1866ff",
+            "platform": "win32",
+            "python_version": "3.11.6"
+          },
+          "manifest_version": "1.0",
+          "metrics": {
+            "overall": {
+              "baseline_copilot": {
+                "decision_recall": "not measured",
+                "evaluated_samples": 0,
+                "hallucination_rate": "not measured",
+                "name": "Baseline D: GitHub Copilot",
+                "status": "not measured"
+              },
+              "baseline_docs_only": {
+                "decision_recall": 14.3,
+                "found_count": 9,
+                "name": "Baseline B: Documentation/ADRs Only",
+                "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
+                "status": "measured",
+                "task_1_applicable": true,
+                "task_1_hit_rate": 14.3,
+                "task_1_top_k": 5,
+                "task_2_applicable": false,
+                "task_2_decision_recall": "n/a",
+                "task_2_refusal_accuracy": "n/a (always answers)",
+                "task_2_state_accuracy": "n/a",
+                "top_k": 5,
+                "total_count": 63
+              },
+              "baseline_keyword": {
+                "decision_recall": 63.5,
+                "found_count": 40,
+                "name": "Baseline A: Keyword Search (Grep/BM25)",
+                "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
+                "status": "measured",
+                "task_1_applicable": true,
+                "task_1_hit_rate": 63.5,
+                "task_1_top_k": 5,
+                "task_2_applicable": false,
+                "task_2_decision_recall": "n/a",
+                "task_2_refusal_accuracy": "n/a (always answers)",
+                "task_2_state_accuracy": "n/a",
+                "top_k": 5,
+                "total_count": 63
+              },
+              "baseline_llm": {
+                "decision_recall": "not measured",
+                "evidence_grounding_accuracy": "not measured",
+                "name": "Baseline C: Plain LLM Q&A",
+                "note": "Requires CIF_LLM_API_KEY and CIF_LLM_MODEL environment variables",
+                "status": "not measured"
+              },
+              "calibration": {
+                "assessment_accuracy": {},
+                "calibrated": false,
+                "ece": null,
+                "ece_pct": null,
+                "higher_scores_more_accurate": null,
+                "labeled_count": 0,
+                "min_required": 100,
+                "monotonic_confidence": null,
+                "reason": "not enough labels for calibration",
+                "reliability_table": [],
+                "status": "not measured"
+              },
+              "decision_precision": "not measured",
+              "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'",
+              "decision_recall_lenient": 100.0,
+              "decision_recall_strict": 100.0,
+              "lenient_matched_gt_count": 18,
+              "recall_difference": 0.0,
+              "refusal_accuracy": 64.4,
+              "refusal_correct_count": 29,
+              "state_accuracy": 100.0,
+              "state_correct_count": 18,
+              "strict_matched_gt_count": 18,
+              "task_1_cif_hit_rate": 100.0,
+              "task_1_cif_hits": 18
+            },
+            "per_repository": {
+              "acme-ecommerce/payment-core": {
+                "baseline_docs_only_hit_rate": 14.3,
+                "baseline_keyword_hit_rate": 61.9,
+                "decision_precision": "not measured",
+                "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'",
+                "decision_recall_lenient": 100.0,
+                "decision_recall_strict": 100.0,
+                "lenient_matched_gt_count": 6,
+                "questions_total": 21,
+                "refusal_accuracy": 66.7,
+                "refusal_correct_count": 10,
+                "refusal_questions": 15,
+                "standard_questions": 6,
+                "state_accuracy": 100.0,
+                "state_correct_count": 6,
+                "strict_matched_gt_count": 6,
+                "task_1_cif_hit_rate": 100.0,
+                "task_1_cif_hits": 6
+              },
+              "cli/cli": {
+                "baseline_docs_only_hit_rate": 14.3,
+                "baseline_keyword_hit_rate": 61.9,
+                "decision_precision": "not measured",
+                "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'",
+                "decision_recall_lenient": 100.0,
+                "decision_recall_strict": 100.0,
+                "lenient_matched_gt_count": 6,
+                "questions_total": 21,
+                "refusal_accuracy": 53.3,
+                "refusal_correct_count": 8,
+                "refusal_questions": 15,
+                "standard_questions": 6,
+                "state_accuracy": 100.0,
+                "state_correct_count": 6,
+                "strict_matched_gt_count": 6,
+                "task_1_cif_hit_rate": 100.0,
+                "task_1_cif_hits": 6
+              },
+              "cloud-hypervisor/cloud-hypervisor": {
+                "baseline_docs_only_hit_rate": 14.3,
+                "baseline_keyword_hit_rate": 66.7,
+                "decision_precision": "not measured",
+                "decision_precision_reason": "snapshot hash mismatch: labels generated from '5740fb6b654749e1a32c9b70b6300de92a1396a2a40fcca419ea6784c4e7a587', current DB hash is 'b344edaacd6b527187354ce6355f38dda794a24d4e13ebdc746bbf03bf478838'",
+                "decision_recall_lenient": 100.0,
+                "decision_recall_strict": 100.0,
+                "lenient_matched_gt_count": 6,
+                "questions_total": 21,
+                "refusal_accuracy": 73.3,
+                "refusal_correct_count": 11,
+                "refusal_questions": 15,
+                "standard_questions": 6,
+                "state_accuracy": 100.0,
+                "state_correct_count": 6,
+                "strict_matched_gt_count": 6,
+                "task_1_cif_hit_rate": 100.0,
+                "task_1_cif_hits": 6
+              }
+            }
+          },
+          "predictions": [
+            {
+              "expected_state": "accepted",
+              "id": "WB_PAY_01",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why did payment-core migrate from Braintree to Stripe Payment Intents API?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0001-stripe-payment-migration_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_PAY_02",
+              "is_refusal_case": false,
+              "overlap_count": 2,
+              "question": "How were Stripe API 429 rate limits resolved under flash sale load?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_14",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "rejected",
+              "id": "WB_PAY_03",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why were fixed 500ms sleep retries rejected for Stripe API calls?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_pr_review_comment_c301",
+              "system_state": "rejected"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_PAY_04",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "How does payment-core prevent duplicate order fulfillments from duplicate webhooks?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0002-webhook-idempotency_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_PAY_05",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why was SQLAlchemy async connection pool adopted for the database?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_git_commit_7a8b9c0d1e2f3a4b",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_PAY_08",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why was client-side order redirect replaced by webhook-first confirmation?",
+              "repo": "acme-ecommerce/payment-core",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_adr_docs_adr_0003-webhook-first-confirmation_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CH_01",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why did Cloud Hypervisor choose KVM dirty ring buffer over userfaultfd for live migration?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_live-migration_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "rejected",
+              "id": "WB_CH_02",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why was synchronous balloon deflation rejected in virtio-balloon?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_pr_review_comment_c502",
+              "system_state": "rejected"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CH_03",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "How does Cloud Hypervisor achieve line-rate 10GbE networking throughput?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_vhost-user-net_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CH_04",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why did Cloud Hypervisor enable virtio unused page reporting in PR #1042?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1042",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CH_05",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "How did Cloud Hypervisor achieve sub-30ms guest kernel boot times?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_adr_docs_designs_direct-kernel-boot_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CH_06",
+              "is_refusal_case": false,
+              "overlap_count": 2,
+              "question": "How was multi-threaded vCPU tail latency jitter mitigated?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1105",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CLI_01",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why does GitHub CLI store OAuth credentials in native OS keyrings instead of plaintext config files?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_adr_docs_rfc_001-keyring-credentials_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "rejected",
+              "id": "WB_CLI_02",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why was custom symmetric key encryption rejected for storing gh credentials?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_pr_review_comment_c601",
+              "system_state": "rejected"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CLI_03",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why are third-party GitHub CLI extensions executed as isolated child subprocesses?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_adr_docs_rfc_003-extension-isolation_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CLI_04",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "How was zalando/go-keyring integrated into the gh auth login command?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_github_pr_518",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CLI_05",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "Why did GitHub CLI migrate from REST to GraphQL for pull request listings?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_adr_docs_rfc_002-graphql-query-batching_md",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "accepted",
+              "id": "WB_CLI_06",
+              "is_refusal_case": false,
+              "overlap_count": 1,
+              "question": "How did PR #592 optimize repository and issue queries?",
+              "repo": "cli/cli",
+              "state_match": true,
+              "status": "found",
+              "system_decision_id": "dec_cli_cli_github_pr_592",
+              "system_state": "accepted"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_01",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did payment-core switch from PostgreSQL to MongoDB for transactional payment ledger?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_02",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why does payment-core store raw unencrypted credit card CVVs in local memory cache?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_03",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was Apache Kafka chosen over RabbitMQ for transactional payment settlement queues?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_04",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did payment-core rewrite its payment checkout microservice in Rust?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_05",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was Redis Cluster replaced with Apache Cassandra for distributed idempotency keys?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_06",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did payment-core deprecate PayPal checkout integration in favor of Apple Pay exclusive?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_07",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was Istio service mesh chosen for inter-service payment mTLS encryption?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_08",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did the team decide to adopt GraphQL for payment checkout APIs when discussing issue #8 payload structures?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_14"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_09",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was AWS DynamoDB chosen when evaluating database lock contention in issue #5 concurrent checkouts?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_18"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_10",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did PR #14 decide to integrate Celery background task worker for retrying failed Stripe payments?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_14"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_11",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did issue #11 adopt gRPC protocol for external multi-currency conversion services?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_29"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_12",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was Docker Swarm adopted for deploying webhook verification workers in PR #22?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_13",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did issue #19 adopt Apache Flink for real-time dead letter queue payload stream processing?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_14",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did automated linter bot comments on PR #29 approve migrating refund calculations to floating-point?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_acme-ecommerce_payment-core_github_pr_29"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_PAY_DEV_NEG_15",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was Datadog APM tracing adopted as the monitoring standard in PR #35 review discussion?",
+              "repo": "acme-ecommerce/payment-core",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_01",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did Cloud Hypervisor replace the Rust VMM core with a QEMU C wrapper?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_02",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why does Cloud Hypervisor disable ACPI power management tables across all VM profiles?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_03",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was the Xen hypervisor driver chosen as the default virtualization back-end?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_04",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was SPICE remote desktop display protocol adopted for virtual machines?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_05",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did Cloud Hypervisor adopt Ceph RBD for remote block storage attachments?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_06",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was FreeBSD bhyve hypervisor adopted for macOS host compatibility?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_07",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did Cloud Hypervisor implement legacy IDE floppy disk device emulation?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_08",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did Cloud Hypervisor decide to adopt eBPF packet filters when discussing issue #890 balloon stalls?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_09",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was DPDK user-space polling chosen for virtio-balloon queue processing in PR #1042?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1042"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_10",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did the vCPU latency discussion in issue #940 result in adopting OpenMP runtime affinity?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_issue_940"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_11",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did PR #1105 decide to replace sched_setaffinity with Linux cgroups v2 cpuset controller?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1105"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_12",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was WireGuard tunnel encryption integrated into the virtio-fs shared filesystem in issue #1015?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_13",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did PR #1180 adopt PCIe hot-unplug surprise removal support for VirtIO devices?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1180"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_14",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did issue #1120 adopt jemalloc memory profiling for tracing balloon driver leak statistics?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CH_DEV_NEG_15",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was Kata Containers shim integration adopted as the exclusive container runtime in PR #1390?",
+              "repo": "cloud-hypervisor/cloud-hypervisor",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_01",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did GitHub CLI migrate from Go to Electron GUI desktop client?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_02",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why does GitHub CLI transmit telemetry analytics over unencrypted HTTP port 80?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_03",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was SQLite embedded database adopted to cache git commit trees locally in gh?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_04",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did GitHub CLI replace git credential helper with SSH certificate authority?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_05",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was Python scripting runtime bundled into the official gh extension runner?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_06",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why did GitHub CLI switch from cobra to urfave/cli for command-line flag parsing?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_07",
+              "is_refusal_case": true,
+              "negative_type": "unrecorded",
+              "question": "Why was WebAssembly Wasmtime engine embedded into gh to execute extensions?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_08",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did the team decide to adopt KeePass database storage when discussing issue #412 keyring alternatives?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_518"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_09",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was HashiCorp Vault integration chosen as the default enterprise credential provider in PR #518?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_518"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_10",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did issue #480 decide to switch all GitHub CLI operations from GitHub API to local git log scraping?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_592"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_11",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did PR #592 adopt Apollo GraphQL Client caching layer for repository queries?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_592"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_12",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was Docker containerization adopted for running untrusted third-party extensions in issue #550?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_670"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_13",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did PR #670 decide to use Linux AppArmor security profiles for extension subprocess sandboxing?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_670"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_14",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Did issue #620 adopt ncurses library for rendering terminal UI tables?",
+              "repo": "cli/cli",
+              "status": "false_positive_decision",
+              "system_decision_id": "dec_cli_cli_github_pr_735"
+            },
+            {
+              "expected_state": "none",
+              "id": "WB_CLI_DEV_NEG_15",
+              "is_refusal_case": true,
+              "negative_type": "mention_without_decision",
+              "question": "Was PKCE OAuth flow adopted for headless SSH logins in PR #920 discussions?",
+              "repo": "cli/cli",
+              "status": "correct_refusal",
+              "system_answer": "No recorded architectural decision found (Refused)"
+            }
+          ],
+          "questions_evaluated": 63,
+          "refusal_questions": 45,
+          "run_id": "repro_exact_2",
+          "split": "dev",
+          "standard_questions": 18,
+          "timestamp": "2026-10-12T23:34:04.825089"
+        }
       },
       "status": "success"
     },
@@ -2452,7 +3284,7 @@ window.__CIF_STATIC_DATA__ = {
           "edge_id": "edge_drift_src/cach_dec_cach",
           "entity_id": "src/cache/store.py",
           "item_type": "drift",
-          "made_at": "2026-10-12T19:03:47.986699+00:00",
+          "made_at": "2026-10-12T19:03:56.700461+00:00",
           "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_cache_redis_01'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
@@ -2463,7 +3295,7 @@ window.__CIF_STATIC_DATA__ = {
           "edge_id": "edge_drift_src/ther_dec_ther",
           "entity_id": "src/thermal/control.py",
           "item_type": "drift",
-          "made_at": "2026-10-12T19:03:48.036687+00:00",
+          "made_at": "2026-10-12T19:03:56.758951+00:00",
           "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
