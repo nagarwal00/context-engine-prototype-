@@ -150,11 +150,15 @@ When demoing this project to your professor, follow these 8 simple steps:
 
 ---
 
-### 🖥️ Step 1: The Project Timeline
+### 🖥️ Step 1: The Project Timeline & Historical Time-Travel ("As-Of" Query)
 - **Action:** Click **Project Timeline** in the left sidebar.
-- **What is on screen:** A chronological list of decision cards.
+- **What is on screen:** A chronological list of decision cards plus the Historical "As Of" Query & Counterfactual Explorer.
 - **What to say:**
   > *"Here is our Project Timeline. It shows the evolution of the project over time. For example, on January 10th, Bug #12 occurred where the machine overheated. On January 12th, an idea to use a simple deadband switch was rejected. On January 15th, an architectural note was accepted to use a mathematical PID controller. We can filter the timeline by Accepted, Rejected, or Superseded decisions."*
+- **Action:** In the "Historical 'As Of' Query & Counterfactual Explorer", click the preset button **"Before PID Adoption (2026-01-01)"** and click **"Execute Historical Query"**.
+- **What to say:**
+  > *"Notice our Time-Travel capability! By setting the historical cutoff date to January 1, 2026, the system reconstructs exactly what the team knew before the PID decision was made. The PID controller decision disappears from the active state, proving that our temporal graph eliminates retroactive information leakage."*
+- **Action:** Click **"After PID Acceptance (2026-03-01)"** and run it to watch the PID decision return as the active architectural standard.
 
 ---
 
@@ -208,7 +212,7 @@ When demoing this project to your professor, follow these 8 simple steps:
 - **What to say:**
   > *"This simulates a developer opening a new Pull Request. In this scenario, a developer tried to delete the PID math and put back the old ON/OFF switch.*  
   > *Our system analyzed the diff against historical decisions and active Guard Rules, caught the violation in real time, warned the team that it reintroduces a previously rejected approach, and linked directly to the evidence trail in the Review Queue!"*
-- **Action:** Click **Scenario 3: Consistent Code** and run it to show that normal code changes pass cleanly.
+- **Action:** Click **Scenario 4: Consistent Code (Normal Refactor)** and run it to show that normal code changes pass cleanly.
 
 ---
 
@@ -216,14 +220,14 @@ When demoing this project to your professor, follow these 8 simple steps:
 - **Action:** Click **Metrics & Baselines** in the left sidebar.
 - **What is on screen:** Metric cards, WhyBench real-world benchmark results, and a baseline comparison table.
 - **What to say:**
-  > *"To validate our capstone honestly, we evaluated the system on WhyBench across 61 real-world questions from open-source repositories (payment-core, cloud-hypervisor, cli/cli) and compared it to four baselines.*  
-  > *Our system achieved 100.0% State Accuracy and 100.0% Refusal Accuracy on unrecorded design areas. All metrics are computed by code from real data—none are hard-coded or fabricated (see `evaluation_results.md`)."*
+  > *"To validate our capstone honestly, we evaluated the system on WhyBench across 71 questions on the frozen `test_v2` split from three open-source repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
+  > *On Task 1 (Evidence Retrieval), CIF achieved 80.8% Top-5 Hit Rate compared to 59.2% for BM25 Keyword Search and 8.5% for Docs-only search. On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% State Accuracy, and 64.4% Refusal Accuracy on negative unrecorded questions. All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
 
 #### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
 If the professor challenges the project, say this:
-> 1. *"Docs-only search misses critical architectural rationale that lives exclusively in PR discussions and issues, not static files—and READMEs cannot automatically block violating pull requests."*  
-> 2. *"General-purpose AI agents hallucinate plausible explanations without refusal guarantees, whereas our system achieved strong refusal accuracy on unrecorded decisions and requires explicit evidence citations."*  
-> 3. *"Most importantly, CIF turns architectural decisions into active CI Guard Rules that enforce rules on pull request diffs, preventing architectural regressions automatically."*
+> 1. *"Docs-only search achieved only 8.5% hit rate on WhyBench because architectural decisions live primarily in PR review debates, issues, and commit histories, not static docs—and a README cannot automatically block violating pull requests in CI."*  
+> 2. *"General-purpose AI agents hallucinate answers without provenance and fail to abstain, whereas CIF achieved 100.0% state accuracy, 64.4% refusal accuracy, and guarantees every explanation links directly to verified source events."*  
+> 3. *"CIF converts accepted decisions into active CI Guard Rules that evaluate pull request diffs in milliseconds to prevent architectural regressions automatically."*
 
 ---
 

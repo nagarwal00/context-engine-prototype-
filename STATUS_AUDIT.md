@@ -1041,4 +1041,28 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Demo runner: **21/21 checks passing**.
 
 
+### Step 6.7 — Final Run, Clean Clone Check and Release Preparation
+- Status: **RESOLVED**
+- Files: `tools/run_whybench.py`, `results/latest_manifest.json`, `evaluation_results.md`, `tools/clean_clone_check.py`, `web/app.js`, `web/static_data.js`, `readme.md`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Single Final Run on Frozen `test_v2` Split:
+     - Executed `python tools/run_whybench.py --split test_v2 --final` strictly once.
+     - Questions evaluated: 71 total (26 standard positive, 45 negative refusal).
+     - Task 1 (Evidence Retrieval): CIF achieved **80.8%** (21/26) Top-5 event hit rate vs **59.2%** for Baseline A (BM25) and **8.5%** for Baseline B (Docs-only).
+     - Task 2 (Decision Reconstruction): CIF achieved **80.8%** (21/26) Strict 1-to-1 Recall (lenient: 80.8%, overcounting gap: 0.0%), **100.0%** (21/21) State Accuracy, and **64.4%** (29/45) Refusal Accuracy on negative cases.
+     - Generated reproducible manifest at `results/test_v2_20261013_100423/manifest.json` and updated `results/latest_manifest.json`.
+     - Automatically regenerated `evaluation_results.md` dynamically from the final manifest.
+  2. Clean Clone Verification Tool (`tools/clean_clone_check.py`):
+     - Created automated cold-start verification harness that clones repository into a clean temporary directory, initializes database migrations and seed data, runs secret scanning audit, executes all 209 unit & integration tests, and runs automated demo verification.
+  3. Demo Walkthrough Synchronization:
+     - Rehearsed and updated `readme.md` section "Complete Demo Walkthrough" with exact measured numbers from the `test_v2` manifest.
+     - Added explicit Step 1 time-travel / historical "as-of" query demonstration (2026-01-01 pre-PID vs 2026-03-01 post-PID) proving elimination of retroactive information leakage.
+     - Embedded sharp 3-line response to "Why not just a README or an AI agent?" citing measured baseline figures (8.5% docs-only hit rate vs 80.8% CIF, anti-hallucination refusal guarantees, and millisecond CI Guard Rule enforcement).
+  4. Acceptance & Verification:
+     - Metrics page values in the UI match `latest_manifest.json` exactly.
+     - Full test suite: **209 unit and integration tests passing**.
+     - Demo runner: **21/21 checks passing**.
+
+
+
 
