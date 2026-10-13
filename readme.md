@@ -75,7 +75,13 @@ If your professor asks you technical questions, here are the simple explanations
 
 You do **NOT** need to install any external packages, tools, or Node.js. It runs on standard Python 3.
 
-### Step 1: Start the Server
+### Step 1: Initialize Database & Seed Pilot Repositories
+On a fresh checkout, run the database initializer to apply all migrations and populate the pilot repositories:
+```bash
+python tools/init_db.py --seed
+```
+
+### Step 2: Start the Server
 Open your terminal (PowerShell or Command Prompt) in this project folder and type:
 ```bash
 python server.py
@@ -92,7 +98,7 @@ You will see:
 [*] Serving all 9 UI surfaces, interactive Context Graph, and Review Queue.
 ```
 
-### Step 2: Open Your Browser
+### Step 3: Open Your Browser
 Open any web browser (Google Chrome, Edge, Safari, Firefox) and go to:  
 👉 **http://127.0.0.1:8080/**
 
@@ -215,9 +221,9 @@ When demoing this project to your professor, follow these 8 simple steps:
 
 #### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
 If the professor challenges the project, say this:
-> 1. *"Docs-only search achieved only 16.2% recall on WhyBench because critical architectural rationale lives in PR discussions and issues, not static files—and READMEs cannot automatically block violating pull requests."*  
-> 2. *"General-purpose AI agents hallucinate plausible explanations without refusal guarantees, whereas our system achieved 100.0% refusal accuracy on false claims and requires explicit evidence citations."*  
-> 3. *"Most importantly, CIF turns architectural decisions into active CI Guard Rules that enforce rules on pull request diffs with 100.0% recall, preventing regressions automatically."*
+> 1. *"Docs-only search misses critical architectural rationale that lives exclusively in PR discussions and issues, not static files—and READMEs cannot automatically block violating pull requests."*  
+> 2. *"General-purpose AI agents hallucinate plausible explanations without refusal guarantees, whereas our system achieved strong refusal accuracy on unrecorded decisions and requires explicit evidence citations."*  
+> 3. *"Most importantly, CIF turns architectural decisions into active CI Guard Rules that enforce rules on pull request diffs, preventing architectural regressions automatically."*
 
 ---
 

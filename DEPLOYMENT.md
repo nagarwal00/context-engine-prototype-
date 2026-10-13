@@ -12,40 +12,45 @@ The project is organized into clean separation between backend engines, the web 
 SE_project/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml              # Automated GitHub Pages CI/CD deployment workflow
-├── .gitignore                      # Excludes Python bytecode, caches, and temp files
+│       ├── deploy.yml              # Automated GitHub Pages CI/CD deployment workflow
+│       └── cif-check.yml           # Automated serverless CI drift checker
+├── .gitignore                      # Excludes Python bytecode, databases, caches, and dist/
 ├── DEPLOYMENT.md                   # This step-by-step deployment guide
+├── EVALUATION.md                   # Benchmark methodology, splits, and reproduction guide
+├── LIMITATIONS.md                  # Honest scope boundaries and known constraints
+├── PRIVACY.md                      # Privacy guarantees, secret redaction, and purge docs
+├── SECURITY_SCAN.md                # Secret scan audit report across git and SQLite
 ├── readme.md                       # Main project overview and demonstration guide
 ├── task.md                         # Project milestones and development task checklist
+├── explanation.md                  # In-depth architectural breakdown of system
 ├── server.py                       # Native Python HTTP server for local development
 ├── run_demo.py                     # 21-feature automated verification test runner
 │
+├── tools/                          # Release and Evaluation Toolchain
+│   ├── build_static.py             # Generates static snapshot for GitHub Pages
+│   ├── init_db.py                  # Initializes database, runs migrations and seed data
+│   ├── make_demo_repo.py           # Builds deterministic 11-commit demo git repo
+│   ├── package_release.py          # Builds & verifies clean release ZIP package
+│   ├── scan_secrets.py             # Scans Git history & database text columns
+│   ├── run_whybench.py             # Reproducible evaluation runner
+│   └── analyze_failures.py         # Categorizes benchmark misses in dev split
+│
 ├── backend/                        # Core Python Engine & Logic
-│   ├── __init__.py
-│   ├── api.py                      # REST API router for local server
+│   ├── api.py                      # REST API router & GitHub webhook receiver
 │   ├── db.py                       # SQLite database interface & mechanical invariants
+│   ├── migrations/                 # Versioned database schema migrations (v001-v006)
 │   ├── models.py                   # Data models (Event, Decision, Entity, Edge)
 │   ├── seed_data.py                # Deterministic seed data generator (thermal & cache)
-│   ├── engine/
-│   │   ├── drift_detector.py       # Code-level AST and diff drift analyzer
-│   │   ├── entity_res.py           # Entity resolution & Python AST function extractor
-│   │   ├── explanation.py          # Evidence-grounded rationale synthesis
-│   │   ├── graph.py                # Temporal Context Graph builder
-│   │   └── reconciliation.py       # Disagreement and conflict detector
-│   ├── evaluation/
-│   │   └── benchmark.py            # Evaluation against 3 baseline systems
-│   └── ingestion/
-│       ├── adr_adapter.py          # Architectural Decision Record parser
-│       ├── git_adapter.py          # Git commit and PR metadata collector
-│       └── identity.py             # Developer alias & identity resolver
+│   ├── engine/                     # Brain (drift, graph, bus factor, onboarding)
+│   └── ingestion/                  # Multi-source adapters (Git, GitHub, ADR, Slack, Sanitizer)
 │
 ├── web/                            # Source Frontend Files (Used by server.py)
-│   ├── index.html                  # Semantic UI with all 6 surfaces & modals
+│   ├── index.html                  # Semantic UI with all surfaces & modals
 │   ├── style.css                   # Polished dark-mode design system & animations
 │   ├── app.js                      # UI controller + hybrid Local/GitHub Pages API adapter
 │   └── static_data.js              # Seed dataset allowing standalone client-side execution
 │
-└── docs/                           # GitHub Pages Static Distribution Directory
+└── docs/                           # GitHub Pages Static Distribution Directory (Mirrors web/)
     ├── index.html                  # Web entry point for GitHub Pages
     ├── style.css                   # Stylesheet for GitHub Pages
     ├── app.js                      # Application controller for GitHub Pages

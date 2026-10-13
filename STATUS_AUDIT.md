@@ -979,3 +979,27 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Full test discovery suite: **208 unit tests passing** (0 failures, 0 errors).
      - Demo runner: **21/21 checks passing**.
 
+
+### Step 6.4 — Docs That Match Reality
+- Status: **RESOLVED**
+- Files: `readme.md`, `task.md`, `explanation.md`, `DEPLOYMENT.md`, `LIMITATIONS.md`, `PRIVACY.md`, `EVALUATION.md`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Creation of `EVALUATION.md`:
+     - Documented formal evaluation methodology, split structure (`dev`, `test_v1`, `test_v2`), split freezing policy, Task 1 vs Task 2 definitions, error categorization, and step-by-step reproduction instructions.
+  2. Removal of Hardcoded Numbers & Zero Stale Metrics:
+     - Replaced hardcoded precision/recall claims across `LIMITATIONS.md`, `readme.md`, and `task.md` with pointers to dynamically measured metrics in `evaluation_results.md` and `results/`.
+     - Verified that `grep -rn "92.6\|98.4\|94.1\|91.2" *.md` returns 0 hits across all project documentation files.
+  3. Plain Honesty Disclosures:
+     - Documented plainly that pilot repositories (`acme-eng/thermal-control-system`, `acme-eng/distributed-cache-service`) are synthetic smoke tests.
+     - Documented that heuristic scores are uncalibrated unless Step 4.7 reliability tables show otherwise.
+     - Documented webhook testing status: "webhook/CI verified with mocks only" (HMAC-SHA256 fixtures in `tests/test_webhook.py`).
+     - Documented that GitHub Pages is a static point-in-time snapshot with recorded SHA-256 hash and generation timestamp.
+  4. Updated Setup & File Organization:
+     - Updated `readme.md` setup instructions to include `python tools/init_db.py --seed`.
+     - Updated `DEPLOYMENT.md` file tree with release tools (`init_db.py`, `make_demo_repo.py`, `package_release.py`, `scan_secrets.py`) and documentation files (`EVALUATION.md`, `PRIVACY.md`, `SECURITY_SCAN.md`).
+  5. Acceptance & Verification:
+     - Full markdown scan verifies 0 stale metrics.
+     - All 21 demo checks passing (`run_demo.py`).
+     - Full test discovery suite: **208 unit tests passing**.
+
+

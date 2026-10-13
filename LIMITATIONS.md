@@ -21,9 +21,9 @@ In accordance with academic integrity guidelines for UCS503 Capstone, this docum
 
 ## 3. Extraction Accuracy & Recall Boundaries
 
-- In the final test split, CIF achieves **30.8% decision recall** using heuristic pattern extraction.
-- The system prioritizes **precision over recall**: it only indexes decisions with explicit architectural markers or structured ADR records, achieving **100.0% state accuracy** and **100.0% refusal accuracy**, but missing decisions made casually in PR comments without structured phrasing.
-- Simple keyword search (Baseline A) achieves higher raw recall (64.9%) but has 0% refusal capability and cannot distinguish accepted from rejected decisions.
+- All empirical extraction and baseline metrics are dynamically measured by the WhyBench runner; see [evaluation_results.md](evaluation_results.md) for current generated values.
+- The system prioritizes **precision over recall**: it indexes decisions with explicit architectural markers or structured ADR records, achieving high state accuracy and reliable refusal on negative queries, but naturally misses decisions discussed casually in PR comments without structured phrasing.
+- Unstructured keyword search (Baseline A) achieves higher raw event hit rates on retrieval, but lacks any refusal capability and cannot distinguish accepted from rejected decisions.
 
 ---
 
