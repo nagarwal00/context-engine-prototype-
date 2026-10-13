@@ -33,5 +33,6 @@ ENV/
 Thumbs.db
 desktop.ini
 
-# Temporary files
+# Temporary files & release builds
 scratch/
+dist/

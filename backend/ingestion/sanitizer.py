@@ -49,9 +49,16 @@ RE_JWT = re.compile(r"\b(eyJ[A-Za-z0-9\-_]{10,}\.eyJ[A-Za-z0-9\-_]{10,}\.[A-Za-z
 RE_BEARER = re.compile(r"(?i)\b(?:Authorization:\s*)?Bearer\s+([A-Za-z0-9\-_.~+/]{16,}=*)")
 
 # 8. Secret / Password Assignments (negative lookahead prevents double-redacting [REDACTED:...])
+# Filters out common non-secret dictionary words in architectural discussions and code
 RE_SECRET_ASSIGNMENT = re.compile(
-    r"(?i)\b(password|passwd|secret|token|api_key|access_key|client_secret|auth_token|api[_-]?secret|private[_-]?key|secret[_-]?key|key)\s*([:=]|\s+)\s*(['\"]?)(?!\[REDACTED:)([^\s'\",;]{4,})\3"
+    r"(?i)\b(?:(password|passwd|secret|token|api_key|access_key|client_secret|auth_token|api[_-]?secret|private[_-]?key|secret[_-]?key|key)\s*([:=])|(password|passwd|secret)(\s+))\s*(['\"]?)(?!\[REDACTED:)(?!(?:storage|vault|persistence|environment|setup|redaction|scrubbing|auth|overlap|strings|rules|diff|event|record|table|column|check|policy|review|keys?|tokens?|data|engine|layer|test|tests|handling|management|leak|leaks|sanitizer|encryption|header|http|from|active|decisions?|artifacts?|assumptions?|files?|candidates?)\b)([^\s'\",;]{4,})\5"
 )
+
+def _sub_secret_assignment(m: re.Match) -> str:
+    k = m.group(1) or m.group(3)
+    sep = m.group(2) or m.group(4) or " "
+    q = m.group(5) or ""
+    return f"{k}{sep}{q}[REDACTED:SECRET_ASSIGNMENT]{q}"
 
 # 9. Optional PII (Enabled when CIF_REDACT_PII=1)
 RE_EMAIL = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b")
@@ -99,7 +106,7 @@ def sanitize_text(text: Optional[str]) -> str:
     text = RE_BEARER.sub("Bearer [REDACTED:BEARER_TOKEN]", text)
 
     # 8. Secret / Password Assignments
-    text = RE_SECRET_ASSIGNMENT.sub(r"\1\2\3[REDACTED:SECRET_ASSIGNMENT]\3", text)
+    text = RE_SECRET_ASSIGNMENT.sub(_sub_secret_assignment, text)
 
     # 9. Optional PII
     if is_pii_redaction_enabled():

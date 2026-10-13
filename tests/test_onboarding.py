@@ -298,8 +298,16 @@ class TestOnboarding(unittest.TestCase):
         tasks_file = "evaluation/onboarding_tasks.json"
         self.assertTrue(os.path.exists(tasks_file), f"{tasks_file} must exist")
 
-        # Test against real database context_intelligence.db
+        # Test against database context_intelligence.db (populate seed if on a clean checkout)
         ci_db = Database("context_intelligence.db")
+        with ci_db.get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT COUNT(*) FROM decisions")
+            count = cursor.fetchone()[0]
+        if count == 0:
+            from backend.seed_data import populate_seed_data
+            populate_seed_data(ci_db)
+
         ci_engine = OnboardingEngine(ci_db)
 
         eval_result = ci_engine.evaluate_onboarding_tasks(tasks_file)
