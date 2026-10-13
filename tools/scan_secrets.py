@@ -105,6 +105,13 @@ CODE_OR_PROSE_PATTERNS = [
     "token=secret&id=123",
     ": str",
     "secret must",
+    "secret scan",
+    "secret scanner",
+    "secret scanners",
+    "secret scanning",
+    "secret dictionary",
+    "secret assignment",
+    "secret assignments",
 ]
 
 
@@ -119,7 +126,8 @@ def scan_text(text: str, source_label: str) -> List[Dict[str, Any]]:
             # Check if this is already a redacted token or synthetic test fixture
             is_redacted = "[REDACTED:" in val
             is_synthetic = any(syn in val for syn in SYNTHETIC_TEST_TOKENS)
-            is_code_or_prose = any(cp in val for cp in CODE_OR_PROSE_PATTERNS) or val.startswith("secret (401)")
+            val_lower = val.lower()
+            is_code_or_prose = any(cp.lower() in val_lower for cp in CODE_OR_PROSE_PATTERNS) or val.startswith("secret (401)")
 
             is_real = not (is_redacted or is_synthetic or is_code_or_prose)
 
