@@ -1003,3 +1003,42 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Full test discovery suite: **208 unit tests passing**.
 
 
+### Step 6.5 — Test Gaps from Review
+- Status: **RESOLVED**
+- Files: `tests/test_as_of.py`, `tests/test_supersession.py`, `tests/test_independence.py`, `tests/test_frontend_escape.py`, `tests/test_tls_safety.py`, `tests/test_drift_errors.py`, `tests/test_api_auth.py`, `tests/test_drift_rules.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Verification of Review Gap Test Suites:
+     - Verified all 8 targeted review test gap suites:
+       * `tests/test_as_of.py` [Unit/Integration]: point-in-time queries before/after supersession, date cutoff segregation.
+       * `tests/test_supersession.py` [Unit]: unrelated decisions with generic word overlap, explicit references, tie-breaking.
+       * `tests/test_independence.py` [Unit]: duplicate copy detection, thread-level independence keys, passage slicing.
+       * `tests/test_frontend_escape.py` [Unit]: static lint enforcing `esc()` / `safeUrl()` across all `innerHTML` assignments.
+       * `tests/test_tls_safety.py` [Unit]: strict certificate verification, zero unverified SSL contexts.
+       * `tests/test_drift_errors.py` [Unit]: detector error isolation, status complete vs incomplete, CI exit codes 0/1/2.
+       * `tests/test_api_auth.py` [Integration]: role-based authorization boundaries (viewer, reviewer, admin) on write endpoints.
+       * `tests/test_drift_rules.py` [Unit]: clean diffs resembling violations, negative cases producing zero findings.
+  2. Acceptance & Verification:
+     - Full test suite execution: **208 tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
+
+
+### Step 6.6 — End-to-End Integration Test (No Network)
+- Status: **RESOLVED**
+- Files: `tests/test_integration_pipeline.py`, `STATUS_AUDIT.md`
+- Resolution:
+  1. Comprehensive Offline Integration Test (`tests/test_integration_pipeline.py`):
+     - Implemented complete end-to-end pipeline test operating strictly on local fixtures without external network calls:
+       * **Ingestion**: Ingests realistic ADR markdown (`docs/adr/0001-grpc-transport-protocol.md`), Git commit record with synthetic token, and GitHub Pull Request (#42).
+       * **Sanitizer**: Verifies raw-byte SQLite disk scan finds zero raw tokens; confirms redaction marker `[REDACTED:GITHUB_TOKEN]` in stored event body.
+       * **Source Independence & Evidence Assessment**: Verifies independent source keys (`adr` vs `pr`), links claims, and assesses evidence quality (`strong` with >= 2 independent sources).
+       * **Temporal Graph**: Links decision to file artifact (`src/transport/grpc_client.py`), verifies explicit required `valid_from` timestamp.
+       * **Review Queue**: Ingests weak proposed decision with 0 evidence records, proves deterministic `insufficient` assessment and review routing.
+       * **Point-in-Time Counterfactuals (`as_of`)**: Executes queries at two distinct dates (2026-01-01 before decision vs 2026-03-01 after decision); asserts decision is absent before acceptance and present as active after acceptance.
+       * **Drift & Rejected Idea Guard**: Registers active decision constraint blocking rejected REST JSON (`forbid_import` on `requests`), feeds a violating diff, and asserts drift detection with status `complete` and rule match.
+  2. Acceptance & Verification:
+     - Executed `python -m unittest tests/test_integration_pipeline.py` alone: **PASSED (0.18s)**.
+     - Executed full test suite: **209 unit and integration tests passing** (0 failures, 0 errors).
+     - Demo runner: **21/21 checks passing**.
+
+
+
