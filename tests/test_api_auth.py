@@ -88,7 +88,10 @@ class TestAPIAuth(unittest.TestCase):
                 resp_headers = dict(response.headers)
                 return status, parsed, resp_headers
         except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8")
+            try:
+                body = e.read().decode("utf-8")
+            except (ConnectionResetError, ConnectionAbortedError, OSError):
+                body = ""
             try:
                 parsed = json.loads(body)
             except Exception:

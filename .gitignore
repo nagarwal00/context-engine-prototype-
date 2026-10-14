@@ -18,11 +18,27 @@ whybench.db
 
 
 
-# Environments
+# Local environment & secret files (keep out of Git)
 env/
 venv/
 ENV/
 .env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.pkcs12
+*.p12
+*.pfx
+*.crt
+*id_rsa*
+*id_ed25519*
+credentials.json
+secrets.json
+service_account.json
+token.json
+
 
 # Editor & OS files
 .vscode/

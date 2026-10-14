@@ -975,7 +975,7 @@ class APIHandler:
         # 4. Ingest Custom Live GitHub Repository
         elif path == "/api/ingest-repo":
             repo_input = body.get("repo", "")
-            token = body.get("token")
+            token = body.get("token") or os.environ.get("GITHUB_TOKEN", None)
             clear_first = body.get("clear_existing", False)
             max_commits = int(body.get("max_commits", 25))
             max_issues = int(body.get("max_issues", 15))
