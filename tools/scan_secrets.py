@@ -112,6 +112,9 @@ CODE_OR_PROSE_PATTERNS = [
     "secret dictionary",
     "secret assignment",
     "secret assignments",
+    "secret (",
+    "secret file",
+    "secret files",
 ]
 
 
