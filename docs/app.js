@@ -31,6 +31,7 @@ const app = {
   cachedArtifacts: [],
   
   init() {
+    this.bindGlobalEvents();
     this.refreshStats();
     this.loadRepositoriesList();
     this.loadTimeline();
@@ -39,6 +40,47 @@ const app = {
     this.loadReviewQueue();
     this.loadBenchmarkData();
     this.loadOnboardingTour();
+  },
+
+  bindGlobalEvents() {
+    if (this._eventsBound) return;
+    this._eventsBound = true;
+
+    // Navigation items delegation
+    document.addEventListener('click', (e) => {
+      const navItem = e.target.closest('.nav-item[data-surface]');
+      if (navItem) {
+        e.preventDefault();
+        const surface = navItem.getAttribute('data-surface');
+        if (surface) this.navigate(surface);
+      }
+    });
+
+    // Timeline filter buttons delegation
+    document.addEventListener('click', (e) => {
+      const filterBtn = e.target.closest('#surface-timeline .filter-btn');
+      if (filterBtn) {
+        const text = (filterBtn.textContent || '').trim().toLowerCase();
+        if (text) {
+          document.querySelectorAll('#surface-timeline .filter-btn').forEach(b => b.classList.remove('active'));
+          filterBtn.classList.add('active');
+          this.filterTimelineState(text);
+        }
+      }
+    });
+
+    // Decision Explorer filter buttons delegation
+    document.addEventListener('click', (e) => {
+      const filterBtn = e.target.closest('#surface-decisions .filter-btn');
+      if (filterBtn) {
+        const text = (filterBtn.textContent || '').trim().toLowerCase();
+        if (text) {
+          document.querySelectorAll('#surface-decisions .filter-btn').forEach(b => b.classList.remove('active'));
+          filterBtn.classList.add('active');
+          this.filterDecisionState(text);
+        }
+      }
+    });
   },
 
   navigate(surfaceId) {
@@ -219,12 +261,16 @@ const app = {
   async refreshStats() {
     try {
       const json = await this.apiFetch('/api/stats');
-      if (json.status === 'success') {
-        document.getElementById('stat-decisions').textContent = json.data.decisions;
-        document.getElementById('stat-events').textContent = json.data.events;
-        const totalReview = json.data.drifts + json.data.conflicts + 1; // including unconfident candidates
-        document.getElementById('stat-review-count').textContent = totalReview;
-        document.getElementById('sidebar-review-badge').textContent = totalReview;
+      if (json && json.status === 'success' && json.data) {
+        const elDec = document.getElementById('stat-decisions');
+        if (elDec) elDec.textContent = json.data.decisions;
+        const elEvt = document.getElementById('stat-events');
+        if (elEvt) elEvt.textContent = json.data.events;
+        const totalReview = (json.data.drifts || 0) + (json.data.conflicts || 0) + 1; // including unconfident candidates
+        const elRev = document.getElementById('stat-review-count');
+        if (elRev) elRev.textContent = totalReview;
+        const elBadge = document.getElementById('sidebar-review-badge');
+        if (elBadge) elBadge.textContent = totalReview;
       }
     } catch (e) {
       console.error('Error fetching stats:', e);
@@ -2398,6 +2444,28 @@ const app = {
         };
       }
 
+      if (path === '/api/guard-rules/approve') {
+        const ruleId = body.rule_id;
+        const rulesRes = staticData.endpoints && staticData.endpoints.guard_rules;
+        if (rulesRes && rulesRes.data) {
+          const rule = rulesRes.data.find(r => r.rule_id === ruleId);
+          if (rule) rule.status = 'approved';
+        }
+        this.saveStoredState(staticData);
+        return { status: 'success', message: `Guard rule '${ruleId}' approved (simulated in static snapshot mode).` };
+      }
+
+      if (path === '/api/guard-rules/disable') {
+        const ruleId = body.rule_id;
+        const rulesRes = staticData.endpoints && staticData.endpoints.guard_rules;
+        if (rulesRes && rulesRes.data) {
+          const rule = rulesRes.data.find(r => r.rule_id === ruleId);
+          if (rule) rule.status = 'disabled';
+        }
+        this.saveStoredState(staticData);
+        return { status: 'success', message: `Guard rule '${ruleId}' disabled (simulated in static snapshot mode).` };
+      }
+
       if (path === '/api/reseed') {
         try {
           localStorage.removeItem('cif_live_state');
@@ -2416,6 +2484,59 @@ const app = {
         set.add('acme-eng/distributed-cache-service');
       }
       return { status: 'success', data: Array.from(set) };
+    }
+
+    if (path === '/api/guard-rules') {
+      const rules = (staticData.endpoints && staticData.endpoints.guard_rules && staticData.endpoints.guard_rules.data) || [];
+      return { status: 'success', data: rules };
+    }
+
+    if (path === '/api/as-of') {
+      const targetDate = params.get('date');
+      let list = (staticData.endpoints && staticData.endpoints.decisions_all && staticData.endpoints.decisions_all.data) || [];
+      if (repo) {
+        list = list.filter(d => d.repo === repo);
+      }
+      if (targetDate) {
+        list = list.filter(d => !d.made_at || d.made_at <= targetDate);
+      }
+      return {
+        status: 'success',
+        query_date: targetDate,
+        data: list
+      };
+    }
+
+    if (path === '/api/decision-history') {
+      const list = (staticData.endpoints && staticData.endpoints.decisions_all && staticData.endpoints.decisions_all.data) || [];
+      const dec = list.find(d => d.decision_id === decision_id) || list[0] || null;
+      if (!dec) {
+        return { status: 'error', message: 'Decision not found' };
+      }
+      return {
+        status: 'success',
+        data: {
+          decision: dec,
+          transitions: [
+            {
+              from_state: 'proposed',
+              to_state: dec.state || 'accepted',
+              transition_date: dec.made_at || '2026-03-15T00:00:00Z',
+              trigger_type: 'adr_adoption',
+              notes: dec.rationale || 'Initial architectural adoption'
+            }
+          ],
+          supersession_chain: [
+            {
+              decision_id: dec.decision_id,
+              title: dec.title,
+              state: dec.state || 'accepted',
+              made_at: dec.made_at || '2026-03-15T00:00:00Z',
+              relation: 'current'
+            }
+          ]
+        }
+      };
     }
 
     if (path === '/api/stats') {
@@ -2693,4 +2814,10 @@ const app = {
 
 };
 
-window.addEventListener('DOMContentLoaded', () => app.init());
+// Explicit global assignment for inline event handlers (P0-c / GitHub Pages resilience)
+window.app = app;
+
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = app;
+  app.init();
+});

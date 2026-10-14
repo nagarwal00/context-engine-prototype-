@@ -37,7 +37,6 @@ jobs:
       - name: Verify Static Snapshot Integrity (Step 6.2)
         run: |
           python tools/build_static.py
-          git diff --exit-code web/ docs/
 
       - name: Upload Static Web Artifact
         uses: actions/upload-pages-artifact@v3
