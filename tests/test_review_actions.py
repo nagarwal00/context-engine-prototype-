@@ -185,7 +185,7 @@ class TestReviewActions(unittest.TestCase):
             self.assertEqual(dec["review_status"], "human_reopened")
 
             hist = conn.execute(
-                "SELECT * FROM state_history WHERE decision_id = 'dec_prop_1' ORDER BY changed_at DESC"
+                "SELECT * FROM state_history WHERE decision_id = 'dec_prop_1' ORDER BY changed_at DESC, rowid DESC"
             ).fetchone()
             self.assertEqual(hist["state"], "reopened")
             self.assertEqual(hist["from_state"], "rejected")

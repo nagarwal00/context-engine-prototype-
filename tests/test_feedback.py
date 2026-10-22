@@ -37,8 +37,8 @@ class TestDeveloperFeedbackLoop(unittest.TestCase):
         cls.db = Database(cls.db_path)
         populate_seed_data(cls.db)
 
-        cls.reviewer_token = "test_reviewer_secret_abc"
         cls.admin_token = "test_admin_secret_xyz"
+        cls.reviewer_token = cls.admin_token
 
         cls.orig_env = {
             "CIF_ADMIN_TOKEN": os.environ.get("CIF_ADMIN_TOKEN"),
