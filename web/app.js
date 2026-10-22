@@ -32,6 +32,7 @@ const app = {
   
   init() {
     this.bindGlobalEvents();
+    this.initUserMenu();
     this.refreshStats();
     this.loadRepositoriesList();
     this.loadTimeline();
@@ -97,7 +98,9 @@ const app = {
     }
 
     // Lazy load specific surface data
-    if (surfaceId === 'graph') {
+    if (surfaceId === 'repositories') {
+      this.loadRepositoriesScreen();
+    } else if (surfaceId === 'graph') {
       this.loadGraph();
     } else if (surfaceId === 'timeline') {
       this.loadTimeline();
@@ -123,6 +126,334 @@ const app = {
     this.loadArtifacts();
     this.loadDecisions();
     if (this.activeSurface === 'graph') this.loadGraph();
+  },
+
+  // =========================================================================
+  // USER MENU & AUTH (Step 7.9)
+  // =========================================================================
+  currentUser: null,
+
+  async initUserMenu() {
+    try {
+      const res = await this.apiFetch('/api/me', { silentAuthError: true });
+      const btnLogin = document.getElementById('btn-login');
+      const userProfile = document.getElementById('user-profile');
+      const userAvatar = document.getElementById('user-avatar');
+      const userLogin = document.getElementById('user-login');
+
+      if (res && res.status === 'success' && res.data && res.data.login) {
+        this.currentUser = res.data;
+        if (btnLogin) btnLogin.style.display = 'none';
+        if (userProfile) userProfile.style.display = 'flex';
+        if (userAvatar) userAvatar.src = res.data.avatar_url || '';
+        if (userLogin) userLogin.textContent = res.data.login;
+      } else {
+        this.currentUser = null;
+        if (btnLogin) btnLogin.style.display = 'inline-flex';
+        if (userProfile) userProfile.style.display = 'none';
+      }
+    } catch (e) {
+      this.currentUser = null;
+    }
+  },
+
+  async signOut() {
+    try {
+      await this.apiFetch('/auth/logout', { method: 'POST', silentAuthError: true });
+    } catch (e) {}
+    this.currentUser = null;
+    window.location.reload();
+  },
+
+  // =========================================================================
+  // REPOSITORIES SCREEN & INGESTION (Step 7.9)
+  // =========================================================================
+  currentJobId: null,
+  _jobPollTimer: null,
+
+  onGitHubSelectChange(val) {
+    const input = document.getElementById('manual-repo-input');
+    if (input && val) {
+      input.value = val;
+    }
+  },
+
+  async loadRepositoriesScreen() {
+    const tbody = document.getElementById('repos-table-body');
+    const countLabel = document.getElementById('repo-count-label');
+    const select = document.getElementById('github-install-select');
+    if (tbody) tbody.innerHTML = '<tr><td colspan="6" class="loading-state" style="padding: 24px; text-align: center; color: var(--text-muted);">Loading repositories...</td></tr>';
+
+    try {
+      const [reposRes, statusRes, ghRes] = await Promise.all([
+        this.apiFetch('/api/repos', { silentAuthError: true }),
+        this.apiFetch('/api/repos/status', { silentAuthError: true }),
+        this.currentUser ? this.apiFetch('/api/github/repos', { silentAuthError: true }) : Promise.resolve(null)
+      ]);
+
+      const monitoredRepos = (reposRes && reposRes.status === 'success') ? (reposRes.data || []) : [];
+      const statusMap = (statusRes && statusRes.status === 'success') ? (statusRes.data || {}) : {};
+
+      // Populate GitHub App installations dropdown
+      if (select && ghRes && ghRes.status === 'success' && Array.isArray(ghRes.data)) {
+        let optHtml = '<option value="">-- Available GitHub Repositories --</option>';
+        ghRes.data.forEach(r => {
+          const fn = r.full_name || r.name;
+          const isMonitored = monitoredRepos.includes(fn);
+          optHtml += `<option value="${esc(fn)}">${esc(fn)}${isMonitored ? ' (connected)' : ''}</option>`;
+        });
+        select.innerHTML = optHtml;
+      }
+
+      if (countLabel) {
+        countLabel.textContent = `${monitoredRepos.length} repositories monitored`;
+      }
+
+      if (!tbody) return;
+      if (monitoredRepos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="padding: 32px; text-align: center; color: var(--text-muted);">No repositories connected yet. Add a repository below to begin context extraction.</td></tr>';
+        return;
+      }
+
+      let rowsHtml = '';
+      for (const repoName of monitoredRepos) {
+        const repoStatus = statusMap[repoName] || {};
+        const isReady = repoStatus.status === 'ready';
+        const isPartial = repoStatus.status === 'partial' || repoStatus.partial;
+        const isFailed = repoStatus.status === 'failed';
+        const isRunning = repoStatus.status === 'running' || repoStatus.status === 'in_progress';
+        
+        let chipClass = 'chip-ready';
+        let chipText = 'Ready';
+        if (isRunning) {
+          chipClass = 'chip-running';
+          chipText = 'Ingesting';
+        } else if (isPartial) {
+          chipClass = 'chip-partial';
+          chipText = 'Partial (Capped)';
+        } else if (isFailed) {
+          chipClass = 'chip-failed';
+          chipText = 'Failed';
+        } else if (!repoStatus.status) {
+          chipClass = 'chip-ready';
+          chipText = 'Connected';
+        }
+
+        const eventsCount = repoStatus.events_count ?? repoStatus.events ?? '-';
+        const decisionsCount = repoStatus.decisions_count ?? repoStatus.decisions ?? '-';
+        const lastSynced = repoStatus.last_synced || repoStatus.updated_at ? new Date(repoStatus.last_synced || repoStatus.updated_at).toLocaleString() : 'N/A';
+        const isSelected = this.selectedRepo === repoName;
+
+        rowsHtml += `
+          <tr style="${isSelected ? 'background: rgba(59, 130, 246, 0.08);' : ''}">
+            <td style="font-weight: 600; font-family: monospace;">
+              ${esc(repoName)}
+              ${isSelected ? '<span class="stat-pill" style="margin-left: 6px; font-size: 0.7rem; background: var(--color-primary); color: #fff;">active</span>' : ''}
+            </td>
+            <td>
+              <span style="font-size: 0.8rem; color: var(--text-secondary);">${esc(repoStatus.tier || 'Collaborator')}</span>
+            </td>
+            <td>
+              <span class="chip ${chipClass}">${esc(chipText)}</span>
+            </td>
+            <td style="font-size: 0.82rem; color: var(--text-secondary);">
+              <strong>${esc(decisionsCount)}</strong> decisions / <strong>${esc(eventsCount)}</strong> events
+            </td>
+            <td style="font-size: 0.8rem; color: var(--text-muted);">${esc(lastSynced)}</td>
+            <td style="text-align: right; white-space: nowrap;">
+              <button class="btn btn-secondary btn-xs" onclick="app.switchRepo('${esc(repoName)}'); app.navigate('timeline');" style="margin-right: 4px;">Explore</button>
+              <button class="btn btn-secondary btn-xs" onclick="app.addRepository('${esc(repoName)}')" style="margin-right: 4px;">Re-sync</button>
+              <button class="btn btn-danger btn-xs" onclick="app.deleteRepository('${esc(repoName)}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      }
+      tbody.innerHTML = rowsHtml;
+    } catch (err) {
+      if (tbody) tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: #ef4444;">Error loading repositories: ${esc(err.message)}</td></tr>`;
+    }
+  },
+
+  async submitAddRepository() {
+    const input = document.getElementById('manual-repo-input');
+    const select = document.getElementById('github-install-select');
+    const repoName = (input && input.value.trim()) || (select && select.value.trim());
+
+    if (!repoName) {
+      alert('Please select or enter a repository in owner/repo format.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repoName)) {
+      alert('Invalid repository format. Please use "owner/repo" (e.g. facebook/react).');
+      return;
+    }
+
+    await this.addRepository(repoName);
+  },
+
+  async addRepository(repoFullName) {
+    const btn = document.getElementById('btn-add-repo-submit');
+    if (btn) btn.disabled = true;
+
+    try {
+      const res = await this.apiFetch('/api/repos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ repo: repoFullName })
+      });
+
+      if (res && res.status === 'success') {
+        const jobId = res.job_id || (res.data && res.data.job_id);
+        if (jobId) {
+          this.startJobPolling(jobId, repoFullName);
+        }
+        await this.loadRepositoriesList();
+        await this.loadRepositoriesScreen();
+        const input = document.getElementById('manual-repo-input');
+        if (input) input.value = '';
+      } else {
+        alert(`Failed to add repository: ${res ? res.message : 'Unknown error'}`);
+      }
+    } catch (err) {
+      alert(`Error adding repository: ${err.message}`);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  },
+
+  async deleteRepository(repoFullName) {
+    const confirmed = confirm(
+      `Expunge repository "${repoFullName}"?\n\n` +
+      `This will completely cascade-delete all ingested events, AST entities, decisions, claims, and run SQLite VACUUM to clear all disk pages.`
+    );
+    if (!confirmed) return;
+
+    try {
+      const [owner, repo] = repoFullName.split('/');
+      const res = await this.apiFetch(`/api/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {
+        method: 'DELETE'
+      });
+
+      if (res && res.status === 'success') {
+        const counts = res.data && res.data.expunged_rows ? res.data.expunged_rows : {};
+        alert(`Repository ${repoFullName} expunged successfully.\nDeleted: ${counts.events || 0} events, ${counts.decisions || 0} decisions.`);
+        if (this.selectedRepo === repoFullName) {
+          this.selectedRepo = '';
+        }
+        await this.loadRepositoriesList();
+        await this.loadRepositoriesScreen();
+        await this.refreshStats();
+        this.loadTimeline();
+      } else {
+        alert(`Failed to delete repository: ${res ? res.message : 'Unknown error'}`);
+      }
+    } catch (err) {
+      alert(`Error deleting repository: ${err.message}`);
+    }
+  },
+
+  startJobPolling(jobId, repoFullName) {
+    this.currentJobId = jobId;
+    if (this._jobPollTimer) {
+      clearInterval(this._jobPollTimer);
+    }
+
+    const widget = document.getElementById('job-progress-widget');
+    const repoLabel = document.getElementById('job-repo-name');
+    const statusChip = document.getElementById('job-status-chip');
+    const bar = document.getElementById('job-progress-bar');
+    const phaseLabel = document.getElementById('job-phase-desc');
+    const percentLabel = document.getElementById('job-percent-label');
+    const errBox = document.getElementById('job-error-msg');
+
+    if (widget) widget.style.display = 'block';
+    if (repoLabel) repoLabel.textContent = repoFullName;
+    if (statusChip) {
+      statusChip.className = 'chip chip-running';
+      statusChip.textContent = 'running';
+    }
+    if (errBox) errBox.style.display = 'none';
+
+    const poll = async () => {
+      try {
+        const res = await this.apiFetch(`/api/jobs/${encodeURIComponent(jobId)}`, { silentAuthError: true });
+        if (!res || res.status !== 'success' || !res.data) return;
+
+        const job = res.data;
+        const progress = Math.min(100, Math.max(0, job.progress_pct || 0));
+
+        if (bar) bar.style.width = `${progress}%`;
+        if (percentLabel) percentLabel.textContent = `${progress}%`;
+        if (phaseLabel) phaseLabel.textContent = job.phase || job.status;
+
+        const counts = job.counts || {};
+        const setCnt = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val !== undefined ? val : 0;
+        };
+        setCnt('job-commits-count', counts.commits_ingested);
+        setCnt('job-prs-count', counts.prs_ingested);
+        setCnt('job-issues-count', counts.issues_ingested);
+        setCnt('job-entities-count', counts.entities_created);
+        setCnt('job-decisions-count', counts.decisions_extracted);
+        setCnt('job-edges-count', counts.edges_created);
+
+        if (job.status === 'ready') {
+          clearInterval(this._jobPollTimer);
+          this._jobPollTimer = null;
+          if (statusChip) {
+            statusChip.className = 'chip chip-ready';
+            statusChip.textContent = 'Completed (Ready)';
+          }
+          if (bar) bar.style.width = '100%';
+          if (percentLabel) percentLabel.textContent = '100%';
+          this.loadRepositoriesScreen();
+          this.loadRepositoriesList();
+          this.refreshStats();
+        } else if (job.status === 'partial') {
+          clearInterval(this._jobPollTimer);
+          this._jobPollTimer = null;
+          if (statusChip) {
+            statusChip.className = 'chip chip-partial';
+            statusChip.textContent = 'Partial (Capped)';
+          }
+          this.loadRepositoriesScreen();
+          this.loadRepositoriesList();
+          this.refreshStats();
+        } else if (job.status === 'failed' || job.status === 'cancelled') {
+          clearInterval(this._jobPollTimer);
+          this._jobPollTimer = null;
+          if (statusChip) {
+            statusChip.className = 'chip chip-failed';
+            statusChip.textContent = job.status;
+          }
+          if (errBox) {
+            errBox.textContent = `Ingestion ${job.status}: ${job.error_message || 'See server logs.'}`;
+            errBox.style.display = 'block';
+          }
+          this.loadRepositoriesScreen();
+        }
+      } catch (err) {
+        console.warn('Error polling job status:', err);
+      }
+    };
+
+    poll();
+    this._jobPollTimer = setInterval(poll, 1800);
+  },
+
+  async cancelCurrentJob() {
+    if (!this.currentJobId) return;
+    try {
+      await this.apiFetch(`/api/jobs/${encodeURIComponent(this.currentJobId)}/cancel`, { method: 'POST' });
+      const statusChip = document.getElementById('job-status-chip');
+      if (statusChip) {
+        statusChip.className = 'chip chip-failed';
+        statusChip.textContent = 'cancelling...';
+      }
+    } catch (e) {
+      alert(`Could not cancel job: ${e.message}`);
+    }
   },
 
   async loadRepositoriesList() {
@@ -2162,6 +2493,7 @@ const app = {
   // =========================================================================
   async apiFetch(url, options = {}) {
     options = { ...options };
+    options.credentials = options.credentials || 'same-origin';
     options.headers = { ...(options.headers || {}) };
     if (this.authToken && !options.headers['Authorization']) {
       options.headers['Authorization'] = 'Bearer ' + this.authToken;
@@ -2185,7 +2517,7 @@ const app = {
           } catch (err) {
             errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
-          if (res.status === 401 || res.status === 403) {
+          if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
             alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
           }
           return errData;
