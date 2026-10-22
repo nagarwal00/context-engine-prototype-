@@ -254,8 +254,15 @@ class Database:
                 json.dumps(event.raw_metadata)
             ))
             row = cursor.fetchone()
+            event_id = row["event_id"] if row else event.event_id
+            try:
+                cursor.execute("UPDATE events SET repo_full_name = ? WHERE event_id = ? AND (repo_full_name IS NULL OR repo_full_name = '');", (event.repo, event_id))
+            except sqlite3.OperationalError:
+                pass
             conn.commit()
-            return row["event_id"] if row else event.event_id
+            return event_id
+
+    insert_event = upsert_event
 
     def purge_repo(self, repo: str) -> Dict[str, int]:
         """
@@ -352,8 +359,55 @@ class Database:
             cursor.execute("DELETE FROM events WHERE repo = ?", (repo,))
             counts["events"] = cursor.rowcount
 
+            # 10. Delete ingest_jobs
+            try:
+                cursor.execute("DELETE FROM ingest_jobs WHERE repo_full_name = ?", (repo,))
+                counts["ingest_jobs"] = cursor.rowcount
+            except sqlite3.OperationalError:
+                counts["ingest_jobs"] = 0
+
+            # 11. Delete repo_access
+            try:
+                cursor.execute("DELETE FROM repo_access WHERE repo_full_name = ?", (repo,))
+                counts["repo_access"] = cursor.rowcount
+            except sqlite3.OperationalError:
+                counts["repo_access"] = 0
+
+            # 12. Delete repo_reviewers
+            try:
+                cursor.execute("DELETE FROM repo_reviewers WHERE repo_full_name = ?", (repo,))
+                counts["repo_reviewers"] = cursor.rowcount
+            except sqlite3.OperationalError:
+                counts["repo_reviewers"] = 0
+
+            # 13. Delete ambiguous_findings
+            try:
+                cursor.execute("DELETE FROM ambiguous_findings WHERE repo = ? OR repo_full_name = ?", (repo, repo))
+                counts["ambiguous_findings"] = cursor.rowcount
+            except sqlite3.OperationalError:
+                counts["ambiguous_findings"] = 0
+
+            # 14. Delete repos table entry
+            try:
+                cursor.execute("DELETE FROM repos WHERE repo_full_name = ?", (repo,))
+                counts["repos"] = cursor.rowcount
+            except sqlite3.OperationalError:
+                counts["repos"] = 0
+
             conn.commit()
+
+        # VACUUM to expunge deleted row data from disk pages (Step 7.8 / R3 raw-byte scan)
+        try:
+            v_conn = sqlite3.connect(self.db_path)
+            v_conn.isolation_level = None
+            v_conn.execute("VACUUM;")
+            v_conn.close()
+        except Exception:
+            pass
+
         return counts
+
+    delete_repository = purge_repo
 
     def upsert_entity(self, entity: Entity) -> str:
         with self.get_connection() as conn:

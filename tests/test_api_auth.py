@@ -144,18 +144,17 @@ class TestAPIAuth(unittest.TestCase):
         self.assertEqual(status, 403, f"Expected 403 for invalid token, got {status}: {data}")
 
     def test_write_routes_succeed_with_correct_token(self):
-        # Reviewer token on reviewer endpoint
-        rev_headers = {"Authorization": f"Bearer {self.reviewer_token}"}
+        # Admin token on review endpoint
+        adm_headers = {"Authorization": f"Bearer {self.admin_token}"}
         status, data, _ = self._request(
             "POST",
             "/api/review-action",
             data={"action": "confirm", "target_id": "dec_thermal_pid_accepted"},
-            headers=rev_headers
+            headers=adm_headers
         )
-        self.assertEqual(status, 200, f"Expected 200 with reviewer token, got {status}: {data}")
+        self.assertEqual(status, 200, f"Expected 200 with admin token, got {status}: {data}")
 
         # Admin token on admin endpoint with confirm
-        adm_headers = {"Authorization": f"Bearer {self.admin_token}"}
         status, data, _ = self._request(
             "POST",
             "/api/reseed",

@@ -1,0 +1,30 @@
+{
+  "action": "submitted",
+  "review": {
+    "id": 5501,
+    "user": {
+      "login": "senior-reviewer",
+      "id": 8883
+    },
+    "body": "LGTM. The cache TTL is properly configured according to ADR 0004.",
+    "state": "APPROVED",
+    "html_url": "https://github.com/test-org/sync-repo/pull/42#pullrequestreview-5501",
+    "submitted_at": "2026-10-18T01:10:00Z"
+  },
+  "pull_request": {
+    "number": 42,
+    "title": "Migrate database pool to asynchronous connection manager",
+    "head": {
+      "sha": "a1b2c3d4e5f67890"
+    }
+  },
+  "repository": {
+    "id": 123456,
+    "full_name": "test-org/sync-repo",
+    "private": true
+  },
+  "sender": {
+    "login": "senior-reviewer",
+    "id": 8883
+  }
+}

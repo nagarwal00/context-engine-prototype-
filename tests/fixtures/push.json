@@ -1,0 +1,26 @@
+{
+  "ref": "refs/heads/main",
+  "repository": {
+    "id": 123456,
+    "full_name": "test-org/sync-repo",
+    "private": true
+  },
+  "sender": {
+    "login": "test-committer",
+    "id": 8881
+  },
+  "commits": [
+    {
+      "id": "c0ffee1234567890abcdef1234567890abcdef12",
+      "message": "fix: update timeout configuration\n\nIncrease request timeout to 30s to prevent dropouts.",
+      "timestamp": "2026-10-18T01:00:00Z",
+      "url": "https://github.com/test-org/sync-repo/commit/c0ffee1234567890abcdef1234567890abcdef12",
+      "author": {
+        "name": "Test Committer",
+        "username": "test-committer"
+      },
+      "added": ["config/timeout.py"],
+      "modified": ["server.py"]
+    }
+  ]
+}

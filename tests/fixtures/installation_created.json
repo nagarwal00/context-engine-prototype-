@@ -1,0 +1,28 @@
+{
+  "action": "created",
+  "installation": {
+    "id": 999901,
+    "account": {
+      "login": "test-org",
+      "id": 7771
+    }
+  },
+  "repositories": [
+    {
+      "id": 123456,
+      "name": "sync-repo",
+      "full_name": "test-org/sync-repo",
+      "private": true
+    },
+    {
+      "id": 123457,
+      "name": "analytics-repo",
+      "full_name": "test-org/analytics-repo",
+      "private": false
+    }
+  ],
+  "sender": {
+    "login": "admin-user",
+    "id": 8880
+  }
+}

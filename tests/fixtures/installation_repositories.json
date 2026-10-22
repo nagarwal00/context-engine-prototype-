@@ -1,0 +1,23 @@
+{
+  "action": "removed",
+  "installation": {
+    "id": 999901,
+    "account": {
+      "login": "test-org",
+      "id": 7771
+    }
+  },
+  "repositories_added": [],
+  "repositories_removed": [
+    {
+      "id": 123456,
+      "name": "sync-repo",
+      "full_name": "test-org/sync-repo",
+      "private": true
+    }
+  ],
+  "sender": {
+    "login": "admin-user",
+    "id": 8880
+  }
+}

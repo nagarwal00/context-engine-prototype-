@@ -41,39 +41,124 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
+    def _send_redirect(self, location: str, extra_headers: dict = None, status: int = 302):
+        self.send_response(status)
+        self.send_header("Location", location)
+        if extra_headers:
+            for k, v in extra_headers.items():
+                if k.lower() != "location":
+                    self.send_header(k, v)
+        self.end_headers()
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path.startswith("/api/"):
+        if parsed.path.startswith("/auth/"):
+            params = urllib.parse.parse_qs(parsed.query)
+            if parsed.path == "/auth/github/login":
+                from backend.auth.github_login import initiate_github_login
+                next_path = params.get("next", [None])[0]
+                client = params.get("client", ["web"])[0]
+                ext_id = params.get("ext_id", [None])[0]
+                status, loc, extra_h = initiate_github_login(
+                    self.server.api_handler.db, next_path=next_path, client=client, ext_id=ext_id
+                )
+                if status == 302:
+                    self._send_redirect(loc, extra_headers=extra_h)
+                else:
+                    self._send_json({"status": "error", "message": loc}, status=status)
+                return
+
+            elif parsed.path == "/auth/github/callback":
+                from backend.auth.github_login import handle_github_callback
+                status, target, extra_h = handle_github_callback(
+                    self.server.api_handler.db, params
+                )
+                if status == 302:
+                    self._send_redirect(target, extra_headers=extra_h)
+                else:
+                    self._send_json({"status": "error", "message": target}, status=status)
+                return
+
+            else:
+                self.send_error(404, "Endpoint not found")
+                return
+
+        elif parsed.path.startswith("/api/"):
             headers_dict = {k: v for k, v in self.headers.items()}
             client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+            params = urllib.parse.parse_qs(parsed.query)
 
             ok, status_code, message = self.server.api_handler.check_authorization(
-                "GET", parsed.path, headers_dict, client_ip
+                "GET", parsed.path, headers_dict, client_ip, query_params=params
             )
             if not ok:
                 self._send_json({"status": "error", "message": message}, status=status_code)
                 return
 
-            params = urllib.parse.parse_qs(parsed.query)
-            res = self.server.api_handler.handle_get(parsed.path, params)
-            self._send_json(res)
+            res = self.server.api_handler.handle_get(parsed.path, params, headers=headers_dict)
+            status = res.get("status_code", 200)
+            self._send_json(res, status=status)
         else:
             # Fallback to serving web/ files
             super().do_GET()
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
-        if parsed.path.startswith("/api/"):
-            headers_dict = {k: v for k, v in self.headers.items()}
-            client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+        headers_dict = {k: v for k, v in self.headers.items()}
+        client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
-            # Check authorization before reading/parsing request body
-            ok, status_code, message = self.server.api_handler.check_authorization(
-                "POST", parsed.path, headers_dict, client_ip
-            )
-            if not ok:
-                self._send_json({"status": "error", "message": message}, status=status_code)
+        # CSRF check: state-changing cookie requests must carry matching Origin
+        from backend.auth.sessions import extract_session_token, validate_csrf_origin
+        from backend.config import get_config
+        _, auth_type = extract_session_token(headers_dict)
+        if auth_type == "cookie":
+            origin = self.headers.get("Origin")
+            if not validate_csrf_origin(origin, get_config().get_base_url()):
+                self._send_json({"status": "error", "message": "CSRF check failed: Origin header mismatch"}, status=403)
                 return
+
+        if parsed.path.startswith("/auth/"):
+            try:
+                content_len = int(self.headers.get("Content-Length", 0))
+            except (ValueError, TypeError):
+                content_len = 0
+            if content_len > MAX_BODY_SIZE:
+                self._send_json(
+                    {"status": "error", "message": "Payload too large: maximum body size is 1MB"},
+                    status=413
+                )
+                return
+
+            raw_body = self.rfile.read(content_len) if content_len > 0 else b"{}"
+            try:
+                body_json = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+            except Exception:
+                body_json = {}
+
+            if parsed.path in ("/auth/extension/exchange", "/auth/token/exchange", "/api/auth/token/exchange"):
+                from backend.auth.sessions import exchange_extension_code
+                code = body_json.get("code")
+                res = exchange_extension_code(self.server.api_handler.db, code)
+                if res:
+                    self._send_json(res, status=200)
+                else:
+                    self._send_json({"status": "error", "message": "Invalid or expired authorization code"}, status=400)
+                return
+
+            elif parsed.path == "/auth/logout":
+                from backend.auth.sessions import delete_session, build_logout_cookie
+                token, _ = extract_session_token(headers_dict)
+                delete_session(self.server.api_handler.db, token)
+                logout_cookie = build_logout_cookie(get_config().get_base_url())
+                self._send_json({"status": "success", "message": "Logged out"}, status=200, extra_headers={"Set-Cookie": logout_cookie})
+                return
+
+            else:
+                self.send_error(404, "Endpoint not found")
+                return
+
+        elif parsed.path.startswith("/api/"):
+            params = urllib.parse.parse_qs(parsed.query)
 
             try:
                 content_len = int(self.headers.get("Content-Length", 0))
@@ -113,6 +198,14 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 self._send_json({"status": "error", "message": "Invalid JSON in request body"}, status=400)
                 return
 
+            # Check authorization before handling POST body
+            ok, status_code, message = self.server.api_handler.check_authorization(
+                "POST", parsed.path, headers_dict, client_ip, query_params=params, body_json=body_json
+            )
+            if not ok:
+                self._send_json({"status": "error", "message": message}, status=status_code)
+                return
+
             res = self.server.api_handler.handle_post(
                 parsed.path, body_json, headers=headers_dict, client_ip=client_ip
             )
@@ -121,18 +214,46 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_error(404, "Endpoint not found")
 
-    def _send_json(self, data, status=200):
+    def do_DELETE(self):
+        parsed = urllib.parse.urlparse(self.path)
+        client_ip = self.client_address[0]
+        headers_dict = {k: v for k, v in self.headers.items()}
+
+        # Enforce CSRF Origin check if authenticated via cookie
+        csrf_ok, csrf_status, csrf_msg = enforce_csrf_for_cookie(headers_dict, parsed.path)
+        if not csrf_ok:
+            self._send_json({"status": "error", "message": csrf_msg}, status=csrf_status)
+            return
+
+        ok, status_code, message = self.server.api_handler.check_authorization(
+            "DELETE", parsed.path, headers_dict, client_ip
+        )
+        if not ok:
+            self._send_json({"status": "error", "message": message}, status=status_code)
+            return
+
+        res = self.server.api_handler.handle_delete(
+            parsed.path, headers=headers_dict, client_ip=client_ip
+        )
+        status = res.get("status_code", 200 if res.get("status") == "success" else 400)
+        self._send_json(res, status=status)
+
+    def _send_json(self, data, status=200, extra_headers=None):
         body = json.dumps(data, indent=2).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
+
+        if extra_headers:
+            for k, v in extra_headers.items():
+                self.send_header(k, v)
 
         # CORS: Default same-origin only; echo origin only if in CIF_CORS_ORIGINS allowlist
         origin = self.headers.get("Origin") if hasattr(self, "headers") and self.headers else None
         allowed_origin = get_cors_origin(origin)
         if allowed_origin:
             self.send_header("Access-Control-Allow-Origin", allowed_origin)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
 
         self.end_headers()
@@ -144,7 +265,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         if allowed_origin:
             self.send_response(200)
             self.send_header("Access-Control-Allow-Origin", allowed_origin)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
             self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
             self.end_headers()
         else:

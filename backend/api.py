@@ -10,8 +10,10 @@ import os
 import time
 import urllib.request
 import urllib.error
-from datetime import datetime
+import datetime
+from datetime import datetime as dt_class, timezone
 import urllib.parse
+from backend.models import Event
 from backend.db import Database
 from backend.engine.graph import TemporalGraph
 from backend.engine.explanation import ExplanationGenerator
@@ -21,53 +23,70 @@ import uuid
 from backend.evaluation.benchmark import BenchmarkRunner
 from backend.seed_data import populate_seed_data
 from backend.security import (
+    ROLE_PUBLIC,
+    ROLE_USER,
+    ROLE_REPO_READ,
+    ROLE_REPO_REVIEW,
+    ROLE_ADMIN,
     ROLE_VIEWER,
     ROLE_REVIEWER,
-    ROLE_ADMIN,
     ROLE_EXEMPT,
     authorize,
     is_dev_mode,
-    get_authenticated_role
+    get_authenticated_role,
+    authenticate_caller
 )
 
-# Route-to-role authorization mapping (Step 1.2 / P0-b)
+# Route-to-role authorization mapping (Step 7.4 / R2)
 # Default deny: any route not explicitly listed here is rejected.
 ROUTE_ROLES: Dict[Tuple[str, str], str] = {
-    # GET routes (viewer)
-    ("GET", "/api/timeline"): ROLE_VIEWER,
-    ("GET", "/api/graph"): ROLE_VIEWER,
-    ("GET", "/api/artifacts"): ROLE_VIEWER,
-    ("GET", "/api/explain"): ROLE_VIEWER,
-    ("GET", "/api/decisions"): ROLE_VIEWER,
-    ("GET", "/api/evidence"): ROLE_VIEWER,
-    ("GET", "/api/review-queue"): ROLE_VIEWER,
-    ("GET", "/api/benchmark"): ROLE_VIEWER,
-    ("GET", "/api/stats"): ROLE_VIEWER,
-    ("GET", "/api/repos"): ROLE_VIEWER,
-    ("GET", "/api/guard-rules"): ROLE_VIEWER,
-    ("GET", "/api/auth-status"): ROLE_VIEWER,
-    ("GET", "/api/decision-history"): ROLE_VIEWER,
-    ("GET", "/api/as-of"): ROLE_VIEWER,
-    ("GET", "/api/findings/feedback"): ROLE_VIEWER,
-    ("GET", "/api/bus-factor"): ROLE_VIEWER,
-    ("GET", "/api/onboarding"): ROLE_VIEWER,
-    ("POST", "/api/onboarding"): ROLE_VIEWER,
+    # Public routes
+    ("GET", "/api/auth-status"): ROLE_PUBLIC,
+    ("GET", "/api/auth-config"): ROLE_PUBLIC,
+    ("GET", "/api/repos"): ROLE_PUBLIC,
 
-    # POST routes (reviewer)
-    ("POST", "/api/review-action"): ROLE_REVIEWER,
-    ("POST", "/api/guard-rules/approve"): ROLE_REVIEWER,
-    ("POST", "/api/guard-rules/disable"): ROLE_REVIEWER,
-    ("POST", "/api/drift-check"): ROLE_REVIEWER,
-    ("POST", "/api/findings/feedback"): ROLE_REVIEWER,
+    # User routes
+    ("GET", "/api/me"): ROLE_USER,
+    ("GET", "/api/github/repos"): ROLE_USER,
+    ("GET", "/api/repos/status"): ROLE_USER,
+    ("POST", "/api/repos"): ROLE_USER,
 
-    # POST routes (admin)
+    # Repo Read & Extension routes
+    ("GET", "/api/pr-analysis"): ROLE_PUBLIC,
+    ("GET", "/api/file-context"): ROLE_PUBLIC,
+    ("GET", "/api/timeline"): ROLE_REPO_READ,
+    ("GET", "/api/graph"): ROLE_REPO_READ,
+    ("GET", "/api/artifacts"): ROLE_REPO_READ,
+    ("GET", "/api/explain"): ROLE_REPO_READ,
+    ("GET", "/api/decisions"): ROLE_REPO_READ,
+    ("GET", "/api/evidence"): ROLE_REPO_READ,
+    ("GET", "/api/review-queue"): ROLE_REPO_READ,
+    ("GET", "/api/benchmark"): ROLE_REPO_READ,
+    ("GET", "/api/stats"): ROLE_REPO_READ,
+    ("GET", "/api/guard-rules"): ROLE_REPO_READ,
+    ("GET", "/api/decision-history"): ROLE_REPO_READ,
+    ("GET", "/api/as-of"): ROLE_REPO_READ,
+    ("GET", "/api/findings/feedback"): ROLE_REPO_READ,
+    ("GET", "/api/bus-factor"): ROLE_REPO_READ,
+    ("GET", "/api/onboarding"): ROLE_REPO_READ,
+    ("POST", "/api/onboarding"): ROLE_REPO_READ,
+
+    # Repo Review routes
+    ("POST", "/api/review-action"): ROLE_REPO_REVIEW,
+    ("POST", "/api/guard-rules/approve"): ROLE_REPO_REVIEW,
+    ("POST", "/api/guard-rules/disable"): ROLE_REPO_REVIEW,
+    ("POST", "/api/drift-check"): ROLE_REPO_REVIEW,
+    ("POST", "/api/findings/feedback"): ROLE_REPO_REVIEW,
+    ("POST", "/api/repos/reviewers"): ROLE_REPO_REVIEW,
+
+    # Admin routes
     ("POST", "/api/reseed"): ROLE_ADMIN,
     ("POST", "/api/clear-db"): ROLE_ADMIN,
     ("POST", "/api/ingest-repo"): ROLE_ADMIN,
     ("POST", "/api/purge-repo"): ROLE_ADMIN,
 
     # Webhook (exempt from Bearer token - uses GitHub HMAC signature)
-    ("POST", "/api/webhook/github"): ROLE_EXEMPT,
+    ("POST", "/api/webhook/github"): ROLE_PUBLIC,
 }
 
 class APIHandler:
@@ -80,21 +99,44 @@ class APIHandler:
         self.benchmark_runner = BenchmarkRunner(db)
         from backend.engine.rejected_idea_guard import RejectedIdeaGuard
         self.rejected_idea_guard = RejectedIdeaGuard(db)
+        self._pr_analysis_cache: Dict[Tuple[str, int, str], Dict[str, Any]] = {}
 
     def check_authorization(
         self,
         method: str,
         path: str,
         headers: Dict[str, str],
-        client_ip: str = "127.0.0.1"
+        client_ip: str = "127.0.0.1",
+        query_params: Optional[Dict[str, List[str]]] = None,
+        body_json: Optional[Dict[str, Any]] = None,
     ) -> Tuple[bool, int, str]:
         """Validates route existence and credentials against required role (default deny)."""
         required_role = ROUTE_ROLES.get((method.upper(), path))
         if required_role is None:
-            return False, 404, f"Endpoint not found: {method.upper()} {path}"
-        return authorize(headers, required_role, client_ip)
+            if method.upper() == "GET" and path.startswith("/api/jobs/"):
+                required_role = ROLE_USER
+            elif method.upper() == "POST" and path.startswith("/api/jobs/") and path.endswith("/cancel"):
+                required_role = ROLE_USER
+            elif method.upper() == "DELETE" and path.startswith("/api/repos/"):
+                required_role = ROLE_USER
+            else:
+                return False, 404, f"Endpoint not found: {method.upper()} {path}"
+        return authorize(
+            headers,
+            required_role,
+            client_ip,
+            db=self.db,
+            path=path,
+            query_params=query_params,
+            body_json=body_json
+        )
 
-    def handle_get(self, path: str, query_params: Dict[str, List[str]]) -> Dict[str, Any]:
+    def handle_get(
+        self,
+        path: str,
+        query_params: Dict[str, List[str]],
+        headers: Optional[Dict[str, str]] = None
+    ) -> Dict[str, Any]:
         # 1. Timeline Slice
         if path == "/api/timeline":
             repo = query_params.get("repo", [None])[0]
@@ -352,21 +394,14 @@ class APIHandler:
                 }
             }
 
-        # 10. Distinct Repositories
+        # 10. Distinct Repositories (Step 7.4 scoped)
         elif path == "/api/repos":
-            with self.db.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    SELECT DISTINCT repo FROM (
-                        SELECT repo FROM decisions WHERE repo IS NOT NULL AND repo != ''
-                        UNION
-                        SELECT repo FROM events WHERE repo IS NOT NULL AND repo != ''
-                        UNION
-                        SELECT repo FROM entities WHERE repo IS NOT NULL AND repo != ''
-                    ) ORDER BY repo ASC
-                """)
-                repos = [r["repo"] for r in cursor.fetchall()]
-            return {"status": "success", "data": repos}
+            from backend.auth.repo_access import list_accessible_repos
+            from backend.security import authenticate_caller
+            user, is_admin = authenticate_caller(self.db, headers or {})
+            accessible = list_accessible_repos(self.db, user)
+            repo_names = [r["repo_full_name"] for r in accessible]
+            return {"status": "success", "data": repo_names}
 
         # 11. Decision Guard Rules (Section 5.4)
         elif path == "/api/guard-rules":
@@ -382,6 +417,74 @@ class APIHandler:
                     "role_required_for_writes": True,
                     "dev_mode": is_dev_mode()
                 }
+            }
+
+        # 12b. Auth Config (Step 7.1)
+        elif path == "/api/auth-config":
+            from backend.config import get_config
+            return get_config().get_public_auth_config()
+
+        # 12c. Current User Profile (Step 7.3)
+        elif path == "/api/me":
+            from backend.auth.sessions import extract_session_token, get_session, generate_csrf_token
+            token, _ = extract_session_token(headers or {})
+            session = get_session(self.db, token) if token else None
+            if not session:
+                return {
+                    "status_code": 401,
+                    "status": "error",
+                    "message": "Unauthorized: No valid session"
+                }
+            csrf = generate_csrf_token(session["session_hash"])
+            return {
+                "status_code": 200,
+                "status": "success",
+                "login": session["login"],
+                "avatar_url": session["avatar_url"],
+                "csrf": csrf
+            }
+
+        # 12d. GitHub App Installable Repos (Step 7.5)
+        elif path == "/api/github/repos":
+            from backend.security import authenticate_caller
+            from backend.auth.repo_add import list_user_installable_repos
+            user, is_admin = authenticate_caller(self.db, headers or {})
+            if not user and not is_admin:
+                return {"status_code": 401, "status": "error", "message": "Sign-in required"}
+            user_id = user["user_id"] if user else 0
+            code, res = list_user_installable_repos(self.db, user_id)
+            res["status_code"] = code
+            return res
+
+        # 12e. Repo Sync and Active Job Status (Step 7.5)
+        elif path == "/api/repos/status":
+            from backend.auth.repo_add import get_repo_sync_status
+            repo = query_params.get("repo", [None])[0]
+            if not repo:
+                return {"status_code": 400, "status": "error", "message": "Query parameter 'repo' required"}
+            res = get_repo_sync_status(self.db, repo)
+            return res
+
+        # 12f. Ingestion Job Progress (Step 7.6)
+        elif path.startswith("/api/jobs/"):
+            job_id = path.replace("/api/jobs/", "").strip("/")
+            from backend.ingestion.job_runner import IngestJobRunner
+            runner = IngestJobRunner.get_instance(self.db)
+            job = runner.get_job_status(job_id)
+            if not job:
+                return {"status_code": 404, "status": "error", "message": f"Job '{job_id}' not found"}
+            return {
+                "status_code": 200,
+                "status": "success",
+                "job_id": job["job_id"],
+                "job_status": job["status"],
+                "phase": job["phase"],
+                "progress": job["progress"],
+                "error_code": job["error_code"],
+                "repo_full_name": job["repo_full_name"],
+                "created_at": job["created_at"],
+                "started_at": job["started_at"],
+                "finished_at": job["finished_at"]
             }
 
         # 13. Decision Lifecycle History and Audit Log (Step 2.5)
@@ -608,6 +711,377 @@ class APIHandler:
                 task=task
             )
 
+        # 14. Extension API: Pull Request Analysis (Step 8.0)
+        elif path == "/api/pr-analysis":
+            repo = query_params.get("repo", [None])[0]
+            number_val = query_params.get("number", [None])[0] or query_params.get("pr", [None])[0]
+            head_sha_param = query_params.get("head_sha", [None])[0]
+
+            if not repo or not number_val:
+                return {
+                    "schema_version": "1.0",
+                    "status": "error",
+                    "status_code": 400,
+                    "message": "Missing required query parameters: 'repo' and 'number'"
+                }
+
+            try:
+                pr_num = int(number_val)
+            except ValueError:
+                return {
+                    "schema_version": "1.0",
+                    "status": "error",
+                    "status_code": 400,
+                    "message": f"Invalid PR number: {number_val}"
+                }
+
+            # Verify repository exists in repos table
+            with self.db.get_connection() as conn:
+                r_row = conn.execute("SELECT visibility FROM repos WHERE repo_full_name = ?", (repo,)).fetchone()
+
+            if not r_row:
+                # Normal JSON state per Step 8.0
+                return {
+                    "schema_version": "1.0",
+                    "status": "not_added",
+                    "repo": repo,
+                    "number": pr_num,
+                    "message": f"Repository '{repo}' has not been added to CIF yet."
+                }
+
+            # Enforce Rule R3 repo isolation for non-demo repositories
+            visibility = r_row["visibility"]
+            from backend.security import authenticate_caller
+            user, is_admin = authenticate_caller(self.db, headers or {})
+
+            if visibility != "demo" and not is_admin:
+                if not user:
+                    return {
+                        "schema_version": "1.0",
+                        "status": "needs_relogin",
+                        "status_code": 401,
+                        "message": "Authentication required to access repository analysis"
+                    }
+                from backend.auth.repo_access import authorize_repo
+                auth_ok, auth_code, auth_msg = authorize_repo(self.db, user, repo, "repo_read")
+                if not auth_ok:
+                    if auth_code == 401 or "needs_relogin" in str(auth_msg):
+                        return {
+                            "schema_version": "1.0",
+                            "status": "needs_relogin",
+                            "status_code": 401,
+                            "message": "GitHub authorization expired. Please sign in again."
+                        }
+                    return {
+                        "schema_version": "1.0",
+                        "status": "error",
+                        "status_code": auth_code,
+                        "message": auth_msg
+                    }
+
+            # Resolve PR metadata from events or parameters
+            head_sha = head_sha_param
+            pr_title = ""
+            pr_body = ""
+            pr_author = "contributor"
+            changed_files: List[str] = []
+            diff_text = ""
+
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                SELECT * FROM events
+                WHERE (repo = ? OR repo_full_name = ?)
+                  AND (source_id = ? OR source_id = ? OR source_id LIKE ?)
+                ORDER BY ts DESC LIMIT 1
+                """, (repo, repo, str(pr_num), f"{repo}#{pr_num}", f"%#{pr_num}"))
+                ev_row = cur.fetchone()
+                if ev_row:
+                    payload = {}
+                    try:
+                        payload = json.loads(ev_row["raw_metadata"] or "{}")
+                    except Exception:
+                        pass
+                    pr_title = ev_row["title"] or payload.get("title", "")
+                    pr_body = ev_row["body"] or payload.get("body", "")
+                    pr_author = ev_row["author"] or "contributor"
+                    if not head_sha:
+                        head_sha = payload.get("head_sha") or payload.get("head", {}).get("sha") or payload.get("commit_hash")
+
+            head_sha = head_sha or f"pr_{pr_num}_head"
+
+            # Check head SHA cache (Step 8.0 requirement: cache by head SHA)
+            cache_key = (repo, pr_num, head_sha)
+            if cache_key in self._pr_analysis_cache:
+                cached = dict(self._pr_analysis_cache[cache_key])
+                cached["cached"] = True
+                return cached
+
+            # Gather affected entities or default files
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                SELECT canonical_path FROM entities
+                WHERE repo = ? LIMIT 50
+                """, (repo,))
+                all_ent_paths = [r["canonical_path"] for r in cur.fetchall()]
+
+            if not changed_files and all_ent_paths:
+                changed_files = [p for p in all_ent_paths if "::" not in p][:10]
+
+            # Run Drift Detection
+            drift_res = self.drift_detector.analyze_diff_for_drift(
+                repo=repo,
+                commit_or_pr_id=str(pr_num),
+                author=pr_author,
+                changed_files=changed_files,
+                diff_text=diff_text
+            )
+
+            # Run Rejected-Idea Guard
+            idea_res = self.rejected_idea_guard.evaluate_proposal(
+                repo=repo,
+                pr_id=str(pr_num),
+                title=pr_title or f"Pull Request #{pr_num}",
+                body=pr_body or "",
+                diff_text=diff_text,
+                changed_files=changed_files,
+                author=pr_author
+            )
+
+            findings: List[Dict[str, Any]] = []
+
+            # 1. Rejected idea warnings (advisory)
+            for rf in idea_res.get("potential_reintroductions", []):
+                findings.append({
+                    "finding_id": rf.get("finding_id") or str(uuid.uuid4()),
+                    "type": "rejected_idea",
+                    "decision_id": rf.get("decision_id"),
+                    "title": rf.get("decision_title"),
+                    "original_reason": rf.get("rejection_reason"),
+                    "source_url": rf.get("source_url") or "",
+                    "evidence_passages": rf.get("evidence_passages", []),
+                    "changed_circumstances": rf.get("changed_circumstances", []),
+                    "signal_strength": "advisory",
+                    "state": rf.get("decision_state", "rejected")
+                })
+
+            # 2. Drift findings (potential_violation)
+            for df in drift_res.get("findings", []):
+                findings.append({
+                    "finding_id": df.get("finding_id") or str(uuid.uuid4()),
+                    "type": "potential_violation",
+                    "file": df.get("file"),
+                    "line": df.get("line_number"),
+                    "offending_line": df.get("offending_code") or df.get("raw") or "",
+                    "rule_id": df.get("rule_id"),
+                    "decision_id": df.get("decision_id"),
+                    "title": df.get("rule_name") or "Decision constraint violation",
+                    "original_reason": df.get("reason") or "",
+                    "source_url": df.get("source_url") or "",
+                    "signal_strength": "heuristic",
+                    "state": "accepted"
+                })
+
+            # 3. Related decisions
+            related_decisions: List[Dict[str, Any]] = []
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("""
+                SELECT DISTINCT d.decision_id, d.title, d.state, d.made_at, d.rationale
+                FROM decisions d
+                WHERE d.repo = ?
+                ORDER BY d.made_at DESC LIMIT 10
+                """, (repo,))
+                for row in cur.fetchall():
+                    related_decisions.append({
+                        "decision_id": row["decision_id"],
+                        "title": row["title"],
+                        "state": row["state"],
+                        "made_at": row["made_at"],
+                        "rationale": row["rationale"] or ""
+                    })
+
+            result = {
+                "schema_version": "1.0",
+                "status": "ready",
+                "repo": repo,
+                "number": pr_num,
+                "head_sha": head_sha,
+                "findings": findings,
+                "related_decisions": related_decisions,
+                "detector_status": "complete" if drift_res.get("status") != "incomplete" else "incomplete"
+            }
+
+            self._pr_analysis_cache[cache_key] = result
+            return result
+
+        # 15. Extension API: File & Entity Context (Step 8.0)
+        elif path == "/api/file-context":
+            repo = query_params.get("repo", [None])[0]
+            file_path = query_params.get("path", [None])[0] or query_params.get("file", [None])[0]
+            ref_val = query_params.get("ref", [None])[0] or "HEAD"
+            line_str = query_params.get("line", [None])[0]
+
+            if not repo or not file_path:
+                return {
+                    "schema_version": "1.0",
+                    "status": "error",
+                    "status_code": 400,
+                    "message": "Missing required query parameters: 'repo' and 'path'"
+                }
+
+            with self.db.get_connection() as conn:
+                r_row = conn.execute("SELECT visibility FROM repos WHERE repo_full_name = ?", (repo,)).fetchone()
+
+            if not r_row:
+                return {
+                    "schema_version": "1.0",
+                    "status": "not_added",
+                    "repo": repo,
+                    "file": file_path,
+                    "message": f"Repository '{repo}' has not been added to CIF yet."
+                }
+
+            # Enforce Rule R3 repo isolation
+            visibility = r_row["visibility"]
+            from backend.security import authenticate_caller
+            user, is_admin = authenticate_caller(self.db, headers or {})
+
+            if visibility != "demo" and not is_admin:
+                if not user:
+                    return {
+                        "schema_version": "1.0",
+                        "status": "needs_relogin",
+                        "status_code": 401,
+                        "message": "Authentication required to access repository file context"
+                    }
+                from backend.auth.repo_access import authorize_repo
+                auth_ok, auth_code, auth_msg = authorize_repo(self.db, user, repo, "repo_read")
+                if not auth_ok:
+                    if auth_code == 401 or "needs_relogin" in str(auth_msg):
+                        return {
+                            "schema_version": "1.0",
+                            "status": "needs_relogin",
+                            "status_code": 401,
+                            "message": "GitHub authorization expired. Please sign in again."
+                        }
+                    return {
+                        "schema_version": "1.0",
+                        "status": "error",
+                        "status_code": auth_code,
+                        "message": auth_msg
+                    }
+
+            norm_path = file_path.replace("\\", "/").strip()
+            line_num = None
+            if line_str:
+                try:
+                    line_num = int(line_str)
+                except ValueError:
+                    pass
+
+            decisions_list: List[Dict[str, Any]] = []
+            rejected_alternatives: List[Dict[str, Any]] = []
+
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+
+                # Check for AST function entity if line number is specified
+                affected_func = None
+                if line_num is not None:
+                    cur.execute("""
+                    SELECT entity_id, canonical_path FROM entities
+                    WHERE repo = ? AND (canonical_path = ? OR canonical_path LIKE ?)
+                    """, (repo, norm_path, f"{norm_path}::%"))
+                    for erow in cur.fetchall():
+                        cp = erow["canonical_path"]
+                        if "::" in cp:
+                            affected_func = cp.split("::")[-1]
+                            break
+
+                # Query decisions affecting this file
+                base_name = os.path.basename(norm_path)
+                cur.execute("""
+                SELECT DISTINCT d.decision_id, d.title, d.state, d.rationale, d.made_at, d.made_by
+                FROM decisions d
+                LEFT JOIN decision_artifacts da ON d.decision_id = da.decision_id
+                LEFT JOIN entities e ON da.entity_id = e.entity_id
+                WHERE (d.repo = ? OR da.repo_full_name = ?)
+                  AND (e.canonical_path = ? OR e.canonical_path LIKE ? OR e.canonical_path LIKE ?)
+                ORDER BY d.made_at DESC
+                """, (repo, repo, norm_path, f"{norm_path}::%", f"%/{base_name}"))
+                rows = cur.fetchall()
+
+                # Fallback to repo decisions if file-specific artifact link not found
+                if not rows:
+                    cur.execute("""
+                    SELECT d.decision_id, d.title, d.state, d.rationale, d.made_at, d.made_by
+                    FROM decisions d
+                    WHERE d.repo = ?
+                    ORDER BY d.made_at DESC LIMIT 5
+                    """, (repo,))
+                    rows = cur.fetchall()
+
+                seen_decs = set()
+                for r in rows:
+                    did = r["decision_id"]
+                    if did in seen_decs:
+                        continue
+                    seen_decs.add(did)
+
+                    # Get source URL from evidence
+                    cur.execute("""
+                    SELECT ev.source_url
+                    FROM decision_evidence de
+                    JOIN events ev ON de.event_id = ev.event_id
+                    WHERE de.decision_id = ? AND ev.source_url IS NOT NULL AND ev.source_url != ''
+                    LIMIT 1
+                    """, (did,))
+                    ev_row = cur.fetchone()
+                    source_url = ev_row["source_url"] if ev_row else ""
+
+                    state = r["state"]
+                    freshness = "fresh"
+                    if state == "stale":
+                        freshness = "stale"
+                    elif state == "proposed":
+                        freshness = "under_review"
+
+                    dec_item = {
+                        "decision_id": did,
+                        "title": r["title"],
+                        "state": state,
+                        "freshness": freshness,
+                        "made_at": r["made_at"] or "",
+                        "rationale": r["rationale"] or "",
+                        "source_url": source_url
+                    }
+                    if affected_func:
+                        dec_item["affected_function"] = affected_func
+
+                    if state in ("rejected", "reopened", "superseded"):
+                        rejected_alternatives.append({
+                            "decision_id": did,
+                            "title": r["title"],
+                            "state": state,
+                            "rejection_reason": r["rationale"] or f"Decision {state}",
+                            "source_url": source_url
+                        })
+                    else:
+                        decisions_list.append(dec_item)
+
+            return {
+                "schema_version": "1.0",
+                "status": "ready",
+                "repo": repo,
+                "file": norm_path,
+                "ref": ref_val,
+                "decisions": decisions_list,
+                "active_decisions": decisions_list,
+                "rejected_alternatives": rejected_alternatives
+            }
+
         return {"status": "error", "message": f"Unknown endpoint {path}"}
 
     def handle_post(
@@ -649,7 +1123,7 @@ class APIHandler:
             else:
                 actor = body.get("actor") or token_role
 
-            now_iso = datetime.utcnow().isoformat() + "Z"
+            now_iso = dt_class.now(timezone.utc).isoformat()
 
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
@@ -1067,13 +1541,13 @@ class APIHandler:
 
             if action == "dismiss":
                 res = self.rejected_idea_guard.dismiss_finding(finding_id, pr_id, decision_id, actor, reason)
-                return {"status": "success", "message": f"Finding '{finding_id}' dismissed", "data": res}
+                return {"schema_version": "1.0", "status": "success", "message": f"Finding '{finding_id}' dismissed", "data": res}
             elif action == "confirm":
                 res = self.rejected_idea_guard.confirm_finding(finding_id, pr_id, decision_id, actor, reason)
-                return {"status": "success", "message": f"Finding '{finding_id}' confirmed", "data": res}
+                return {"schema_version": "1.0", "status": "success", "message": f"Finding '{finding_id}' confirmed", "data": res}
             elif action == "reopen":
                 res = self.rejected_idea_guard.reopen_decision(decision_id, pr_id, actor, reason)
-                return {"status": "success", "message": f"Decision '{decision_id}' reopened", "data": res}
+                return {"schema_version": "1.0", "status": "success", "message": f"Decision '{decision_id}' reopened", "data": res}
 
         # 7. Adaptive Developer Onboarding (Step 5.4)
         elif path == "/api/onboarding":
@@ -1094,6 +1568,57 @@ class APIHandler:
                 files=files,
                 task=task
             )
+
+        # 8. Add Repo Reviewers (Step 7.4)
+        elif path == "/api/repos/reviewers":
+            from backend.security import authenticate_caller
+            from backend.auth.repo_access import add_repo_reviewer
+            user, is_admin = authenticate_caller(self.db, headers or {}, client_ip)
+            if not user and not is_admin:
+                return {"status_code": 401, "status": "error", "message": "Sign-in required"}
+            repo = body.get("repo")
+            rev_id = body.get("user_id")
+            if not repo or not rev_id:
+                return {"status_code": 400, "status": "error", "message": "Missing repo or user_id"}
+            user_id = user["user_id"] if user else 0
+            if is_admin:
+                with self.db.get_connection() as conn:
+                    conn.execute(
+                        "INSERT OR REPLACE INTO repo_reviewers (repo_full_name, user_id, added_by, added_at) VALUES (?, ?, ?, datetime('now'))",
+                        (repo, rev_id, user_id)
+                    )
+                return {"status": "success", "message": "Reviewer added by admin"}
+            ok = add_repo_reviewer(self.db, user_id, repo, rev_id)
+            if not ok:
+                return {"status_code": 403, "status": "error", "message": "Only repo owner can add reviewers"}
+            return {"status": "success", "message": "Reviewer added"}
+
+        # 9. Add Repository Flow (Step 7.5)
+        elif path == "/api/repos":
+            from backend.security import authenticate_caller
+            from backend.auth.repo_add import add_repository_flow
+            user, is_admin = authenticate_caller(self.db, headers or {}, client_ip)
+            if not user and not is_admin:
+                return {"status_code": 401, "status": "error", "message": "Sign-in required"}
+            user_id = user["user_id"] if user else 0
+            code, res = add_repository_flow(self.db, user_id, body)
+            res["status_code"] = code
+            return res
+
+        # 10. Cancel Ingestion Job (Step 7.6)
+        elif path.startswith("/api/jobs/") and path.endswith("/cancel"):
+            # Format: /api/jobs/<job_id>/cancel
+            parts = path.strip("/").split("/")
+            if len(parts) >= 3:
+                job_id = parts[2]
+                from backend.ingestion.job_runner import IngestJobRunner
+                runner = IngestJobRunner.get_instance(self.db)
+                ok = runner.cancel_job(job_id)
+                if ok:
+                    return {"status_code": 200, "status": "success", "message": f"Job '{job_id}' cancelled"}
+                else:
+                    return {"status_code": 404, "status": "error", "message": f"Job '{job_id}' not found or cannot be cancelled"}
+            return {"status_code": 400, "status": "error", "message": "Invalid cancel URL format"}
 
         return {"status": "error", "message": f"Unknown POST endpoint {path}"}
 
@@ -1128,115 +1653,528 @@ class APIHandler:
             return ({"status": "error", "message": "Signature mismatch"}, 401)
 
         event_type = headers.get("X-GitHub-Event", "") or headers.get("x-github-event", "")
-        if event_type != "pull_request":
+        supported_events = {
+            "push", "pull_request", "issues", "issue_comment",
+            "pull_request_review", "installation", "installation_repositories"
+        }
+        if event_type not in supported_events:
             return ({"status": "ok", "message": f"Ignored event type: {event_type}"}, 200)
 
-        action = body.get("action", "")
-        if action not in ("opened", "synchronize", "reopened"):
-            return ({"status": "ok", "message": f"Ignored PR action: {action}"}, 200)
+        now_iso = datetime.datetime.now(timezone.utc).isoformat()
 
-        pr = body.get("pull_request", {})
+        # 1. Handle installation events
+        if event_type == "installation":
+            action = body.get("action", "")
+            installation = body.get("installation", {})
+            inst_id = installation.get("id")
+            sender = body.get("sender", {})
+            sender_id = sender.get("id")
+
+            if action == "created":
+                repos = body.get("repositories", [])
+                linked_count = 0
+                with self.db.get_connection() as conn:
+                    cur = conn.cursor()
+                    user_id = None
+                    if sender_id:
+                        cur.execute("SELECT user_id FROM users WHERE github_id = ?", (sender_id,))
+                        urow = cur.fetchone()
+                        if urow:
+                            user_id = urow[0]
+
+                    for r in repos:
+                        r_name = r.get("full_name")
+                        if not r_name:
+                            continue
+                        vis = "private" if r.get("private") else "public"
+                        cur.execute("""
+                            INSERT OR IGNORE INTO repos (repo_full_name, github_repo_id, visibility, added_at, stats_json)
+                            VALUES (?, ?, ?, ?, ?)
+                        """, (r_name, r.get("id"), vis, now_iso, json.dumps({"installation_id": inst_id, "status": "active", "sync_enabled": True})))
+                        cur.execute("SELECT stats_json FROM repos WHERE repo_full_name = ?", (r_name,))
+                        srow = cur.fetchone()
+                        if srow and srow[0]:
+                            try:
+                                st = json.loads(srow[0])
+                                st["status"] = "active"
+                                st["sync_enabled"] = True
+                                st["installation_id"] = inst_id
+                                cur.execute("UPDATE repos SET stats_json = ? WHERE repo_full_name = ?", (json.dumps(st), r_name))
+                            except Exception:
+                                pass
+                        if user_id:
+                            cur.execute("""
+                                INSERT OR REPLACE INTO repo_access (user_id, repo_full_name, level, verified_at)
+                                VALUES (?, ?, 'admin', ?)
+                            """, (user_id, r_name, now_iso))
+                        linked_count += 1
+                    conn.commit()
+                return ({"status": "ok", "action": "created", "repos_linked": linked_count}, 200)
+
+            elif action in ("deleted", "suspend"):
+                removed_count = 0
+                with self.db.get_connection() as conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT repo_full_name, stats_json FROM repos")
+                    all_repos = cur.fetchall()
+                    for r_name, stats_raw in all_repos:
+                        s = {}
+                        if stats_raw:
+                            try:
+                                s = json.loads(stats_raw)
+                            except Exception:
+                                pass
+                        if s.get("installation_id") == inst_id or (r_name in [r.get("full_name") for r in body.get("repositories", [])]):
+                            s["status"] = "removed"
+                            s["sync_enabled"] = False
+                            cur.execute("UPDATE repos SET stats_json = ? WHERE repo_full_name = ?", (json.dumps(s), r_name))
+                            cur.execute("DELETE FROM repo_access WHERE repo_full_name = ?", (r_name,))
+                            removed_count += 1
+                    conn.commit()
+                return ({"status": "ok", "action": action, "repos_removed": removed_count, "message": "Installation deleted; repos marked removed and syncing stopped"}, 200)
+
+            return ({"status": "ok", "action": action}, 200)
+
+        # 2. Handle installation_repositories events
+        elif event_type == "installation_repositories":
+            action = body.get("action", "")
+            installation = body.get("installation", {})
+            inst_id = installation.get("id")
+            sender = body.get("sender", {})
+            sender_id = sender.get("id")
+            repos_added = body.get("repositories_added", [])
+            repos_removed = body.get("repositories_removed", [])
+
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+                user_id = None
+                if sender_id:
+                    cur.execute("SELECT user_id FROM users WHERE github_id = ?", (sender_id,))
+                    urow = cur.fetchone()
+                    if urow:
+                        user_id = urow[0]
+
+                for r in repos_added:
+                    r_name = r.get("full_name")
+                    if not r_name:
+                        continue
+                    vis = "private" if r.get("private") else "public"
+                    cur.execute("""
+                        INSERT OR IGNORE INTO repos (repo_full_name, github_repo_id, visibility, added_at, stats_json)
+                        VALUES (?, ?, ?, ?, ?)
+                    """, (r_name, r.get("id"), vis, now_iso, json.dumps({"installation_id": inst_id, "status": "active", "sync_enabled": True})))
+                    cur.execute("SELECT stats_json FROM repos WHERE repo_full_name = ?", (r_name,))
+                    srow = cur.fetchone()
+                    if srow and srow[0]:
+                        try:
+                            st = json.loads(srow[0])
+                            st["status"] = "active"
+                            st["sync_enabled"] = True
+                            st["installation_id"] = inst_id
+                            cur.execute("UPDATE repos SET stats_json = ? WHERE repo_full_name = ?", (json.dumps(st), r_name))
+                        except Exception:
+                            pass
+                    if user_id:
+                        cur.execute("""
+                            INSERT OR REPLACE INTO repo_access (user_id, repo_full_name, level, verified_at)
+                            VALUES (?, ?, 'admin', ?)
+                        """, (user_id, r_name, now_iso))
+
+                for r in repos_removed:
+                    r_name = r.get("full_name")
+                    if not r_name:
+                        continue
+                    cur.execute("SELECT stats_json FROM repos WHERE repo_full_name = ?", (r_name,))
+                    srow = cur.fetchone()
+                    st = {}
+                    if srow and srow[0]:
+                        try:
+                            st = json.loads(srow[0])
+                        except Exception:
+                            pass
+                    st["status"] = "removed"
+                    st["sync_enabled"] = False
+                    cur.execute("UPDATE repos SET stats_json = ? WHERE repo_full_name = ?", (json.dumps(st), r_name))
+                    cur.execute("DELETE FROM repo_access WHERE repo_full_name = ?", (r_name,))
+                conn.commit()
+
+            return ({
+                "status": "ok",
+                "action": action,
+                "repos_added": len(repos_added),
+                "repos_removed": len(repos_removed)
+            }, 200)
+
+        # 3. Repository-scoped events (push, pull_request, issues, issue_comment, pull_request_review)
         repo_full = body.get("repository", {}).get("full_name", "unknown")
-        pr_number = pr.get("number", 0)
-        diff_url = pr.get("diff_url", "")
-        comments_url = pr.get("comments_url", "")
-        head_sha = pr.get("head", {}).get("sha", "")
 
-        # Fetch diff via GitHub API if GITHUB_TOKEN is set
-        token = os.environ.get("GITHUB_TOKEN", "")
-        diff_text = ""
-        fetch_error = None
-        if token and diff_url:
-            try:
-                req = urllib.request.Request(
-                    diff_url,
-                    headers={
-                        "Authorization": f"token {token}",
-                        "Accept": "application/vnd.github.v3.diff",
-                        "User-Agent": "CIF-Bot/1.0"
+        # Check if repository is marked removed or syncing disabled
+        with self.db.get_connection() as conn:
+            cur = conn.cursor()
+            cur.execute("SELECT stats_json FROM repos WHERE repo_full_name = ?", (repo_full,))
+            row = cur.fetchone()
+            if row and row[0]:
+                try:
+                    stats = json.loads(row[0])
+                    if stats.get("status") == "removed" or stats.get("sync_enabled") is False:
+                        return ({"status": "ok", "message": f"Repo {repo_full} is marked removed; syncing stopped"}, 200)
+                except Exception:
+                    pass
+
+        # 3a. Handle issue_comment events
+        if event_type == "issue_comment":
+            action = body.get("action", "")
+            if action not in ("created", "edited"):
+                return ({"status": "ok", "message": f"Ignored comment action: {action}"}, 200)
+
+            comment = body.get("comment", {})
+            issue = body.get("issue", {})
+            comment_id = comment.get("id")
+            if not comment_id:
+                return ({"status": "error", "message": "Missing comment id"}, 400)
+
+            is_pr = "pull_request" in issue
+            source_type = "pr_review_comment" if is_pr else "issue_comment"
+            parent_id = f"pr_{issue.get('number')}" if is_pr else f"issue_{issue.get('number')}"
+            author = comment.get("user", {}).get("login", "unknown")
+            created_at = comment.get("created_at") or now_iso
+            html_url = comment.get("html_url") or f"https://github.com/{repo_full}/issues/{issue.get('number')}#issuecomment-{comment_id}"
+
+            ev = Event(
+                event_id=f"comment_{comment_id}",
+                source_type=source_type,
+                source_id=f"comment_{comment_id}",
+                source_url=html_url,
+                repo=repo_full,
+                author=author,
+                timestamp=created_at,
+                title=f"Comment on #{issue.get('number')}: {str(issue.get('title', ''))[:50]}",
+                body=comment.get("body", "") or "",
+                parent_event_ids=[parent_id],
+                raw_metadata={"issue_number": issue.get("number"), "is_pr": is_pr}
+            )
+            event_id = self.db.insert_event(ev)
+            with self.db.get_connection() as conn:
+                conn.execute("UPDATE repos SET last_synced_at = ? WHERE repo_full_name = ?", (created_at, repo_full))
+                conn.commit()
+
+            return ({"status": "ok", "event": "issue_comment", "event_id": event_id, "repo": repo_full}, 200)
+
+        # 3b. Handle issues events
+        elif event_type == "issues":
+            action = body.get("action", "")
+            if action not in ("opened", "edited", "closed", "reopened"):
+                return ({"status": "ok", "message": f"Ignored issue action: {action}"}, 200)
+
+            issue = body.get("issue", {})
+            if "pull_request" in issue:
+                return ({"status": "ok", "message": "Ignored PR in issues event"}, 200)
+
+            issue_num = issue.get("number")
+            if not issue_num:
+                return ({"status": "error", "message": "Missing issue number"}, 400)
+
+            author = issue.get("user", {}).get("login", "unknown")
+            created_at = issue.get("created_at") or now_iso
+            html_url = issue.get("html_url") or f"https://github.com/{repo_full}/issues/{issue_num}"
+
+            ev = Event(
+                event_id=f"issue_{issue_num}",
+                source_type="github_issue",
+                source_id=f"issue_{issue_num}",
+                source_url=html_url,
+                repo=repo_full,
+                author=author,
+                timestamp=created_at,
+                title=issue.get("title", ""),
+                body=issue.get("body", "") or "",
+                raw_metadata={"state": issue.get("state")}
+            )
+            event_id = self.db.insert_event(ev)
+            with self.db.get_connection() as conn:
+                conn.execute("UPDATE repos SET last_synced_at = ? WHERE repo_full_name = ?", (created_at, repo_full))
+                conn.commit()
+
+            return ({"status": "ok", "event": "issues", "event_id": event_id, "repo": repo_full}, 200)
+
+        # 3c. Handle pull_request_review events
+        elif event_type == "pull_request_review":
+            action = body.get("action", "")
+            if action not in ("submitted", "edited", "dismissed"):
+                return ({"status": "ok", "message": f"Ignored review action: {action}"}, 200)
+
+            review = body.get("review", {})
+            pr = body.get("pull_request", {})
+            review_id = review.get("id")
+            if not review_id:
+                return ({"status": "error", "message": "Missing review id"}, 400)
+
+            state = review.get("state", "COMMENTED")
+            author = review.get("user", {}).get("login", "unknown")
+            submitted_at = review.get("submitted_at") or now_iso
+            html_url = review.get("html_url") or f"https://github.com/{repo_full}/pull/{pr.get('number')}#pullrequestreview-{review_id}"
+            body_text = review.get("body") or f"PR #{pr.get('number')} review: {state}"
+
+            ev = Event(
+                event_id=f"review_{review_id}",
+                source_type="pr_review",
+                source_id=f"review_{review_id}",
+                source_url=html_url,
+                repo=repo_full,
+                author=author,
+                timestamp=submitted_at,
+                title=f"PR #{pr.get('number')} Review ({state})",
+                body=body_text,
+                parent_event_ids=[f"pr_{pr.get('number')}"],
+                raw_metadata={"state": state, "pr_number": pr.get("number")}
+            )
+            event_id = self.db.insert_event(ev)
+            with self.db.get_connection() as conn:
+                conn.execute("UPDATE repos SET last_synced_at = ? WHERE repo_full_name = ?", (submitted_at, repo_full))
+                conn.commit()
+
+            return ({"status": "ok", "event": "pull_request_review", "event_id": event_id, "repo": repo_full}, 200)
+
+        # 3d. Handle push events
+        elif event_type == "push":
+            commits = body.get("commits", [])
+            ref = body.get("ref", "")
+            if not commits and not ref:
+                return ({"status": "ok", "message": "Ignored event type: push"}, 200)
+
+            synced = 0
+            for c in commits:
+                c_id = c.get("id", "")
+                if not c_id:
+                    continue
+                c_msg = c.get("message", "")
+                author_name = c.get("author", {}).get("username") or c.get("author", {}).get("name", "unknown")
+                c_ts = c.get("timestamp") or now_iso
+                c_url = c.get("url") or f"https://github.com/{repo_full}/commit/{c_id}"
+                modified = (c.get("added", []) or []) + (c.get("modified", []) or [])
+
+                ev = Event(
+                    event_id=f"commit_{c_id[:10]}",
+                    source_type="git_commit",
+                    source_id=c_id[:10],
+                    source_url=c_url,
+                    repo=repo_full,
+                    author=author_name,
+                    timestamp=c_ts,
+                    title=c_msg.splitlines()[0] if c_msg else "Commit",
+                    body=c_msg,
+                    artifacts_touched=modified,
+                    raw_metadata={"full_sha": c_id, "ref": ref}
+                )
+                self.db.insert_event(ev)
+                synced += 1
+
+            with self.db.get_connection() as conn:
+                conn.execute("UPDATE repos SET last_synced_at = ? WHERE repo_full_name = ?", (now_iso, repo_full))
+                conn.commit()
+
+            return ({"status": "ok", "event": "push", "commits_synced": synced, "repo": repo_full}, 200)
+
+        # 3e. Handle pull_request events
+        elif event_type == "pull_request":
+            action = body.get("action", "")
+            if action not in ("opened", "synchronize", "reopened"):
+                return ({"status": "ok", "message": f"Ignored PR action: {action}"}, 200)
+
+            pr = body.get("pull_request", {})
+            pr_number = pr.get("number", 0)
+            diff_url = pr.get("diff_url", "")
+            comments_url = pr.get("comments_url", "")
+            head_sha = pr.get("head", {}).get("sha", "")
+            html_url = pr.get("html_url") or f"https://github.com/{repo_full}/pull/{pr_number}"
+
+            # Insert PR event into CIF
+            ev = Event(
+                event_id=f"pr_{pr_number}",
+                source_type="github_pr",
+                source_id=f"pr_{pr_number}",
+                source_url=html_url,
+                repo=repo_full,
+                author=pr.get("user", {}).get("login", "unknown"),
+                timestamp=pr.get("created_at") or now_iso,
+                title=pr.get("title", ""),
+                body=pr.get("body", "") or "",
+                raw_metadata={"state": pr.get("state"), "head_sha": head_sha}
+            )
+            self.db.insert_event(ev)
+
+            # R1 Token Resolution: Check for GitHub App installation token (R1) first, then fallback to GITHUB_TOKEN
+            installation_id = body.get("installation", {}).get("id")
+            token = ""
+            r1_status = None
+            if installation_id:
+                try:
+                    from backend.auth.app_token import get_installation_token
+                    token, r1_status = get_installation_token(installation_id)
+                except Exception as e:
+                    r1_status = f"error: {e}"
+
+            if not token:
+                token = os.environ.get("GITHUB_TOKEN", "")
+
+            # Fetch diff via GitHub API if token is set
+            diff_text = ""
+            fetch_error = None
+            if token and diff_url:
+                try:
+                    req = urllib.request.Request(
+                        diff_url,
+                        headers={
+                            "Authorization": f"token {token}",
+                            "Accept": "application/vnd.github.v3.diff",
+                            "User-Agent": "CIF-Bot/1.0"
+                        }
+                    )
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        diff_text = resp.read().decode("utf-8", errors="replace")
+                except urllib.error.URLError as e:
+                    fetch_error = str(e)
+
+            # Extract changed files from diff headers
+            changed_files = []
+            for line in diff_text.splitlines():
+                if line.startswith("+++ b/"):
+                    changed_files.append(line[6:].strip())
+            if not changed_files:
+                changed_files = ["unknown"]
+
+            # Run drift analysis
+            report = self.drift_detector.analyze_diff_for_drift(
+                repo=repo_full,
+                commit_or_pr_id=f"pr_{pr_number}",
+                author=pr.get("user", {}).get("login", "unknown"),
+                changed_files=changed_files,
+                diff_text=diff_text
+            )
+            findings = report.get("findings", [])
+
+            # Run rejected-idea guard analysis (Advisory)
+            rej_report = self.rejected_idea_guard.evaluate_proposal(
+                repo=repo_full,
+                pr_id=f"pr_{pr_number}",
+                title=pr.get("title", ""),
+                body=pr.get("body", ""),
+                diff_text=diff_text,
+                changed_files=changed_files,
+                author=pr.get("user", {}).get("login", "unknown")
+            )
+            rejected_ideas = rej_report.get("findings", [])
+
+            # Post PR comment if violations or advisory findings and token available
+            comment_posted = False
+            all_report_items = findings + rejected_ideas
+            if all_report_items and token and comments_url:
+                lines = ["**⚠️ Context Intelligence Framework — Decision Guard Review**", ""]
+                if findings:
+                    lines.append("### Guard Rule Violations")
+                    for f in findings[:5]:
+                        lines.append(f"- **{f.get('violation_type','drift')}**: {f.get('message', '')[:200]}")
+                        if f.get("decision_url"):
+                            lines.append(f"  📋 [Evidence]({f['decision_url']})")
+                    lines.append("")
+                if rejected_ideas:
+                    lines.append("### Previously Rejected Approaches (Advisory)")
+                    for r in rejected_ideas[:5]:
+                        lines.append(f"- **{r.get('tier', 'advisory').upper()}**: {r.get('pr_comment', '')[:250]}")
+                    lines.append("")
+                lines.append("*Posted by CIF Decision Guard. Advisory findings do not block merge unless strict mode is enabled.*")
+                comment_body = "\n".join(lines)
+                try:
+                    req = urllib.request.Request(
+                        comments_url,
+                        data=json.dumps({"body": comment_body}).encode("utf-8"),
+                        headers={
+                            "Authorization": f"token {token}",
+                            "Content-Type": "application/json",
+                            "User-Agent": "CIF-Bot/1.0"
+                        },
+                        method="POST"
+                    )
+                    urllib.request.urlopen(req, timeout=15)
+                    comment_posted = True
+                except urllib.error.URLError:
+                    pass
+            elif all_report_items and not token:
+                print(f"[CIF] {len(findings)} drift finding(s) and {len(rejected_ideas)} advisory finding(s) for PR#{pr_number} stored. "
+                      "Set GITHUB_TOKEN or enable GitHub App RS256 keys to post comments.")
+
+            return ({
+                "status": "ok",
+                "repo": repo_full,
+                "pr": pr_number,
+                "findings_count": len(findings),
+                "rejected_ideas_count": len(rejected_ideas),
+                "check_status": report.get("status", "complete"),
+                "errors": report.get("errors", []),
+                "comment_posted": comment_posted,
+                "diff_fetch_error": fetch_error,
+                "r1_status": r1_status
+            }, 200)
+
+        return ({"status": "ok", "message": "Unhandled event"}, 200)
+
+    def handle_delete(
+        self,
+        path: str,
+        headers: Optional[Dict[str, str]] = None,
+        client_ip: str = "127.0.0.1"
+    ) -> Dict[str, Any]:
+        """
+        Phase 7 / Step 7.8: Consent, Deletion and Retention.
+        Handles DELETE /api/repos/{owner}/{repo}.
+        Only the user who added the repository, or an admin, can delete it.
+        Deletes all rows across events, entities, decisions, edges, claims, history,
+        jobs, access rows, and vacuums SQLite disk pages.
+        """
+        headers = headers or {}
+        if path.startswith("/api/repos/"):
+            repo_part = path[len("/api/repos/"):]
+            parts = repo_part.split("/")
+            if len(parts) != 2 or not parts[0] or not parts[1]:
+                return {"status": "error", "message": "Invalid repo path; must be /api/repos/{owner}/{repo}", "status_code": 400}
+
+            repo_full_name = f"{parts[0]}/{parts[1]}"
+
+            # Check admin or user identity
+            user, is_admin = authenticate_caller(self.db, headers, client_ip)
+            if not is_admin and not user:
+                return {"status": "error", "message": "Authentication required", "status_code": 401}
+
+            # Verify repository exists and verify owner
+            with self.db.get_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT added_by_user_id FROM repos WHERE repo_full_name = ?", (repo_full_name,))
+                repo_row = cur.fetchone()
+                if not repo_row:
+                    cur.execute("SELECT 1 FROM events WHERE repo = ? OR repo_full_name = ? LIMIT 1", (repo_full_name, repo_full_name))
+                    if not cur.fetchone():
+                        return {"status": "error", "message": f"Repository '{repo_full_name}' not found", "status_code": 404}
+                    added_by = None
+                else:
+                    added_by = repo_row[0]
+
+            if not is_admin:
+                if user.get("user_id") != added_by:
+                    return {
+                        "status": "error",
+                        "message": "Forbidden: Only the user who added this repository or an admin can delete it",
+                        "status_code": 403
                     }
-                )
-                with urllib.request.urlopen(req, timeout=30) as resp:
-                    diff_text = resp.read().decode("utf-8", errors="replace")
-            except urllib.error.URLError as e:
-                fetch_error = str(e)
 
-        # Extract changed files from diff headers
-        changed_files = []
-        for line in diff_text.splitlines():
-            if line.startswith("+++ b/"):
-                changed_files.append(line[6:].strip())
-        if not changed_files:
-            changed_files = ["unknown"]
+            # Cascade deletion across all tables and vacuum SQLite
+            counts = self.db.delete_repository(repo_full_name)
 
-        # Run drift analysis
-        report = self.drift_detector.analyze_diff_for_drift(
-            repo=repo_full,
-            commit_or_pr_id=f"pr_{pr_number}",
-            author=pr.get("user", {}).get("login", "unknown"),
-            changed_files=changed_files,
-            diff_text=diff_text
-        )
-        findings = report.get("findings", [])
+            return {
+                "status": "success",
+                "message": f"Successfully deleted repository '{repo_full_name}' and expunged all records",
+                "repo": repo_full_name,
+                "deleted_counts": counts,
+                "status_code": 200
+            }
 
-        # Run rejected-idea guard analysis (Advisory)
-        rej_report = self.rejected_idea_guard.evaluate_proposal(
-            repo=repo_full,
-            pr_id=f"pr_{pr_number}",
-            title=pr.get("title", ""),
-            body=pr.get("body", ""),
-            diff_text=diff_text,
-            changed_files=changed_files,
-            author=pr.get("user", {}).get("login", "unknown")
-        )
-        rejected_ideas = rej_report.get("findings", [])
-
-        # Post PR comment if violations or advisory findings and token available
-        comment_posted = False
-        all_report_items = findings + rejected_ideas
-        if all_report_items and token and comments_url:
-            lines = ["**⚠️ Context Intelligence Framework — Decision Guard Review**", ""]
-            if findings:
-                lines.append("### Guard Rule Violations")
-                for f in findings[:5]:
-                    lines.append(f"- **{f.get('violation_type','drift')}**: {f.get('message', '')[:200]}")
-                    if f.get("decision_url"):
-                        lines.append(f"  📋 [Evidence]({f['decision_url']})")
-                lines.append("")
-            if rejected_ideas:
-                lines.append("### Previously Rejected Approaches (Advisory)")
-                for r in rejected_ideas[:5]:
-                    lines.append(f"- **{r.get('tier', 'advisory').upper()}**: {r.get('pr_comment', '')[:250]}")
-                lines.append("")
-            lines.append("*Posted by CIF Decision Guard. Advisory findings do not block merge unless strict mode is enabled.*")
-            comment_body = "\n".join(lines)
-            try:
-                req = urllib.request.Request(
-                    comments_url,
-                    data=json.dumps({"body": comment_body}).encode("utf-8"),
-                    headers={
-                        "Authorization": f"token {token}",
-                        "Content-Type": "application/json",
-                        "User-Agent": "CIF-Bot/1.0"
-                    },
-                    method="POST"
-                )
-                urllib.request.urlopen(req, timeout=15)
-                comment_posted = True
-            except urllib.error.URLError:
-                pass
-        elif all_report_items and not token:
-            print(f"[CIF] {len(findings)} drift finding(s) and {len(rejected_ideas)} advisory finding(s) for PR#{pr_number} stored. "
-                  "Set GITHUB_TOKEN to enable PR comment posting.")
-
-        return ({
-            "status": "ok",
-            "repo": repo_full,
-            "pr": pr_number,
-            "findings_count": len(findings),
-            "rejected_ideas_count": len(rejected_ideas),
-            "check_status": report.get("status", "complete"),
-            "errors": report.get("errors", []),
-            "comment_posted": comment_posted,
-            "diff_fetch_error": fetch_error
-        }, 200)
+        return {"status": "error", "message": f"Endpoint not found: DELETE {path}", "status_code": 404}

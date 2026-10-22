@@ -78,28 +78,50 @@ When `CIF_LOCAL_ONLY=1`:
 
 ---
 
-## 6. Repository Purge & Data Retention (`POST /api/purge-repo`)
+## 6. Repository Deletion & Right to Forget (`DELETE /api/repos/{owner}/{repo}`)
 
-Administrators can completely remove all traces of a repository from the database at any time.
+CIF implements an automated, cascading deletion mechanism to fulfill the user's right to forget repository data at any time.
 
-### Endpoint: `POST /api/purge-repo`
-- **Authorization**: Required Role `admin` (`Authorization: Bearer <CIF_ADMIN_TOKEN>`).
-- **Payload**:
-  ```json
-  {
-    "repo": "acme-ecommerce/payment-core",
-    "confirm": "acme-ecommerce/payment-core"
-  }
-  ```
-- **Response**:
+### Informed User Consent (Pre-Ingestion)
+Before a user adds a repository to CIF, the user interface and API contract explicitly disclose:
+1. **What CIF reads**: Commit history (author, message, diffs), pull requests (titles, bodies, reviews, comments), issues (descriptions, discussion comments), architectural decision documentation (`docs/adr`, `adr`, `docs/decisions`, `rfcs`), and code snapshots of the default branch.
+2. **Where data is stored**: In the local, encrypted/isolated SQLite database `context_intelligence.db` on the host machine.
+3. **Pre-persistence Redaction**: All incoming texts pass through the multi-pattern privacy sanitizer *before* storage. Secrets (tokens, keys, passwords, credentials) are never written to disk.
+4. **How to delete**: Users can delete all stored repository data at any time via the web interface or via `DELETE /api/repos/{owner}/{repo}`.
+
+### Endpoint: `DELETE /api/repos/{owner}/{repo}`
+- **Authorization**: The user who added the repository (`added_by_user_id`), or an administrator (`Authorization: Bearer <CIF_ADMIN_TOKEN>`).
+  - Unauthenticated calls return `401 Unauthorized`.
+  - Non-owner users who did not add the repository return `403 Forbidden`.
+  - Non-existent repositories return `404 Not Found`.
+- **Cascading Deletion Scope**:
+  Deleting a repository permanently purges all associated records across every table:
+  - `events`: Commit records, PR events, review comments, issue records.
+  - `entities`: File and AST function entities.
+  - `decisions`: Extracted and recorded architectural decisions.
+  - `edges`: Directed relationships between entities, decisions, and evidence.
+  - `decision_claims`: Reconstructed architectural claims.
+  - `claim_evidence` & `decision_evidence`: Event citations supporting claims.
+  - `decision_artifacts`: File linkage associations.
+  - `state_history`: Chronological lifecycle transitions.
+  - `guard_rules` & `decision_assumptions`: Active lint/guard invariants.
+  - `finding_feedback`: User review confirmations and dismissals.
+  - `ingest_jobs`: Historical and active background ingestion jobs.
+  - `repo_access` & `repo_reviewers`: Cached permission mappings and assigned reviewers.
+  - `repos`: Repository registry entry.
+- **Physical Disk Expungement (`VACUUM`)**:
+  Following table deletion, CIF triggers an immediate SQLite `VACUUM;` operation. This rebuilds the database file, overwriting free pages and ensuring that raw-byte scans of the database file on disk contain zero residual text or fragments of the deleted repository.
+- **Response Format**:
   ```json
   {
     "status": "success",
-    "message": "Successfully purged all records for repository 'acme-ecommerce/payment-core'",
+    "message": "Successfully deleted repository 'owner/repo' and expunged all records",
+    "repo": "owner/repo",
     "deleted_counts": {
       "claim_evidence": 12,
       "decision_claims": 8,
       "guard_rules": 4,
+      "decision_assumptions": 2,
       "state_history": 15,
       "decision_evidence": 20,
       "decision_artifacts": 10,
@@ -107,13 +129,23 @@ Administrators can completely remove all traces of a repository from the databas
       "edges": 35,
       "decisions": 6,
       "entities": 14,
-      "events": 28
+      "events": 28,
+      "ingest_jobs": 2,
+      "repo_access": 3,
+      "repo_reviewers": 1,
+      "repos": 1
     }
   }
   ```
 
 ---
 
-## 7. Logging & Error Scrubbing
+## 7. Administrative Repository Purge (`POST /api/purge-repo`)
+
+In addition to user-initiated repository deletion, administrators can purge repositories using `POST /api/purge-repo` with explicit confirmation name matching.
+
+---
+
+## 8. Logging & Error Scrubbing
 
 The `SanitizingLogFilter` class (`backend.ingestion.sanitizer.SanitizingLogFilter`) intercepts all logging records and exception tracebacks, scrubbing sensitive tokens before console or file emission. API error responses never echo authentication tokens or raw secret payloads.

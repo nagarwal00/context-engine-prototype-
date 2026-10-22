@@ -1,0 +1,14 @@
+{
+  "action": "deleted",
+  "installation": {
+    "id": 999901,
+    "account": {
+      "login": "test-org",
+      "id": 7771
+    }
+  },
+  "sender": {
+    "login": "admin-user",
+    "id": 8880
+  }
+}
