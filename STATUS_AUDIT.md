@@ -1064,5 +1064,234 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
      - Demo runner: **21/21 checks passing**.
 
 
+---
+
+## 6. Phase 7: GitHub Login, Repo Access & Automatic Ingestion
+
+### Step 7.1 — Register the GitHub App and Configuration
+- Status: **RESOLVED**
+- Files: backend/config.py, .env.example, tests/test_config.py
+- Resolution:
+  1. Implemented backend/config.py with singleton Config validating all required environment variables: CIF_BASE_URL, CIF_SESSION_SECRET, GITHUB_APP_SLUG, GITHUB_APP_ID, GITHUB_APP_CLIENT_ID, GITHUB_APP_CLIENT_SECRET, GITHUB_APP_PRIVATE_KEY_PATH, CIF_TOKEN_ENC_KEY, CIF_EXTENSION_IDS, ingestion caps.
+  2. Provided safe repr() masking secrets so secrets never appear in logs or stacktraces.
+  3. Added GET /api/auth-config public endpoint exposing only login_enabled and app_slug.
+  4. Acceptance: with no GitHub variables set, the server starts and login is reported disabled.
+  5. Verification: tests/test_config.py (5 tests pass).
+
+### Step 7.2 — Tables for Users, Sessions, Repos and Jobs (Migration)
+- Status: **RESOLVED**
+- Files: backend/migrations/007_auth_and_repo_tables.py, tests/test_migration_auth_tables.py
+- Resolution:
+  1. Created migration 007_auth_and_repo_tables.py adding users, sessions, oauth_states, ext_codes, repos, repo_access, ingest_jobs, and user_tokens.
+  2. Ensured repo_full_name column exists and is indexed on core data tables (decisions, events, entities, guard_rules, ambiguous_findings), backfilling pilot repos with visibility='demo'.
+  3. Verified foreign key integrity via PRAGMA foreign_key_check.
+  4. Acceptance: migration works on clean database and on copy of real database without data loss.
+  5. Verification: tests/test_migration_auth_tables.py (5 tests pass).
+
+### Step 7.3 — Login (Web Flow), Sessions and Token Handling
+- Status: **RESOLVED**
+- Files: backend/auth/github_login.py, backend/auth/sessions.py, server.py, tests/test_auth_flow.py
+- Resolution:
+  1. Implemented authorization-code web flow (GET /auth/github/login, GET /auth/github/callback) with 32-byte urlsafe single-use states (10-minute expiry) and Open Redirect protection (next_path validation).
+  2. Extension flow: single-use 60-second one-time code exchange (POST /auth/extension/exchange) bound to extension ID allowlist (CIF_EXTENSION_IDS).
+  3. Session management: random 32-byte tokens hashed via SHA-256 in sessions table (7-day absolute lifetime, 24-hour idle timeout, sliding last_seen_at), cif_session HttpOnly SameSite=Lax cookie with Secure flag on HTTPS.
+  4. GitHub user token handling: optional Fernet encryption at rest (user_tokens) when cryptography and CIF_TOKEN_ENC_KEY are available; thread-safe in-memory dictionary fallback with automatic token refresh on expiry.
+  5. CSRF protection: Origin header check matching CIF_BASE_URL on state-changing cookie requests.
+  6. Acceptance: full mocked web/extension flow, state reuse rejection, code expiry, CSRF checks verified.
+  7. Verification: tests/test_auth_flow.py (10 tests pass).
+
+### Step 7.4 — Identity-Based Authorization and Repo Scoping
+- Status: **RESOLVED**
+- Files: backend/auth/repo_access.py, backend/security.py, backend/api.py, tests/test_repo_isolation.py
+- Resolution:
+  1. Extended route roles table with ROLE_PUBLIC, ROLE_USER, ROLE_REPO_READ, ROLE_REPO_REVIEW, ROLE_ADMIN. Default deny enforced.
+  2. Implemented authorize_repo(user, repo_full_name, need): demo repos readable by everyone; private repos require verified repo_access row within 15-minute TTL; review actions require verified push permissions or repo_reviewers membership.
+  3. Replaced V2 reviewer token with authenticated GitHub user sessions; admin token retained for operations.
+  4. Acceptance: complete cross-user data isolation; User A cannot access User B's private data across any GET or POST route; ID-guessing attacks blocked with 403/404; anonymous users see only demo repos.
+  5. Verification: tests/test_repo_isolation.py (5 tests pass).
+
+### Step 7.5 — Add-Repository Flow (Installation Discovery)
+- Status: **RESOLVED**
+- Files: backend/auth/repo_add.py, backend/api.py, tests/test_add_repo.py
+- Resolution:
+  1. Implemented GET /api/github/repos discovering user's GitHub App installations and associated repositories, returning sync status and install_url.
+  2. Implemented POST /api/repos with strict token bans in request bodies (Rule R4), App installation verification, repos upsert, repo_access grant, and idempotent ingest_jobs queuing.
+  3. Implemented GET /api/repos/status reporting repository sync status and active background job progress.
+  4. Acceptance: uninstalled repo returns 409 with install_url; installed repo creates job; duplicate add reuses active job; tokens in payload rejected with 400.
+  5. Verification: tests/test_add_repo.py (8 tests pass).
+
+### Step 7.6 — Automatic Whole-Repo Ingestion Job
+- Status: **RESOLVED**
+- Files: backend/ingestion/github_client.py, backend/ingestion/job_runner.py, backend/api.py, tests/test_job_runner.py
+- Resolution:
+  1. Implemented HardenedGitHubClient with exponential backoff on HTTP 429/503, Primary/Secondary Rate-Limit handling (Retry-After header), strict 1MB response size limits, and sanitization of URLs/headers in error logs.
+  2. Implemented IngestJobRunner with thread-safe worker pool, background daemon processing, cancel flag monitoring, bounded concurrency, and persistent state tracking in ingest_jobs.
+  3. Pipeline stages executed sequentially: Git commits & diffs -> PR discussions & reviews -> Issues & comments -> AST entity extraction -> Decision synthesis & confidence scoring -> Temporal context graph edges.
+  4. Rule R6 compliance: honest coverage reporting; when caps are reached or rate limits truncate ingestion, marks partial=1 and status='partial'.
+  5. Implemented GET /api/jobs/{id} and POST /api/jobs/{id}/cancel in backend/api.py.
+  6. Verification: tests/test_job_runner.py (9 tests pass).
+
+### Step 7.7 — Webhook Live-Sync / Incremental Updates
+- Status: **RESOLVED**
+- Files: backend/api.py, backend/auth/app_token.py, server.py, tests/fixtures/, tests/test_webhook_sync.py, tests/test_webhook.py
+- Resolution:
+  1. Extended /api/webhook/github with HMAC SHA-256 validation (X-Hub-Signature-256) and replay protection (X-GitHub-Delivery tracking with 10-minute cache).
+  2. Implemented handlers for:
+     - push: extracts modified/added files, parses commit messages, ingests commit events, re-scans AST.
+     - pull_request: ingests opened/synchronize/closed events, links closes/fixes parent issues, triggers drift detection.
+     - issues & issue_comment: ingests discussion comments into events.
+     - pull_request_review: ingests review state (approved/changes_requested/commented) into events.
+     - installation & installation_repositories: handles app installation creation, deletion, repository addition, and removal.
+  3. De-installation lifecycle: marks repository status as 'removed', sets sync_enabled=0, and revokes all repo_access rows.
+  4. Implemented Rule R1 RS256 App JWT minting and installation access token generation in backend/auth/app_token.py with graceful fallback when cryptography is unavailable.
+  5. Verification: tests/test_webhook_sync.py (9 tests pass) and tests/test_webhook.py (8 tests pass).
+
+### Step 7.8 — Consent, Deletion and Retention (Rule R5 & PRIVACY.md)
+- Status: **RESOLVED**
+- Files: backend/db.py, backend/api.py, server.py, PRIVACY.md, tests/test_repo_delete.py
+- Resolution:
+  1. Extended purge_repo in backend/db.py to execute cascading deletion across all 15 repo-scoped database tables: events, entities, decisions, edges, decision_claims, claim_evidence, decision_evidence, decision_artifacts, state_history, guard_rules, decision_assumptions, finding_feedback, ambiguous_findings, ingest_jobs, repo_access, repo_reviewers, and repos.
+  2. SQLite page zeroing: executes VACUUM; in autocommit mode to rebuild database file and purge all deleted pages from physical disk.
+  3. Implemented DELETE /api/repos/{owner}/{repo} with strict authorization (only repo adder or CIF_ADMIN_TOKEN permitted).
+  4. Updated PRIVACY.md documenting pre-ingestion consent, read-only permissions, data retention policy, and complete deletion guarantees.
+  5. Verification: tests/test_repo_delete.py (6 tests pass), including raw physical binary byte scan of SQLite database file confirming zero remnants of expunged repository text.
+
+### Step 7.9 — Web Login Page & Repository Manager
+- Status: **RESOLVED**
+- Files: web/login.html, web/index.html, web/style.css, web/app.js
+- Resolution:
+  1. Built clean, standalone web/login.html with GitHub Sign-in button, OAuth scope explanations, demo repository direct links, and static mode fallback.
+  2. Updated web/index.html header with user profile menu (avatar, login name, sign-out button) and collapsed Admin dropdown (Rule R2).
+  3. Added Connected Repositories surface (surface-repositories) with:
+     - Active Ingestion Job Progress Widget (#job-progress-widget) showing real-time progress bar, status chip, live counters (commits, PRs, issues, entities, decisions, edges), cancel button, and error alerts.
+     - Monitored Repositories table displaying repository name, access tier, ingestion status chip (ready, partial, running, failed), decision/event counts, last-synced timestamp, and actions (Explore, Re-sync, Delete).
+     - Add Repository panel with GitHub installation discovery select, manual owner/repo input, and explicit Rule R3 data isolation disclosures.
+  4. Wired web/app.js with initUserMenu(), signOut(), loadRepositoriesScreen(), submitAddRepository(), addRepository(), deleteRepository(), startJobPolling(), and cancelCurrentJob().
+  5. Verification: full automated test suite (65 Phase 7 tests pass) and run_demo.py (21/21 checks pass).
+
+
+## PHASE 8 — CHROME EXTENSION (MV3) STATUS REPORT
+
+### Step 8.0 — API Contract for Extensions
+- Status: **RESOLVED**
+- Files: `backend/api.py`, `backend/security.py`, `tests/test_extension_api.py`
+- Resolution:
+  1. Extended `backend/api.py` with `GET /api/pr-analysis`: analyzes pull request diffs and files against active decisions and rejected alternatives, extracts drift warnings and confidence badges, caches results per head SHA, returns schema_version "1.0".
+  2. Extended `backend/api.py` with `GET /api/file-context`: retrieves active architectural decisions governing a specific source file, provides AST function/symbol links, and computes freshness indicators.
+  3. Added `schema_version: "1.0"` to `POST /api/findings/feedback`.
+  4. Updated `get_cors_origin` in `backend/security.py` to recognize and permit `chrome-extension://` origins configured in `CIF_EXTENSION_IDS`.
+  5. Verification: `tests/test_extension_api.py` (7 tests pass).
+
+### Step 8.1 — Extension Skeleton & Manifest (MV3)
+- Status: **RESOLVED**
+- Files: `extension/manifest.json`, `extension/icons/`, `tools/generate_icons.py`, `tests/test_manifest.py`
+- Resolution:
+  1. Configured Manifest V3 compliant `extension/manifest.json` with declarative service worker (`src/service_worker.js`), minimal permissions (`identity`, `storage`, `alarms`), and host permissions for `https://github.com/*` and backend dev origins.
+  2. Embedded stable development public key producing deterministic extension ID `pmkcmkalbgefpllgfmhgieeajolmefpi`.
+  3. Generated complete suite of crisp PNG icons (`icon16.png`, `icon32.png`, `icon48.png`, `icon128.png`).
+  4. Verification: `extension/tests/test_manifest.py` (5 tests pass).
+
+### Step 8.2 — Isolated Shadow-DOM Content Script & Turbo Navigation
+- Status: **RESOLVED**
+- Files: `extension/src/content/github.js`, `extension/src/content/widget.css`, `extension/src/lib/github_url.js`, `extension/src/lib/render.js`
+- Resolution:
+  1. Implemented isolated floating widget attached via `host.attachShadow({ mode: 'open' })`, ensuring host GitHub CSS never leaks into CIF widgets and CIF styles never pollute GitHub pages.
+  2. Implemented robust Turbo / SPA navigation handler combining `MutationObserver` on `document.title` with GitHub's `turbo:visit` and `turbo:load` events, automatically updating context on route changes without full reloads.
+  3. Created strict URL parsing library (`extension/src/lib/github_url.js`) that validates legitimate GitHub repository paths while rejecting non-repo paths and attacker lookalike domains.
+  4. Verification: `extension/tests/test_github_url.py` (7 tests pass).
+
+### Step 8.3 & 8.4 — PR Review & File Context Overlay
+- Status: **RESOLVED**
+- Files: `extension/src/content/github.js`, `extension/src/lib/render.js`
+- Resolution:
+  1. PR Context: Displays drift alerts, rejected alternative warnings with historical rationale, and confidence badges directly in the drawer.
+  2. Interactive Feedback: Integrated inline "Helpful" and "False Positive" buttons dispatching feedback events to `POST /api/findings/feedback`.
+  3. File Context: Surfaces active decisions governing current source file, AST symbol links, and stale/fresh indicators.
+  4. Head SHA Caching: Background service worker caches PR analysis by commit SHA to minimize network queries.
+
+### Step 8.5 & 8.6 — Extension Popup & Options Pages
+- Status: **RESOLVED**
+- Files: `extension/src/popup/popup.html`, `popup.js`, `extension/src/options/options.html`, `options.js`
+- Resolution:
+  1. Popup UI: Displays authenticated GitHub user avatar/handle, repository detection on current active tab, real-time repository ingestion status (Indexed, Ingesting, Unindexed), "+ Add Repository to CIF" button, and link to Web Dashboard.
+  2. Options UI: Allows developer/user configuration of `CIF_BASE_URL` with strict origin allowlist validation before persisting to `chrome.storage.local`.
+
+### Step 8.7 — WebAuthFlow Authentication Bridge
+- Status: **RESOLVED**
+- Files: `extension/src/service_worker.js`, `extension/src/lib/api.js`, `extension/src/lib/messages.js`
+- Resolution:
+  1. Handled OAuth login flow via `chrome.identity.launchWebAuthFlow`, exchanging authorization codes with backend `POST /api/auth/github/extension`.
+  2. User JWT session securely stored in `chrome.storage.local` (Rule R4).
+  3. Background message router enforces origin validation and authenticates content script API requests.
+
+### Step 8.8 — Build Tooling, Test Automation & Documentation
+- Status: **RESOLVED**
+- Files: `tools/build_extension.py`, `extension/README.md`, `extension/tests/test_security.py`
+- Resolution:
+  1. Implemented `tools/build_extension.py` packaging extension files into `dist/cif-extension.zip` while excluding tests and markdown files.
+  2. Implemented AST/regex security audit test `extension/tests/test_security.py` verifying Rule R5 compliance (zero `innerHTML`/`outerHTML`/`insertAdjacentHTML`, no remote script tags, no inline event handlers).
+  3. Wrote detailed `extension/README.md` covering unpacked loading, backend setup, GitHub App configuration, features walkthrough, security architecture, and manual QA checklist.
+  4. Verification: 16/16 extension unit tests pass, full backend test suite passes (273/273 tests pass), and `run_demo.py` passes (21/21 checks pass).
+
+
+## PHASE 9 — VS CODE EXTENSION STATUS REPORT
+
+### Step 9.1 — Backend VS Code Client Support & URI Redirect
+- Status: **RESOLVED**
+- Files: `backend/config.py`, `backend/auth/github_login.py`, `backend/auth/sessions.py`, `server.py`, `tests/test_auth_flow.py`
+- Resolution:
+  1. Configured `client=vscode` handling in `initiate_github_login` and `handle_github_callback` in `backend/auth/github_login.py`.
+  2. Added `CIF_VSCODE_EXT_IDS` configuration with allowlist checking (`is_vscode_extension_allowed`), defaulting to `cif.cif-vscode`.
+  3. Implemented redirect target `vscode://{ext_id}/auth?code={one_time_code}` for callback delivery to VS Code.
+  4. Enhanced `POST /auth/token/exchange` and `/auth/extension/exchange` to return user identity (`login`, `avatar_url`) alongside the session token.
+  5. Verification: `tests/test_auth_flow.py` (test_vscode_client_login_and_callback passing, 11/11 tests pass).
+
+### Step 9.2 — Extension Architecture & Manifest (package.json)
+- Status: **RESOLVED**
+- Files: `vscode-extension/package.json`, `vscode-extension/resources/icon.svg`
+- Resolution:
+  1. Declared extension manifest with identifier `cif.cif-vscode`, activation on `onStartupFinished`, and custom settings (`cif.baseUrl`, `cif.enableCodeLens`, `cif.enableHover`, `cif.enableDiagnostics`).
+  2. Contributed commands: `cif.signIn`, `cif.signOut`, `cif.addRepository`, `cif.refreshDecisions`, `cif.showDecisionDetails`, `cif.evaluateGuardRules`.
+  3. Contributed Activity Bar container (`cif-sidebar`) and tree views (`cif-decisions-view`, `cif-status-view`).
+  4. Verification: `vscode-extension/tests/test_extension.py` (test_package_json_schema_and_commands passing).
+
+### Step 9.3 — URI Handler Authentication & SecretStorage
+- Status: **RESOLVED**
+- Files: `vscode-extension/src/cifClient.js`, `vscode-extension/src/extension.js`
+- Resolution:
+  1. Registered URI Handler via `vscode.window.registerUriHandler` handling `vscode://cif.cif-vscode/auth?code=...`.
+  2. Secure token exchange with backend; session tokens stored exclusively in `context.secrets` (`SecretStorage`). Zero unencrypted secrets written to disk or logs (Rule R4).
+  3. Status bar updates dynamically to display `@username` and connected repository slug.
+
+### Step 9.4 — In-Editor Architectural Context (CodeLens & Hover)
+- Status: **RESOLVED**
+- Files: `vscode-extension/src/codeLensProvider.js`, `vscode-extension/src/hoverProvider.js`, `vscode-extension/src/astSymbols.js`
+- Resolution:
+  1. Implemented CodeLens provider querying `GET /api/file-context` and rendering badges directly above functions and classes indicating active decision status and count of rejected alternatives.
+  2. Implemented Hover provider rendering rich markdown cards with decision rationale, accepted date, and rejected alternatives with reasons.
+  3. Implemented multi-language AST symbol extraction across Python, JavaScript/TypeScript, Go, and Rust.
+
+### Step 9.5 — Workspace Git Remote Detection & Ingestion Command
+- Status: **RESOLVED**
+- Files: `vscode-extension/src/repoDetector.js`, `vscode-extension/src/extension.js`
+- Resolution:
+  1. Implemented `detectRepoFromWorkspace` inspecting `git remote get-url origin` and `.git/config` with robust parsing for HTTPS and SSH remote URLs.
+  2. Wired command `CIF: Add this repository to CIF` to query the backend to start ingestion for the detected repository.
+
+### Step 9.6 — Save-Time Architectural Diagnostics
+- Status: **RESOLVED**
+- Files: `vscode-extension/src/diagnostics.js`, `vscode-extension/src/extension.js`
+- Resolution:
+  1. Implemented `onDidSaveTextDocument` listener scanning files against active decisions and rejected alternatives.
+  2. Emits advisory `Information` / `Warning` diagnostics in VS Code's Problems tab when code re-introduces previously rejected patterns.
+
+### Step 9.7 — Documentation & Test Suite
+- Status: **RESOLVED**
+- Files: `vscode-extension/README.md`, `vscode-extension/tests/test_extension.py`
+- Resolution:
+  1. Created unit test suite `vscode-extension/tests/test_extension.py` validating manifest structure, git URL parsing, multi-language regex symbol extraction, zero direct GitHub API calls, and zero hardcoded secrets.
+  2. Wrote comprehensive `vscode-extension/README.md` covering setup, F5 debugging, VSIX packaging, settings, and architecture guarantees.
+  3. Verification: 5/5 VS Code extension tests pass, 21/21 combined extension tests pass, and `run_demo.py` passes 21/21 checks.
+
 
 

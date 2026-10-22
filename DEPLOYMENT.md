@@ -164,3 +164,67 @@ git push
 ```
 
 GitHub Pages will automatically update within seconds!
+
+---
+
+## 5. Live Backend Server Deployment (Phases 7 & 8)
+
+While GitHub Pages provides a static client-side simulation, the complete multi-tenant product with GitHub OAuth login, automatic repository ingestion, webhook live-sync, and extension backends requires a live Python HTTP service.
+
+### Prerequisites
+- A Linux VPS, cloud container, or machine with a public HTTPS domain.
+- Python 3.10+ (standard library only; optional `cryptography` for RS256 App JWT minting).
+- Reverse proxy (Nginx, Caddy, or Cloudflare Tunnel) terminating TLS.
+
+### Steps
+1. Clone the repository and configure `.env`:
+   ```bash
+   cp .env.example .env
+   # Populate CIF_BASE_URL (https://your-domain.com), GITHUB_APP_*, CIF_EXTENSION_IDS, etc.
+   ```
+2. Run database migration and seed:
+   ```bash
+   python tools/init_db.py
+   ```
+3. Start the production backend server:
+   ```bash
+   python server.py
+   ```
+4. Configure systemd service for automatic process supervision.
+5. In GitHub App settings, set:
+   - Homepage URL: `https://your-domain.com`
+   - Callback URL: `https://your-domain.com/auth/github/callback`
+   - Webhook URL: `https://your-domain.com/api/webhook/github`
+
+---
+
+## 6. Chrome Extension Distribution (Phase 8)
+
+### Option A: Load Unpacked (Development & Evaluation)
+1. Open Google Chrome and navigate to `chrome://extensions`.
+2. Enable **Developer mode** in the top-right corner.
+3. Click **Load unpacked** and select the `extension/` directory.
+4. Verify extension ID matches `CIF_EXTENSION_IDS` in `.env` (default: `pmkcmkalbgefpllgfmhgieeajolmefpi`).
+
+### Option B: Build Zip Distribution Package
+```bash
+python tools/build_extension.py
+```
+Output artifact: `dist/cif-extension.zip`.
+
+---
+
+## 7. VS Code Extension Distribution (Phase 9)
+
+### Option A: Extension Development Host
+1. Open the workspace root or `vscode-extension/` in VS Code.
+2. Ensure the backend server is running (`python server.py`).
+3. Press **F5** to launch the `[Extension Development Host]` with CIF active.
+
+### Option B: VSIX Package Installation
+```bash
+cd vscode-extension
+npx @vscode/vsce package
+code --install-extension cif-vscode-1.0.0.vsix
+```
+
