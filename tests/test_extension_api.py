@@ -17,6 +17,7 @@ from backend.db import Database
 from backend.api import APIHandler
 from backend.auth.sessions import create_session
 from backend.migrations.runner import run_migrations
+from tests.helpers_time import iso_z
 
 
 class TestExtensionAPI(unittest.TestCase):
@@ -44,7 +45,8 @@ class TestExtensionAPI(unittest.TestCase):
                 "INSERT INTO repos (repo_full_name, visibility, added_by_user_id, added_at) VALUES ('alice/secret-vault', 'private', 1, '2026-01-01T00:00:00Z')"
             )
             conn.execute(
-                "INSERT INTO repo_access (user_id, repo_full_name, level, verified_at) VALUES (1, 'alice/secret-vault', 'admin', '2026-10-18T10:00:00Z')"
+                "INSERT INTO repo_access (user_id, repo_full_name, level, verified_at) VALUES (?, ?, ?, ?)",
+                (1, 'alice/secret-vault', 'admin', iso_z())
             )
 
             # Seed decisions
