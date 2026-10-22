@@ -1,0 +1,117 @@
+{
+  "name": "cif-vscode",
+  "displayName": "Context Intelligence Framework (CIF)",
+  "description": "Real-time architectural context, decision provenance, and drift detection directly inside VS Code.",
+  "version": "1.0.0",
+  "publisher": "cif",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "architecture",
+    "context",
+    "decisions",
+    "adr",
+    "drift",
+    "git"
+  ],
+  "main": "./src/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "Context Intelligence Framework",
+      "properties": {
+        "cif.baseUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:8080",
+          "description": "Base URL of the CIF Backend server."
+        },
+        "cif.enableCodeLens": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show architectural decisions CodeLens above functions and classes."
+        },
+        "cif.enableHover": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show decision rationale and rejected alternatives on symbol hover."
+        },
+        "cif.enableDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Flag potential architectural drift and rejected patterns on file save."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cif-sidebar",
+          "title": "CIF Architecture",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "cif-sidebar": [
+        {
+          "id": "cif-decisions-view",
+          "name": "Architectural Decisions"
+        },
+        {
+          "id": "cif-status-view",
+          "name": "Repository & Ingestion Status"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "cif.signIn",
+        "title": "CIF: Sign in with GitHub",
+        "category": "CIF"
+      },
+      {
+        "command": "cif.signOut",
+        "title": "CIF: Sign out",
+        "category": "CIF"
+      },
+      {
+        "command": "cif.addRepository",
+        "title": "CIF: Add this repository to CIF",
+        "category": "CIF"
+      },
+      {
+        "command": "cif.refreshDecisions",
+        "title": "CIF: Refresh Decisions",
+        "category": "CIF",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "cif.showDecisionDetails",
+        "title": "CIF: Show Decision Details",
+        "category": "CIF"
+      },
+      {
+        "command": "cif.evaluateGuardRules",
+        "title": "CIF: Check Architectural Guard Rules",
+        "category": "CIF"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "cif.refreshDecisions",
+          "when": "view == cif-decisions-view",
+          "group": "navigation"
+        }
+      ]
+    }
+  }
+}
