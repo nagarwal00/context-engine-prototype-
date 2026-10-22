@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIF Extension Settings</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      background: #090d16;
+      color: #e2e8f0;
+      padding: 24px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    h2 { font-size: 16px; margin-bottom: 8px; color: #f8fafc; }
+    p { font-size: 12px; color: #94a3b8; margin-bottom: 16px; line-height: 1.5; }
+    .card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    label { display: block; font-weight: 600; font-size: 12px; margin-bottom: 6px; color: #cbd5e1; }
+    select, input {
+      width: 100%;
+      padding: 8px 12px;
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      color: #f8fafc;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .btn {
+      padding: 8px 16px;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn:hover { background: #1d4ed8; }
+    .status-msg { margin-top: 10px; font-size: 12px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>CIF Extension Settings</h2>
+    <p>Configure the backend server endpoint. For security, connection is restricted to allowlisted endpoints (Step 8.7).</p>
+
+    <label for="backend-url-select">Backend Server URL:</label>
+    <select id="backend-url-select">
+      <option value="http://127.0.0.1:8080">http://127.0.0.1:8080 (Default Localhost)</option>
+      <option value="http://localhost:8080">http://localhost:8080</option>
+    </select>
+
+    <button type="button" class="btn" id="btn-save">Save Settings</button>
+    <div id="status-msg" class="status-msg"></div>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

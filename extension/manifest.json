@@ -1,0 +1,63 @@
+{
+  "manifest_version": 3,
+  "name": "Context Intelligence Framework (CIF)",
+  "version": "1.0.0",
+  "description": "Architectural decision context, drift warnings, and rejected-idea guards on GitHub.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtgYzTEIoCBiO1SMUyoiGNCocsvOZJriJthl60Te7YeL6EFH+wXSZzIzwKoy2tIfzuPbA8ioP8UqkIxCSm3tBafF8bV5TlL0YQ79zf8m9af9PcikzqzErmAowHy8n3j+hDeDapFixwHMYt6rpNqs9pUdRfA6NSKBRNqzVLqYncUOOoGSMkuhzyLoXj6KazhPMDyYc7pDvKrMb/yfeWTXqkVItliNkHJ09P/QeZ4qoZBWdY6LKTDzfQnjbhk7W/TyXPmIwZF02hJuXSQ53a54CytxFhWrXe5INWZAMBryO6TGxvVys2PCRC267ltMaQnYlICxJsRMTUdOWwWlT5ZWi7wIDAQAB",
+  "permissions": [
+    "identity",
+    "storage",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://github.com/*",
+    "http://127.0.0.1:8080/*",
+    "http://localhost:8080/*"
+  ],
+  "background": {
+    "service_worker": "src/service_worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*"
+      ],
+      "js": [
+        "src/content/github.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_title": "Context Intelligence Framework",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": false
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "src/content/widget.css",
+        "icons/*"
+      ],
+      "matches": [
+        "https://github.com/*"
+      ]
+    }
+  ]
+}
