@@ -294,8 +294,8 @@ class TestDeveloperFeedbackLoop(unittest.TestCase):
         with self.db.get_connection() as conn:
             cur = conn.cursor()
             cur.execute("""
-            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from)
-            VALUES ('edge_sup_test_01', 'supersession_candidate', 'dec_thermal_pid_accepted', 'decision', 'dec_thermal_deadband_rejected', 'decision', '2026-01-15T00:00:00Z')
+            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, repo_full_name)
+            VALUES ('edge_sup_test_01', 'supersession_candidate', 'dec_thermal_pid_accepted', 'decision', 'dec_thermal_deadband_rejected', 'decision', '2026-01-15T00:00:00Z', 'acme-eng/thermal-control-system')
             """)
             conn.commit()
 

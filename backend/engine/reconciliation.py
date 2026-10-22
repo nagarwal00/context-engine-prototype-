@@ -312,13 +312,19 @@ class ReconciliationEngine:
         for c in candidates:
             older = c["decision"]
             edge_id = f"edge_super_cand_{new_dec['decision_id']}_{older['decision_id']}"
+            edge_repo = self.db.resolve_edge_repo(cursor, new_dec["decision_id"], "decision", older["decision_id"], "decision")
+            if not edge_repo:
+                edge_repo = new_dec.get("repo_full_name") or new_dec.get("repo") or older.get("repo_full_name") or older.get("repo")
+            if not edge_repo:
+                raise ValueError(f"cannot resolve repo for edge {edge_id}")
             cursor.execute("""
-            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to)
-            VALUES (?, 'supersession_candidate', ?, 'decision', ?, 'decision', ?, NULL)
+            INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to, repo_full_name)
+            VALUES (?, 'supersession_candidate', ?, 'decision', ?, 'decision', ?, NULL, ?)
             """, (
                 edge_id,
                 new_dec["decision_id"],
                 older["decision_id"],
-                new_dec["made_at"]
+                new_dec["made_at"],
+                edge_repo
             ))
 

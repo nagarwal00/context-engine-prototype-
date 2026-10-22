@@ -125,10 +125,14 @@ def transition(
                 WHERE decision_id = ?
                 """, (decision_id, superseded_by_id))
 
+                edge_id = f"edge_super_{superseded_by_id}_{decision_id}"
+                edge_repo = Database.resolve_edge_repo(cursor, superseded_by_id, "decision", decision_id, "decision")
+                if not edge_repo:
+                    raise ValueError(f"cannot resolve repo for edge {edge_id}")
                 cursor.execute("""
-                INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to)
-                VALUES (?, 'supersedes', ?, 'decision', ?, 'decision', ?, NULL)
-                """, (f"edge_super_{superseded_by_id}_{decision_id}", superseded_by_id, decision_id, now_iso))
+                INSERT OR REPLACE INTO edges (edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to, repo_full_name)
+                VALUES (?, 'supersedes', ?, 'decision', ?, 'decision', ?, NULL, ?)
+                """, (edge_id, superseded_by_id, decision_id, now_iso, edge_repo))
         else:
             cursor.execute("""
             UPDATE decisions SET state = ? WHERE decision_id = ?

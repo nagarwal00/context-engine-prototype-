@@ -138,6 +138,7 @@ class Edge:
     to_type: str = "entity" # decision | entity | event
     valid_from: str = field(default_factory=current_iso)
     valid_to: Optional[str] = None # null means currently valid
+    repo_full_name: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)

@@ -2,7 +2,7 @@
 Context Intelligence Framework - REST API Handler
 Provides clean JSON REST endpoints for all 6 UI surfaces, review actions, and evaluation.
 """
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List, Optional, Tuple, Set
 import hashlib
 import hmac
 import json
@@ -100,6 +100,15 @@ class APIHandler:
         from backend.engine.rejected_idea_guard import RejectedIdeaGuard
         self.rejected_idea_guard = RejectedIdeaGuard(db)
         self._pr_analysis_cache: Dict[Tuple[str, int, str], Dict[str, Any]] = {}
+
+    def _get_accessible_repo_names(self, headers: Optional[Dict[str, str]] = None) -> Optional[Set[str]]:
+        from backend.security import authenticate_caller
+        from backend.auth.repo_access import list_accessible_repos
+        user, is_admin = authenticate_caller(self.db, headers or {})
+        if is_admin:
+            return None
+        accessible = list_accessible_repos(self.db, user)
+        return {r["repo_full_name"] for r in accessible}
 
     def check_authorization(
         self,
@@ -241,17 +250,36 @@ class APIHandler:
         elif path == "/api/review-queue":
             queue = []
             seen_decision_ids = set()
+            allowed_repos = self._get_accessible_repo_names(headers)
+            repo_filter = query_params.get("repo", [None])[0]
+            if repo_filter:
+                if allowed_repos is not None and repo_filter not in allowed_repos:
+                    return {"status": "error", "message": f"Access denied to repository {repo_filter}"}
+                target_repos = {repo_filter}
+            else:
+                target_repos = allowed_repos
+
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
 
                 # Low confidence decisions (< 0.90) or pending_review
                 # OR evidence quality labels 'weak', 'insufficient', 'contradicted' (Step 3.2 review routing)
-                cursor.execute("""
-                SELECT * FROM decisions
-                WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
-                  AND review_status NOT IN ('human_rejected', 'human_confirmed')
-                ORDER BY confidence ASC
-                """)
+                if target_repos is not None:
+                    placeholders = ",".join("?" for _ in target_repos)
+                    cursor.execute(f"""
+                    SELECT * FROM decisions
+                    WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
+                      AND review_status NOT IN ('human_rejected', 'human_confirmed')
+                      AND (repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND repo IN ({placeholders})))
+                    ORDER BY confidence ASC
+                    """, list(target_repos) + list(target_repos))
+                else:
+                    cursor.execute("""
+                    SELECT * FROM decisions
+                    WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
+                      AND review_status NOT IN ('human_rejected', 'human_confirmed')
+                    ORDER BY confidence ASC
+                    """)
                 for r in cursor.fetchall():
                     d = dict(r)
                     ea = d.get("evidence_assessment", "insufficient")
@@ -268,7 +296,11 @@ class APIHandler:
                     queue.append(d)
 
                 # Conflicts
-                cursor.execute("SELECT * FROM edges WHERE edge_type = 'conflicts_with'")
+                if target_repos is not None:
+                    placeholders = ",".join("?" for _ in target_repos)
+                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'conflicts_with' AND (repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND from_id IN (SELECT decision_id FROM decisions WHERE repo_full_name IN ({placeholders}))))", list(target_repos) + list(target_repos))
+                else:
+                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'conflicts_with'")
                 for r in cursor.fetchall():
                     ed = dict(r)
                     cursor.execute("SELECT title, made_by FROM decisions WHERE decision_id = ?", (ed["from_id"],))
@@ -288,7 +320,11 @@ class APIHandler:
                     })
 
                 # Drifts
-                cursor.execute("SELECT * FROM edges WHERE edge_type = 'drifts_from'")
+                if target_repos is not None:
+                    placeholders = ",".join("?" for _ in target_repos)
+                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'drifts_from' AND repo_full_name IN ({placeholders})", list(target_repos))
+                else:
+                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'drifts_from'")
                 for r in cursor.fetchall():
                     ed = dict(r)
                     cursor.execute("SELECT canonical_path FROM entities WHERE entity_id = ?", (ed["from_id"],))
@@ -308,7 +344,11 @@ class APIHandler:
                     })
 
                 # Supersession candidates (P1-d / Step 1.6)
-                cursor.execute("SELECT * FROM edges WHERE edge_type = 'supersession_candidate'")
+                if target_repos is not None:
+                    placeholders = ",".join("?" for _ in target_repos)
+                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'supersession_candidate' AND repo_full_name IN ({placeholders})", list(target_repos))
+                else:
+                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'supersession_candidate'")
                 for r in cursor.fetchall():
                     ed = dict(r)
                     cursor.execute("SELECT title FROM decisions WHERE decision_id = ?", (ed["from_id"],))
@@ -329,6 +369,8 @@ class APIHandler:
 
                 # Ambiguous findings ('possible' tier from rejected-idea guard, Step 3.6)
                 pending_ambiguous = self.db.get_pending_ambiguous_findings()
+                if target_repos is not None:
+                    pending_ambiguous = [af for af in pending_ambiguous if af.get("repo") in target_repos or af.get("repo_full_name") in target_repos]
                 for af in pending_ambiguous:
                     queue.append({
                         "item_type": "possible_rejected_idea",
@@ -347,6 +389,8 @@ class APIHandler:
                 # Stale decisions (Step 5.2 Decision Half-Life)
                 from backend.engine.staleness import StalenessEngine
                 stale_items = StalenessEngine(self.db).get_stale_review_items()
+                if target_repos is not None:
+                    stale_items = [si for si in stale_items if si.get("repo") in target_repos or si.get("repo_full_name") in target_repos]
                 for si in stale_items:
                     queue.append(si)
 
@@ -366,20 +410,45 @@ class APIHandler:
 
         # 9. Summary stats
         elif path == "/api/stats":
+            allowed_repos = self._get_accessible_repo_names(headers)
+            repo_filter = query_params.get("repo", [None])[0]
+            if repo_filter:
+                if allowed_repos is not None and repo_filter not in allowed_repos:
+                    return {"status": "error", "message": f"Access denied to repository {repo_filter}"}
+                target_repos = {repo_filter}
+            else:
+                target_repos = allowed_repos
+
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
-                cursor.execute("SELECT COUNT(*) as c FROM decisions")
-                dec_cnt = cursor.fetchone()["c"]
-                cursor.execute("SELECT COUNT(*) as c FROM events")
-                evt_cnt = cursor.fetchone()["c"]
-                cursor.execute("SELECT COUNT(*) as c FROM entities")
-                ent_cnt = cursor.fetchone()["c"]
-                cursor.execute("SELECT COUNT(*) as c FROM edges")
-                edg_cnt = cursor.fetchone()["c"]
-                cursor.execute("SELECT COUNT(*) as c FROM edges WHERE edge_type = 'drifts_from'")
-                drf_cnt = cursor.fetchone()["c"]
-                cursor.execute("SELECT COUNT(*) as c FROM edges WHERE edge_type = 'conflicts_with'")
-                cnf_cnt = cursor.fetchone()["c"]
+                if target_repos is not None:
+                    placeholders = ",".join("?" for _ in target_repos)
+                    repo_list = list(target_repos)
+                    cursor.execute(f"SELECT COUNT(*) as c FROM decisions WHERE repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND repo IN ({placeholders}))", repo_list + repo_list)
+                    dec_cnt = cursor.fetchone()["c"]
+                    cursor.execute(f"SELECT COUNT(*) as c FROM events WHERE repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND repo IN ({placeholders}))", repo_list + repo_list)
+                    evt_cnt = cursor.fetchone()["c"]
+                    cursor.execute(f"SELECT COUNT(*) as c FROM entities WHERE repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND repo IN ({placeholders}))", repo_list + repo_list)
+                    ent_cnt = cursor.fetchone()["c"]
+                    cursor.execute(f"SELECT COUNT(*) as c FROM edges WHERE repo_full_name IN ({placeholders})", repo_list)
+                    edg_cnt = cursor.fetchone()["c"]
+                    cursor.execute(f"SELECT COUNT(*) as c FROM edges WHERE edge_type = 'drifts_from' AND repo_full_name IN ({placeholders})", repo_list)
+                    drf_cnt = cursor.fetchone()["c"]
+                    cursor.execute(f"SELECT COUNT(*) as c FROM edges WHERE edge_type = 'conflicts_with' AND repo_full_name IN ({placeholders})", repo_list)
+                    cnf_cnt = cursor.fetchone()["c"]
+                else:
+                    cursor.execute("SELECT COUNT(*) as c FROM decisions")
+                    dec_cnt = cursor.fetchone()["c"]
+                    cursor.execute("SELECT COUNT(*) as c FROM events")
+                    evt_cnt = cursor.fetchone()["c"]
+                    cursor.execute("SELECT COUNT(*) as c FROM entities")
+                    ent_cnt = cursor.fetchone()["c"]
+                    cursor.execute("SELECT COUNT(*) as c FROM edges")
+                    edg_cnt = cursor.fetchone()["c"]
+                    cursor.execute("SELECT COUNT(*) as c FROM edges WHERE edge_type = 'drifts_from'")
+                    drf_cnt = cursor.fetchone()["c"]
+                    cursor.execute("SELECT COUNT(*) as c FROM edges WHERE edge_type = 'conflicts_with'")
+                    cnf_cnt = cursor.fetchone()["c"]
 
             return {
                 "status": "success",

@@ -856,13 +856,80 @@ class Database:
             """, (decision_id,))
             return [dict(r) for r in cursor.fetchall()]
 
-    def upsert_edge(self, edge: Edge) -> str:
+    @staticmethod
+    def resolve_edge_repo(conn, from_id: str, from_type: str, to_id: str, to_type: str) -> Optional[str]:
+        """
+        Looks up repo_full_name for each endpoint (decisions, entities, events tables).
+        Returns the first non-empty value.
+        If endpoints disagree, returns the decision endpoint's repo.
+        If none found, returns None.
+        """
+        cursor = conn.cursor() if hasattr(conn, "cursor") and not hasattr(conn, "fetchall") else conn
+
+        def lookup_endpoint(eid: str, etype: str) -> Optional[str]:
+            if not eid:
+                return None
+            norm_type = (etype or "").lower()
+            if norm_type == "decision":
+                row = cursor.execute("SELECT repo_full_name, repo FROM decisions WHERE decision_id = ?", (eid,)).fetchone()
+                if row:
+                    val = (row["repo_full_name"] if isinstance(row, sqlite3.Row) else row[0]) or (row["repo"] if isinstance(row, sqlite3.Row) else row[1])
+                    if val:
+                        return val
+            elif norm_type == "entity":
+                row = cursor.execute("SELECT repo_full_name, repo FROM entities WHERE entity_id = ? OR canonical_path = ?", (eid, eid)).fetchone()
+                if row:
+                    val = (row["repo_full_name"] if isinstance(row, sqlite3.Row) else row[0]) or (row["repo"] if isinstance(row, sqlite3.Row) else row[1])
+                    if val:
+                        return val
+            elif norm_type == "event":
+                row = cursor.execute("SELECT repo_full_name, repo FROM events WHERE event_id = ?", (eid,)).fetchone()
+                if row:
+                    val = (row["repo_full_name"] if isinstance(row, sqlite3.Row) else row[0]) or (row["repo"] if isinstance(row, sqlite3.Row) else row[1])
+                    if val:
+                        return val
+
+            # Fallback across all three tables
+            for tbl, id_col in [("decisions", "decision_id"), ("events", "event_id")]:
+                row = cursor.execute(f"SELECT repo_full_name, repo FROM {tbl} WHERE {id_col} = ?", (eid,)).fetchone()
+                if row:
+                    val = (row["repo_full_name"] if isinstance(row, sqlite3.Row) else row[0]) or (row["repo"] if isinstance(row, sqlite3.Row) else row[1])
+                    if val:
+                        return val
+            row = cursor.execute("SELECT repo_full_name, repo FROM entities WHERE entity_id = ? OR canonical_path = ?", (eid, eid)).fetchone()
+            if row:
+                val = (row["repo_full_name"] if isinstance(row, sqlite3.Row) else row[0]) or (row["repo"] if isinstance(row, sqlite3.Row) else row[1])
+                if val:
+                    return val
+            return None
+
+        from_repo = lookup_endpoint(from_id, from_type)
+        to_repo = lookup_endpoint(to_id, to_type)
+
+        if from_repo and to_repo:
+            if from_repo == to_repo:
+                return from_repo
+            # Disagreement: return the decision endpoint's repo
+            if (from_type or "").lower() == "decision":
+                return from_repo
+            if (to_type or "").lower() == "decision":
+                return to_repo
+            return from_repo
+        return from_repo or to_repo or None
+
+    def upsert_edge(self, edge: Edge, repo_full_name: Optional[str] = None) -> str:
         with self.get_connection() as conn:
+            resolved_repo = repo_full_name or getattr(edge, "repo_full_name", None)
+            if not resolved_repo:
+                resolved_repo = self.resolve_edge_repo(conn, edge.from_id, edge.from_type, edge.to_id, edge.to_type)
+            if not resolved_repo:
+                raise ValueError(f"cannot resolve repo for edge {edge.edge_id}")
+
             cursor = conn.cursor()
             cursor.execute("""
             INSERT OR REPLACE INTO edges (
-                edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                edge_id, edge_type, from_id, from_type, to_id, to_type, valid_from, valid_to, repo_full_name
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
             """, (
                 edge.edge_id,
                 edge.edge_type,
@@ -871,7 +938,8 @@ class Database:
                 edge.to_id,
                 edge.to_type,
                 edge.valid_from,
-                edge.valid_to
+                edge.valid_to,
+                resolved_repo
             ))
             conn.commit()
             return edge.edge_id
