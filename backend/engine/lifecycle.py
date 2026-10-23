@@ -164,6 +164,15 @@ def transition(
             VALUES (?, ?, ?, ?, ?, ?)
             """, (hist_id, decision_id, to_state, now_iso, actor, notes_text))
 
+        if "repo_full_name" in sh_cols:
+            cursor.execute("""
+            UPDATE state_history
+            SET repo_full_name = (
+                SELECT COALESCE(repo_full_name, repo) FROM decisions WHERE decisions.decision_id = state_history.decision_id
+            )
+            WHERE history_id = ? AND (repo_full_name IS NULL OR repo_full_name = '')
+            """, (hist_id,))
+
         conn.commit()
 
         return {
@@ -215,6 +224,15 @@ def record_initial_state(
             INSERT INTO state_history (history_id, decision_id, state, changed_at, changed_by, notes)
             VALUES (?, ?, ?, ?, ?, ?)
             """, (hist_id, decision_id, initial_state, now_iso, actor, notes_text))
+
+        if "repo_full_name" in sh_cols:
+            cursor.execute("""
+            UPDATE state_history
+            SET repo_full_name = (
+                SELECT COALESCE(repo_full_name, repo) FROM decisions WHERE decisions.decision_id = state_history.decision_id
+            )
+            WHERE history_id = ? AND (repo_full_name IS NULL OR repo_full_name = '')
+            """, (hist_id,))
 
         conn.commit()
         return {

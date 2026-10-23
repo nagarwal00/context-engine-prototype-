@@ -102,9 +102,11 @@ class APIHandler:
         self._pr_analysis_cache: Dict[Tuple[str, int, str], Dict[str, Any]] = {}
 
     def _get_accessible_repo_names(self, headers: Optional[Dict[str, str]] = None) -> Optional[Set[str]]:
+        if headers is None:
+            return None
         from backend.security import authenticate_caller
         from backend.auth.repo_access import list_accessible_repos
-        user, is_admin = authenticate_caller(self.db, headers or {})
+        user, is_admin = authenticate_caller(self.db, headers)
         if is_admin:
             return None
         accessible = list_accessible_repos(self.db, user)

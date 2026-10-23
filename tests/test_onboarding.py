@@ -7,6 +7,7 @@ Verifies:
 4. Evaluation measurement: onboarding recall computed against ground truth tasks and compared to plain search.
 """
 import os
+import shutil
 import tempfile
 import unittest
 import json
@@ -298,28 +299,35 @@ class TestOnboarding(unittest.TestCase):
         tasks_file = "evaluation/onboarding_tasks.json"
         self.assertTrue(os.path.exists(tasks_file), f"{tasks_file} must exist")
 
-        # Test against database context_intelligence.db (populate seed if on a clean checkout)
-        ci_db = Database("context_intelligence.db")
-        with ci_db.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM decisions")
-            count = cursor.fetchone()[0]
-        if count == 0:
-            from backend.seed_data import populate_seed_data
-            populate_seed_data(ci_db)
+        # Test against temporary copy of database (never touch the real DB)
+        temp_eval_dir = tempfile.mkdtemp()
+        temp_db_path = os.path.join(temp_eval_dir, "test_eval_onboarding.db")
+        try:
+            if os.path.exists("context_intelligence.db"):
+                shutil.copy2("context_intelligence.db", temp_db_path)
+            ci_db = Database(temp_db_path)
+            with ci_db.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT COUNT(*) FROM decisions")
+                count = cursor.fetchone()[0]
+            if count == 0:
+                from backend.seed_data import populate_seed_data
+                populate_seed_data(ci_db)
 
-        ci_engine = OnboardingEngine(ci_db)
+            ci_engine = OnboardingEngine(ci_db)
 
-        eval_result = ci_engine.evaluate_onboarding_tasks(tasks_file)
-        self.assertEqual(eval_result["status"], "success")
-        self.assertGreaterEqual(eval_result["total_tasks"], 1)
+            eval_result = ci_engine.evaluate_onboarding_tasks(tasks_file)
+            self.assertEqual(eval_result["status"], "success")
+            self.assertGreaterEqual(eval_result["total_tasks"], 1)
 
-        # Assert onboarding recall >= 0.90
-        # In context_intelligence.db, tasks 1 and 2 find 100% of ground-truth decisions
-        ci_tasks = [t for t in eval_result["tasks"] if t["repo"].startswith("acme-eng")]
-        for t in ci_tasks:
-            self.assertGreaterEqual(t["onboarding_recall"], 0.90,
-                                     f"Task {t['task_id']} must have >= 0.90 recall")
+            # Assert onboarding recall >= 0.90
+            # In context_intelligence.db, tasks 1 and 2 find 100% of ground-truth decisions
+            ci_tasks = [t for t in eval_result["tasks"] if t["repo"].startswith("acme-eng")]
+            for t in ci_tasks:
+                self.assertGreaterEqual(t["onboarding_recall"], 0.90,
+                                         f"Task {t['task_id']} must have >= 0.90 recall")
+        finally:
+            shutil.rmtree(temp_eval_dir, ignore_errors=True)
 
 
 if __name__ == "__main__":

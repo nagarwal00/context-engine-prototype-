@@ -110,12 +110,16 @@ class TestFailureAnalysis(unittest.TestCase):
 
     def test_analyze_failures_run_dev(self):
         """Runs analyze_failures on dev split and verifies report structure."""
-        report = analyze_failures(split="dev")
-        self.assertIn("category_totals", report)
-        self.assertIn("repo_breakdown", report)
-        self.assertIn("failures", report)
-        self.assertIn("false_positives", report)
-        self.assertEqual(report["split"], "dev")
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            tmp_json = os.path.join(tmp_dir, "dev_failure_analysis.json")
+            tmp_md = os.path.join(tmp_dir, "dev_failure_analysis.md")
+            report = analyze_failures(split="dev", output_json=tmp_json, output_md=tmp_md)
+            self.assertIn("category_totals", report)
+            self.assertIn("repo_breakdown", report)
+            self.assertIn("failures", report)
+            self.assertIn("false_positives", report)
+            self.assertEqual(report["split"], "dev")
 
 if __name__ == "__main__":
     unittest.main()

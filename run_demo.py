@@ -2,10 +2,13 @@
 Context Intelligence Framework - Automated Verification & Demo Runner
 Executes comprehensive end-to-end tests across all milestones and verifies definition of done (§18).
 """
-import sys
-import os
-import time
+import argparse
 import json
+import os
+import shutil
+import sys
+import tempfile
+import time
 
 # Ensure project root is in python path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -31,7 +34,7 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-def run_tests():
+def run_tests(db_path: str = None):
     print("=" * 75)
     print("  CONTEXT INTELLIGENCE FRAMEWORK -- AUTOMATED VERIFICATION SUITE")
     print("=" * 75)
@@ -50,8 +53,13 @@ def run_tests():
 
     # TEST 1: Database Initialization & Mechanical Invariant Enforcement (Section 5.2 / Section 13)
     print("\n--- Milestone 1: Data Model & Invariant Enforcement ---")
-    test_db_path = os.path.join(os.path.dirname(__file__), "test_suite.db")
-    if os.path.exists(test_db_path):
+    temp_dir = None
+    if db_path is None:
+        temp_dir = tempfile.mkdtemp()
+        test_db_path = os.path.join(temp_dir, "demo_run.db")
+    else:
+        test_db_path = db_path
+    if os.path.exists(test_db_path) and db_path is None:
         os.remove(test_db_path)
     
     db = Database(test_db_path)
@@ -199,9 +207,11 @@ def read_sensor_bus():
     check("Benchmark: Claim support rate computed", isinstance(metrics["unsupported_claim_rate"], (int, float)))
     check("Benchmark: Processing latency reported", isinstance(metrics["processing_latency_ms"], (int, float)) and metrics["processing_latency_ms"] >= 0.0)
 
-    # Clean up test DB
+    # Clean up test DB / temp dir
     try:
-        if os.path.exists(test_db_path):
+        if temp_dir and os.path.exists(temp_dir):
+            shutil.rmtree(temp_dir, ignore_errors=True)
+        elif os.path.exists(test_db_path) and db_path is None:
             os.remove(test_db_path)
     except Exception:
         pass
@@ -217,5 +227,8 @@ def read_sensor_bus():
     return passed_checks == total_checks
 
 if __name__ == "__main__":
-    success = run_tests()
+    parser = argparse.ArgumentParser(description="Run CIF Automated Verification Suite")
+    parser.add_argument("--db", type=str, default=None, help="Path to database to run demo against (default: temporary fresh database)")
+    args = parser.parse_args()
+    success = run_tests(db_path=args.db)
     sys.exit(0 if success else 1)

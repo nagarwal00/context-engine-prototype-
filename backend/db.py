@@ -412,13 +412,15 @@ class Database:
     def upsert_entity(self, entity: Entity) -> str:
         with self.get_connection() as conn:
             cursor = conn.cursor()
+            repo_full_name = getattr(entity, "repo_full_name", None) or entity.repo or None
             cursor.execute("""
             INSERT INTO entities (
-                entity_id, entity_type, canonical_path, aliases, repo, current_state_summary
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                entity_id, entity_type, canonical_path, aliases, repo, repo_full_name, current_state_summary
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(canonical_path, repo) DO UPDATE SET
                 entity_type=excluded.entity_type,
                 aliases=excluded.aliases,
+                repo_full_name=COALESCE(excluded.repo_full_name, entities.repo_full_name),
                 current_state_summary=excluded.current_state_summary
             RETURNING entity_id;
             """, (
@@ -427,6 +429,7 @@ class Database:
                 entity.canonical_path,
                 json.dumps(entity.aliases),
                 entity.repo,
+                repo_full_name,
                 entity.current_state_summary
             ))
             row = cursor.fetchone()
@@ -534,9 +537,9 @@ class Database:
                     # Auto-create entity for referenced path if not already registered
                     auto_id = f"ent_file_{decision.repo.replace('/', '_')}_{ent_ref.replace('/', '_').replace('.', '_').replace(':', '_')}"
                     cursor.execute("""
-                    INSERT OR IGNORE INTO entities (entity_id, entity_type, canonical_path, aliases, repo, current_state_summary)
-                    VALUES (?, ?, ?, '[]', ?, ?)
-                    """, (auto_id, 'file' if '::' not in ent_ref else 'function', ent_ref, decision.repo, f"Referenced artifact {ent_ref}"))
+                    INSERT OR IGNORE INTO entities (entity_id, entity_type, canonical_path, aliases, repo, repo_full_name, current_state_summary)
+                    VALUES (?, ?, ?, '[]', ?, ?, ?)
+                    """, (auto_id, 'file' if '::' not in ent_ref else 'function', ent_ref, decision.repo, decision.repo, f"Referenced artifact {ent_ref}"))
                     cursor.execute("""
                     INSERT OR IGNORE INTO decision_artifacts (decision_id, entity_id) VALUES (?, ?)
                     """, (decision.decision_id, auto_id))
@@ -628,6 +631,23 @@ class Database:
 
             # Step 3.1: Automatically sync decision claims and evidence links
             self._sync_decision_claims(cursor, decision)
+
+            # Backfill repo_full_name on decision and child tables if column exists
+            repo_val = getattr(decision, "repo_full_name", None) or decision.repo
+            if repo_val:
+                for tbl in ("decisions", "decision_evidence", "decision_artifacts", "state_history", "decision_claims", "guard_rules"):
+                    try:
+                        cursor.execute(f"UPDATE {tbl} SET repo_full_name = ? WHERE decision_id = ? AND (repo_full_name IS NULL OR repo_full_name = '');", (repo_val, decision.decision_id))
+                    except sqlite3.OperationalError:
+                        pass
+                try:
+                    cursor.execute("""
+                    UPDATE claim_evidence SET repo_full_name = ?
+                    WHERE claim_id IN (SELECT claim_id FROM decision_claims WHERE decision_id = ?)
+                      AND (repo_full_name IS NULL OR repo_full_name = '');
+                    """, (repo_val, decision.decision_id))
+                except sqlite3.OperationalError:
+                    pass
 
             conn.commit()
             return decision.decision_id
@@ -1137,6 +1157,18 @@ class Database:
                 json.dumps(applies_val),
                 source_val
             ))
+
+            cursor.execute("PRAGMA table_info(guard_rules)")
+            cols = {r[1] for r in cursor.fetchall()}
+            if "repo_full_name" in cols:
+                cursor.execute("""
+                UPDATE guard_rules
+                SET repo_full_name = (
+                    SELECT COALESCE(repo_full_name, repo) FROM decisions WHERE decisions.decision_id = guard_rules.decision_id
+                )
+                WHERE rule_id = ? AND (repo_full_name IS NULL OR repo_full_name = '')
+                """, (rule.rule_id,))
+
             conn.commit()
             return rule.rule_id
 

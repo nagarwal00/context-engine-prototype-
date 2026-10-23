@@ -90,9 +90,10 @@ def make_precision_sample(
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(sampled_rows, f, indent=2)
 
-    # Also keep whybench/precision_labels.json synchronized if output_path is default
+    # Also keep whybench/precision_labels.json synchronized ONLY if output_path is default
+    default_output = os.path.join(PROJECT_ROOT, "backend", "evaluation", "precision_labels.json")
     whybench_labels_path = os.path.join(PROJECT_ROOT, "backend", "evaluation", "whybench", "precision_labels.json")
-    if os.path.abspath(output_path) != os.path.abspath(whybench_labels_path):
+    if os.path.abspath(output_path) == os.path.abspath(default_output):
         try:
             with open(whybench_labels_path, "w", encoding="utf-8") as f:
                 json.dump(sampled_rows, f, indent=2)

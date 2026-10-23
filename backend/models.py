@@ -122,6 +122,7 @@ class Entity:
     canonical_path: str = "" # e.g. 'src/thermal/control.py::regulate_temperature'
     aliases: List[str] = field(default_factory=list)
     repo: str = ""
+    repo_full_name: Optional[str] = None
     current_state_summary: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:

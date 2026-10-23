@@ -294,6 +294,15 @@ class StalenessEngine:
                 VALUES (?, ?, ?, ?, ?, ?)
                 """, (hist_id, decision_id, dec["state"], now_iso, actor, notes_str))
 
+            if "repo_full_name" in cols:
+                cursor.execute("""
+                UPDATE state_history
+                SET repo_full_name = (
+                    SELECT COALESCE(repo_full_name, repo) FROM decisions WHERE decisions.decision_id = state_history.decision_id
+                )
+                WHERE history_id = ? AND (repo_full_name IS NULL OR repo_full_name = '')
+                """, (hist_id,))
+
             conn.commit()
 
         return {

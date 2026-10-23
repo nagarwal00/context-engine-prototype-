@@ -19,6 +19,24 @@ class TestGraphTemporal(unittest.TestCase):
         self.db = Database(self.db_path)
         self.graph = TemporalGraph(self.db)
 
+        # Seed dummy endpoint rows so edge repo resolution succeeds
+        with self.db.get_connection() as conn:
+            conn.execute(
+                "INSERT INTO decisions (decision_id, repo, repo_full_name, title, state, made_at, confidence) "
+                "VALUES ('dec_01', 'acme/test', 'acme/test', 'D1', 'accepted', '2025-01-01T00:00:00Z', 1.0), "
+                "       ('dec_02', 'acme/test', 'acme/test', 'D2', 'accepted', '2025-01-01T00:00:00Z', 1.0), "
+                "       ('dec_pid_01', 'acme/test', 'acme/test', 'D PID', 'accepted', '2025-01-01T00:00:00Z', 1.0)"
+            )
+            conn.execute(
+                "INSERT INTO entities (entity_id, entity_type, canonical_path, repo, repo_full_name) "
+                "VALUES ('ent_01', 'file', 'src/file.py', 'acme/test', 'acme/test')"
+            )
+            conn.execute(
+                "INSERT INTO events (event_id, repo, repo_full_name, source_type, source_id, source_url, ts) "
+                "VALUES ('evt_commit_01', 'acme/test', 'acme/test', 'git_commit', 'c1', 'https://example.com', '2025-06-01T12:00:00Z')"
+            )
+            conn.commit()
+
     def tearDown(self):
         self.tmp_dir.cleanup()
 
