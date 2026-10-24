@@ -10,8 +10,8 @@
 |---|---|---|
 | **Active / Unredacted Secrets** | **0** | CLEAN ✅ |
 | **Redacted Tokens (`[REDACTED:...]`)** | 0 | Expected (Privacy Sanitizer verified) |
-| **Synthetic Unit Test Tokens** | 26 | Expected (Static test fixtures only) |
-| **Total Patterns Inspected** | 420 | Complete |
+| **Synthetic Unit Test Tokens** | 27 | Expected (Static test fixtures only) |
+| **Total Patterns Inspected** | 437 | Complete |
 
 ## Target Details
 

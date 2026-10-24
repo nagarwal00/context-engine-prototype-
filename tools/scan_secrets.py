@@ -300,7 +300,7 @@ def run_security_scan() -> Dict[str, Any]:
     report_content = "\n".join(report_lines) + "\n"
 
     out_file = PROJECT_ROOT / "SECURITY_SCAN.md"
-    with open(out_file, "w", encoding="utf-8") as f:
+    with open(out_file, "w", encoding="utf-8", newline="\n") as f:
         f.write(report_content)
 
     print(f"[OK] Security scan report generated at {out_file}")

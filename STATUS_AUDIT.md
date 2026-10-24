@@ -1293,5 +1293,121 @@ Environment: Python 3.11.6, Windows (C:\Users\HP\Desktop\SE_project)
   2. Wrote comprehensive `vscode-extension/README.md` covering setup, F5 debugging, VSIX packaging, settings, and architecture guarantees.
   3. Verification: 5/5 VS Code extension tests pass, 21/21 combined extension tests pass, and `run_demo.py` passes 21/21 checks.
 
+## Phase 10 — Review fixes (v4)
 
+### F1 — Unfair headline comparison (CRITICAL)
+- Status: **RESOLVED**
+- Files: `results/test_v2_20261013_100423/corrections_task1_fair.json`, `tools/calc_wilson.py`, `tests/test_fair_task1.py`, `evaluation_results.md`, `LIMITATIONS.md`, `DEPLOYMENT.md`, `web/metrics.html`, `docs/metrics.html`, `backend/evaluation/baseline_evaluator.py`, `tools/run_whybench.py`
+- Resolution:
+  1. Preserved frozen evaluation split manifests (`results/test_v2_20261013_100423/manifest.json` and `results/latest_manifest.json` remain bit-for-bit identical with untouched SHA-256 digests).
+  2. Evaluated Baselines A (Keyword/BM25) and B (Docs-only) on the exact same 26 positive questions as CIF rather than 71 total questions (which included 45 negative questions).
+  3. Computed fair Task-1 comparison metrics: Baseline A (BM25) = 24/26 = 92.3% (95% Wilson CI: [75.9%, 97.9%]), Baseline B (Docs-only) = 6/26 = 23.1% (95% Wilson CI: [11.0%, 42.1%]), CIF = 21/26 = 80.8% (95% Wilson CI: [62.1%, 91.5%]).
+  4. Clarified across documentation and web metrics that CIF's Task-1 score represents strict recall (the single strictly-matched decision cites >= 1 expected event), not ranked top-5 retrieval. Added 95% Wilson confidence intervals to all Task-1 tables.
+  5. Added regression test `tests/test_fair_task1.py` validating mathematical consistency of fair comparison numbers without modifying frozen files.
+- Verification: `python -m unittest tests/test_fair_task1.py` (3/3 pass); `python tools/validate_whybench.py` (frozen hashes intact).
 
+### F2 — "Real-world" WhyBench repos are synthetic (CRITICAL, integrity)
+- Status: **PARTIAL** (Honest relabelling and integrity tests complete; real corpus creation is OPEN-HUMAN H-1)
+- Files: `backend/evaluation/whybench/REPOS.md`, `evaluation_results.md`, `LIMITATIONS.md`, `readme.md`, `web/metrics.html`, `docs/metrics.html`, `tests/test_docs_honesty.py`
+- Resolution:
+  1. Relabeled WhyBench as synthetic across all documentation, codebases, and metrics surfaces ("WhyBench-Synth").
+  2. Removed all claims of "real-world open-source repositories" and fake commit SHAs from `backend/evaluation/whybench/REPOS.md`. Added explicit disclosures that WhyBench-Synth decisions and events were hand-curated.
+  3. Added warning banners on web and static documentation metrics pages.
+  4. Added CI regression test `tests/test_docs_honesty.py` ensuring no fabricated commit hashes or unsupported "real-world" claims return to documentation.
+  5. Ingesting and evaluating a genuinely real corpus of public repositories with architectural decision records is tracked as Human Task **H-1** (`WhyBench-Real`).
+- Verification: `python -m unittest tests/test_docs_honesty.py` (4/4 pass); `python tools/validate_whybench.py` (hashes intact).
+
+### F3 — Phase 7–9 work is not in git
+- Status: **RESOLVED**
+- Files: `backend/auth/`, `backend/config.py`, `backend/security.py`, `backend/ingestion/`, `backend/migrations/007_auth_and_repo_tables.py`, `extension/`, `vscode-extension/`, `.env.example`, `GITHUB_APP_SETUP.md`, `PRIVACY.md`
+- Resolution:
+  1. Committed Phase 7–9 work in commit `0c86c2e` and tagged `pre-v4` prior to v4 modifications.
+  2. Relocated developer private key (`scratch/extension_dev.key`) out of the repository workspace into `%USERPROFILE%\cif-private\` so zero private keys or secrets are packaged or submitted.
+  3. Verified clean git status and zero committed `.db`, `.key`, or `.pem` files in source control.
+- Verification: `git tag -l "pre-v4"` verified; secret scanner and package verification confirm zero private keys or unencrypted database files.
+
+### F4 — Two failing tests (clock-dependent fixture, edge tenancy & DB hygiene)
+- Status: **RESOLVED**
+- Files: `tests/test_extension_api.py`, `backend/db.py`, `backend/engine/lifecycle.py`, `backend/engine/reconciliation.py`, `backend/api.py`, `tools/repair_edges.py`, `tools/verify_db_untouched.py`, `tests/test_verify_db_untouched.py`, `run_demo.py`
+- Resolution:
+  1. Replaced static hardcoded timestamp in `tests/test_extension_api.py` with dynamic relative timestamp within the 15-minute / 1-hour verification TTL, eliminating the time-bomb failure.
+  2. Fixed edge tenancy: updated `Database.upsert_edge()` and edge creation points in `lifecycle.py` and `reconciliation.py` to always record `repo_full_name`. Scoped edge queries in `backend/api.py` by `repo_full_name`.
+  3. Created and executed `tools/repair_edges.py` on working copies to fix orphaned null-repo edges.
+  4. Hardened `run_demo.py` and all unit test fixtures to execute strictly against temporary database copies, leaving shipped databases (`context_intelligence.db`, `whybench.db`) untouched.
+  5. Created `tools/verify_db_untouched.py` and test `tests/test_verify_db_untouched.py` guarding SHA-256 database hashes.
+- Verification: `python -m unittest tests/test_extension_api.py tests/test_migration_auth_tables.py tests/test_verify_db_untouched.py` (all pass); `python tools/verify_db_untouched.py` reports `DB UNTOUCHED`.
+
+### F5 — Hard-coded demo vocabulary in the "general" engine
+- Status: **RESOLVED**
+- Files: `backend/engine/guard_rules.py`, `backend/engine/reconciliation.py`, `backend/engine/rejected_idea_guard.py`, `backend/seed_data.py`, `backend/evaluation/holdout/decisions.json`, `backend/evaluation/holdout/cases.json`, `backend/evaluation/holdout/FROZEN.md`, `backend/evaluation/holdout/results.json`, `tools/run_holdout.py`, `tests/test_engine_cleanliness.py`
+- Resolution:
+  1. Removed all hardcoded domain keywords (`braintree`, `userfaultfd`, `psycopg2`, `stripe`, `redis`, `pid`, `bang-bang`, `hysteresis`, `dict_cache`, etc.) from `backend/engine/`.
+  2. Implemented generic guard-rule synthesis: synthesized rules extract rejected alternatives, negative constraints, and file paths directly from decision records and their rejected alternatives.
+  3. Authored domain-specific rules as seed data in `backend/seed_data.py`.
+  4. Constructed a completely separate frozen hold-out drift evaluation set in a third independent domain (`acme-eng/job-queue-service` with 4 decisions, 16 test cases: 8 violations, 8 clean negatives) with SHA-256 digests recorded in `backend/evaluation/holdout/FROZEN.md`.
+  5. Created `tools/run_holdout.py` evaluating hold-out and demo drift cases, recording results in `backend/evaluation/holdout/results.json` (Holdout precision: 1.0, recall: 1.0; Demo precision: 1.0, recall: 1.0).
+  6. Added regression test `tests/test_engine_cleanliness.py` ensuring `backend/engine/` contains zero banned domain terms.
+- Verification: `python -m unittest tests/test_engine_cleanliness.py` passes (3/3 pass); `python tools/run_holdout.py` confirms 100% precision and recall on the hold-out dataset with zero domain keywords in engine code.
+
+### F6 — Conflict-detector substring bug
+- Status: **RESOLVED**
+- Files: `backend/engine/reconciliation.py`, `backend/engine/conflict_pairs.json`, `tests/test_conflict_pairs.py`
+- Resolution:
+  1. Replaced naive substring matching (`k1 in text`) with regular expression word-boundary pattern matching (`\b<keyword>\b`) in `backend/engine/reconciliation.py`.
+  2. Externalized conflict pairs into JSON configuration `backend/engine/conflict_pairs.json` with separate `"generic"` and `"demo"` sections, scoped by repository visibility (`visibility='demo'`).
+  3. Added comprehensive unit test `tests/test_conflict_pairs.py` verifying that `"sync"` no longer matches `"async"`, word-boundary matching functions accurately, and JSON schemas remain valid.
+- Verification: `python -m unittest tests/test_conflict_pairs.py` passes (6/6 pass).
+
+### F7 — Swallowed exceptions
+- Status: **RESOLVED**
+- Files: `backend/engine/rejected_idea_guard.py`, `backend/security.py`, `tests/test_exception_handling.py`
+- Resolution:
+  1. Removed silent `except Exception: pass` in `backend/engine/rejected_idea_guard.py`. Malformed regex patterns are now caught with `re.error`, logged via standard library `logging.warning`, and fall back to word-boundary literal matching.
+  2. Removed silent `except Exception: pass` in `backend/security.py::get_cors_origin`. Exceptions now log explicit warnings and return safe default CORS origin.
+  3. Created `tests/test_exception_handling.py` verifying that invalid regex patterns log warnings without crashing or swallowing exceptions.
+- Verification: `python -m unittest tests/test_exception_handling.py` passes (3/3 pass). Zero silent `except Exception: pass` lines remaining.
+
+### F8 — Missing baselines, precision labels, and user study
+- Status: **PARTIAL** (Complete tooling, schemas, and test fixtures implemented; empirical human/API data collection is OPEN-HUMAN H-2, H-3, H-4, H-5)
+- Files: `backend/evaluation/baseline_c_llm.py`, `tools/run_baseline_c.py`, `tests/test_baseline_c.py`, `tools/generate_copilot_sheet.py`, `tools/import_copilot_results.py`, `tests/test_copilot_sheet.py`, `tools/generate_precision_sheet.py`, `tools/import_precision_sheet.py`, `tests/test_precision_sheet.py`, `docs/user_study/PROTOCOL.md`, `docs/user_study/TASKS.md`, `docs/user_study/SURVEY.md`, `tools/analyze_user_study.py`, `tests/test_user_study.py`
+- Resolution:
+  1. Baseline C (LLM): Implemented `backend/evaluation/baseline_c_llm.py` and CLI `tools/run_baseline_c.py` supporting OpenAI / Anthropic / mock APIs with full prompt audit logging (`audit_log.jsonl`). Added mock tests in `tests/test_baseline_c.py`. Real API run is tracked under Human Task **H-2**.
+  2. Baseline D (Copilot): Implemented `tools/generate_copilot_sheet.py` to generate `manual_copilot_prompts.csv` and `tools/import_copilot_results.py` to ingest manual responses. Added tests in `tests/test_copilot_sheet.py`. Real Copilot collection is tracked under Human Task **H-3**.
+  3. Precision Labels: Implemented `tools/generate_precision_sheet.py` binding label sheets to SQLite DB SHA-256 snapshot hashes to eliminate hash mismatch errors. Implemented `tools/import_precision_sheet.py` and tests in `tests/test_precision_sheet.py`. Human labelling (>= 65 decisions) is tracked under Human Task **H-4**.
+  4. User Study: Created complete, IRB-ready user study package in `docs/user_study/` (`PROTOCOL.md`, `TASKS.md`, `SURVEY.md`) and statistical analysis script `tools/analyze_user_study.py` (Wilcoxon signed-rank and Mann-Whitney U tests). Added tests in `tests/test_user_study.py`. Conducting the study with human participants is tracked under Human Task **H-5**.
+- Verification: All baseline, precision, and user study unit tests pass (14/14 tests across the 4 suites).
+
+### F9 — Documentation drift, tone, and provenance integrity
+- Status: **RESOLVED** (Documentation, dynamic fact tool, presenter note separation, AI disclosures, and CI checker complete; individual student contributions are OPEN-HUMAN H-6)
+- Files: `tools/print_facts.py`, `tools/check_docs.py`, `LIMITATIONS.md`, `DEPLOYMENT.md`, `readme.md`, `docs/process/PRESENTER_NOTES.md`, `docs/process/AI_ASSISTANCE.md`, `docs/process/CONTRIBUTIONS.md`, `.github/workflows/tests.yml`
+- Resolution:
+  1. Derived all counts dynamically via `tools/print_facts.py`: corrected question counts (134 total: 63 dev, 71 test_v2), verified 9 core web surfaces + repositories view, verified migrations through 007, updated test count claims.
+  2. Resolved contradictions between `LIMITATIONS.md` and `evaluation_results.md` regarding Baseline A vs CIF recall.
+  3. Separated presentation coaching ("What to say to your professor") from public README into `docs/process/PRESENTER_NOTES.md`.
+  4. Replaced over-claims ("anti-hallucination guarantee") with honest measured refusal accuracy (64.4% on 45 negative questions).
+  5. Documented AI tool usage honestly in `docs/process/AI_ASSISTANCE.md` with explicit disclosures for architecture, testing, refactoring, and review fixes.
+  6. Created `docs/process/CONTRIBUTIONS.md` with author commit facts and human attribution templates (`TODO(human)`).
+  7. Implemented `tools/check_docs.py` and integrated into `.github/workflows/tests.yml` to prevent doc regressions (banned phrases, broken internal links).
+- Verification: `python tools/check_docs.py` passes with zero errors. All internal markdown links resolve correctly.
+
+### F10 — Hosted product and deployment readiness
+- Status: **PARTIAL** (Deployment configuration, health endpoints, Dockerfile hardening, and runbook complete; live cloud deployment and GitHub App registration are OPEN-HUMAN H-7, H-A...H-E)
+- Files: `backend/api.py`, `server.py`, `Dockerfile`, `DEPLOY_LIVE.md`, `.github/workflows/deploy.yml`, `tests/test_healthz.py`
+- Resolution:
+  1. Added public `GET /healthz` and `GET /api/healthz` endpoints returning JSON system status without triggering database writes or migrations.
+  2. Hardened `Dockerfile`: added persistent `VOLUME ["/app/data"]`, non-root container user (`cifuser`), dynamic `$PORT` binding, and healthcheck directive.
+  3. Wrote comprehensive live deployment guide `DEPLOY_LIVE.md` covering Render, Fly.io, Railway, and Cloudflare tunnel options.
+  4. Updated GitHub Pages deployment workflow (`.github/workflows/deploy.yml`) to automatically seed a clean database before running static site generation (`build_static.py`).
+  5. Added CI build status badges to `readme.md`.
+  6. Live app hosting and GitHub App installation are tracked under Human Tasks **H-7** and **H-A...H-E**.
+- Verification: `python -m unittest tests/test_healthz.py` passes (4/4 pass). Clean clone check verifies headless static site generation.
+
+### F11 — Smaller defects & sanitization
+- Status: **RESOLVED**
+- Files: `backend/engine/staleness.py`, `tests/test_staleness.py`, `backend/security.py`, `tests/test_security_sanitizer.py`, `tools/scan_secrets.py`, `SECURITY_SCAN.md`
+- Resolution:
+  1. Replaced deprecated `datetime.utcnow()` calls with timezone-aware `datetime.now(timezone.utc)` across engine and test files.
+  2. Expanded `backend/security.py` privacy sanitizer patterns to detect and redact OpenAI keys (`sk-...`), Anthropic keys (`sk-ant-...`), GitLab tokens (`glpat-...`), Stripe live keys (`sk_live_...`), and Bearer authentication headers.
+  3. Added comprehensive sanitizer test suite `tests/test_security_sanitizer.py` verifying all credential formats are properly sanitized.
+  4. Updated `tools/scan_secrets.py` and refreshed `SECURITY_SCAN.md` to reflect full repository scope (including Phase 7–9 auth and extension code), confirming 0 active secret leaks.
+- Verification: `python -m unittest tests/test_staleness.py tests/test_security_sanitizer.py` passes; `python tools/scan_secrets.py` confirms 0 active secret leaks.

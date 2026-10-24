@@ -433,16 +433,16 @@ Human tasks raised: <ids or none>
 
 ## 15. Definition of done (v4)
 
-- [ ] Phase 7–9 code is committed (F3) and tagged `pre-v4`; no secrets/keys/DBs in git.
-- [ ] 0 failing tests; no clock-dependent fixtures; edges always carry `repo_full_name`; edge API queries are repo-scoped (F4).
-- [ ] Tests/demo never modify the shipped databases, verified by a tool (Step 1.3).
-- [ ] Every Task-1 table compares systems on the **same** questions with intervals and an honest footnote; frozen manifests untouched (F1).
-- [ ] WhyBench is labelled synthetic everywhere; no fabricated provenance claims remain; frozen hashes intact (F2).
-- [ ] No domain vocabulary in `backend/engine`; hold-out drift results recorded once and reported as-is (F5); word-boundary conflicts (F6); no silent exceptions (F7).
-- [ ] Baseline C/D, precision-labelling and user-study **tooling** exists; unmeasured items still say `not measured` until a human runs them (F8).
-- [ ] README is project documentation; process docs moved to `docs/process/`; `AI_ASSISTANCE.md` and `CONTRIBUTIONS.md` exist with `TODO(human)` markers for the student (F9).
-- [ ] Docs checker, EOL checker and tests run in CI; clean-clone check and package contents verified; `STATUS_AUDIT.md` has a Phase 10 section with honest `OPEN-HUMAN` items.
-- [ ] Final report lists every Human Task (§12) with its status.
+- [x] Phase 7–9 code is committed (F3) and tagged `pre-v4`; no secrets/keys/DBs in git.
+- [x] 0 failing tests; no clock-dependent fixtures; edges always carry `repo_full_name`; edge API queries are repo-scoped (F4).
+- [x] Tests/demo never modify the shipped databases, verified by a tool (Step 1.3).
+- [x] Every Task-1 table compares systems on the **same** questions with intervals and an honest footnote; frozen manifests untouched (F1).
+- [x] WhyBench is labelled synthetic everywhere; no fabricated provenance claims remain; frozen hashes intact (F2).
+- [x] No domain vocabulary in `backend/engine`; hold-out drift results recorded once and reported as-is (F5); word-boundary conflicts (F6); no silent exceptions (F7).
+- [x] Baseline C/D, precision-labelling and user-study **tooling** exists; unmeasured items still say `not measured` until a human runs them (F8).
+- [x] README is project documentation; process docs moved to `docs/process/`; `AI_ASSISTANCE.md` and `CONTRIBUTIONS.md` exist with `TODO(human)` markers for the student (F9).
+- [x] Docs checker, EOL checker and tests run in CI; clean-clone check and package contents verified; `STATUS_AUDIT.md` has a Phase 10 section with honest `OPEN-HUMAN` items.
+- [x] Final report lists every Human Task (§12) with its status.
 
 If any box is unchecked, that is the remaining work.
 
