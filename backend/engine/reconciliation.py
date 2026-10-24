@@ -2,10 +2,23 @@
 Reconciliation Engine (Section 8.1 & 8.2)
 Detects conflicts between contributors/decisions and manages supersession transitions.
 """
-from typing import List, Dict, Any, Optional, Tuple
+import json
+import os
 import re
+from typing import List, Dict, Any, Optional, Tuple, Set
 from backend.models import Decision, Edge
 from backend.db import Database
+
+_CONFLICT_PAIRS_PATH = os.path.join(os.path.dirname(__file__), "conflict_pairs.json")
+
+
+def load_conflict_pairs() -> Dict[str, List[List[str]]]:
+    try:
+        with open(_CONFLICT_PAIRS_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {"generic": [], "demo": []}
+
 
 GENERIC_STOP_WORDS = {
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are", "aren't",
@@ -47,11 +60,24 @@ class ReconciliationEngine:
         conflicts = []
         with self.db.get_connection() as conn:
             cursor = conn.cursor()
+            # Cache repo visibility
+            repo_vis_map = {}
+            try:
+                cursor.execute("SELECT repo_full_name, visibility FROM repos")
+                for r in cursor.fetchall():
+                    repo_vis_map[r["repo_full_name"]] = r["visibility"]
+            except Exception:
+                repo_vis_map = {}
+
+            conflict_config = load_conflict_pairs()
+            generic_pairs = [tuple(pair) for pair in conflict_config.get("generic", [])]
+            demo_pairs = [tuple(pair) for pair in conflict_config.get("demo", [])]
+
             # Find decisions affecting the same entities
             query = """
             SELECT da1.decision_id as d1_id, da2.decision_id as d2_id, da1.entity_id,
-                   d1.title as d1_title, d1.made_by as d1_author, d1.rationale as d1_rationale, d1.state as d1_state, d1.made_at as d1_time,
-                   d2.title as d2_title, d2.made_by as d2_author, d2.rationale as d2_rationale, d2.state as d2_state, d2.made_at as d2_time
+                   d1.repo as d1_repo, d1.title as d1_title, d1.made_by as d1_author, d1.rationale as d1_rationale, d1.state as d1_state, d1.made_at as d1_time,
+                   d2.repo as d2_repo, d2.title as d2_title, d2.made_by as d2_author, d2.rationale as d2_rationale, d2.state as d2_state, d2.made_at as d2_time
             FROM decision_artifacts da1
             JOIN decision_artifacts da2 ON da1.entity_id = da2.entity_id AND da1.decision_id < da2.decision_id
             JOIN decisions d1 ON da1.decision_id = d1.decision_id
@@ -67,26 +93,32 @@ class ReconciliationEngine:
             pairs = cursor.fetchall()
 
             for p in pairs:
-                d1_text = (p["d1_title"] + " " + p["d1_rationale"]).lower()
-                d2_text = (p["d2_title"] + " " + p["d2_rationale"]).lower()
+                d1_text = (p["d1_title"] + " " + (p["d1_rationale"] or "")).lower()
+                d2_text = (p["d2_title"] + " " + (p["d2_rationale"] or "")).lower()
 
                 # Conflict heuristics: different authors + competing technical choices
                 is_different_author = p["d1_author"] != p["d2_author"]
-                
-                # Check for known antonyms or contradictory architectural patterns
-                opposing_keywords = [
-                    ("pid", "bang-bang"),
-                    ("redis", "in-memory lru"),
-                    ("sync", "async"),
-                    ("polling", "websocket"),
-                    ("stateless", "stateful"),
-                    ("monolith", "microservice")
-                ]
+
+                p_repo = p["d1_repo"] or p["d2_repo"] or repo
+                is_demo = (repo_vis_map.get(p_repo) == "demo")
+
+                opposing_keywords = list(generic_pairs)
+                if is_demo:
+                    opposing_keywords.extend(demo_pairs)
+
+                def matches_term(term: str, text: str) -> bool:
+                    pattern = rf"\b{re.escape(term.lower())}\b"
+                    return bool(re.search(pattern, text))
 
                 has_contradiction = False
                 detected_topic = ""
                 for k1, k2 in opposing_keywords:
-                    if (k1 in d1_text and k2 in d2_text) or (k2 in d1_text and k1 in d2_text):
+                    m1_d1 = matches_term(k1, d1_text)
+                    m2_d2 = matches_term(k2, d2_text)
+                    m2_d1 = matches_term(k2, d1_text)
+                    m1_d2 = matches_term(k1, d2_text)
+
+                    if (m1_d1 and m2_d2) or (m2_d1 and m1_d2):
                         has_contradiction = True
                         detected_topic = f"{k1} vs {k2}"
                         break
@@ -101,7 +133,8 @@ class ReconciliationEngine:
                         from_type="decision",
                         to_id=p["d2_id"],
                         to_type="decision",
-                        valid_from=p["d2_time"]
+                        valid_from=p["d2_time"],
+                        repo_full_name=p_repo
                     )
                     self.db.upsert_edge(edge)
 

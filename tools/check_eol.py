@@ -27,7 +27,7 @@ def get_style(crlf: int, bare_lf: int):
 def main():
     try:
         proc = subprocess.run(
-            ["git", "diff", "--name-only", "HEAD"],
+            ["git", "--no-pager", "diff", "--name-only", "HEAD"],
             capture_output=True,
             text=True,
             check=True,

@@ -1,0 +1,15 @@
+{
+  "generic": [
+    ["sync", "async"],
+    ["polling", "websocket"],
+    ["stateless", "stateful"],
+    ["monolith", "microservice"],
+    ["rest", "graphql"],
+    ["sql", "nosql"],
+    ["centralized", "decentralized"]
+  ],
+  "demo": [
+    ["pid", "bang-bang"],
+    ["redis", "in-memory lru"]
+  ]
+}
