@@ -1,257 +1,179 @@
-# Context Intelligence Framework — Simple Project & Demo Guide
+# Context Intelligence Framework (CIF)
 
-> **Welcome!** This guide explains our project in **easy, everyday language**.  
-> If you have to present this project to your professor, this document will teach you exactly what the project does, what every button on the screen does, and what words to say during your presentation.
-
----
-
-## 1. What is this project about? (The 1-Minute Summary)
-
-When developers write code on GitHub, they save their code using **commits** and **pull requests**.
-- Git tells you **WHAT** code was changed.
-- But Git **does NOT tell you WHY** the developer wrote it that way.
-
-### The Real-World Problem:
-Imagine an engineer named Sarah writes a complex temperature control formula. A few months later, Sarah leaves the company. A new junior developer joins the team, looks at Sarah's code, and thinks:  
-*"Why is this math so complicated? I'll just replace it with a simple ON/OFF switch."*  
-
-The junior developer doesn't realize that 6 months ago, that simple ON/OFF switch caused a real machine to overheat and catch fire! The explanation was buried in an old chat or closed bug report that nobody can find.
-
-### What our software does:
-Our software acts like a **smart project detective**. It reads:
-1. All old code commits
-2. All reported bug tickets (GitHub Issues)
-3. All debates between developers (Pull Request review comments)
-4. All architecture notes (written by lead developers)
-
-It links them all together into a visual storyline. Now, whenever any developer clicks on any piece of code, our system explains:
-- **What problem originally happened**
-- **What ideas were tried, tested, and rejected (and why they failed)**
-- **What final solution was agreed upon and who decided it**
-- **Direct clickable links to the real GitHub discussions as proof**
+> A provenance-grounded architectural context engine that captures why code was written, prevents architectural regression in CI, and explains code context with verifiable evidence chains.
+>
+> **Notice:** For presentation scripts, demo talk tracks, and examination coaching, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md).
 
 ---
 
-## 2. Plain English Dictionary (What Every Term Means & Where It Lives in Code)
+## 1. What is this project about?
 
-If your professor asks you technical questions, here are the simple explanations and the exact Python files responsible:
+When developers maintain software on GitHub, version control records code changes through **commits** and **pull requests**:
+- Git records **WHAT** code was changed and **WHEN**.
+- Git **does NOT record WHY** the code was written that way, which alternatives were explored and rejected, or which operational incidents motivated the design.
 
-### 1. "Provenance" / Evidence Grounding
-- **In simple words:** Having **proof for every claim**. The system is strictly forbidden from guessing or making up stories (unlike ChatGPT). Every explanation must give you a clickable link to the exact commit or discussion comment where that decision was made.
-- **Handled by:** [`backend/models.py`](file:///c:/Users/HP/Desktop/SE_project/backend/models.py) and [`backend/db.py`](file:///c:/Users/HP/Desktop/SE_project/backend/db.py). The database will physically crash with an error if someone tries to save a decision without proof!
+### The Problem: Institutional Knowledge Loss
+When an engineer writes a specialized algorithm or complex architectural pattern, the rationale behind that choice often remains undocumented or scattered across closed bug reports, pull request review discussions, and chat logs. Months or years later, when team members change, new developers encounter the code without context and may inadvertently reintroduce previously rejected, buggy approaches.
 
-### 2. "ADR" (Architectural Decision Record)
-- **In simple words:** A short document where lead engineers write down major choices. For example: *"We decided to switch from local computer memory to Redis servers because our servers kept running out of RAM."*
-- **Handled by:** [`backend/ingestion/adr_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/adr_adapter.py). It reads markdown files in the project documentation.
-
-### 3. "AST" (Abstract Syntax Tree)
-- **In simple words:** Python's built-in tool for inspecting code. Instead of just looking at an entire 500-line file, AST allows our software to identify the exact name of each function (like `def regulate_temperature`), so our system can track individual functions over time.
-- **Handled by:** [`backend/engine/entity_res.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/entity_res.py).
-
-### 4. "Temporal Context Graph"
-- **In simple words:** A visual web of colored circles (nodes) and lines (connections) showing how bug tickets, decisions, and code files relate to each other **over time**.
-- **Handled by:** [`backend/engine/graph.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/graph.py).
-
-### 5. "Reconciliation" / Conflict Detection
-- **In simple words:** Detecting when two developers disagree. For example, Marcus submits code using local computer memory, while Priya submits a document saying we must use Redis. The system flags this contradiction in red so humans can resolve the disagreement.
-- **Handled by:** [`backend/engine/reconciliation.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/reconciliation.py).
-
-### 6. "Code Drift Detection"
-- **In simple words:** Catching a developer who accidentally breaks an agreed decision. For example, if someone opens a pull request that puts back the old rejected ON/OFF switch, our system catches it in real time and raises an alarm.
-- **Handled by:** [`backend/engine/drift_detector.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/drift_detector.py).
-
-### 7. "Review Queue"
-- **In simple words:** An inbox for human engineers. If our system detects a conflict between two developers, or if a code change looks suspicious, it puts that item into this inbox so a human can click **Confirm**, **Correct**, or **Reject**.
-- **Handled by:** [`backend/api.py`](file:///c:/Users/HP/Desktop/SE_project/backend/api.py) and the web interface.
-
-### 8. "GitHub App & CI Integration"
-- **In simple words:** Integrates with GitHub to inspect pull request diffs in CI and automatically flag architectural regressions.
-- **Testing status:** *webhook/CI verified with mocks only* (automated test suite in `tests/test_webhook.py` using HMAC-SHA256 signature fixtures; live production deployment requires public IP/tunnel per `GITHUB_APP_SETUP.md`).
-- **Handled by:** [`backend/api.py`](file:///c:/Users/HP/Desktop/SE_project/backend/api.py) (`/api/webhook/github`), [`tools/ci_check.py`](file:///c:/Users/HP/Desktop/SE_project/tools/ci_check.py), and [`.github/workflows/cif-check.yml`](file:///c:/Users/HP/Desktop/SE_project/.github/workflows/cif-check.yml).
+### The Solution: Context Intelligence Framework
+CIF acts as an automated architectural context engine:
+1. **Multi-Source Ingestion:** Ingests Git commits, GitHub issues, pull request review discussions, and Architectural Decision Records (ADRs).
+2. **Temporal Context Graph:** Reconstructs decision lifecycles (`accepted`, `rejected`, `superseded`) linked to Python Abstract Syntax Tree (AST) code entities with verifiable evidence permalinks.
+3. **Automated Conflict & Drift Detection:** Evaluates pull request diffs in CI against historical decisions and synthesized guard rules to block architectural regressions before code merges.
+4. **Evidence-Grounded Explanations:** Explains why code exists on demand, citing verified historical events with zero ungrounded fabrication.
 
 ---
 
-## 3. How to Run the Project (Step-by-Step)
+## 2. Architecture & Core Concepts
 
-You do **NOT** need to install any external packages, tools, or Node.js. It runs on standard Python 3.
+The framework is implemented with standard Python (3.11/3.12) with zero external database or framework dependencies.
+
+### 1. Evidence Grounding & Mechanical Invariant
+- **Concept:** Every persisted decision must link to at least one verified event record. The system physically prevents saving ungrounded assertions.
+- **Implementation:** [`backend/models.py`](backend/models.py) and [`backend/db.py`](backend/db.py). The database layer strictly validates that decisions in non-unresolved states contain valid evidence event IDs.
+
+### 2. Multi-Source Ingestion Pipeline
+- **Concept:** Ingests development artifacts from Git repositories, GitHub APIs, and documentation.
+- **Implementation:** [`backend/ingestion/git_adapter.py`](backend/ingestion/git_adapter.py), [`backend/ingestion/github_adapter.py`](backend/ingestion/github_adapter.py), [`backend/ingestion/adr_adapter.py`](backend/ingestion/adr_adapter.py), and [`backend/ingestion/identity.py`](backend/ingestion/identity.py).
+- **Privacy Sanitization:** Pre-ingestion redaction of API keys, tokens, and credentials via [`backend/ingestion/sanitizer.py`](backend/ingestion/sanitizer.py) (see [`PRIVACY.md`](PRIVACY.md)).
+
+### 3. Entity Resolution & AST Code Parsing
+- **Concept:** Connects high-level architectural rationale directly to specific files and functions using Python's built-in `ast` module.
+- **Implementation:** [`backend/engine/entity_res.py`](backend/engine/entity_res.py). Canonicalizes paths and resolves AST function entities (`file::function`).
+
+### 4. Temporal Context Graph & Time-Travel Queries
+- **Concept:** Bipartite graph connecting decisions, evidence events, and code entities across time, supporting historical "as-of" point-in-time queries to eliminate retroactive information leakage.
+- **Implementation:** [`backend/engine/graph.py`](backend/engine/graph.py).
+
+### 5. Reconciliation & Conflict Detection
+- **Concept:** Identifies contradictions when contributors propose incompatible approaches or contradictory lifecycle states for the same subsystem, using whole-word boundary matching on semantic pairs.
+- **Implementation:** [`backend/engine/reconciliation.py`](backend/engine/reconciliation.py) and [`backend/engine/conflict_pairs.json`](backend/engine/conflict_pairs.json).
+
+### 6. Code Drift Detection & Decision Guard Rules
+- **Concept:** Analyzes incoming pull request diffs against accepted decisions and synthesized guard rules to catch the reintroduction of rejected patterns or violations of active architecture.
+- **Implementation:** [`backend/engine/drift_detector.py`](backend/engine/drift_detector.py), [`backend/engine/guard_rules.py`](backend/engine/guard_rules.py), and [`backend/engine/rejected_idea_guard.py`](backend/engine/rejected_idea_guard.py).
+
+### 7. Human Review Queue
+- **Concept:** Maintainer workflow where low-confidence extractions, contributor disagreements, and CI drift alerts are routed for human confirmation, correction, or rejection.
+- **Implementation:** [`backend/api.py`](backend/api.py) and the web interface review panel.
+
+### 8. Developer Extensions & CI Webhook Integration
+- **Concept:** Surfacing context directly in developer workflows:
+  - **Browser Extension:** Inspects GitHub PR diffs and issues ([`extension/`](extension/)).
+  - **VS Code Extension:** Displays function-level architectural explanations in the editor gutter ([`vscode-extension/`](vscode-extension/)).
+  - **GitHub App & CI Pass:** Evaluates PR diffs automatically via webhook or CI action ([`backend/api.py`](backend/api.py), [`tools/ci_check.py`](tools/ci_check.py), [`.github/workflows/cif-check.yml`](.github/workflows/cif-check.yml), and [`GITHUB_APP_SETUP.md`](GITHUB_APP_SETUP.md)).
+
+---
+
+## 3. Setup and Running
+
+CIF requires Python 3.11 or 3.12 (standard library only; no pip packages or Node.js required).
 
 ### Step 1: Initialize Database & Seed Pilot Repositories
-On a fresh checkout, run the database initializer to apply all migrations and populate the pilot repositories:
+On a clean checkout, apply database migrations and populate the pilot repositories:
 ```bash
 python tools/init_db.py --seed
 ```
 
-### Step 2: Start the Server
-Open your terminal (PowerShell or Command Prompt) in this project folder and type:
+### Step 2: Start the Web Server
+Launch the HTTP server and API backend:
 ```bash
 python server.py
 ```
-
-You will see:
-```text
-======================================================================
-  Context Intelligence Framework -- Living Decision History Prototype
-======================================================================
-[OK] Existing database loaded with decisions.
-
-[SERVER LIVE] Prototype is live and running at: http://127.0.0.1:8080/
-[*] Serving interactive Context Graph, Review Queue, and all UI surfaces.
-```
-
-### Step 3: Open Your Browser
-Open any web browser (Google Chrome, Edge, Safari, Firefox) and go to:  
+Open your browser to:
 👉 **http://127.0.0.1:8080/**
 
-You will see the full interactive dark-mode dashboard!
+### Step 3: Deploy to GitHub Pages (Static Snapshot)
+This repository is configured to deploy directly to GitHub Pages:
+- **Automated Workflow:** `.github/workflows/deploy.yml` builds and publishes the web interface.
+- **Static Distribution:** The `docs/` folder contains the static distribution for 1-click branch deployment.
+- For complete deployment instructions, see [`DEPLOYMENT.md`](DEPLOYMENT.md).
 
 ---
 
-### Step 3: Deploy to GitHub Pages (Live Web Demo)
+## 4. Automated Verification Suite (`run_demo.py`)
 
-This repository is pre-configured to deploy directly on GitHub Pages with **zero extra services or paid hosting**:
-- **Automatic GitHub Pages workflow:** `.github/workflows/deploy.yml` deploys the web interface automatically on every push.
-- **Classic Branch deployment:** The `docs/` folder contains the static distribution for 1-click branch deployment.
-- **Client-Side Data Engine:** All interactive UI surfaces, graph, CI drift checking, and review actions work 100% in the browser on GitHub Pages (run `python tools/print_facts.py` to inspect live counts of surfaces, migrations, tests, and benchmark questions).
+`run_demo.py` executes an end-to-end automated verification pass across all core capabilities in approximately 3 seconds:
 
-See [DEPLOYMENT.md](file:///c:/Users/HP/Desktop/SE_project/DEPLOYMENT.md) for full step-by-step instructions.
-
----
-
-## 4. What is `run_demo.py` and How Does It Work?
-
-### What it is:
-`run_demo.py` is an **automated test script** that tests all 21 core features of the system in 3 seconds. It is the best tool to prove to your professor that the code is real, working, and not faked.
-
-To run it, open a terminal and type:
 ```bash
 python run_demo.py
 ```
 
-### What it tests (in simple words):
-1. **Rule Test:** It tries to sneak a decision into the database with zero evidence. The database blocks it, proving our grounding invariant works.
-2. **Collector Tests:** It tests that Git commits, GitHub issues, and PR comments are correctly read and given clickable URLs.
-3. **Code Reader Test (AST):** It feeds a snippet of Python code and tests that the system finds the function names automatically.
-4. **Detective Query Test:** It asks the system *"Why does `regulate_temperature` exist?"* and tests that it correctly lists the history in order.
-5. **Conflict Test:** It checks that when Marcus and Priya disagree, the system spots the conflict.
-6. **Drift Test:** It feeds a bad code change into the system and checks that the system catches the violation.
-7. **Abstention Test:** It asks about a fake file that does not exist. It verifies that the system abstains with *"No decision found"* when no evidence exists.
-8. **Scorecard:** It calculates computed accuracy and grounding metrics from real data (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
+### What it tests (21 automated checks):
+1. **Mechanical Invariant:** Verifies that attempting to save an accepted decision with zero evidence links raises a validation error.
+2. **Git Adapter:** Ingests commit records and verifies generation of clickable GitHub source URLs.
+3. **Identity Resolution:** Resolves raw committer strings to canonical maintainer IDs.
+4. **GitHub Adapter:** Ingests GitHub issue events with verified issue URLs.
+5. **PR Linkage:** Parses issue close references (e.g., `Closes #101`) into parent event linkages.
+6. **File Entity Resolution:** Canonicalizes repository file paths into entity identifiers.
+7. **AST Code Parser:** Extracts function signatures from Python source code via AST.
+8. **Function Entity Resolution:** Resolves canonical function entities (`file::function`).
+9. **Decision Chain Query:** Reconstructs the complete lifecycle decision chain for an artifact.
+10. **Evidence Trail Query:** Reconstructs verified source events backing a decision.
+11. **Timeline Slice Query:** Queries time-ordered decision histories scoped by repository.
+12. **Conflict Detection:** Flags active contributor disagreements across overlapping entities.
+13. **Drift Detection (Violation):** Catches diff modifications that violate accepted architectural decisions.
+14. **Drift Detection (Rejection):** Detects code diffs re-introducing explicitly rejected historical patterns.
+15. **Explanation Synthesis:** Synthesizes evidence-grounded architectural explanations.
+16. **Citation Grounding:** Validates that citations contain verified clickable URLs.
+17. **Refusal / Abstention:** Confirms the engine abstains (`status: not_found`) when queried on unrecorded artifacts.
+18. **Benchmark Decision Recall:** Measures decision extraction recall.
+19. **Benchmark Evidence Accuracy:** Measures evidence link accuracy.
+20. **Benchmark Claim Support:** Measures unsupported claim rates.
+21. **Benchmark Processing Latency:** Measures sub-second processing latency.
 
-> **Verified Counts from Live Code & Data**:
-> To inspect machine-verified counts of automated test cases, migrations, benchmark questions, and UI surfaces directly from data, run:
+> **Verifiable Counts from Data:**
+> To inspect machine-verified counts of automated test cases, migrations, benchmark questions, and UI surfaces directly from live code and data, run:
 > ```bash
 > python tools/print_facts.py
 > ```
 
 ---
 
-## 5. Complete Demo Walkthrough (What to Click & What to Say to Your Professor)
+## 5. User Interface Surfaces
 
-When demoing this project to your professor, follow these 8 simple steps:
+The interactive web dashboard (`http://127.0.0.1:8080/`) provides nine dedicated surfaces:
+- **Project Timeline:** Chronological decision stream with historical "as-of" point-in-time time-travel queries.
+- **Context Graph:** Force-directed network mapping decisions, code entities, and GitHub events with contributor conflict highlighting.
+- **Code-Context View:** Function-level architectural explanations answering why code exists, citing accepted and rejected decisions with evidence links.
+- **Decision Explorer:** Searchable catalog of architectural decisions with state filtering and alternative comparisons.
+- **Evidence Panel:** Raw event inspector displaying verified commit diffs, PR discussions, and issue bodies.
+- **Review Queue:** Maintainer triage queue for validating low-confidence decisions, resolving contributor conflicts, and inspecting drift alerts.
+- **Live CI Drift Check:** Interactive diff evaluation simulating pull request checks against active decisions and guard rules.
+- **Metrics & Baselines:** Dynamic scorecard displaying evaluation results, Wilson confidence intervals, and baseline comparisons.
+- **Onboarding Tour:** Guided architectural walkthrough summarizing core subsystems for new developers.
 
----
-
-### 🎙️ Introduction (Say this first):
-> *"Professor, software teams lose institutional memory when developers leave. New developers can see what the code does, but not why it was written that way. Our project connects Git history, GitHub discussions, and architecture notes into a living timeline so teams never repeat past mistakes."*
-
----
-
-### 🖥️ Step 1: The Project Timeline & Historical Time-Travel ("As-Of" Query)
-- **Action:** Click **Project Timeline** in the left sidebar.
-- **What is on screen:** A chronological list of decision cards plus the Historical "As Of" Query & Counterfactual Explorer.
-- **What to say:**
-  > *"Here is our Project Timeline. It shows the evolution of the project over time. For example, on January 10th, Bug #12 occurred where the machine overheated. On January 12th, an idea to use a simple deadband switch was rejected. On January 15th, an architectural note was accepted to use a mathematical PID controller. We can filter the timeline by Accepted, Rejected, or Superseded decisions."*
-- **Action:** In the "Historical 'As Of' Query & Counterfactual Explorer", click the preset button **"Before PID Adoption (2026-01-01)"** and click **"Execute Historical Query"**.
-- **What to say:**
-  > *"Notice our Time-Travel capability! By setting the historical cutoff date to January 1, 2026, the system reconstructs exactly what the team knew before the PID decision was made. The PID controller decision disappears from the active state, proving that our temporal graph eliminates retroactive information leakage."*
-- **Action:** Click **"After PID Acceptance (2026-03-01)"** and run it to watch the PID decision return as the active architectural standard.
+For a structured demo walkthrough and speaker presentation script, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md).
 
 ---
 
-### 🖥️ Step 2: The Context Graph
-- **Action:** Click **Context Graph** in the left sidebar.
-- **What is on screen:** An interactive visual map of circles and connecting lines.
-- **What to say:**
-  > *"This is the Temporal Context Graph. It visually maps out the entire project. Green circles are accepted decisions, red circles are rejected ideas, blue circles are code files, and pink circles are real events from GitHub.*  
-  > *Notice this red dashed line: our system detected an active disagreement between two engineers who proposed contradictory solutions for the same file."*
-- **Action:** Click on any circle on the graph to open its details inspector on the right.
+## 6. Evaluation Summary & Baselines
+
+CIF was evaluated on **WhyBench-Synth**, a hand-authored synthetic benchmark of 71 questions across three domain repositories (`payment-core`, `cloud-hypervisor`, `cli-cli`) on the frozen `test_v2` split (26 positive questions, 45 unrecorded-topic negative questions):
+
+### Task 1 — Evidence Retrieval (Evaluated on identical 26 positive questions)
+- **Baseline A (BM25 Keyword Search):** 92.3% retrieval (24/26, 95% CI: [75.9%, 97.9%])
+- **Baseline B (Docs-only Search):** 23.1% retrieval (6/26, 95% CI: [11.0%, 42.1%])
+- **CIF (Task 1 Decision-Evidence Match):** 80.8% retrieval (21/26, 95% CI: [62.1%, 91.5%])
+
+*Methodology Note:* CIF's Task-1 metric measures whether the single strictly-matched decision cites ≥1 expected event (matching strict recall), not a ranked retrieval list. BM25 raw event retrieval is higher. CIF's primary value is in lifecycle classification, structured refusal, and active CI guard rules.
+
+### Task 2 — Decision Reconstruction & Refusal
+- **Strict Recall:** 80.8% (21/26)
+- **State Classification Accuracy:** 100.0% on matched decisions (21/21, Wilson 95% CI: [84.0%, 100.0%]; note small sample size $n=21$)
+- **Refusal / Abstention Accuracy:** 64.4% on unrecorded-topic negatives (29/45 correctly refused; 16/45 receive an unsupported decision — see [`LIMITATIONS.md`](LIMITATIONS.md))
+
+For complete evaluation manifests, Wilson confidence intervals, and corrections, see [`evaluation_results.md`](evaluation_results.md) and [`results/test_v2_20261013_100423/corrections_task1_fair.json`](results/test_v2_20261013_100423/corrections_task1_fair.json).
 
 ---
 
-### 🖥️ Step 3: The Code-Context View (The Core Feature!)
-- **Action:** Click **Code-Context View** in the left sidebar.
-- **Action:** On the left list, click on `src/thermal/control.py::regulate_temperature`.
-- **What is on screen:** An explanation banner and a step-by-step decision history.
-- **What to say:**
-  > *"This is the heart of our software. A developer simply selects a function, and the system answers: 'Why does this code look like this?'.*  
-  > *Look at the decision chain below:*  
-  > *- Step 1 (Rejected): An engineer tried a simple ON/OFF deadband switch, but simulation showed it caused 17% higher latency and still overheated.*  
-  > *- Step 2 (Accepted): Lead architect Sarah Chen implemented a continuous PID math formula with anti-windup clamping to keep the temperature stable.*  
-  > *Notice that every step has clickable links back to the original GitHub issue and commit. The system provides proof for everything."*
+## 7. Key Project Documentation
 
----
-
-### 🖥️ Step 4: Decision Explorer & Evidence Panel
-- **Action:** Click **Decision Explorer**. Show the search box (type `"PID"` or `"Redis"`).
-- **What to say:**
-  > *"Developers can search through all recorded decisions, see alternatives that were considered, and inspect why certain ideas were turned down."*
-- **Action:** Click **Evidence Panel**. Select any decision from the dropdown.
-- **What to say:**
-  > *"The Evidence Panel is our audit trail. It displays the raw GitHub comment, the commit diff, and verified links that open the source on GitHub."*
-
----
-
-### 🖥️ Step 5: Human Review Queue
-- **Action:** Click **Review Queue** in the left sidebar.
-- **What to say:**
-  > *"No AI system should make final architectural decisions on its own. Whenever our system detects a contradiction between developers, or whenever confidence is low, it routes the item to this Review Queue.*  
-  > *A human engineer can click Confirm, Correct, or Reject to keep the project record accurate."*
-- **Action:** Click **Confirm** on one item to show that the queue updates live!
-
----
-
-### 🖥️ Step 6: Live CI Code-Drift Check & Decision Guard Rules (The Headline Novelty!)
-- **Action:** Click **Live CI Drift Check** in the left sidebar.
-- **Action:** Click the button that says **Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)**.
-- **Action:** Click **Run CI Drift Detection Pass**.
-- **What happens on screen:** A red warning banner immediately pops up flagging both historical drift and active Guard Rule violations!
-- **What to say:**
-  > *"This simulates a developer opening a new Pull Request. In this scenario, a developer tried to delete the PID math and put back the old ON/OFF switch.*  
-  > *Our system analyzed the diff against historical decisions and active Guard Rules, caught the violation in real time, warned the team that it reintroduces a previously rejected approach, and linked directly to the evidence trail in the Review Queue!"*
-- **Action:** Click **Scenario 4: Consistent Code (Normal Refactor)** and run it to show that normal code changes pass cleanly.
-
----
-
-### 🖥️ Step 7: Evaluation Metrics & Comparison Table
-- **Action:** Click **Metrics & Baselines** in the left sidebar.
-- **What is on screen:** Metric cards, WhyBench-Synth (hand-authored synthetic benchmark) results, and a baseline comparison table.
-- **What to say:**
-  > *"To validate our capstone honestly, we evaluated the system on WhyBench-Synth across 71 questions on the frozen `test_v2` split from three hand-authored synthetic domain repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
-  > *On Task 1 (Evidence Retrieval), on identical positive questions, Baseline A (BM25) achieves 92.3% and Baseline B (Docs-only) achieves 23.1% compared to CIF's 80.8% decision-evidence match (Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules). On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% (21/21 matched decisions, small n) State Accuracy, and abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS). All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
-
-#### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
-If the professor challenges the project, say this:
-> 1. *"Docs-only search achieved only 8.5% hit rate on WhyBench-Synth because architectural decisions live primarily in PR review debates, issues, and commit histories, not static docs—and a README cannot automatically block violating pull requests in CI."*  
-> 2. *"General-purpose AI agents may generate answers without provenance and fail to abstain, whereas CIF achieved 100.0% (21/21 matched decisions, small n) state accuracy, abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS), and enforces a grounding invariant linking explanations directly to verified source events."*  
-> 3. *"CIF converts accepted decisions into active CI Guard Rules that evaluate pull request diffs in milliseconds to prevent architectural regressions automatically."*
-
----
-
-### 🖥️ Step 8: Onboarding Tour
-- **Action:** Click **Onboarding Tour** in the left sidebar.
-- **What to say:**
-  > *"Finally, we created an Onboarding Mode. Instead of spending weeks reading through messy old pull requests, a new developer can read this 3-minute guided summary and understand the key reasons behind all core subsystems."*
-
----
-
-## 6. How the Code is Structured (Simple Overview)
-
-- [`server.py`](file:///c:/Users/HP/Desktop/SE_project/server.py): The main script that runs the web server.
-- [`run_demo.py`](file:///c:/Users/HP/Desktop/SE_project/run_demo.py): The test script that runs the 21 automated checks.
-- [`backend/db.py`](file:///c:/Users/HP/Desktop/SE_project/backend/db.py): The SQLite database storing decisions, events, and evidence.
-- [`backend/engine/`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/): The analysis brain (reads Python functions, finds conflicts, catches drift).
-- [`backend/ingestion/`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/): The collectors that read Git commits, GitHub issues, and ADR notes.
-- [`backend/evaluation/`](file:///c:/Users/HP/Desktop/SE_project/backend/evaluation/): The benchmark engine that calculates accuracy scores.
-- [`web/`](file:///c:/Users/HP/Desktop/SE_project/web/): The HTML, CSS, and JavaScript files for the browser interface.
-- [`explanation.md`](file:///c:/Users/HP/Desktop/SE_project/explanation.md): In-depth, easy-to-read explanation of the codebase architecture.
-- [`task.md`](file:///c:/Users/HP/Desktop/SE_project/task.md): Milestone progress tracking checklist (all 100% completed).
+- [`LIMITATIONS.md`](LIMITATIONS.md) — Measured limitations, known boundary conditions, and refusal performance analysis.
+- [`PRIVACY.md`](PRIVACY.md) — Pre-ingestion redaction of secrets, API keys, and privacy guidelines.
+- [`DEPLOYMENT.md`](DEPLOYMENT.md) — Deployment instructions for local servers, Docker, and GitHub Pages.
+- [`GITHUB_APP_SETUP.md`](GITHUB_APP_SETUP.md) — GitHub App registration, webhook configuration, and live tunnel setup.
+- [`extension/`](extension/) — Chrome / browser developer extension.
+- [`vscode-extension/`](vscode-extension/) — Visual Studio Code extension.
+- [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md) — Speaker notes, demo talk tracks, and exam preparation.
+- [`explanation.md`](explanation.md) — Deep architectural walkthrough of data models, database schema, and engine pipelines.
