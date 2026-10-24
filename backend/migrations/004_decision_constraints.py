@@ -1,6 +1,6 @@
 """
 Migration 004: Decision-specific constraints and guard rules schema update
-Implements Step 3.4 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 3.4 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Adds polarity ('must' | 'must_not'), applies_to (JSON array of entity IDs / path globs),
   and source ('human' | 'proposed') to guard_rules.
 - Creates decision_constraints view referencing guard_rules.

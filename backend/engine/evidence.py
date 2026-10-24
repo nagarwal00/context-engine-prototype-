@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - Evidence Assessment Engine
-Implements Step 3.2 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 3.2 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Pure deterministic assessment function `assess(decision, db=None, all_events=None, claim_evidences=None)`
 - Thresholds are design choices, not statistics (documented in METRICS.md and code comments).
 - Rule hierarchy:

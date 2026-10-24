@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - Database Migration Runner
-Implements Step 2.0 of ANTIGRAVITY_HANDOFF_V2.md
+Implements Step 2.0 of docs/process/ANTIGRAVITY_HANDOFF_V2.md
 """
 import os
 import re

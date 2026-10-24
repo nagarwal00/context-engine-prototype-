@@ -1,6 +1,6 @@
 """
 Unit and integration tests for state history recording and backfill.
-Implements Step 2.3 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 2.3 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 1. Freshly seeded DB has SELECT COUNT(*) FROM state_history >= COUNT(*) FROM decisions.
 2. Review action increases state_history count.
 3. Backfill tool on legacy DB copy correctly populates state_history with reconstructed=1.

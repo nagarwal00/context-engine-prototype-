@@ -1,6 +1,6 @@
 # WhyBench Frozen Test Split Specification (`test_v2`)
 
-> **Protocol Notice**: In accordance with Section 2.4 and Step 4.9 of `ANTIGRAVITY_HANDOFF_V2.md`, the `test_v2` split is permanently frozen. Questions were authored and verified **before** examining system outputs to prevent tuning overfitting.
+> **Protocol Notice**: In accordance with Section 2.4 and Step 4.9 of `docs/process/ANTIGRAVITY_HANDOFF_V2.md`, the `test_v2` split is permanently frozen. Questions were authored and verified **before** examining system outputs to prevent tuning overfitting.
 
 ---
 

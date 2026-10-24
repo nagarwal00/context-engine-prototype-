@@ -1,6 +1,6 @@
 """
 Migration 006: Decision Assumptions table for Staleness & Decision Half-Life
-Implements Step 5.2 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 5.2 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Creates decision_assumptions table:
     assumption_id TEXT PRIMARY KEY,
     decision_id TEXT NOT NULL,

@@ -1,6 +1,6 @@
 """
 Migration 005: Finding feedback and review routing table
-Implements Step 3.5 & 3.6 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 3.5 & 3.6 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Creates finding_feedback table:
     feedback_id TEXT PRIMARY KEY,
     finding_id TEXT NOT NULL,

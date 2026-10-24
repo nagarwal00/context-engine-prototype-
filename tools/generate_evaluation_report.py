@@ -26,7 +26,7 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
     lines = []
     lines.append("# Context Intelligence Framework — Empirical Evaluation Results")
     lines.append("")
-    lines.append("> **Important**: In accordance with Capstone Project guidelines and `ANTIGRAVITY_HANDOFF_V2.md`, **no metric, percentage, or baseline in this report is fabricated or hand-edited**. All numbers are automatically generated from reproducible run manifests.")
+    lines.append("> **Important**: In accordance with Capstone Project guidelines and `docs/process/ANTIGRAVITY_HANDOFF_V2.md`, **no metric, percentage, or baseline in this report is fabricated or hand-edited**. All numbers are automatically generated from reproducible run manifests.")
     lines.append("")
     lines.append("> **Benchmark Notice**: **Synthetic benchmark — see LIMITATIONS**. WhyBench-Synth is a hand-authored benchmark designed to test internal decision lifecycle tracking, evidence grounding invariants, and abstention behavior.")
     lines.append("")

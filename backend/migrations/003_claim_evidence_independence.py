@@ -1,6 +1,6 @@
 """
 Migration 003: Claim-level evidence and source independence tables
-Implements Step 3.1 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 3.1 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Creates decision_claims table:
     claim_id TEXT PRIMARY KEY
     decision_id TEXT NOT NULL

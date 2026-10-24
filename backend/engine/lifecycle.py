@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - Decision Lifecycle Engine
-Implements Step 2.2 of ANTIGRAVITY_HANDOFF_V2.md
+Implements Step 2.2 of docs/process/ANTIGRAVITY_HANDOFF_V2.md
 """
 import datetime
 import time

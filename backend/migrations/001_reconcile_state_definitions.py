@@ -1,6 +1,6 @@
 """
 Migration 001: Reconcile state definitions
-Implements Step 2.1 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 2.1 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Lifecycle state in ('proposed', 'tested', 'accepted', 'rejected', 'superseded', 'reopened')
 - New column evidence_assessment in ('strong', 'moderate', 'weak', 'insufficient', 'contradicted') (default 'insufficient')
 - New column freshness in ('fresh', 'stale', 'under_review', 'revalidated') (default 'fresh')

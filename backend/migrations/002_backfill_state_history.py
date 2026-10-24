@@ -1,6 +1,6 @@
 """
 Migration 002: Backfill state history
-Implements Step 2.3 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 2.3 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Adds from_state TEXT and reconstructed INTEGER columns to state_history if missing.
 - Reconstructs one history record per existing decision currently lacking a history row:
   - notes = 'reconstructed from current state at backfill'

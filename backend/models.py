@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - Data Models
-Implements Section 5 of implementation.md
+Implements Section 5 of docs/process/implementation.md
 """
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional
@@ -175,7 +175,7 @@ class GuardRule:
         return asdict(self)
 
 
-# Alias per ANTIGRAVITY_HANDOFF_V2.md Step 3.4
+# Alias per docs/process/ANTIGRAVITY_HANDOFF_V2.md Step 3.4
 DecisionConstraint = GuardRule
 
 

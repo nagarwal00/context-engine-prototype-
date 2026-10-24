@@ -1,7 +1,7 @@
 """
 Context Intelligence Framework - GitHub App Token Minting (Rule R1).
 
-Rule R1 (ANTIGRAVITY_HANDOFF_V3_EXTENSION.md):
+Rule R1 (docs/process/ANTIGRAVITY_HANDOFF_V3_EXTENSION.md):
 - Optional dependency exception for 'cryptography':
   (a) signing the GitHub App JSON Web Token (RS256) to mint installation tokens
       (webhook PR comments, background re-sync).

@@ -1,6 +1,6 @@
 """
 Migration 007: Auth, Sessions, Repositories, Ingestion Jobs, and Repo Attribution
-Implements Step 7.2 of ANTIGRAVITY_HANDOFF_V3_EXTENSION.md:
+Implements Step 7.2 of docs/process/ANTIGRAVITY_HANDOFF_V3_EXTENSION.md:
 - Creates users table
 - Creates sessions table (storing SHA-256 hash of session token)
 - Creates oauth_states table

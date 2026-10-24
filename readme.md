@@ -2,7 +2,7 @@
 
 > A provenance-grounded architectural context engine that captures why code was written, prevents architectural regression in CI, and explains code context with verifiable evidence chains.
 >
-> **Notice:** For presentation scripts, demo talk tracks, and examination coaching, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md).
+> **Notice:** For presentation scripts, demo talk tracks, and examination coaching, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md). For AI coding assistance disclosure and author responsibilities, see [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md).
 
 ---
 
@@ -176,4 +176,5 @@ For complete evaluation manifests, Wilson confidence intervals, and corrections,
 - [`extension/`](extension/) — Chrome / browser developer extension.
 - [`vscode-extension/`](vscode-extension/) — Visual Studio Code extension.
 - [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md) — Speaker notes, demo talk tracks, and exam preparation.
+- [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md) — Transparent disclosure of AI coding assistance, author responsibilities, and integrity notices.
 - [`explanation.md`](explanation.md) — Deep architectural walkthrough of data models, database schema, and engine pipelines.

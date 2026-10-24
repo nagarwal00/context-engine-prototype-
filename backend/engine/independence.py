@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - Source Independence and Claim Evidence
-Implements Step 3.1 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 3.1 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 - Pure function `independence_key(event, all_events=None) -> str`
 - Passage extraction: `extract_best_passage(claim_text, event_text, threshold=0.25)`
 - Claim extraction & evidence linking

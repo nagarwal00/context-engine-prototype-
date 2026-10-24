@@ -1,6 +1,6 @@
 # Task Management: Context Intelligence Framework Prototype
 
-This document tracks all tasks, milestones, and deliverables for the **Context Intelligence Framework** prototype according to `implementation.md` and `Context_Intelligence_FrameworkReport_Reviewed.docx`.
+This document tracks all tasks, milestones, and deliverables for the **Context Intelligence Framework** prototype according to `docs/process/implementation.md` and `Context_Intelligence_FrameworkReport_Reviewed.docx`.
 
 ---
 

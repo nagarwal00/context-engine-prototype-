@@ -1,6 +1,6 @@
 """
 Context Intelligence Framework - State History Backfill Tool
-Implements Step 2.3 of ANTIGRAVITY_HANDOFF_V2.md:
+Implements Step 2.3 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 Backfills one history row per existing decision with:
   notes = 'reconstructed from current state at backfill'
   changed_by = 'system:backfill'

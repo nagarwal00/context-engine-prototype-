@@ -22,6 +22,10 @@ ALLOWLIST = {
     "ANTIGRAVITY_HANDOFF_V4_FIXES.md",
     "ANTIGRAVITY_HANDOFF_V2.md",
     "ANTIGRAVITY_HANDOFF.md",
+    "docs/process/ANTIGRAVITY_HANDOFF_V4_FIXES.md",
+    "docs/process/ANTIGRAVITY_HANDOFF_V2.md",
+    "docs/process/ANTIGRAVITY_HANDOFF.md",
+    "docs/process/ANTIGRAVITY_HANDOFF_V3_EXTENSION.md",
 }
 
 
