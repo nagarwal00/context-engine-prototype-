@@ -7,12 +7,15 @@ Enforces:
 - CORS origin allowlisting and request constraints
 """
 import hmac
+import logging
 import os
 from typing import Dict, Tuple, Optional, Any, List
 
 from backend.db import Database
 from backend.auth.sessions import extract_session_token, get_session
 from backend.auth.repo_access import authorize_repo, resolve_repo_for_request
+
+logger = logging.getLogger("cif.security")
 
 # Roles defined in Step 7.4
 ROLE_PUBLIC = "public"
@@ -60,8 +63,9 @@ def get_cors_origin(origin_header: Optional[str]) -> Optional[str]:
             configured_exts = get_config().get_extension_ids()
             if ext_id in configured_exts:
                 return origin_header
-        except Exception:
-            pass
+        except (ImportError, AttributeError, ValueError) as e:
+            logger.warning("Failed to check extension ID for CORS origin: %s", e)
+            return None
 
     return None
 

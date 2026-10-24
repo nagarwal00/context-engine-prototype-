@@ -223,6 +223,18 @@ class TestAPIAuth(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(headers.get("Access-Control-Allow-Origin"), self.allowed_origin)
 
+    def test_cors_extension_config_failure_logged_and_denied(self):
+        """Verifies Step 3.3: Config failure in get_cors_origin logs warning and returns None."""
+        from unittest.mock import patch
+        from backend.security import get_cors_origin
+
+        with patch("backend.config.get_config", side_effect=ValueError("Corrupt config")):
+            with self.assertLogs("cif.security", level="WARNING") as cm:
+                res = get_cors_origin("chrome-extension://abcdef1234567890/manifest.json")
+                self.assertIsNone(res)
+            self.assertTrue(any("Corrupt config" in m for m in cm.output))
+
 
 if __name__ == "__main__":
     unittest.main()
+

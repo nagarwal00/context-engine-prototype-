@@ -69,14 +69,17 @@ class TestFairTask1(unittest.TestCase):
         before_bytes = manifest_path.read_bytes()
         before_hash = hashlib.sha256(before_bytes).hexdigest()
 
-        # Call API route which loads and overlays in-memory
-        db = Database(str(PROJECT_ROOT / "context_intelligence.db"))
-        api = APIHandler(db)
-        res = api.handle_get("/api/benchmark", {})
-        self.assertIn("whybench_manifest", res["data"])
-        ov = res["data"]["whybench_manifest"]["metrics"]["overall"]
-        self.assertEqual(ov["baseline_keyword"]["task_1_hit_rate"], 92.3)
-        self.assertEqual(ov["baseline_keyword"]["total_count"], 26)
+        # Call API route which loads and overlays in-memory (using a temporary DB copy)
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            temp_db = os.path.join(tmp_dir, "test_ci.db")
+            shutil.copy2(str(PROJECT_ROOT / "context_intelligence.db"), temp_db)
+            db = Database(temp_db)
+            api = APIHandler(db)
+            res = api.handle_get("/api/benchmark", {})
+            self.assertIn("whybench_manifest", res["data"])
+            ov = res["data"]["whybench_manifest"]["metrics"]["overall"]
+            self.assertEqual(ov["baseline_keyword"]["task_1_hit_rate"], 92.3)
+            self.assertEqual(ov["baseline_keyword"]["total_count"], 26)
 
         # Call Markdown report generator
         with open(manifest_path, "r", encoding="utf-8") as f:

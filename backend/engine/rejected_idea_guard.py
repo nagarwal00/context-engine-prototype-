@@ -7,6 +7,7 @@ Advisory only (never auto-blocks). Provides original discussion links,
 recorded rejection reasons, changed-circumstances hints, and developer feedback loop.
 """
 import fnmatch
+import logging
 import math
 import os
 import re
@@ -19,6 +20,9 @@ from backend.models import Decision, GuardRule
 from backend.engine.lifecycle import transition
 from backend.engine.entity_res import EntityResolver
 from backend.engine.identifiers import extract_identifiers, extract_concept_tokens
+
+logger = logging.getLogger("cif.rejected_idea_guard")
+
 
 STOPWORDS = {
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are",
@@ -326,6 +330,7 @@ class RejectedIdeaGuard:
         proposal = self.extract_proposal_design(title, body, diff_text, changed_files)
         candidates = self.get_rejected_candidates(repo=repo)
         findings: List[Dict[str, Any]] = []
+        errors: List[Dict[str, Any]] = []
 
         # Retrieve active guard rules for signature matching
         all_rules: List[Dict[str, Any]] = []
@@ -402,6 +407,7 @@ class RejectedIdeaGuard:
                 elif rtype == "forbid_pattern":
                     regex_str = params.get("regex", "")
                     if regex_str:
+                        rule_id = r.get("rule_id", "unknown")
                         try:
                             compiled = re.compile(regex_str, re.IGNORECASE)
                             for l_code in proposal["clean_added_lines"]:
@@ -410,8 +416,14 @@ class RejectedIdeaGuard:
                                 if compiled.search(l_code):
                                     signature_match = True
                                     break
-                        except Exception:
-                            pass
+                        except re.error as e:
+                            logger.warning("invalid guard regex in rule %s: %s", rule_id, e)
+                            errors.append({
+                                "stage": "guard_rule_eval",
+                                "rule_id": rule_id,
+                                "error_type": "re.error",
+                                "message": f"Invalid guard regex in rule '{rule_id}': {str(e)[:150]}"
+                            })
                     if signature_match:
                         break
 
@@ -543,11 +555,12 @@ class RejectedIdeaGuard:
             })
 
         return {
-            "status": "complete",
+            "status": "incomplete" if errors else "complete",
             "repo": repo,
             "pr_id": pr_id,
             "findings_count": len(findings),
-            "findings": findings
+            "findings": findings,
+            "errors": errors
         }
 
     # --- Developer Actions (§3.5 Item 7 & Step 3.6) ---

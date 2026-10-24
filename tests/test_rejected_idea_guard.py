@@ -432,6 +432,38 @@ class TestRejectedIdeaGuard(unittest.TestCase):
         )
         self.assertEqual(res_strict_clean.returncode, 0)
 
+    def test_invalid_guard_regex_surfaces_incomplete_status(self):
+        """Verifies Step 3.3: Invalid guard regex in candidate rules is not swallowed."""
+        invalid_rule = GuardRule(
+            rule_id="rule_invalid_regex_test",
+            decision_id="dec_thermal_deadband_rejected",
+            rule_type="forbid_pattern",
+            params={"regex": "[unclosed-bracket(", "message": "bad regex"},
+            status="active",
+            source="authored"
+        )
+        self.db.upsert_guard_rule(invalid_rule)
+
+        with self.assertLogs("cif.rejected_idea_guard", level="WARNING") as cm:
+            rep = self.guard.evaluate_proposal(
+                repo="acme-eng/thermal-control-system",
+                pr_id="pr_invalid_regex",
+                title="Test PR with invalid regex rule in DB",
+                body="Testing invalid regex surfacing.",
+                diff_text="+++ b/src/thermal/control.py\n@@ -10,2 +10,3 @@\n+    some_code = 1\n",
+                changed_files=["src/thermal/control.py"]
+            )
+
+        self.assertEqual(rep.get("status"), "incomplete")
+        errors = rep.get("errors", [])
+        self.assertGreaterEqual(len(errors), 1)
+        self.assertEqual(errors[0].get("rule_id"), "rule_invalid_regex_test")
+        self.assertEqual(errors[0].get("error_type"), "re.error")
+        log_text = " ".join(cm.output)
+        self.assertIn("rule_invalid_regex_test", log_text)
+        self.assertNotIn("some_code = 1", log_text)
+
 
 if __name__ == "__main__":
     unittest.main()
+
