@@ -177,4 +177,5 @@ For complete evaluation manifests, Wilson confidence intervals, and corrections,
 - [`vscode-extension/`](vscode-extension/) — Visual Studio Code extension.
 - [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md) — Speaker notes, demo talk tracks, and exam preparation.
 - [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md) — Transparent disclosure of AI coding assistance, author responsibilities, and integrity notices.
+- [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md) — Team contribution record template with verifiable git history facts.
 - [`explanation.md`](explanation.md) — Deep architectural walkthrough of data models, database schema, and engine pipelines.
