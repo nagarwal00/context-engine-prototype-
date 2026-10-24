@@ -10,7 +10,7 @@ Verifies:
 import os
 import tempfile
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from backend.models import Event, Decision
 from backend.db import Database
 from backend.engine.staleness import StalenessEngine, parse_semver, check_version_violation
@@ -193,7 +193,7 @@ class TestStaleness(unittest.TestCase):
         )
 
         # Trigger staleness 10 days ago
-        ten_days_ago = (datetime.utcnow() - timedelta(days=10)).isoformat() + "Z"
+        ten_days_ago = (datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=10)).isoformat() + "Z"
         breaking_ev = Event(
             event_id="evt_break_10d",
             source_type="github_pr",

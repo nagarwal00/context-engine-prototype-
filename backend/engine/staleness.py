@@ -9,7 +9,7 @@ Freshness state model: fresh -> stale -> under_review -> revalidated.
 import json
 import re
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Tuple
 from backend.models import Event, Decision
 from backend.db import Database
@@ -81,7 +81,7 @@ class StalenessEngine:
                 watch_type,
                 json.dumps(watch_params),
                 status,
-                datetime.utcnow().isoformat() + "Z"
+                datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
             ))
             conn.commit()
         return assumption_id
@@ -149,7 +149,7 @@ class StalenessEngine:
             """, (event.repo,))
             assumptions = [dict(r) for r in cursor.fetchall()]
 
-            now_iso = datetime.utcnow().isoformat() + "Z"
+            now_iso = datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z"
 
             for assump in assumptions:
                 watch_type = assump["watch_type"]
@@ -256,7 +256,7 @@ class StalenessEngine:
         2. Sets all associated broken assumptions back to 'valid' with updated timestamp.
         3. Records audit log row in state_history documenting the revalidation.
         """
-        now_iso = at or (datetime.utcnow().isoformat() + "Z")
+        now_iso = at or (datetime.now(timezone.utc).replace(tzinfo=None).isoformat() + "Z")
         with self.db.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM decisions WHERE decision_id = ?", (decision_id,))
@@ -281,7 +281,7 @@ class StalenessEngine:
             # Record revalidation in state_history
             cursor.execute("PRAGMA table_info(state_history)")
             cols = {r["name"] for r in cursor.fetchall()}
-            hist_id = f"hist_reval_{decision_id}_{int(datetime.utcnow().timestamp())}"
+            hist_id = f"hist_reval_{decision_id}_{int(datetime.now(timezone.utc).timestamp())}"
             notes_str = f"Revalidated decision freshness: {reason}"
             if "reconstructed" in cols:
                 cursor.execute("""
@@ -321,7 +321,7 @@ class StalenessEngine:
         - 'Stale for N days' counter computed from trigger timestamp
         """
         items = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
         with self.db.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
