@@ -1,7 +1,7 @@
 """
 General Decision Constraint & Drift Detection Engine (Step 3.4 & Section 8.3)
-Evaluates code diffs against active, human-approved decision constraints and detection signatures.
-Zero domain keywords hard-coded: entirely driven by database constraints and context graph.
+Evaluates code diffs against active decision constraints and synthesized guard rules.
+Zero domain keywords hard-coded: driven entirely by database constraints, synthesized rules, and context graph.
 """
 import logging
 import re

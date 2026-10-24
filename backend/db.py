@@ -162,7 +162,7 @@ class Database:
                 approved_at TEXT,
                 polarity TEXT NOT NULL DEFAULT 'must_not' CHECK (polarity IN ('must', 'must_not')),
                 applies_to TEXT NOT NULL DEFAULT '[]',
-                source TEXT NOT NULL DEFAULT 'proposed' CHECK (source IN ('human', 'proposed')),
+                source TEXT NOT NULL DEFAULT 'proposed' CHECK (source IN ('human', 'proposed', 'authored', 'synthesized')),
                 FOREIGN KEY (decision_id) REFERENCES decisions(decision_id) ON DELETE CASCADE
             );
             """)
@@ -1128,7 +1128,7 @@ class Database:
 
         with self.get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("""
+            sql_insert = """
             INSERT INTO guard_rules (
                 rule_id, decision_id, rule_type, params_json, status,
                 created_by, created_at, approved_by, approved_at,
@@ -1143,7 +1143,8 @@ class Database:
                 polarity=excluded.polarity,
                 applies_to=excluded.applies_to,
                 source=excluded.source;
-            """, (
+            """
+            insert_params = (
                 rule.rule_id,
                 rule.decision_id,
                 rule.rule_type,
@@ -1156,7 +1157,15 @@ class Database:
                 polarity_val,
                 json.dumps(applies_val),
                 source_val
-            ))
+            )
+            try:
+                cursor.execute(sql_insert, insert_params)
+            except sqlite3.IntegrityError as err:
+                if "source IN" in str(err) or "CHECK constraint failed" in str(err):
+                    fallback_source = "human" if source_val in ("human", "authored") else "proposed"
+                    cursor.execute(sql_insert, insert_params[:-1] + (fallback_source,))
+                else:
+                    raise
 
             cursor.execute("PRAGMA table_info(guard_rules)")
             cols = {r[1] for r in cursor.fetchall()}

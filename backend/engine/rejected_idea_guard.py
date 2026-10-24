@@ -18,6 +18,7 @@ from backend.db import Database
 from backend.models import Decision, GuardRule
 from backend.engine.lifecycle import transition
 from backend.engine.entity_res import EntityResolver
+from backend.engine.identifiers import extract_identifiers, extract_concept_tokens
 
 STOPWORDS = {
     "a", "about", "above", "after", "again", "against", "all", "am", "an", "and", "any", "are",
@@ -416,30 +417,23 @@ class RejectedIdeaGuard:
 
             # Also check alternative rejection keywords as detection signatures
             if not signature_match:
-                alt_sig_words = [
-                    ("sticky_sessions", ["sticky_sessions", "sticky sessions"]),
-                    ("local_cache", ["local_cache", "local cache", "local_buffer"]),
-                    ("dict_cache", ["dict_cache", "dict cache", "in-memory dict", "memory dict"]),
-                    ("deadband", ["deadband", "dead band"]),
-                    ("on_off_relay", ["on_off_relay", "on_off", "on-off", "on off"]),
-                    ("hysteresis", ["hysteresis"]),
-                    ("bang_bang", ["bang_bang", "bang-bang", "bang bang"])
-                ]
-                cand_lower = (cand["description"] + " " + cand["rejection_reason"] + " " + cand.get("rationale", "")).lower()
-                for concept_id, patterns in alt_sig_words:
-                    cand_has_concept = any(p in cand_lower for p in patterns)
-                    if cand_has_concept:
-                        for l_code in proposal["clean_added_lines"]:
-                            l_lower = l_code.lower()
-                            if any(p in l_lower for p in patterns):
+                extracted_concepts = extract_concept_tokens(
+                    cand.get("description", ""),
+                    cand.get("rejection_reason", ""),
+                    accepted_text=cand.get("rationale", "") + " " + cand.get("decision_title", "")
+                )
+                for concept in extracted_concepts:
+                    concept_esc = re.escape(concept.lower())
+                    pattern = rf"\b{concept_esc}\b"
+                    for l_code in proposal["clean_added_lines"]:
+                        if re.search(pattern, l_code.lower()):
+                            signature_match = True
+                            break
+                    if not signature_match:
+                        for ident in proposal["added_identifiers"]:
+                            if ident.lower() == concept.lower() or ident.lower().replace("_", " ") == concept.lower():
                                 signature_match = True
                                 break
-                        if not signature_match:
-                            for ident in proposal["added_identifiers"]:
-                                ident_norm = ident.replace("_", " ")
-                                if any(p == ident or p == ident_norm for p in patterns):
-                                    signature_match = True
-                                    break
                     if signature_match:
                         break
 

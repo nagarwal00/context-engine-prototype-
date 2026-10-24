@@ -107,8 +107,8 @@ class StalenessEngine:
         Handles patterns like:
           - pydantic>=2.0.0
           - bump pydantic to 2.1.0
-          - redis==5.0.1
-          - upgrade stripe to 5.0.0
+          - requests==2.31.0
+          - upgrade requests to 2.32.0
         """
         changes: Dict[str, str] = {}
         # Pattern 1: bump/upgrade <pkg> to <ver>

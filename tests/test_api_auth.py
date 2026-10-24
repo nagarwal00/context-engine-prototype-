@@ -52,7 +52,10 @@ class TestAPIAuth(unittest.TestCase):
         cls.httpd.shutdown()
         cls.httpd.server_close()
         cls.server_thread.join(timeout=2)
-        cls.tmp_dir.cleanup()
+        try:
+            cls.tmp_dir.cleanup()
+        except Exception:
+            pass
 
         for k, v in cls.orig_env.items():
             if v is None:

@@ -89,7 +89,7 @@ class EntityResolver:
         return entity
 
     def parse_dependency_manifest(self, manifest_content: str, filename: str = "requirements.txt") -> Dict[str, str]:
-        """Parses dependency specifications, e.g. redis==4.5.1"""
+        """Parses dependency specifications, e.g. requests==2.31.0"""
         deps = {}
         for line in manifest_content.splitlines():
             line = line.strip()

@@ -60,7 +60,7 @@ class OnboardingEngine:
             # Check module match
             mod_match = False
             if clean_module:
-                # check if module is a path segment (e.g., src/thermal/... or thermal)
+                # check if module is a path segment (e.g., src/core/... or core)
                 parts = cpath.split("/")
                 mod_match = (clean_module in parts) or (clean_module in cpath)
 

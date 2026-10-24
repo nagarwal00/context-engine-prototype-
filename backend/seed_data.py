@@ -355,16 +355,79 @@ Consequences:
         valid_from=dec_redis.made_at
     )
 
-    # Propose Decision Guard Rules & Constraints (Section 5 & Step 3.4)
+    # Authored Guard Rules for Pilot Demo Repositories (Step 3.2b)
+    # Authored directly as data (source="authored") rather than hardcoded in the engine.
+    authored_demo_rules = [
+        GuardRule(
+            rule_id=f"rule_forbid_pattern_{dec_pid.decision_id[:8]}_bangbang",
+            decision_id=dec_pid.decision_id,
+            rule_type="forbid_pattern",
+            params={
+                "regex": r"(?:on_off_relay|threshold_high|hysteresis_loop|bang_bang)",
+                "paths": ["src/thermal/**/*.py", "**/control.py"],
+                "message": "Reintroduces rejected bang-bang threshold hysteresis"
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/thermal/**/*.py", "**/control.py"],
+            source="authored",
+            approved_by=dec_pid.made_by,
+            approved_at=dec_pid.made_at
+        ),
+        GuardRule(
+            rule_id=f"rule_forbid_pattern_{dec_redis.decision_id[:8]}_dictcache",
+            decision_id=dec_redis.decision_id,
+            rule_type="forbid_pattern",
+            params={
+                "regex": r"(?:dict_cache\s*=\s*\{\}|local_cache\s*=\s*\{\})",
+                "paths": ["src/cache/**/*.py", "**/store.py"],
+                "message": "Reintroduces rejected in-memory dictionary cache"
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/cache/**/*.py", "**/store.py"],
+            source="authored",
+            approved_by=dec_redis.made_by,
+            approved_at=dec_redis.made_at
+        ),
+        GuardRule(
+            rule_id=f"rule_require_import_{dec_redis.decision_id[:8]}_redis",
+            decision_id=dec_redis.decision_id,
+            rule_type="require_import",
+            params={
+                "module": "redis",
+                "paths": ["src/cache/**/*.py"]
+            },
+            status="active",
+            polarity="must",
+            applies_to=["src/cache/**/*.py"],
+            source="authored",
+            approved_by=dec_redis.made_by,
+            approved_at=dec_redis.made_at
+        ),
+        GuardRule(
+            rule_id="rule_forbid_import_payments_sticky",
+            decision_id=dec_redis.decision_id,
+            rule_type="forbid_import",
+            params={
+                "module": "sticky_sessions",
+                "paths": ["src/payments/**/*.py", "src/**/*.py"]
+            },
+            status="active",
+            polarity="must_not",
+            applies_to=["src/payments/**/*.py", "src/**/*.py"],
+            source="authored",
+            approved_by="alex_lead",
+            approved_at="2026-02-01T00:00:00Z"
+        ),
+    ]
+    for r in authored_demo_rules:
+        db.upsert_guard_rule(r)
+
+    # Propose generic synthesized rules from decisions (status='proposed', source='synthesized')
     from backend.engine.guard_rules import propose_rules_from_decision
     for d in [dec_deadband, dec_pid, dec_lru_cap, dec_redis]:
         for rule in propose_rules_from_decision(d):
-            # Human architects approve active constraints for enforced decisions
-            if d.decision_id in (dec_pid.decision_id, dec_redis.decision_id, dec_deadband.decision_id):
-                rule.status = "active"
-                rule.approved_by = d.made_by
-                rule.approved_at = d.made_at
-                rule.source = "human"
             db.upsert_guard_rule(rule)
 
     # Evaluation fixtures for labelled drift benchmark (drift_cases.json)
@@ -381,7 +444,7 @@ Consequences:
             status="active",
             polarity="must_not",
             applies_to=["src/thermal/**/*.py", "src/thermal/control.py"],
-            source="human",
+            source="authored",
             approved_by="sarah_chen",
             approved_at="2026-01-15T16:00:00Z"
         ),
@@ -397,7 +460,7 @@ Consequences:
             status="active",
             polarity="must_not",
             applies_to=["src/thermal/**/*.py", "src/thermal/control.py"],
-            source="human",
+            source="authored",
             approved_by="sarah_chen",
             approved_at="2026-01-12T15:00:00Z"
         ),
@@ -413,7 +476,7 @@ Consequences:
             status="active",
             polarity="must_not",
             applies_to=["src/cache/**/*.py", "src/cache/store.py"],
-            source="human",
+            source="authored",
             approved_by="priya_patel",
             approved_at="2026-02-06T15:00:00Z"
         ),

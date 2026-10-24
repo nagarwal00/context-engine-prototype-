@@ -9,6 +9,12 @@ import fnmatch
 from typing import List, Dict, Any, Optional
 from backend.models import Decision, GuardRule
 from backend.db import Database
+from backend.engine.identifiers import (
+    extract_identifiers,
+    is_module_like,
+    derive_paths_from_artifacts,
+    extract_require_import_modules,
+)
 
 
 def _path_matches_pattern(filepath: str, pattern: str) -> bool:
@@ -42,142 +48,129 @@ ALLOWED_RULE_TYPES = {"forbid_import", "require_import", "forbid_pattern", "conf
 
 def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
     """
-    Proposes candidate guard rules from a decision's rationale and rejected alternatives.
-    All proposals are stored as 'proposed' and NEVER auto-activated.
+    Proposes candidate guard rules from a decision's rationale and rejected alternatives
+    using generic syntax and concept extraction (no hard-coded scenario vocabulary).
+    All proposals are stored with status='proposed' and source='synthesized', and NEVER auto-activated.
     """
     rules: List[GuardRule] = []
-    text = (decision.title + " " + (decision.rationale or "")).lower()
+    p_paths = derive_paths_from_artifacts(decision.artifacts_affected)
 
-    # Rule Type 1: forbid_import (from rejected alternatives or explicit anti-patterns)
+    accepted_text = (decision.title + " " + (decision.rationale or "")).lower()
+    accepted_identifiers = {
+        ident.lower()
+        for ident in extract_identifiers(decision.title + " " + (decision.rationale or ""))
+    }
+
+    # For rejected alternatives of an accepted decision:
     for alt in decision.alternatives_considered:
-        alt_desc = alt.get("description", "").lower()
-        alt_reason = alt.get("rejection_reason", "").lower()
-        combined = alt_desc + " " + alt_reason
+        if isinstance(alt, dict):
+            alt_desc = alt.get("description", "")
+            alt_reason = alt.get("rejection_reason", "")
+        else:
+            alt_desc = str(alt)
+            alt_reason = ""
+        combined_alt = alt_desc + " " + alt_reason
+        alt_candidates = extract_identifiers(combined_alt)
 
-        # Detect forbidden imports/modules
-        forbid_modules = [
-            ("sticky_sessions", "sticky_sessions"),
-            ("raw memory cache", "local_cache"),
-            ("in-memory dict", "dict_cache"),
-            ("braintree", "braintree"),
-            ("userfaultfd", "userfaultfd"),
-            ("raw psycopg2", "psycopg2")
-        ]
-        for pattern_word, mod_name in forbid_modules:
-            if pattern_word in combined or mod_name in combined:
-                p_paths = ["*.py", "**/*.py", "src/**/*.py", "vmm/**/*.rs", "pkg/**/*.go"]
+        for cand in sorted(alt_candidates):
+            cand_lower = cand.lower()
+            # Identifiers that appear in the rejected text but NOT in the accepted decision's text
+            if cand_lower not in accepted_text and cand_lower not in accepted_identifiers:
+                cand_clean = re.sub(r"[^a-zA-Z0-9_]", "_", cand)[:24]
+                rule_id_pat = f"rule_forbid_pattern_{decision.decision_id[:8]}_{cand_clean}"
                 rules.append(GuardRule(
-                    rule_id=f"rule_forbid_import_{decision.decision_id[:8]}_{mod_name}",
+                    rule_id=rule_id_pat,
+                    decision_id=decision.decision_id,
+                    rule_type="forbid_pattern",
+                    params={
+                        "regex": rf"\b{re.escape(cand)}\b",
+                        "paths": p_paths,
+                        "message": f"Reintroduces rejected concept: {cand}"
+                    },
+                    status="proposed",
+                    polarity="must_not",
+                    applies_to=p_paths,
+                    source="synthesized",
+                    created_by="rule_synthesizer",
+                    created_at=decision.made_at
+                ))
+
+                if is_module_like(cand):
+                    rule_id_imp = f"rule_forbid_import_{decision.decision_id[:8]}_{cand_clean}"
+                    rules.append(GuardRule(
+                        rule_id=rule_id_imp,
+                        decision_id=decision.decision_id,
+                        rule_type="forbid_import",
+                        params={
+                            "module": cand,
+                            "paths": p_paths
+                        },
+                        status="proposed",
+                        polarity="must_not",
+                        applies_to=p_paths,
+                        source="synthesized",
+                        created_by="rule_synthesizer",
+                        created_at=decision.made_at
+                    ))
+
+    # For a rejected decision: the decision itself is rejected
+    if decision.state == "rejected":
+        rej_candidates = extract_identifiers(decision.title + " " + (decision.rationale or ""))
+        for cand in sorted(rej_candidates):
+            cand_clean = re.sub(r"[^a-zA-Z0-9_]", "_", cand)[:24]
+            rules.append(GuardRule(
+                rule_id=f"rule_forbid_pattern_{decision.decision_id[:8]}_{cand_clean}",
+                decision_id=decision.decision_id,
+                rule_type="forbid_pattern",
+                params={
+                    "regex": rf"\b{re.escape(cand)}\b",
+                    "paths": p_paths,
+                    "message": f"Reintroduces rejected decision concept: {cand}"
+                },
+                status="proposed",
+                polarity="must_not",
+                applies_to=p_paths,
+                source="synthesized",
+                created_by="rule_synthesizer",
+                created_at=decision.made_at
+            ))
+            if is_module_like(cand):
+                rules.append(GuardRule(
+                    rule_id=f"rule_forbid_import_{decision.decision_id[:8]}_{cand_clean}",
                     decision_id=decision.decision_id,
                     rule_type="forbid_import",
                     params={
-                        "module": mod_name,
+                        "module": cand,
                         "paths": p_paths
                     },
                     status="proposed",
                     polarity="must_not",
                     applies_to=p_paths,
-                    source="proposed",
+                    source="synthesized",
                     created_by="rule_synthesizer",
                     created_at=decision.made_at
                 ))
 
-        # Rule Type 3: forbid_pattern (regex anti-patterns)
-        if "hysteresis" in combined or "bang-bang" in combined:
-            p_paths = ["src/thermal/**/*.py", "**/control.py"]
-            rules.append(GuardRule(
-                rule_id=f"rule_forbid_pattern_{decision.decision_id[:8]}_bangbang",
-                decision_id=decision.decision_id,
-                rule_type="forbid_pattern",
-                params={
-                    "regex": r"(?:on_off_relay|threshold_high|hysteresis_loop|bang_bang)",
-                    "paths": p_paths,
-                    "message": "Reintroduces rejected bang-bang threshold hysteresis"
-                },
-                status="proposed",
-                polarity="must_not",
-                applies_to=p_paths,
-                source="proposed",
-                created_by="rule_synthesizer",
-                created_at=decision.made_at
-            ))
-
-        if "local_cache" in combined or "dict_cache" in combined:
-            p_paths = ["src/cache/**/*.py", "**/store.py"]
-            rules.append(GuardRule(
-                rule_id=f"rule_forbid_pattern_{decision.decision_id[:8]}_dictcache",
-                decision_id=decision.decision_id,
-                rule_type="forbid_pattern",
-                params={
-                    "regex": r"(?:dict_cache\s*=\s*\{\}|local_cache\s*=\s*\{\})",
-                    "paths": p_paths,
-                    "message": "Reintroduces rejected in-memory dictionary cache"
-                },
-                status="proposed",
-                polarity="must_not",
-                applies_to=p_paths,
-                source="proposed",
-                created_by="rule_synthesizer",
-                created_at=decision.made_at
-            ))
-
-    # Rule Type 2: require_import (from accepted architectural decisions)
+    # require_import only from explicit backticked phrases such as "must use `X`"
     if decision.state == "accepted":
-        if "stripe" in text:
-            p_paths = ["src/payments/**/*.py"]
+        req_mods = extract_require_import_modules(decision.title + " " + (decision.rationale or ""))
+        for mod in sorted(req_mods):
+            mod_clean = re.sub(r"[^a-zA-Z0-9_]", "_", mod)[:24]
             rules.append(GuardRule(
-                rule_id=f"rule_require_import_{decision.decision_id[:8]}_stripe",
+                rule_id=f"rule_require_import_{decision.decision_id[:8]}_{mod_clean}",
                 decision_id=decision.decision_id,
                 rule_type="require_import",
                 params={
-                    "module": "stripe",
+                    "module": mod,
                     "paths": p_paths
                 },
                 status="proposed",
                 polarity="must",
                 applies_to=p_paths,
-                source="proposed",
+                source="synthesized",
                 created_by="rule_synthesizer",
                 created_at=decision.made_at
             ))
-
-        if "redis" in text and "cluster" in text:
-            p_paths = ["src/cache/**/*.py"]
-            rules.append(GuardRule(
-                rule_id=f"rule_require_import_{decision.decision_id[:8]}_redis",
-                decision_id=decision.decision_id,
-                rule_type="require_import",
-                params={
-                    "module": "redis",
-                    "paths": p_paths
-                },
-                status="proposed",
-                polarity="must",
-                applies_to=p_paths,
-                source="proposed",
-                created_by="rule_synthesizer",
-                created_at=decision.made_at
-            ))
-
-    # Rule Type 4: config_value
-    if "timeout" in text:
-        p_paths = ["config.json", "**/config.json"]
-        rules.append(GuardRule(
-            rule_id=f"rule_config_val_{decision.decision_id[:8]}_timeout",
-            decision_id=decision.decision_id,
-            rule_type="config_value",
-            params={
-                "file": "config.json",
-                "key": "timeout_seconds",
-                "must_equal": "30"
-            },
-            status="proposed",
-            polarity="must",
-            applies_to=p_paths,
-            source="proposed",
-            created_by="rule_synthesizer",
-            created_at=decision.made_at
-        ))
 
     # Deduplicate rules by rule_id
     dedup: Dict[str, GuardRule] = {}

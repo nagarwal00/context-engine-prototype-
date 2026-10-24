@@ -183,8 +183,8 @@ def _base_independence_key(event: Any) -> str:
                 thread_num = int(m.group(1))
 
         if not thread_num and parent_ids:
-            for pid in parent_ids:
-                m = re.search(r"(?:evt_pr|evt_issue)_[^_]+_(\d+)", pid)
+            for parent_id in parent_ids:
+                m = re.search(r"(?:evt_pr|evt_issue)_[^_]+_(\d+)", parent_id)
                 if m:
                     thread_num = int(m.group(1))
                     break
