@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "6d20e8db1d3ee966912ac025cbc1dfa68d06f1c30dec63d1ef10336750839c15",
+  "db_snapshot_sha256": "f483e97a7319d08c931ff3c24f379a4619178d63aff8b740d1dbaf6704a5d646",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -321,8 +321,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
               ],
               "system_state": "accepted"
             },
@@ -379,8 +379,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -401,15 +401,15 @@ window.__CIF_STATIC_DATA__ = {
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_sarah",
-                "evt_issue_thermal_12_comm"
+                "evt_issue_thermal_12_comm",
+                "evt_issue_thermal_12_sarah"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '6d20e8db1d3ee966912ac025cbc1dfa68d06f1c30dec63d1ef10336750839c15'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'f483e97a7319d08c931ff3c24f379a4619178d63aff8b740d1dbaf6704a5d646'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -420,8 +420,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_cache_0009",
-                  "evt_rev_cache_c201"
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
                 ],
                 "system_state": "accepted"
               },
@@ -452,14 +452,14 @@ window.__CIF_STATIC_DATA__ = {
             "matched_gt_count": 3,
             "matched_system_ids": [
               "dec_thermal_pid_accepted",
-              "dec_cache_redis_accepted",
-              "dec_cache_local_lru_proposed"
+              "dec_cache_local_lru_proposed",
+              "dec_cache_redis_accepted"
             ],
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -610,7 +610,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '6d20e8db1d3ee966912ac025cbc1dfa68d06f1c30dec63d1ef10336750839c15'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'f483e97a7319d08c931ff3c24f379a4619178d63aff8b740d1dbaf6704a5d646'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
@@ -651,30 +651,34 @@ window.__CIF_STATIC_DATA__ = {
                 "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
                 "status": "measured",
                 "task_1_applicable": true,
-                "task_1_hit_rate": 8.5,
+                "task_1_hit_rate": 23.1,
                 "task_1_top_k": 5,
                 "task_2_applicable": false,
                 "task_2_decision_recall": "n/a",
                 "task_2_refusal_accuracy": "n/a (always answers)",
                 "task_2_state_accuracy": "n/a",
                 "top_k": 5,
-                "total_count": 71
+                "total_count": 26,
+                "wilson95_high": 0.4205,
+                "wilson95_low": 0.1103
               },
               "baseline_keyword": {
                 "decision_recall": 59.2,
-                "found_count": 42,
+                "found_count": 24,
                 "name": "Baseline A: Keyword Search (Grep/BM25)",
                 "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
                 "status": "measured",
                 "task_1_applicable": true,
-                "task_1_hit_rate": 59.2,
+                "task_1_hit_rate": 92.3,
                 "task_1_top_k": 5,
                 "task_2_applicable": false,
                 "task_2_decision_recall": "n/a",
                 "task_2_refusal_accuracy": "n/a (always answers)",
                 "task_2_state_accuracy": "n/a",
                 "top_k": 5,
-                "total_count": 71
+                "total_count": 26,
+                "wilson95_high": 0.9786,
+                "wilson95_low": 0.7586
               },
               "baseline_llm": {
                 "decision_recall": "not measured",
@@ -708,12 +712,20 @@ window.__CIF_STATIC_DATA__ = {
               "state_correct_count": 21,
               "strict_matched_gt_count": 21,
               "task_1_cif_hit_rate": 80.8,
-              "task_1_cif_hits": 21
+              "task_1_cif_hits": 21,
+              "task_1_cif_wilson95_high": 0.9149,
+              "task_1_cif_wilson95_low": 0.6212
             },
             "per_repository": {
               "acme-ecommerce/payment-core": {
-                "baseline_docs_only_hit_rate": 8.0,
-                "baseline_keyword_hit_rate": 56.0,
+                "baseline_docs_only_hit_rate": 20.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5098,
+                "baseline_docs_only_wilson95_low": 0.0567,
+                "baseline_keyword_hit_rate": 90.0,
+                "baseline_keyword_hits": 9,
+                "baseline_keyword_wilson95_high": 0.9821,
+                "baseline_keyword_wilson95_low": 0.5958,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 80.0,
@@ -728,11 +740,19 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 8,
                 "strict_matched_gt_count": 8,
                 "task_1_cif_hit_rate": 80.0,
-                "task_1_cif_hits": 8
+                "task_1_cif_hits": 8,
+                "task_1_cif_wilson95_high": 0.9433,
+                "task_1_cif_wilson95_low": 0.4902
               },
               "cli/cli": {
-                "baseline_docs_only_hit_rate": 8.7,
-                "baseline_keyword_hit_rate": 56.5,
+                "baseline_docs_only_hit_rate": 25.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5907,
+                "baseline_docs_only_wilson95_low": 0.0715,
+                "baseline_keyword_hit_rate": 100.0,
+                "baseline_keyword_hits": 8,
+                "baseline_keyword_wilson95_high": 1.0,
+                "baseline_keyword_wilson95_low": 0.6756,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 87.5,
@@ -747,11 +767,19 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 7,
                 "strict_matched_gt_count": 7,
                 "task_1_cif_hit_rate": 87.5,
-                "task_1_cif_hits": 7
+                "task_1_cif_hits": 7,
+                "task_1_cif_wilson95_high": 0.9776,
+                "task_1_cif_wilson95_low": 0.5291
               },
               "cloud-hypervisor/cloud-hypervisor": {
-                "baseline_docs_only_hit_rate": 8.7,
-                "baseline_keyword_hit_rate": 65.2,
+                "baseline_docs_only_hit_rate": 25.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5907,
+                "baseline_docs_only_wilson95_low": 0.0715,
+                "baseline_keyword_hit_rate": 87.5,
+                "baseline_keyword_hits": 7,
+                "baseline_keyword_wilson95_high": 0.9776,
+                "baseline_keyword_wilson95_low": 0.5291,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 75.0,
@@ -766,7 +794,9 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 6,
                 "strict_matched_gt_count": 6,
                 "task_1_cif_hit_rate": 75.0,
-                "task_1_cif_hits": 6
+                "task_1_cif_hits": 6,
+                "task_1_cif_wilson95_high": 0.9285,
+                "task_1_cif_wilson95_low": 0.4093
               }
             }
           },
@@ -1519,6 +1549,122 @@ window.__CIF_STATIC_DATA__ = {
           "run_id": "test_v2_20261013_100423",
           "split": "test_v2",
           "standard_questions": 26,
+          "task1_fair_corrections": {
+            "cif_metric_definition": "single strictly-matched decision cites >=1 expected evidence event; not a ranked top-5 retrieval",
+            "generated_by": "tools/recompute_task1_fair.py",
+            "original_values": {
+              "baseline_docs_only_rate": 8.5,
+              "baseline_docs_only_total_count": 71,
+              "baseline_keyword_rate": 59.2,
+              "baseline_keyword_total_count": 71
+            },
+            "overall": {
+              "baseline_docs_only": {
+                "hits": 6,
+                "n": 26,
+                "rate": 23.1,
+                "wilson95_high": 0.4205,
+                "wilson95_low": 0.1103
+              },
+              "baseline_keyword": {
+                "hits": 24,
+                "n": 26,
+                "rate": 92.3,
+                "wilson95_high": 0.9786,
+                "wilson95_low": 0.7586
+              },
+              "cif": {
+                "hits": 21,
+                "n": 26,
+                "rate": 80.8,
+                "wilson95_high": 0.9149,
+                "wilson95_low": 0.6212
+              }
+            },
+            "per_repository": {
+              "acme-ecommerce/payment-core": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 10,
+                  "original_rate": 8.0,
+                  "rate": 20.0,
+                  "wilson95_high": 0.5098,
+                  "wilson95_low": 0.0567
+                },
+                "baseline_keyword": {
+                  "hits": 9,
+                  "n": 10,
+                  "original_rate": 56.0,
+                  "rate": 90.0,
+                  "wilson95_high": 0.9821,
+                  "wilson95_low": 0.5958
+                },
+                "cif": {
+                  "hits": 8,
+                  "n": 10,
+                  "rate": 80.0,
+                  "wilson95_high": 0.9433,
+                  "wilson95_low": 0.4902
+                },
+                "positives_n": 10
+              },
+              "cli/cli": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 8,
+                  "original_rate": 8.7,
+                  "rate": 25.0,
+                  "wilson95_high": 0.5907,
+                  "wilson95_low": 0.0715
+                },
+                "baseline_keyword": {
+                  "hits": 8,
+                  "n": 8,
+                  "original_rate": 56.5,
+                  "rate": 100.0,
+                  "wilson95_high": 1.0,
+                  "wilson95_low": 0.6756
+                },
+                "cif": {
+                  "hits": 7,
+                  "n": 8,
+                  "rate": 87.5,
+                  "wilson95_high": 0.9776,
+                  "wilson95_low": 0.5291
+                },
+                "positives_n": 8
+              },
+              "cloud-hypervisor/cloud-hypervisor": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 8,
+                  "original_rate": 8.7,
+                  "rate": 25.0,
+                  "wilson95_high": 0.5907,
+                  "wilson95_low": 0.0715
+                },
+                "baseline_keyword": {
+                  "hits": 7,
+                  "n": 8,
+                  "original_rate": 65.2,
+                  "rate": 87.5,
+                  "wilson95_high": 0.9776,
+                  "wilson95_low": 0.5291
+                },
+                "cif": {
+                  "hits": 6,
+                  "n": 8,
+                  "rate": 75.0,
+                  "wilson95_high": 0.9285,
+                  "wilson95_low": 0.4093
+                },
+                "positives_n": 8
+              }
+            },
+            "positives_n": 26,
+            "reason": "baselines were originally scored over all questions incl. negatives; CIF over positives only",
+            "split": "test_v2"
+          },
           "timestamp": "2026-10-13T10:04:34.739827"
         }
       },
@@ -2753,7 +2899,7 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-01-15T16:00:00Z",
           "approved_by": "sarah_chen",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_pid_01",
           "decision_title": "Architectural Decision dec_thermal_pid_01",
@@ -2781,7 +2927,7 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-01-12T15:00:00Z",
           "approved_by": "sarah_chen",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_bangbang_02",
           "decision_title": "Architectural Decision dec_thermal_bangbang_02",
@@ -2809,7 +2955,7 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-02-06T15:00:00Z",
           "approved_by": "priya_patel",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_cache_redis_01",
           "decision_title": "Architectural Decision dec_cache_redis_01",
@@ -4008,7 +4154,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "marcus_vance",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_local_lru_proposed_1791802569932891100_80f194",
+            "history_id": "hist_init_dec_cache_local_lru_proposed_1792750872740746600_8e968e",
             "notes": "Initial state: proposed. Reason: Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/distributed-cache-service",
@@ -4019,7 +4165,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "marcus_vance",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": "proposed",
-            "history_id": "hist_dec_cache_local_lru_proposed_1791802569979622000_cda5bc",
+            "history_id": "hist_dec_cache_local_lru_proposed_1792750872808808300_1f8d83",
             "notes": "Transition: proposed -> accepted. Reason: Accepted temporary in-memory LRU cache with soft memory cap",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/distributed-cache-service",
@@ -4030,7 +4176,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": "accepted",
-            "history_id": "hist_dec_cache_local_lru_proposed_1791802570043053900_572e11",
+            "history_id": "hist_dec_cache_local_lru_proposed_1792750872992070200_856b6a",
             "notes": "Transition: accepted -> superseded. Reason: ADR 0009: Migrated from in-memory cache to distributed Redis cluster",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/distributed-cache-service",
@@ -4122,7 +4268,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_redis_01",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_redis_01_1791802570113587600_482019",
+            "history_id": "hist_init_dec_cache_redis_01_1792750873160090100_412680",
             "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/distributed-cache-service",
@@ -4283,7 +4429,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_redis_accepted",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_redis_accepted_1791802569986703100_4d5cc5",
+            "history_id": "hist_init_dec_cache_redis_accepted_1792750872836810900_259752",
             "notes": "Initial state: accepted. Reason: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/distributed-cache-service",
@@ -4369,7 +4515,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_bangbang_02",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_bangbang_02_1791802570087292500_53b481",
+            "history_id": "hist_init_dec_thermal_bangbang_02_1792750873130470100_285200",
             "notes": "Initial state: rejected. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/thermal-control-system",
@@ -4530,7 +4676,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_deadband_rejected",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_deadband_rejected_1791802569780099100_c753a5",
+            "history_id": "hist_init_dec_thermal_deadband_rejected_1792750872454028600_a15b1d",
             "notes": "Initial state: rejected. Reason: Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/thermal-control-system",
@@ -4616,7 +4762,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_pid_01",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_pid_01_1791802570068329100_7962b6",
+            "history_id": "hist_init_dec_thermal_pid_01_1792750873097853300_cad87c",
             "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/thermal-control-system",
@@ -4771,7 +4917,7 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_pid_accepted",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_pid_accepted_1791802569828514400_0aedec",
+            "history_id": "hist_init_dec_thermal_pid_accepted_1792750872538100900_e9e923",
             "notes": "Initial state: accepted. Reason: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
             "reconstructed": 0,
             "repo_full_name": "acme-eng/thermal-control-system",

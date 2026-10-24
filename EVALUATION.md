@@ -24,6 +24,8 @@ WhyBench formally evaluates two distinct tasks to prevent comparing unlike syste
 - **Input**: Natural language architectural query string + repository identifier.
 - **Systems Evaluated**: Comparable across CIF and baseline search algorithms (Baseline A: Keyword/BM25 token overlap; Baseline B: Documentation/ADR search).
 - **Metric**: Top-$k$ ($k=5$) evidence event hit rate (percentage of queries where at least one ground-truth evidence event ID is present in top 5 retrieved items).
+- **Fair Comparison (Positives Only)**: When scored fairly on the exact same 26 positive questions (`expected_state != 'none'`), Baseline A (BM25) achieves **92.3%** (24/26) and Baseline B (Docs-only) achieves **23.1%** (6/26) vs CIF's **80.8%** (21/26) decision-evidence match.
+- **Footnote**: *CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules (see Task 2).*
 - **Refusal**: Unconditional top-$k$ search baselines have no refusal mechanism; they are explicitly marked `n/a (always answers)` rather than scored 0.0%.
 
 ### Task 2: Decision Reconstruction (State, Rationale, Alternatives, Supersession)

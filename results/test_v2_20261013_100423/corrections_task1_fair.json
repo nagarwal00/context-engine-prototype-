@@ -1,0 +1,116 @@
+{
+  "generated_by": "tools/recompute_task1_fair.py",
+  "split": "test_v2",
+  "reason": "baselines were originally scored over all questions incl. negatives; CIF over positives only",
+  "positives_n": 26,
+  "cif_metric_definition": "single strictly-matched decision cites >=1 expected evidence event; not a ranked top-5 retrieval",
+  "original_values": {
+    "baseline_keyword_rate": 59.2,
+    "baseline_keyword_total_count": 71,
+    "baseline_docs_only_rate": 8.5,
+    "baseline_docs_only_total_count": 71
+  },
+  "overall": {
+    "cif": {
+      "hits": 21,
+      "n": 26,
+      "rate": 80.8,
+      "wilson95_low": 0.6212,
+      "wilson95_high": 0.9149
+    },
+    "baseline_keyword": {
+      "hits": 24,
+      "n": 26,
+      "rate": 92.3,
+      "wilson95_low": 0.7586,
+      "wilson95_high": 0.9786
+    },
+    "baseline_docs_only": {
+      "hits": 6,
+      "n": 26,
+      "rate": 23.1,
+      "wilson95_low": 0.1103,
+      "wilson95_high": 0.4205
+    }
+  },
+  "per_repository": {
+    "acme-ecommerce/payment-core": {
+      "positives_n": 10,
+      "cif": {
+        "hits": 8,
+        "n": 10,
+        "rate": 80.0,
+        "wilson95_low": 0.4902,
+        "wilson95_high": 0.9433
+      },
+      "baseline_keyword": {
+        "hits": 9,
+        "n": 10,
+        "rate": 90.0,
+        "wilson95_low": 0.5958,
+        "wilson95_high": 0.9821,
+        "original_rate": 56.0
+      },
+      "baseline_docs_only": {
+        "hits": 2,
+        "n": 10,
+        "rate": 20.0,
+        "wilson95_low": 0.0567,
+        "wilson95_high": 0.5098,
+        "original_rate": 8.0
+      }
+    },
+    "cli/cli": {
+      "positives_n": 8,
+      "cif": {
+        "hits": 7,
+        "n": 8,
+        "rate": 87.5,
+        "wilson95_low": 0.5291,
+        "wilson95_high": 0.9776
+      },
+      "baseline_keyword": {
+        "hits": 8,
+        "n": 8,
+        "rate": 100.0,
+        "wilson95_low": 0.6756,
+        "wilson95_high": 1.0,
+        "original_rate": 56.5
+      },
+      "baseline_docs_only": {
+        "hits": 2,
+        "n": 8,
+        "rate": 25.0,
+        "wilson95_low": 0.0715,
+        "wilson95_high": 0.5907,
+        "original_rate": 8.7
+      }
+    },
+    "cloud-hypervisor/cloud-hypervisor": {
+      "positives_n": 8,
+      "cif": {
+        "hits": 6,
+        "n": 8,
+        "rate": 75.0,
+        "wilson95_low": 0.4093,
+        "wilson95_high": 0.9285
+      },
+      "baseline_keyword": {
+        "hits": 7,
+        "n": 8,
+        "rate": 87.5,
+        "wilson95_low": 0.5291,
+        "wilson95_high": 0.9776,
+        "original_rate": 65.2
+      },
+      "baseline_docs_only": {
+        "hits": 2,
+        "n": 8,
+        "rate": 25.0,
+        "wilson95_low": 0.0715,
+        "wilson95_high": 0.5907,
+        "original_rate": 8.7
+      }
+    }
+  }
+}

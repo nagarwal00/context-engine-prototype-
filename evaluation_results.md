@@ -16,23 +16,25 @@ Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v
 - **Git Commit**: `216b7cb08de014daaf7cf932af7f8fb8a1955855` (clean)
 
 ### 1.1 Task 1 — Evidence Retrieval ("Find the sources that explain X")
-*Comparable across CIF and search baselines. Metric: Top-5 evidence event hit rate.*
+*Comparable across CIF and search baselines evaluated on identical positive questions (`expected_state != 'none'`).*
 
-| System / Baseline | Method | Input Received | Task 1 Top-5 Hit Rate | Refusal (Abstention) | Status |
-|---|---|---|:---:|:---:|:---:|
-| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **80.8%** (21/26) | **64.4%** (29/45 abstained) | Measured |
-| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **59.2%** | *n/a (always answers)* | Measured |
-| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **8.5%** | *n/a (always answers)* | Measured |
-| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
-| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | No manual labels |
+| System / Baseline | Method | Input Received | Task 1 Hit Rate (Positives) | 95% CI (Wilson) | Refusal (Abstention) | Status |
+|---|---|---|:---:|:---:|:---:|:---:|
+| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **80.8%** (21/26) | [62.1%, 91.5%] | **64.4%** (29/45 abstained) | Measured |
+| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **92.3%** (24/26) | [75.9%, 97.9%] | *n/a (always answers)* | Measured |
+| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **23.1%** (6/26) | [11.0%, 42.0%] | *n/a (always answers)* | Measured |
+| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
+| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | *not measured* | No manual labels |
+
+> *Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules (see Task 2).*
 
 #### Task 1 Per-Repository Breakdown
 
 | Repository | Questions (Std / Refusal) | CIF Event Hit Rate | Baseline A (BM25) | Baseline B (Docs) |
 |---|:---:|:---:|:---:|:---:|
-| `acme-ecommerce/payment-core` | 10 / 15 | **80.0%** (8/10) | 56.0% | 8.0% |
-| `cli/cli` | 8 / 15 | **87.5%** (7/8) | 56.5% | 8.7% |
-| `cloud-hypervisor/cloud-hypervisor` | 8 / 15 | **75.0%** (6/8) | 65.2% | 8.7% |
+| `acme-ecommerce/payment-core` | 10 / 15 | **80.0%** (8/10) | **90.0%** (9/10) | **20.0%** (2/10) |
+| `cli/cli` | 8 / 15 | **87.5%** (7/8) | **100.0%** (8/8) | **25.0%** (2/8) |
+| `cloud-hypervisor/cloud-hypervisor` | 8 / 15 | **75.0%** (6/8) | **87.5%** (7/8) | **25.0%** (2/8) |
 
 ### 1.2 Task 2 — Decision Reconstruction (Lifecycle State, Rationale, Alternatives, Supersession)
 *Evaluates structured architectural model extraction and lifecycle fidelity. Search baselines cannot perform this task and are marked `n/a`.*
@@ -54,7 +56,7 @@ Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v
 | `cloud-hypervisor/cloud-hypervisor` | **75.0%** (6/8) | 75.0% | **100.0%** (6/6) | **73.3%** (11/15) | not measured |
 
 #### Honest Task Analysis
-1. **Task 1 (Evidence Retrieval)**: CIF achieves **80.8%** event retrieval vs **59.2%** for BM25 and **8.5%** for Docs-only, demonstrating that graph traversal retrieves both code commits and discussions.
+1. **Task 1 (Evidence Retrieval)**: On identical positive questions, BM25 achieves **92.3%** (24/26) and Docs-only achieves **23.1%** (6/26) vs CIF's **80.8%** (21/26) decision-evidence match. BM25 raw token retrieval is higher; CIF's contribution is state classification, evidence grounding invariant, and negative abstention (see Task 2).
 2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **100.0% State Accuracy** and **64.4% Refusal Accuracy** across unrecorded and discussion-only negative cases.
 3. **Overcounting Gap**: Under audited one-to-one strict matching (Step 4.1), CIF achieves **80.8%** strict recall vs **80.8%** lenient recall (gap: `+0.0%`).
 

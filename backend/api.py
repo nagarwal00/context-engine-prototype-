@@ -401,11 +401,65 @@ class APIHandler:
         # 8. Evaluation & Benchmark
         elif path == "/api/benchmark":
             data = self.benchmark_runner.run_full_evaluation()
-            manifest_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results", "latest_manifest.json")
+            results_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "results")
+            manifest_path = os.path.join(results_dir, "latest_manifest.json")
             if os.path.exists(manifest_path):
                 try:
                     with open(manifest_path, "r", encoding="utf-8") as f:
-                        data["whybench_manifest"] = json.load(f)
+                        wb_manifest = json.load(f)
+
+                    # Overlay fair Task-1 corrections if present
+                    run_id = wb_manifest.get("run_id", "")
+                    corr_paths = [
+                        os.path.join(results_dir, run_id, "corrections_task1_fair.json"),
+                        os.path.join(results_dir, "corrections_task1_fair.json")
+                    ]
+                    corr_file = next((p for p in corr_paths if os.path.exists(p)), None)
+                    if corr_file:
+                        try:
+                            with open(corr_file, "r", encoding="utf-8") as cf:
+                                corrections = json.load(cf)
+                            wb_manifest["task1_fair_corrections"] = corrections
+                            overall_corr = corrections.get("overall", {})
+                            if "baseline_keyword" in overall_corr:
+                                bk = wb_manifest.get("metrics", {}).get("overall", {}).get("baseline_keyword", {})
+                                bk["task_1_hit_rate"] = overall_corr["baseline_keyword"].get("rate", bk.get("task_1_hit_rate"))
+                                bk["found_count"] = overall_corr["baseline_keyword"].get("hits", bk.get("found_count"))
+                                bk["total_count"] = overall_corr["baseline_keyword"].get("n", bk.get("total_count"))
+                                bk["wilson95_low"] = overall_corr["baseline_keyword"].get("wilson95_low")
+                                bk["wilson95_high"] = overall_corr["baseline_keyword"].get("wilson95_high")
+                            if "baseline_docs_only" in overall_corr:
+                                bd = wb_manifest.get("metrics", {}).get("overall", {}).get("baseline_docs_only", {})
+                                bd["task_1_hit_rate"] = overall_corr["baseline_docs_only"].get("rate", bd.get("task_1_hit_rate"))
+                                bd["found_count"] = overall_corr["baseline_docs_only"].get("hits", bd.get("found_count"))
+                                bd["total_count"] = overall_corr["baseline_docs_only"].get("n", bd.get("total_count"))
+                                bd["wilson95_low"] = overall_corr["baseline_docs_only"].get("wilson95_low")
+                                bd["wilson95_high"] = overall_corr["baseline_docs_only"].get("wilson95_high")
+                            if "cif" in overall_corr:
+                                ov = wb_manifest.get("metrics", {}).get("overall", {})
+                                ov["task_1_cif_wilson95_low"] = overall_corr["cif"].get("wilson95_low")
+                                ov["task_1_cif_wilson95_high"] = overall_corr["cif"].get("wilson95_high")
+
+                            for r_name, r_corr in corrections.get("per_repository", {}).items():
+                                m_r = wb_manifest.get("metrics", {}).get("per_repository", {}).get(r_name)
+                                if m_r:
+                                    if "baseline_keyword" in r_corr:
+                                        m_r["baseline_keyword_hit_rate"] = r_corr["baseline_keyword"].get("rate", m_r.get("baseline_keyword_hit_rate"))
+                                        m_r["baseline_keyword_hits"] = r_corr["baseline_keyword"].get("hits")
+                                        m_r["baseline_keyword_wilson95_low"] = r_corr["baseline_keyword"].get("wilson95_low")
+                                        m_r["baseline_keyword_wilson95_high"] = r_corr["baseline_keyword"].get("wilson95_high")
+                                    if "baseline_docs_only" in r_corr:
+                                        m_r["baseline_docs_only_hit_rate"] = r_corr["baseline_docs_only"].get("rate", m_r.get("baseline_docs_only_hit_rate"))
+                                        m_r["baseline_docs_only_hits"] = r_corr["baseline_docs_only"].get("hits")
+                                        m_r["baseline_docs_only_wilson95_low"] = r_corr["baseline_docs_only"].get("wilson95_low")
+                                        m_r["baseline_docs_only_wilson95_high"] = r_corr["baseline_docs_only"].get("wilson95_high")
+                                    if "cif" in r_corr:
+                                        m_r["task_1_cif_wilson95_low"] = r_corr["cif"].get("wilson95_low")
+                                        m_r["task_1_cif_wilson95_high"] = r_corr["cif"].get("wilson95_high")
+                        except Exception:
+                            pass
+
+                    data["whybench_manifest"] = wb_manifest
                 except Exception:
                     pass
             return {"status": "success", "data": data}

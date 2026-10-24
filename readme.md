@@ -221,7 +221,7 @@ When demoing this project to your professor, follow these 8 simple steps:
 - **What is on screen:** Metric cards, WhyBench real-world benchmark results, and a baseline comparison table.
 - **What to say:**
   > *"To validate our capstone honestly, we evaluated the system on WhyBench across 71 questions on the frozen `test_v2` split from three open-source repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
-  > *On Task 1 (Evidence Retrieval), CIF achieved 80.8% Top-5 Hit Rate compared to 59.2% for BM25 Keyword Search and 8.5% for Docs-only search. On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% State Accuracy, and 64.4% Refusal Accuracy on negative unrecorded questions. All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
+  > *On Task 1 (Evidence Retrieval), on identical positive questions, Baseline A (BM25) achieves 92.3% and Baseline B (Docs-only) achieves 23.1% compared to CIF's 80.8% decision-evidence match (Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules). On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% State Accuracy, and 64.4% Refusal Accuracy on negative unrecorded questions. All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
 
 #### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
 If the professor challenges the project, say this:

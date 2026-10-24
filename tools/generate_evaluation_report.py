@@ -44,42 +44,92 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
 
     # --- Task 1: Evidence Retrieval ---
     lines.append("### 1.1 Task 1 — Evidence Retrieval (\"Find the sources that explain X\")")
-    lines.append("*Comparable across CIF and search baselines. Metric: Top-5 evidence event hit rate.*")
+    lines.append("*Comparable across CIF and search baselines evaluated on identical positive questions (`expected_state != 'none'`).*")
     lines.append("")
-    lines.append("| System / Baseline | Method | Input Received | Task 1 Top-5 Hit Rate | Refusal (Abstention) | Status |")
-    lines.append("|---|---|---|:---:|:---:|:---:|")
 
+    # Look for fair Task-1 corrections overlay
+    run_id = manifest.get("run_id", "")
+    corr_paths = [
+        os.path.join(PROJECT_ROOT, "results", run_id, "corrections_task1_fair.json"),
+        os.path.join(PROJECT_ROOT, "results", "corrections_task1_fair.json")
+    ]
+    corrections = None
+    for cp in corr_paths:
+        if os.path.exists(cp):
+            try:
+                with open(cp, "r", encoding="utf-8") as cf:
+                    corrections = json.load(cf)
+                break
+            except Exception:
+                pass
+
+    t1_std_total = manifest.get("standard_questions", 0)
     t1_cif = overall.get("task_1_cif_hit_rate", 0.0)
     t1_cif_hits = overall.get("task_1_cif_hits", 0)
-    t1_std_total = manifest.get("standard_questions", 0)
     ref_acc = overall.get("refusal_accuracy", 100.0)
     ref_corr = overall.get("refusal_correct_count", 0)
     ref_total = manifest.get("refusal_questions", 0)
 
-    lines.append(f"| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **{t1_cif}%** ({t1_cif_hits}/{t1_std_total}) | **{ref_acc}%** ({ref_corr}/{ref_total} abstained) | Measured |")
+    def _fmt_ci(ci):
+        if not ci or len(ci) != 2:
+            return "n/a"
+        return f"[{round(ci[0]*100, 1)}%, {round(ci[1]*100, 1)}%]"
 
-    b_kw = overall.get("baseline_keyword", {})
-    lines.append(f"| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **{b_kw.get('task_1_hit_rate', 'n/a')}%** | *n/a (always answers)* | Measured |")
+    if corrections:
+        c_ov = corrections.get("overall", {})
+        cif_ci = [c_ov.get("cif", {}).get("wilson95_low"), c_ov.get("cif", {}).get("wilson95_high")]
+        kw_ci = [c_ov.get("baseline_keyword", {}).get("wilson95_low"), c_ov.get("baseline_keyword", {}).get("wilson95_high")]
+        doc_ci = [c_ov.get("baseline_docs_only", {}).get("wilson95_low"), c_ov.get("baseline_docs_only", {}).get("wilson95_high")]
 
-    b_doc = overall.get("baseline_docs_only", {})
-    lines.append(f"| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **{b_doc.get('task_1_hit_rate', 'n/a')}%** | *n/a (always answers)* | Measured |")
-    lines.append(f"| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |")
-    lines.append(f"| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | No manual labels |")
-    lines.append("")
+        kw_hits = c_ov.get("baseline_keyword", {}).get("hits", 0)
+        kw_rate = c_ov.get("baseline_keyword", {}).get("rate", 0.0)
+        doc_hits = c_ov.get("baseline_docs_only", {}).get("hits", 0)
+        doc_rate = c_ov.get("baseline_docs_only", {}).get("rate", 0.0)
+
+        lines.append("| System / Baseline | Method | Input Received | Task 1 Hit Rate (Positives) | 95% CI (Wilson) | Refusal (Abstention) | Status |")
+        lines.append("|---|---|---|:---:|:---:|:---:|:---:|")
+        lines.append(f"| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **{t1_cif}%** ({t1_cif_hits}/{t1_std_total}) | {_fmt_ci(cif_ci)} | **{ref_acc}%** ({ref_corr}/{ref_total} abstained) | Measured |")
+        lines.append(f"| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **{kw_rate}%** ({kw_hits}/{t1_std_total}) | {_fmt_ci(kw_ci)} | *n/a (always answers)* | Measured |")
+        lines.append(f"| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **{doc_rate}%** ({doc_hits}/{t1_std_total}) | {_fmt_ci(doc_ci)} | *n/a (always answers)* | Measured |")
+        lines.append(f"| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |")
+        lines.append(f"| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | *not measured* | No manual labels |")
+        lines.append("")
+        lines.append("> *Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules (see Task 2).*")
+        lines.append("")
+    else:
+        b_kw = overall.get("baseline_keyword", {})
+        b_doc = overall.get("baseline_docs_only", {})
+        lines.append("| System / Baseline | Method | Input Received | Task 1 Top-5 Hit Rate | Refusal (Abstention) | Status |")
+        lines.append("|---|---|---|:---:|:---:|:---:|")
+        lines.append(f"| **CIF (Context Intelligence)** | Provenance Graph Traversal | Natural language question | **{t1_cif}%** ({t1_cif_hits}/{t1_std_total}) | **{ref_acc}%** ({ref_corr}/{ref_total} abstained) | Measured |")
+        lines.append(f"| **Baseline A** | Keyword Token Overlap (BM25) | Natural language question | **{b_kw.get('task_1_hit_rate', 'n/a')}%** | *n/a (always answers)* | Measured |")
+        lines.append(f"| **Baseline B** | Docs-Only Search (`adr, doc`) | Natural language question | **{b_doc.get('task_1_hit_rate', 'n/a')}%** | *n/a (always answers)* | Measured |")
+        lines.append(f"| **Baseline C** | Plain LLM over Repo Text | Natural language question | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |")
+        lines.append(f"| **Baseline D** | GitHub Copilot Manual Labels | Natural language question | *not measured* | *not measured* | No manual labels |")
+        lines.append("")
 
     # Per-Repo Task 1 Breakdown
     lines.append("#### Task 1 Per-Repository Breakdown")
     lines.append("")
     lines.append("| Repository | Questions (Std / Refusal) | CIF Event Hit Rate | Baseline A (BM25) | Baseline B (Docs) |")
     lines.append("|---|:---:|:---:|:---:|:---:|")
+    corr_repos = corrections.get("per_repository", {}) if corrections else {}
     for r, rdata in sorted(per_repo.items()):
         std_cnt = rdata.get("standard_questions", 0)
         ref_cnt = rdata.get("refusal_questions", 0)
         cif_hits = rdata.get("task_1_cif_hits", 0)
         cif_rate = rdata.get("task_1_cif_hit_rate", 0.0)
-        kw_rate = rdata.get("baseline_keyword_hit_rate", 0.0)
-        doc_rate = rdata.get("baseline_docs_only_hit_rate", 0.0)
-        lines.append(f"| `{r}` | {std_cnt} / {ref_cnt} | **{cif_rate}%** ({cif_hits}/{std_cnt}) | {kw_rate}% | {doc_rate}% |")
+        if r in corr_repos:
+            r_kw_rate = corr_repos[r]["baseline_keyword"]["rate"]
+            r_kw_hits = corr_repos[r]["baseline_keyword"]["hits"]
+            kw_cell = f"**{r_kw_rate}%** ({r_kw_hits}/{std_cnt})"
+            r_doc_rate = corr_repos[r]["baseline_docs_only"]["rate"]
+            r_doc_hits = corr_repos[r]["baseline_docs_only"]["hits"]
+            doc_cell = f"**{r_doc_rate}%** ({r_doc_hits}/{std_cnt})"
+        else:
+            kw_cell = f"{rdata.get('baseline_keyword_hit_rate', 0.0)}%"
+            doc_cell = f"{rdata.get('baseline_docs_only_hit_rate', 0.0)}%"
+        lines.append(f"| `{r}` | {std_cnt} / {ref_cnt} | **{cif_rate}%** ({cif_hits}/{std_cnt}) | {kw_cell} | {doc_cell} |")
     lines.append("")
 
     # --- Task 2: Decision Reconstruction ---
@@ -125,7 +175,12 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
     # Honest Task Analysis
     gap = overall.get("recall_difference", 0.0)
     lines.append("#### Honest Task Analysis")
-    lines.append(f"1. **Task 1 (Evidence Retrieval)**: CIF achieves **{t1_cif}%** event retrieval vs **{b_kw.get('task_1_hit_rate', 0.0)}%** for BM25 and **{b_doc.get('task_1_hit_rate', 0.0)}%** for Docs-only, demonstrating that graph traversal retrieves both code commits and discussions.")
+    if corrections:
+        lines.append(f"1. **Task 1 (Evidence Retrieval)**: On identical positive questions, BM25 achieves **{kw_rate}%** ({kw_hits}/{t1_std_total}) and Docs-only achieves **{doc_rate}%** ({doc_hits}/{t1_std_total}) vs CIF's **{t1_cif}%** ({t1_cif_hits}/{t1_std_total}) decision-evidence match. BM25 raw token retrieval is higher; CIF's contribution is state classification, evidence grounding invariant, and negative abstention (see Task 2).")
+    else:
+        b_kw = overall.get("baseline_keyword", {})
+        b_doc = overall.get("baseline_docs_only", {})
+        lines.append(f"1. **Task 1 (Evidence Retrieval)**: CIF achieves **{t1_cif}%** event retrieval vs **{b_kw.get('task_1_hit_rate', 0.0)}%** for BM25 and **{b_doc.get('task_1_hit_rate', 0.0)}%** for Docs-only.")
     lines.append(f"2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **{st_acc}% State Accuracy** and **{ref_acc}% Refusal Accuracy** across unrecorded and discussion-only negative cases.")
     lines.append(f"3. **Overcounting Gap**: Under audited one-to-one strict matching (Step 4.1), CIF achieves **{rec_strict}%** strict recall vs **{rec_lenient}%** lenient recall (gap: `+{gap}%`).")
     lines.append("")

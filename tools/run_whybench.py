@@ -222,9 +222,9 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
             cif_task1_hits += 1
     cif_task1_hit_rate = round((cif_task1_hits / total_standard_questions) * 100, 1) if total_standard_questions > 0 else 0.0
 
-    # Evaluate Baselines
+    # Evaluate Baselines (fair comparison: positive/standard questions only)
     baseline_evaluator = BaselineEvaluator(db)
-    baselines_out = baseline_evaluator.evaluate_all(split_questions)
+    baselines_out = baseline_evaluator.evaluate_all(standard_questions)
 
     # Evaluate Human-Labelled Precision (Step 4.5) & Calibration (Step 4.7)
     precision_val, precision_reason = evaluate_precision_labels(db.db_path, whybench_dir)
@@ -264,9 +264,9 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
                 r_cif_hits += 1
         r_cif_hit_rate = round((r_cif_hits / r_std_tot) * 100, 1) if r_std_tot > 0 else 0.0
 
-        # Task 1 Baselines
-        r_kw = baseline_evaluator.run_baseline_keyword(repo_split_qs)
-        r_doc = baseline_evaluator.run_baseline_docs_only(repo_split_qs)
+        # Task 1 Baselines (fair comparison: positive/standard questions only)
+        r_kw = baseline_evaluator.run_baseline_keyword(repo_std_qs)
+        r_doc = baseline_evaluator.run_baseline_docs_only(repo_std_qs)
 
         # Task 2 Strict & Lenient Matching
         r_strict_found = [f for f in strict_match["found"] if f.get("gt_id") in {q["id"] for q in repo_std_qs}]
@@ -307,6 +307,8 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     overall_metrics = {
         "task_1_cif_hit_rate": cif_task1_hit_rate,
         "task_1_cif_hits": cif_task1_hits,
+        "task_1_cif_metric_label": "Decision-evidence hit rate",
+        "task_1_cif_metric_definition": "single strictly-matched decision cites >=1 expected evidence event; not a ranked top-5 retrieval",
         "decision_recall_strict": decision_recall_strict,
         "strict_matched_gt_count": strict_match["matched_gt_count"],
         "decision_recall_lenient": decision_recall_lenient,
@@ -392,8 +394,8 @@ def run_whybench(split: str = "dev", is_final: bool = False, force: bool = False
     print("=" * 65)
     print(f"  Total Questions:              {len(split_questions)}")
     print("-" * 65)
-    print("  TASK 1 — EVIDENCE RETRIEVAL (Top-5 Event Hit Rate):")
-    print(f"    CIF Event Hit Rate:         {cif_task1_hit_rate}% ({cif_task1_hits}/{total_standard_questions})")
+    print("  TASK 1 — EVIDENCE RETRIEVAL (Decision-Evidence Hit Rate):")
+    print(f"    CIF Decision-Evidence Hit Rate: {cif_task1_hit_rate}% ({cif_task1_hits}/{total_standard_questions})")
     print(f"    Baseline A (Keyword BM25):  {baselines_out['baseline_keyword']['task_1_hit_rate']}% hit rate")
     print(f"    Baseline B (Docs-only):     {baselines_out['baseline_docs_only']['task_1_hit_rate']}% hit rate")
     print("-" * 65)

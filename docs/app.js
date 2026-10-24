@@ -2074,6 +2074,9 @@ const app = {
                 ${repoRows}
               </tbody>
             </table>
+            <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #94a3b8; font-style: italic;">
+              * Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules (see Task 2).
+            </p>
           </div>
         `;
       }
