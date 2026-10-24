@@ -41,6 +41,8 @@ from backend.security import (
 # Default deny: any route not explicitly listed here is rejected.
 ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     # Public routes
+    ("GET", "/healthz"): ROLE_PUBLIC,
+    ("GET", "/api/healthz"): ROLE_PUBLIC,
     ("GET", "/api/auth-status"): ROLE_PUBLIC,
     ("GET", "/api/auth-config"): ROLE_PUBLIC,
     ("GET", "/api/repos"): ROLE_PUBLIC,
@@ -148,8 +150,21 @@ class APIHandler:
         query_params: Dict[str, List[str]],
         headers: Optional[Dict[str, str]] = None
     ) -> Dict[str, Any]:
+        # 0. Healthz Check (Step 6.1)
+        if path in ("/healthz", "/api/healthz"):
+            db_status = "ok"
+            try:
+                with self.db.get_connection() as conn:
+                    cur = conn.cursor()
+                    cur.execute("SELECT 1")
+                    cur.fetchone()
+            except Exception:
+                db_status = "error"
+            mode = os.environ.get("CIF_MODE", "live")
+            return {"status": "ok", "mode": mode, "db": db_status}
+
         # 1. Timeline Slice
-        if path == "/api/timeline":
+        elif path == "/api/timeline":
             repo = query_params.get("repo", [None])[0]
             start = query_params.get("start", [None])[0]
             end = query_params.get("end", [None])[0]

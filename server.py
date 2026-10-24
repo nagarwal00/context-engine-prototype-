@@ -52,6 +52,11 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
+        if parsed.path in ("/healthz", "/api/healthz"):
+            res = self.server.api_handler.handle_get(parsed.path, {}, headers={})
+            self._send_json(res, status=200)
+            return
+
         if parsed.path.startswith("/auth/"):
             params = urllib.parse.parse_qs(parsed.query)
             if parsed.path == "/auth/github/login":

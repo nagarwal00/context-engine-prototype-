@@ -172,6 +172,7 @@ For complete evaluation manifests, Wilson confidence intervals, and corrections,
 - [`LIMITATIONS.md`](LIMITATIONS.md) — Measured limitations, known boundary conditions, and refusal performance analysis.
 - [`PRIVACY.md`](PRIVACY.md) — Pre-ingestion redaction of secrets, API keys, and privacy guidelines.
 - [`DEPLOYMENT.md`](DEPLOYMENT.md) — Deployment instructions for local servers, Docker, and GitHub Pages.
+- [`DEPLOY_LIVE.md`](DEPLOY_LIVE.md) — Live deployment runbook, hosting checklist, and verification guide.
 - [`GITHUB_APP_SETUP.md`](GITHUB_APP_SETUP.md) — GitHub App registration, webhook configuration, and live tunnel setup.
 - [`extension/`](extension/) — Chrome / browser developer extension.
 - [`vscode-extension/`](vscode-extension/) — Visual Studio Code extension.
