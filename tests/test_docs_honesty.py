@@ -33,14 +33,21 @@ class TestDocsHonesty(unittest.TestCase):
     """Guards against fabricated provenance or real-world over-claims for WhyBench."""
 
     def test_no_fabricated_provenance_claims(self):
-        proc = subprocess.run(
-            ["git", "ls-files"],
-            cwd=PROJECT_ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        tracked_files = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+        try:
+            proc = subprocess.run(
+                ["git", "ls-files"],
+                cwd=PROJECT_ROOT,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            tracked_files = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+        except Exception:
+            tracked_files = []
+            for root, dirs, files in os.walk(PROJECT_ROOT):
+                dirs[:] = [d for d in dirs if d not in [".git", "node_modules", "dist", "backups", "scratch", "__pycache__"]]
+                for f in files:
+                    tracked_files.append(os.path.relpath(os.path.join(root, f), PROJECT_ROOT))
 
         violations = []
         for rel_path in tracked_files:

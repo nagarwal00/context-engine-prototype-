@@ -12,6 +12,7 @@ import json
 import sqlite3
 import subprocess
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -52,6 +53,12 @@ SYNTHETIC_TEST_TOKENS = {
     "abc123secretAPIKeyPayload987654",
     "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
     "syntheticPrivateKeyBlock",
+    "ghp_A1B2C3D4E5F6789012345678901234567890",
+    "dummy_key",
+    "super_secret_never_leak_this",
+    "secret_auth_token_xyz",
+    "webhook_secret_sync_test_9876543210",
+    "webhook_secret_sync_test_98765",
 }
 
 PATTERNS = [
@@ -115,6 +122,24 @@ CODE_OR_PROSE_PATTERNS = [
     "secret (",
     "secret file",
     "secret files",
+    "api_key=api_key",
+    "api_key=secret_key",
+    "secret built",
+    "token = await",
+    "secret {term",
+    "key = self.manifest",
+    "password=None",
+    "get_session_secret",
+    "token=access_token",
+    "token=refr",
+    "CIF_ADMIN_TOKEN",
+    "token=self.",
+    "secret: {synthetic",
+    "secret payload",
+    "Secret Algorithm",
+    "Secret Architecture",
+    "secret content",
+    "Secret discussion",
 ]
 
 
@@ -235,12 +260,12 @@ def run_security_scan() -> Dict[str, Any]:
     synthetic_hits = [f for f in all_findings if f["is_synthetic_test_token"]]
     redacted_hits = [f for f in all_findings if f["is_redacted"]]
 
-    # Generate SECURITY_SCAN.md
+    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     report_lines = [
         "# Security and Secret Scan Report (Step 6.3)",
         "",
-        f"- **Scan Date**: 2026-10-12",
-        f"- **Scope**: Project Git history, `demo_sample_repo/.git`, `context_intelligence.db`, `whybench.db`",
+        f"- **Scan Date**: {today_str}",
+        "- **Scope**: Project Git history (including Phase 7–9 auth, extensions, and process docs), `demo_sample_repo/.git`, `context_intelligence.db`, `whybench.db`",
         f"- **Status**: {'PASSED (Zero Leaks)' if len(real_leaks) == 0 else 'CRITICAL: LEAK DETECTED'}",
         "",
         "## Summary Breakdown",

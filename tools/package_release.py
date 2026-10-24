@@ -18,6 +18,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 EXCLUDE_DIRS = {
     ".git",
     "backups",
+    "scratch",
     "__pycache__",
     "dist",
     ".gemini",
@@ -33,6 +34,8 @@ EXCLUDE_EXTENSIONS = {
     ".sqlite3",
     ".pyc",
     ".pyo",
+    ".key",
+    ".pem",
 }
 
 EXCLUDE_FILES = {
@@ -102,7 +105,21 @@ def verify_release_package(zip_path: Path) -> bool:
 
         print("[OK] Zero forbidden files (.git, *.db, backups, pycache, .env) in release package.")
 
-        # 2. Run unit tests inside the extracted clean package
+        # 2. Verify database initialization on clean package
+        print("[VERIFY] Initializing database and migrations inside clean package...")
+        init_res = subprocess.run(
+            [sys.executable, "tools/init_db.py", "--seed"],
+            cwd=str(tmp_path),
+            capture_output=True,
+            text=True
+        )
+        if init_res.returncode != 0:
+            print(f"[FAIL] tools/init_db.py failed inside extracted release package:\n{init_res.stderr}")
+            return False
+
+        print("[OK] Database initialization and seed runner verified in clean package.")
+
+        # 3. Run unit tests inside the extracted clean package
         print("[VERIFY] Running full test suite inside extracted release directory...")
         res = subprocess.run(
             [sys.executable, "-m", "unittest", "discover", "tests/"],
@@ -116,19 +133,6 @@ def verify_release_package(zip_path: Path) -> bool:
             return False
 
         print(f"[OK] All unit tests passed inside clean extracted package!")
-
-        # 3. Verify database initialization on clean clone
-        init_res = subprocess.run(
-            [sys.executable, "tools/init_db.py", "--seed"],
-            cwd=str(tmp_path),
-            capture_output=True,
-            text=True
-        )
-        if init_res.returncode != 0:
-            print(f"[FAIL] tools/init_db.py failed inside extracted release package:\n{init_res.stderr}")
-            return False
-
-        print("[OK] Database initialization and seed runner verified in clean package.")
 
     return True
 
