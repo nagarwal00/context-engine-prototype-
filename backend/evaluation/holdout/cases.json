@@ -1,0 +1,130 @@
+[
+  {
+    "id": "holdout_01",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/serializer.py"],
+    "diff_text": "@@ -12,4 +12,4 @@\n def encode_payload(data):\n-    return protobuf.dumps(data)\n+    # Quick unvalidated serialize\n+    return pickle_serializer.dumps(data)",
+    "expected": "violation",
+    "decision_id": "dec_queue_protobuf_serialization"
+  },
+  {
+    "id": "holdout_02",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/broker.py"],
+    "diff_text": "@@ -25,3 +25,4 @@\n def connect_broker():\n-    return rabbitmq.Client(config)\n+    # Switch to peer-to-peer transport\n+    return zeromq.create_socket(config)",
+    "expected": "violation",
+    "decision_id": "dec_queue_rabbitmq_over_zeromq"
+  },
+  {
+    "id": "holdout_03",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/retry.py"],
+    "diff_text": "@@ -18,4 +18,4 @@\n def wait_for_retry(attempt):\n-    delay = compute_jittered_backoff(attempt)\n-    time.sleep(delay)\n+    # Instant tight retry\n+    busy_spin_loop(attempt)",
+    "expected": "violation",
+    "decision_id": "dec_queue_exponential_backoff"
+  },
+  {
+    "id": "holdout_04",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/worker.py"],
+    "diff_text": "@@ -30,3 +30,4 @@\n def spawn_task_runner(task):\n-    return celery_app.send_task('execute', args=[task])\n+    p = multiprocessing.Process(target=task.run)\n+    p.start()",
+    "expected": "violation",
+    "decision_id": "dec_queue_celery_rabbitmq"
+  },
+  {
+    "id": "holdout_05",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/worker.py"],
+    "diff_text": "@@ -40,3 +40,4 @@\n def execute_batch(items):\n-    return celery_group(items).apply_async()\n+    pool = raw_thread_pool.ThreadPool(max_workers=8)\n+    return pool.map(process_item, items)",
+    "expected": "violation",
+    "decision_id": "dec_queue_celery_rabbitmq"
+  },
+  {
+    "id": "holdout_06",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/broker.py"],
+    "diff_text": "@@ -5,2 +5,3 @@\n import logging\n+import zeromq\n from .config import BrokerConfig",
+    "expected": "violation",
+    "decision_id": "dec_queue_rabbitmq_over_zeromq"
+  },
+  {
+    "id": "holdout_07",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/serializer.py"],
+    "diff_text": "@@ -33,3 +33,3 @@\n def decode_payload(binary_stream):\n-    return protobuf.loads(binary_stream)\n+    return pickle_serializer.loads(binary_stream)",
+    "expected": "violation",
+    "decision_id": "dec_queue_protobuf_serialization"
+  },
+  {
+    "id": "holdout_08",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/retry.py"],
+    "diff_text": "@@ -42,3 +42,3 @@\n while retries_left > 0:\n-    delay = exponential_backoff(attempt)\n+    busy_spin_loop()",
+    "expected": "violation",
+    "decision_id": "dec_queue_exponential_backoff"
+  },
+  {
+    "id": "holdout_09",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/serializer.py"],
+    "diff_text": "@@ -20,3 +20,4 @@\n def encode_payload(data):\n+    # Validate schema version before serialization\n+    validate_schema(data.version)\n     return protobuf.dumps(data)",
+    "expected": "ok",
+    "decision_id": "dec_queue_protobuf_serialization"
+  },
+  {
+    "id": "holdout_10",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/serializer.py"],
+    "diff_text": "@@ -15,3 +15,4 @@\n def decode_payload(binary_stream):\n+    # Security note: do NOT use pickle_serializer here, protobuf schema is required\n     return protobuf.loads(binary_stream)",
+    "expected": "ok",
+    "decision_id": "dec_queue_protobuf_serialization"
+  },
+  {
+    "id": "holdout_11",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/serializer.py"],
+    "diff_text": "@@ -8,4 +8,3 @@\n-from legacy_code import pickle_serializer\n+from google.protobuf import message\n def serialize(msg):",
+    "expected": "ok",
+    "decision_id": "dec_queue_protobuf_serialization"
+  },
+  {
+    "id": "holdout_12",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/broker.py"],
+    "diff_text": "@@ -50,3 +50,4 @@\n def log_broker_metrics(metrics):\n+    metrics['zeromq_migration_audit_id'] = 'MIG-2026-02'\n     logger.info('Broker metrics recorded: %s', metrics)",
+    "expected": "ok",
+    "decision_id": "dec_queue_rabbitmq_over_zeromq"
+  },
+  {
+    "id": "holdout_13",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/worker.py"],
+    "diff_text": "@@ -10,3 +10,4 @@\n class WorkerContext:\n+    multiprocessing_safe_worker_tag = 'worker-cell-1'\n     pass",
+    "expected": "ok",
+    "decision_id": "dec_queue_celery_rabbitmq"
+  },
+  {
+    "id": "holdout_14",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/worker.py"],
+    "diff_text": "@@ -22,3 +22,5 @@\n @celery_app.task(bind=True)\n def handle_job(self, payload):\n+    logger.info('Processing task %s via Celery worker', self.request.id)\n     return process(payload)",
+    "expected": "ok",
+    "decision_id": "dec_queue_celery_rabbitmq"
+  },
+  {
+    "id": "holdout_15",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/retry.py"],
+    "diff_text": "@@ -15,3 +15,5 @@\n def compute_jittered_backoff(attempt):\n+    base = 2 ** attempt\n+    jitter = random.uniform(0.5, 1.5)\n     return min(max_backoff, base * jitter)",
+    "expected": "ok",
+    "decision_id": "dec_queue_exponential_backoff"
+  },
+  {
+    "id": "holdout_16",
+    "repo": "acme-eng/job-queue-service",
+    "files": ["src/queue/retry.py"],
+    "diff_text": "@@ -30,4 +30,3 @@\n-    # Remove deprecated busy_spin_loop\n-    busy_spin_loop()\n+    time.sleep(compute_jittered_backoff(attempt))\n     return retry()",
+    "expected": "ok",
+    "decision_id": "dec_queue_exponential_backoff"
+  }
+]

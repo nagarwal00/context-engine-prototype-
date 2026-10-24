@@ -1,0 +1,55 @@
+[
+  {
+    "decision_id": "dec_queue_celery_rabbitmq",
+    "repo": "acme-eng/job-queue-service",
+    "title": "Adopt Celery worker pool with RabbitMQ broker",
+    "state": "accepted",
+    "made_by": "alex_lead",
+    "made_at": "2026-02-01T10:00:00Z",
+    "artifacts_affected": ["src/queue/worker.py", "src/queue/broker.py"],
+    "rationale": "We must use `celery` with `rabbitmq` message broker for distributed task execution. Rejected alternative: direct `multiprocessing` worker spawning was rejected because unmanaged subprocesses leak file descriptors and cannot distribute work across multiple nodes. Also rejected `raw_thread_pool` which stalled under GIL saturation.",
+    "alternatives_considered": [
+      "Direct multiprocessing worker spawning with shared queue",
+      "raw_thread_pool in-process threading"
+    ]
+  },
+  {
+    "decision_id": "dec_queue_rabbitmq_over_zeromq",
+    "repo": "acme-eng/job-queue-service",
+    "title": "Standardize on RabbitMQ for message broker persistence",
+    "state": "accepted",
+    "made_by": "alex_lead",
+    "made_at": "2026-02-05T14:30:00Z",
+    "artifacts_affected": ["src/queue/broker.py"],
+    "rationale": "Adopt `rabbitmq` for persistent message delivery guarantees. Rejected alternative: `zeromq` socket mesh was turned down because peer-to-peer brokerless messaging drops unacknowledged messages when subscriber nodes restart.",
+    "alternatives_considered": [
+      "zeromq socket mesh without broker"
+    ]
+  },
+  {
+    "decision_id": "dec_queue_exponential_backoff",
+    "repo": "acme-eng/job-queue-service",
+    "title": "Implement exponential jittered backoff for task retry logic",
+    "state": "accepted",
+    "made_by": "taylor_eng",
+    "made_at": "2026-02-10T09:15:00Z",
+    "artifacts_affected": ["src/queue/retry.py"],
+    "rationale": "All task retry policies must implement `exponential_backoff` with randomized jitter. Rejected alternative: fixed `busy_spin_loop` retry was rejected because it causes thundering herd problems and exhausts database connections.",
+    "alternatives_considered": [
+      "busy_spin_loop with zero delay"
+    ]
+  },
+  {
+    "decision_id": "dec_queue_protobuf_serialization",
+    "repo": "acme-eng/job-queue-service",
+    "title": "Use Protocol Buffers for task payload serialization",
+    "state": "accepted",
+    "made_by": "sam_sec",
+    "made_at": "2026-02-15T16:00:00Z",
+    "artifacts_affected": ["src/queue/serializer.py"],
+    "rationale": "Payloads must be serialized using `protobuf` schema. Rejected alternative: `pickle_serializer` is strictly forbidden due to arbitrary remote code execution vulnerabilities in untrusted payloads.",
+    "alternatives_considered": [
+      "pickle_serializer based binary dumps"
+    ]
+  }
+]
