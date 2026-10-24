@@ -537,16 +537,26 @@ class BaselineEvaluator:
             "note": f"Scored on {pos_n} positives, {neg_n} negatives. Audit log: results/{audit_filename}"
         }
 
-    def run_baseline_copilot(self, ground_truth: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def run_baseline_copilot(
+        self,
+        ground_truth: Optional[List[Dict[str, Any]]] = None,
+        csv_path: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Baseline D: GitHub Copilot Q&A (loaded from manual_copilot_results.csv)."""
-        csv_path = os.path.join(os.path.dirname(__file__), "manual_copilot_results.csv")
+        if csv_path is None:
+            csv_path = os.path.join(os.path.dirname(__file__), "manual_copilot_results.csv")
+
         if not os.path.exists(csv_path):
             return {
                 "name": "Baseline D: GitHub Copilot",
                 "status": "not measured",
+                "accuracy": "not measured",
+                "invented_reason_rate": "not measured",
+                "cited_real_source_rate": "not measured",
                 "decision_recall": "not measured",
                 "hallucination_rate": "not measured",
-                "note": "No manual copilot evaluation records logged in manual_copilot_results.csv"
+                "evaluated_samples": 0,
+                "note": f"CSV file not found: {csv_path}"
             }
 
         rows = []
@@ -554,28 +564,87 @@ class BaselineEvaluator:
             with open(csv_path, mode="r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
-                    if r.get("question_id"):
+                    if any(v.strip() for v in r.values() if v):
                         rows.append(r)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("Failed reading copilot CSV: %s", e)
 
         if not rows:
             return {
                 "name": "Baseline D: GitHub Copilot",
                 "status": "not measured",
+                "accuracy": "not measured",
+                "invented_reason_rate": "not measured",
+                "cited_real_source_rate": "not measured",
                 "decision_recall": "not measured",
                 "hallucination_rate": "not measured",
-                "evaluated_samples": 0
+                "evaluated_samples": 0,
+                "note": "No manual copilot evaluation records logged in manual_copilot_results.csv"
             }
 
-        correct_count = sum(1 for r in rows if r.get("answer_correct", "").strip().lower() in ("true", "1", "yes"))
-        hallucinated_count = sum(1 for r in rows if r.get("answer_has_invented_reason", "").strip().lower() in ("true", "1", "yes"))
-        total = len(rows)
+        # Build set of valid question IDs for validation
+        valid_qids: Set[str] = set()
+        if ground_truth:
+            for q in ground_truth:
+                qid = q.get("question_id") or q.get("id")
+                if qid:
+                    valid_qids.add(qid)
+        else:
+            try:
+                wb_q_path = PROJECT_ROOT / "backend" / "evaluation" / "whybench" / "questions.json"
+                if wb_q_path.exists():
+                    with open(wb_q_path, "r", encoding="utf-8") as f:
+                        for q in json.load(f):
+                            qid = q.get("question_id") or q.get("id")
+                            if qid:
+                                valid_qids.add(qid)
+            except Exception:
+                pass
+
+        # Validate rows: unknown ids and non-binary values -> error
+        for r in rows:
+            qid = (r.get("question_id") or "").strip()
+            if not qid:
+                raise ValueError("Encountered row with empty question_id in copilot results")
+            if valid_qids and qid not in valid_qids:
+                raise ValueError(f"Unknown question_id in copilot results: '{qid}'")
+
+            for col in ("answer_correct", "answer_has_invented_reason", "cited_real_source"):
+                val = (r.get(col) or "").strip()
+                if val not in ("0", "1"):
+                    raise ValueError(f"Non-binary value '{val}' for column '{col}' on question '{qid}' (must be 0 or 1)")
+
+        evaluated_samples = len(rows)
+        correct_count = sum(1 for r in rows if r["answer_correct"].strip() == "1")
+        invented_count = sum(1 for r in rows if r["answer_has_invented_reason"].strip() == "1")
+        cited_count = sum(1 for r in rows if r["cited_real_source"].strip() == "1")
+
+        accuracy = round((correct_count / evaluated_samples) * 100, 1)
+        accuracy_wilson = compute_wilson_interval(correct_count, evaluated_samples)
+
+        invented_rate = round((invented_count / evaluated_samples) * 100, 1)
+        invented_wilson = compute_wilson_interval(invented_count, evaluated_samples)
+
+        cited_rate = round((cited_count / evaluated_samples) * 100, 1)
+        cited_wilson = compute_wilson_interval(cited_count, evaluated_samples)
 
         return {
             "name": "Baseline D: GitHub Copilot",
             "status": "measured",
-            "decision_recall": round((correct_count / total) * 100, 1),
-            "hallucination_rate": round((hallucinated_count / total) * 100, 1),
-            "evaluated_samples": total
+            "accuracy": accuracy,
+            "accuracy_hits": correct_count,
+            "accuracy_n": evaluated_samples,
+            "accuracy_wilson_95": accuracy_wilson,
+            "invented_reason_rate": invented_rate,
+            "invented_reason_hits": invented_count,
+            "invented_reason_n": evaluated_samples,
+            "invented_reason_wilson_95": invented_wilson,
+            "cited_real_source_rate": cited_rate,
+            "cited_real_source_hits": cited_count,
+            "cited_real_source_n": evaluated_samples,
+            "cited_real_source_wilson_95": cited_wilson,
+            "decision_recall": accuracy,  # Backward compatibility
+            "hallucination_rate": invented_rate,  # Backward compatibility
+            "evaluated_samples": evaluated_samples
         }
+
