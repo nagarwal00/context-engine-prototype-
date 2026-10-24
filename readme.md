@@ -128,13 +128,13 @@ python run_demo.py
 ```
 
 ### What it tests (in simple words):
-1. **Rule Test:** It tries to sneak a decision into the database with zero evidence. The database blocks it, proving our anti-hallucination rule works.
+1. **Rule Test:** It tries to sneak a decision into the database with zero evidence. The database blocks it, proving our grounding invariant works.
 2. **Collector Tests:** It tests that Git commits, GitHub issues, and PR comments are correctly read and given clickable URLs.
 3. **Code Reader Test (AST):** It feeds a snippet of Python code and tests that the system finds the function names automatically.
 4. **Detective Query Test:** It asks the system *"Why does `regulate_temperature` exist?"* and tests that it correctly lists the history in order.
 5. **Conflict Test:** It checks that when Marcus and Priya disagree, the system spots the conflict.
 6. **Drift Test:** It feeds a bad code change into the system and checks that the system catches the violation.
-7. **Anti-Lying Test:** It asks about a fake file that does not exist. It verifies that the system honestly says *"No decision found"* rather than making up a fake story.
+7. **Abstention Test:** It asks about a fake file that does not exist. It verifies that the system abstains with *"No decision found"* when no evidence exists.
 8. **Scorecard:** It calculates computed accuracy and grounding metrics from real data (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
 
 ---
@@ -221,12 +221,12 @@ When demoing this project to your professor, follow these 8 simple steps:
 - **What is on screen:** Metric cards, WhyBench real-world benchmark results, and a baseline comparison table.
 - **What to say:**
   > *"To validate our capstone honestly, we evaluated the system on WhyBench across 71 questions on the frozen `test_v2` split from three open-source repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
-  > *On Task 1 (Evidence Retrieval), on identical positive questions, Baseline A (BM25) achieves 92.3% and Baseline B (Docs-only) achieves 23.1% compared to CIF's 80.8% decision-evidence match (Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules). On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% State Accuracy, and 64.4% Refusal Accuracy on negative unrecorded questions. All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
+  > *On Task 1 (Evidence Retrieval), on identical positive questions, Baseline A (BM25) achieves 92.3% and Baseline B (Docs-only) achieves 23.1% compared to CIF's 80.8% decision-evidence match (Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules). On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% (21/21 matched decisions, small n) State Accuracy, and abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS). All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
 
 #### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
 If the professor challenges the project, say this:
 > 1. *"Docs-only search achieved only 8.5% hit rate on WhyBench because architectural decisions live primarily in PR review debates, issues, and commit histories, not static docs—and a README cannot automatically block violating pull requests in CI."*  
-> 2. *"General-purpose AI agents hallucinate answers without provenance and fail to abstain, whereas CIF achieved 100.0% state accuracy, 64.4% refusal accuracy, and guarantees every explanation links directly to verified source events."*  
+> 2. *"General-purpose AI agents may generate answers without provenance and fail to abstain, whereas CIF achieved 100.0% (21/21 matched decisions, small n) state accuracy, abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS), and enforces a grounding invariant linking explanations directly to verified source events."*  
 > 3. *"CIF converts accepted decisions into active CI Guard Rules that evaluate pull request diffs in milliseconds to prevent architectural regressions automatically."*
 
 ---

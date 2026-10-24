@@ -57,7 +57,7 @@ def recompute_task1_fair(
     positives = [q for q in split_questions if q.get("expected_state") != "none"]
     positives_n = len(positives)
 
-    # Work on a temporary copy of the database to guarantee immutability
+    # Work on a temporary copy of the database to ensure immutability
     temp_dir = tempfile.mkdtemp()
     temp_db_path = Path(temp_dir) / "wb_temp.db"
     shutil.copy2(db_path, temp_db_path)

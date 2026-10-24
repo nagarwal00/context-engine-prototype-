@@ -316,7 +316,7 @@ class BenchmarkRunner:
         1. Decision recall, state accuracy, and precision (human label file)
         2. Evidence-link validity (url_format_ok, event_exists, claim_supported)
         3. Conflict & drift precision/recall from labelled case files
-        4. Claim support rate (anti-hallucination)
+        4. Claim support rate (grounding invariant)
         5. Measured processing latency (median of >=5 runs)
         6. Computed baselines (A, B, C, D)
         """
@@ -379,7 +379,7 @@ class BenchmarkRunner:
         conflict_metrics = self._evaluate_conflict_cases()
         drift_metrics = self._evaluate_drift_cases()
 
-        # 4. Claim Support Rate (Anti-Hallucination)
+        # 4. Claim Support Rate (Grounding Invariant)
         claim_support_metrics = self._evaluate_claim_support()
         claim_supported = claim_support_metrics.get("support_rate", "not measured")
 

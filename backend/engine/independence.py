@@ -58,7 +58,7 @@ def tokenize_content_words(text: str) -> List[str]:
 def get_sentence_spans(text: str) -> List[Tuple[str, int, int]]:
     """
     Extracts sentence segments from text with exact character start/end offsets.
-    Guarantees text[start:end] == sentence_text.
+    Ensures text[start:end] == sentence_text.
     """
     if not text:
         return []

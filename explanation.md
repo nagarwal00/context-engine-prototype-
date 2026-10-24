@@ -61,7 +61,7 @@ Here is how our code is split up and what each file actually does:
     - **`Edge`**: A connection between two items (e.g., *Decision A affects Function B*).
 - [`backend/db.py`](file:///c:/Users/HP/Desktop/SE_project/backend/db.py):
   - Creates the SQLite database tables.
-  - **The Golden Rule (Invariant):** The code physically blocks saving any decision that doesn't have evidence attached! If a decision has no proof, the system forces it to be labeled as `unresolved`. This guarantees zero guessing.
+  - **The Golden Rule (Invariant):** The code physically blocks saving any decision that doesn't have evidence attached! If a decision has no proof, the system forces it to be labeled as `unresolved`. This enforces the grounding invariant that every decision has evidence.
 
 ---
 
@@ -92,7 +92,7 @@ Here is how our code is split up and what each file actually does:
 - [`backend/engine/drift_detector.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/drift_detector.py):
   - **The CI Guard Dog:** Whenever new code is written in a pull request diff, this file checks if the new code violates a past accepted decision, or if someone accidentally re-introduced an idea that was already tested and rejected.
 - [`backend/engine/explanation.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/explanation.py):
-  - When the user clicks on a function and asks *"Why does this exist?"*, this file builds the answer strictly using the verified evidence links from the graph. It **never hallucinates** or makes up plausible-sounding lies.
+  - When the user clicks on a function and asks *"Why does this exist?"*, this file builds the answer strictly using the verified evidence links from the graph according to the grounding invariant, abstaining when evidence is missing.
 
 ---
 
@@ -140,13 +140,13 @@ To make this project realistic, we built two real software engineering stories i
 ## 5. Answers to Questions Your Professor Might Ask
 
 **Q: Is this just a wrapper around ChatGPT or Copilot?**  
-> *"No, Professor. Chatbots like ChatGPT or Copilot respond to questions probabilistically and often hallucinate plausible-sounding explanations. Our system is an engineered temporal graph model. The core work is the event model, relational database invariants, AST function resolution, conflict detection, lifecycle state transitions, and CI drift checks. An LLM is only used as a helper for phrasing."*
+> *"No, Professor. Chatbots like ChatGPT or Copilot respond to questions probabilistically and often generate plausible-sounding explanations without provenance. Our system is an engineered temporal graph model. The core work is the event model, relational database invariants, AST function resolution, conflict detection, lifecycle state transitions, and CI drift checks. An LLM is only used as a helper for phrasing."*
 
 **Q: Why do you need a graph instead of a normal database table?**  
 > *"Because software history is a network of relationships over time. A decision links to multiple issues, touches specific functions, and can supersede earlier decisions. Our graph uses time-bounded edges (`valid_from` and `valid_to`) so we can query what the team believed was true at any specific date in history."*
 
-**Q: How do you prevent the system from lying or hallucinating?**  
-> *"We enforce a strict database invariant: every decision must have at least one verified evidence pointer with a clickable URL. If the system cannot find evidence, it is forced to return 'unresolved'. When explaining code, facts come strictly from graph citations."*
+**Q: How do you enforce grounding and prevent unsupported claims?**  
+> *"We enforce a strict database invariant: every decision must have at least one verified evidence pointer with a clickable URL. If the system cannot find evidence, it is forced to return 'unresolved'. When explaining code, facts come strictly from graph citations. On unrecorded topics, the system abstains on 64.4% of cases; grounding invariants prevent unevidenced decisions from persisting in the graph."*
 
 **Q: How does the decision extraction pipeline work?**  
 > *"The extractor uses deterministic heuristic pattern matching (with conventional commit filtering) and an optional LLM-assisted extractor behind a standard interface. Any candidate decision must pass a strict Grounding Validator: all cited event IDs must exist in the bundle, and at least 50% of the rationale content words must appear in the cited source text. Otherwise, the decision is downgraded to 'unresolved' and routed to the Human Review Queue."*

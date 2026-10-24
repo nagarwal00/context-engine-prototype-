@@ -215,7 +215,7 @@ Time-bounding edges with `valid_from`/`valid_to` is what makes the graph *tempor
 
 ## 6. Ingestion pipeline
 
-Build one adapter per source. Every adapter's only job is: read from the source, emit `Event` objects, guarantee `source_url` is populated, and be idempotent (re-running ingestion must not create duplicate events — upsert on `(source_type, source_id, repo)`).
+Build one adapter per source. Every adapter's only job is: read from the source, emit `Event` objects, ensure `source_url` is populated, and be idempotent (re-running ingestion must not create duplicate events — upsert on `(source_type, source_id, repo)`).
 
 ### 6.1 Git history adapter
 - Use `pydriller` to walk commit history. Emit one `Event` per commit (`source_type: git_commit`), with `artifacts_touched` = changed file paths, `body` = commit message, `source_url` = `https://github.com/{repo}/commit/{sha}`.

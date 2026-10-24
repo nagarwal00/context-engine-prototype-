@@ -67,7 +67,7 @@ Legacy "Evidence-Link Validity" checked only string syntax. Step 4.1 replaces th
 
 ---
 
-## 6. Claim Support Rate (Anti-Hallucination)
+## 6. Claim Support Rate (Grounding Invariant)
 
 For each sentence in every generated explanation:
 1. The sentence must cite $\ge 1$ evidence event ID.
@@ -149,5 +149,5 @@ To ensure fair comparisons and eliminate Direct Conflation of Unlike Tasks, the 
   1. **Strict One-to-One Decision Recall**: Bipartite greedy assignment where candidate decision shares $\ge 1$ evidence event ID with GT label under strict mutual exclusion.
   2. **Decision State Accuracy**: State (`accepted`, `rejected`, `superseded`, `reopened`) strictly matches the ground truth expected state.
   3. **Grounded Rationale & Alternatives**: Rationale validated with $\ge 50\%$ content-token passage support; alternatives correctly preserved.
-- **Refusal Scoring**: When evaluated against negative questions regarding unrecorded architectural areas, the system must refuse ("No recorded architectural decision found"). Refusal accuracy measures the percentage of unrecorded cases where the system correctly abstained without hallucinating a decision. Baselines without refusal capability are marked `n/a (always answers)`.
+- **Refusal Scoring**: When evaluated against negative questions regarding unrecorded architectural areas, the system must refuse ("No recorded architectural decision found"). Refusal accuracy measures the percentage of unrecorded cases where the system correctly abstained rather than asserting an ungrounded decision (measured at 64.4% on `test_v2`; see LIMITATIONS). Baselines without refusal capability are marked `n/a (always answers)`.
 

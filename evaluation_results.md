@@ -41,7 +41,7 @@ Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v
 
 | System / Baseline | Method | Task 2 Strict Recall (1-to-1) | Task 2 Lenient Recall | State Accuracy | Refusal Accuracy | Status |
 |---|---|:---:|:---:|:---:|:---:|:---:|
-| **CIF (Context Intelligence)** | Reconciled Lifecycle + Invariants | **80.8%** (21/26) | **80.8%** (21/26) | **100.0%** (21/21) | **64.4%** (29/45) | Measured |
+| **CIF (Context Intelligence)** | Reconciled Lifecycle + Invariants | **80.8%** (21/26) | **80.8%** (21/26) | **100.0%** (21/21, small n) | **64.4%** (29/45) | Measured |
 | **Baseline A** | Keyword Search (Grep/BM25) | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |
 | **Baseline B** | Docs-Only Search | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |
 | **Baseline C** | Plain LLM over Repo Text | *not measured* | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |
@@ -57,7 +57,7 @@ Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v
 
 #### Honest Task Analysis
 1. **Task 1 (Evidence Retrieval)**: On identical positive questions, BM25 achieves **92.3%** (24/26) and Docs-only achieves **23.1%** (6/26) vs CIF's **80.8%** (21/26) decision-evidence match. BM25 raw token retrieval is higher; CIF's contribution is state classification, evidence grounding invariant, and negative abstention (see Task 2).
-2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **100.0% State Accuracy** and **64.4% Refusal Accuracy** across unrecorded and discussion-only negative cases.
+2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **100.0% (21/21 matched decisions, small n)** State Accuracy and abstains correctly on 29/45 (64.4%) of unrecorded-topic questions; 16/45 receive an unsupported decision — see LIMITATIONS.
 3. **Overcounting Gap**: Under audited one-to-one strict matching (Step 4.1), CIF achieves **80.8%** strict recall vs **80.8%** lenient recall (gap: `+0.0%`).
 
 ---
@@ -79,7 +79,7 @@ Evaluated against `backend/evaluation/drift_cases.json` (20 labelled test cases,
 | **With Active Guard Rules** (`forbid_import`, `pattern`, etc.) | 20 | 10 | 1 | 9 | 0 | **90.9%** | **100.0%** |
 
 ### Key Findings
-1. **Zero False Negatives**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`), ensuring that previously rejected libraries (e.g. `sticky_sessions`, raw synchronous balloon deflaters) cannot be silently reintroduced.
+1. **Zero False Negatives in Demo Suite**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`) across the 20 authored demo drift cases, ensuring that previously rejected libraries (e.g. `sticky_sessions`, raw synchronous balloon deflaters) cannot be silently reintroduced.
 2. **Deterministic Enforcement**: Guard rules execute on added lines (`+`) in pull request diffs using deterministic AST and regex matching.
 
 ---

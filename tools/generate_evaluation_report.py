@@ -1,7 +1,7 @@
 """
 Evaluation Results Markdown Generator (Step 4.8)
 Generates evaluation_results.md dynamically from WhyBench run manifests
-to guarantee reproducible reporting and eliminate hand-edited figures.
+to ensure reproducible reporting and eliminate hand-edited figures.
 """
 import os
 import sys
@@ -146,7 +146,10 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
     st_acc = overall.get("state_accuracy", 0.0)
     st_corr = overall.get("state_correct_count", 0)
 
-    lines.append(f"| **CIF (Context Intelligence)** | Reconciled Lifecycle + Invariants | **{rec_strict}%** ({strict_cnt}/{t1_std_total}) | **{rec_lenient}%** ({lenient_cnt}/{t1_std_total}) | **{st_acc}%** ({st_corr}/{strict_cnt}) | **{ref_acc}%** ({ref_corr}/{ref_total}) | Measured |")
+    st_acc_cell = f"**{st_acc}%** ({st_corr}/{strict_cnt}, small n)"
+    ref_cell = f"**{ref_acc}%** ({ref_corr}/{ref_total})"
+
+    lines.append(f"| **CIF (Context Intelligence)** | Reconciled Lifecycle + Invariants | **{rec_strict}%** ({strict_cnt}/{t1_std_total}) | **{rec_lenient}%** ({lenient_cnt}/{t1_std_total}) | {st_acc_cell} | {ref_cell} | Measured |")
     lines.append("| **Baseline A** | Keyword Search (Grep/BM25) | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |")
     lines.append("| **Baseline B** | Docs-Only Search | **n/a** | **n/a** | **n/a** | **n/a (always answers)** | Unstructured search only |")
     lines.append("| **Baseline C** | Plain LLM over Repo Text | *not measured* | *not measured* | *not measured* | *not measured* | `CIF_LLM_API_KEY` unset |")
@@ -174,6 +177,7 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
 
     # Honest Task Analysis
     gap = overall.get("recall_difference", 0.0)
+    unsupported_ref = ref_total - ref_corr
     lines.append("#### Honest Task Analysis")
     if corrections:
         lines.append(f"1. **Task 1 (Evidence Retrieval)**: On identical positive questions, BM25 achieves **{kw_rate}%** ({kw_hits}/{t1_std_total}) and Docs-only achieves **{doc_rate}%** ({doc_hits}/{t1_std_total}) vs CIF's **{t1_cif}%** ({t1_cif_hits}/{t1_std_total}) decision-evidence match. BM25 raw token retrieval is higher; CIF's contribution is state classification, evidence grounding invariant, and negative abstention (see Task 2).")
@@ -181,7 +185,7 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
         b_kw = overall.get("baseline_keyword", {})
         b_doc = overall.get("baseline_docs_only", {})
         lines.append(f"1. **Task 1 (Evidence Retrieval)**: CIF achieves **{t1_cif}%** event retrieval vs **{b_kw.get('task_1_hit_rate', 0.0)}%** for BM25 and **{b_doc.get('task_1_hit_rate', 0.0)}%** for Docs-only.")
-    lines.append(f"2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **{st_acc}% State Accuracy** and **{ref_acc}% Refusal Accuracy** across unrecorded and discussion-only negative cases.")
+    lines.append(f"2. **Task 2 (Decision Reconstruction)**: Baseline A and B cannot classify states (`accepted` vs `rejected`), extract alternatives, or abstain on unrecorded topics (returning 0% refusal). CIF achieves **{st_acc}% ({st_corr}/{strict_cnt} matched decisions, small n)** State Accuracy and abstains correctly on {ref_corr}/{ref_total} ({ref_acc}%) of unrecorded-topic questions; {unsupported_ref}/{ref_total} receive an unsupported decision — see LIMITATIONS.")
     lines.append(f"3. **Overcounting Gap**: Under audited one-to-one strict matching (Step 4.1), CIF achieves **{rec_strict}%** strict recall vs **{rec_lenient}%** lenient recall (gap: `+{gap}%`).")
     lines.append("")
     lines.append("---")
@@ -220,7 +224,7 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
     lines.append("| **With Active Guard Rules** (`forbid_import`, `pattern`, etc.) | 20 | 10 | 1 | 9 | 0 | **90.9%** | **100.0%** |")
     lines.append("")
     lines.append("### Key Findings")
-    lines.append("1. **Zero False Negatives**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`), ensuring that previously rejected libraries (e.g. `sticky_sessions`, raw synchronous balloon deflaters) cannot be silently reintroduced.")
+    lines.append("1. **Zero False Negatives in Demo Suite**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`) across the 20 authored demo drift cases, ensuring that previously rejected libraries (e.g. `sticky_sessions`, raw synchronous balloon deflaters) cannot be silently reintroduced.")
     lines.append("2. **Deterministic Enforcement**: Guard rules execute on added lines (`+`) in pull request diffs using deterministic AST and regex matching.")
     lines.append("")
     lines.append("---")

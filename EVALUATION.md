@@ -32,6 +32,7 @@ WhyBench formally evaluates two distinct tasks to prevent comparing unlike syste
 - **Input**: Full repository event stream and git diffs.
 - **Systems Evaluated**: CIF (reconciled state machine, structured candidate extraction, context graph) vs Baseline C (LLM) / Baseline D (Copilot) when configured.
 - **Metrics**: Strict one-to-one decision recall (bipartite greedy matching), decision state accuracy, grounded rationale & alternatives, and refusal accuracy on negative cases.
+- **Measured Outcomes (`test_v2`)**: CIF achieves **80.8%** (21/26) Strict Recall, **100.0%** (21/21 matched decisions, small n) State Accuracy, and abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS).
 - **Non-reconstructing Baselines**: Baseline A and B cannot extract decisions or lifecycle states; their Task 2 metrics are marked `n/a` rather than 0.0%.
 
 ---

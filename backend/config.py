@@ -1,7 +1,7 @@
 """
 Configuration Module for CIF (Step 7.1)
 Reads environment variables once, validates them, and exposes safe getters.
-Guarantees that sensitive secrets are never logged or exposed in __repr__ / __str__.
+Ensures that sensitive secrets are never logged or exposed in __repr__ / __str__.
 """
 import os
 from typing import Dict, Any, List, Optional, Set

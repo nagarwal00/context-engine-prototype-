@@ -1,7 +1,7 @@
 """
 GitHub Ingestion Adapter (Section 6.2)
 Ingests Issues, Pull Requests, and Review Comments.
-Extracts parent links ('Closes #123') and guarantees clickable source URLs.
+Extracts parent links ('Closes #123') and ensures clickable source URLs.
 """
 from typing import List, Dict, Any, Optional
 import re

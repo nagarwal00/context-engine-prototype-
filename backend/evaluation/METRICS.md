@@ -51,7 +51,7 @@ $$\text{Evidence-Link Validity} = \frac{\text{Count of decision evidence links w
 
 ---
 
-## 6. Claim Support Rate (Anti-Hallucination)
+## 6. Claim Support Rate (Grounding Invariant)
 
 For each sentence in every generated explanation:
 1. The sentence must cite $\ge 1$ evidence event ID.

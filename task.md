@@ -14,7 +14,7 @@ This document tracks all tasks, milestones, and deliverables for the **Context I
   - [x] Ingestion Adapter 2: GitHub Issues & Pull Requests with inline review comments and issue-PR linkage `Closes #...` ([`backend/ingestion/github_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/github_adapter.py)).
   - [x] Ingestion Adapter 3: Architectural Decision Records (ADRs) & Docs with Nygard template parsing ([`backend/ingestion/adr_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/adr_adapter.py)).
   - [x] Implement identity resolution table mapping contributors across Git emails and GitHub logins ([`backend/ingestion/identity.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/identity.py)).
-  - [x] Ensure every event guarantees an immutable, clickable `source_url`.
+  - [x] Ensure every event provides an immutable, clickable `source_url`.
 - [x] **Task 1.3: Pilot Repositories & Ground Truth Dataset**
   - [x] Build pilot repository 1: `acme-eng/thermal-control-system` (PID vs bang-bang controller, overheating incident, controlled drift scenario) ([`backend/seed_data.py`](file:///c:/Users/HP/Desktop/SE_project/backend/seed_data.py)).
   - [x] Build pilot repository 2: `acme-eng/distributed-cache-service` (in-memory LRU vs Redis cluster, memory leak, conflicting proposals) ([`backend/seed_data.py`](file:///c:/Users/HP/Desktop/SE_project/backend/seed_data.py)).

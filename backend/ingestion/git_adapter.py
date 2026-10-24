@@ -1,7 +1,7 @@
 """
 Git Ingestion Adapter (Section 6.1)
 Walks commit history, extracts diff summaries and modified functions,
-and emits normalized Event records with guaranteed source_url.
+and emits normalized Event records with validated source_url.
 """
 from typing import List, Dict, Any, Optional
 import re

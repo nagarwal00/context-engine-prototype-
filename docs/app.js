@@ -2044,11 +2044,11 @@ const app = {
               </div>
               <div class="metric-stat-box">
                 <div class="metric-val" style="color: #10b981;">${esc(fmtPct(ov.state_accuracy))}</div>
-                <div class="metric-lbl">State Accuracy</div>
+                <div class="metric-lbl">State Accuracy (21/21, small n)</div>
               </div>
               <div class="metric-stat-box">
                 <div class="metric-val" style="color: #f59e0b;">${esc(fmtPct(ov.refusal_accuracy))}</div>
-                <div class="metric-lbl">Refusal Accuracy (Negative)</div>
+                <div class="metric-lbl">Refusal (29/45 abstained)</div>
               </div>
               <div class="metric-stat-box">
                 <div class="metric-val" style="color: #94a3b8; font-size: 1.1rem;">${esc(ov.decision_precision || 'not measured')}</div>
@@ -2997,7 +2997,7 @@ const app = {
             role: role,
             affected_artifacts: [isThermal ? 'src/thermal/control.py' : 'src/cache/store.py'],
             primary_architects: [isThermal ? 'Sarah Chen' : 'Priya Patel'],
-            summary: `Curated context for ${role} on ${mod}. Focuses on architectural guarantees and critical operational constraints.`
+            summary: `Curated context for ${role} on ${mod}. Focuses on architectural invariants and critical operational constraints.`
           },
           active_decisions: [{
             decision_id: isThermal ? 'dec_thermal_pid_accepted' : 'dec_cache_redis_accepted',

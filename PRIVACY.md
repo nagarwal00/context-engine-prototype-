@@ -1,14 +1,14 @@
 # CIF Privacy, Redaction, and Data Retention Architecture
 
-This document describes the privacy guarantees, data minimization policies, automated redaction mechanisms, and repository retention controls implemented in the **Context Intelligence Framework (CIF)**.
+This document describes the privacy controls, data minimization policies, automated redaction mechanisms, and repository retention controls implemented in the **Context Intelligence Framework (CIF)**.
 
 ---
 
 ## 1. Core Privacy Principles
 
 1. **Defense-in-Depth Redaction**: Secrets, API keys, credentials, and tokens are scrubbed *before* indexing, graph edge formation, metadata hashing, persistent database storage, and console/system logging.
-2. **Deterministic Token Replacement**: Sensitive tokens are replaced with standardized non-reversible markers (`[REDACTED:<type>]`), preserving text structure while guaranteeing that raw secret strings never touch disk or external services.
-3. **Local-Only Guarantee**: In environments where network traffic or third-party AI models are restricted, `CIF_LOCAL_ONLY=1` strictly disables outbound network calls and LLM integrations.
+2. **Deterministic Token Replacement**: Sensitive tokens are replaced with standardized non-reversible markers (`[REDACTED:<type>]`), preserving text structure to ensure that raw secret strings never touch disk or external services.
+3. **Local-Only Invariant**: In environments where network traffic or third-party AI models are restricted, `CIF_LOCAL_ONLY=1` strictly disables outbound network calls and LLM integrations.
 4. **Complete Right-to-Forget**: The administrator endpoint `POST /api/purge-repo` immediately cascades deletion across all tables, traces, graph edges, and historical state logs associated with a repository.
 
 ---

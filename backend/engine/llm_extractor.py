@@ -13,7 +13,7 @@ from backend.evaluation.baselines import STOP_WORDS, tokenize
 
 def validate_grounding(candidate: Dict[str, Any], events: List[Event]) -> Dict[str, Any]:
     """
-    Anti-Hallucination Grounding Validator (Section 3.3):
+    Grounding Invariant Validator (Section 3.3):
     1. Every evidence_event_id must exist in the event bundle.
     2. At least 50% of rationale content words must appear in cited events' text.
     3. If grounding fails, downgrades to 'unresolved' state with pending_review.

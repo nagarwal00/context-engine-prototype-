@@ -24,6 +24,7 @@ In accordance with academic integrity guidelines for UCS503 Capstone, this docum
 - All empirical extraction and baseline metrics are dynamically measured by the WhyBench runner; see [evaluation_results.md](evaluation_results.md) for current generated values.
 - The system prioritizes **precision over recall**: it indexes decisions with explicit architectural markers or structured ADR records, achieving high state accuracy and reliable refusal on negative queries, but naturally misses decisions discussed casually in PR comments without structured phrasing.
 - Unstructured keyword search (Baseline A) achieves higher raw event hit rates on retrieval, but lacks any refusal capability and cannot distinguish accepted from rejected decisions.
+- **Refusal & Abstention Boundaries**: On negative questions regarding unrecorded architectural topics (45 questions in `test_v2`), the system correctly abstains on 29/45 (64.4%) by outputting "No recorded architectural decision found". On 16/45 (35.6%) of unrecorded cases, the system emits an ungrounded or unsupported decision candidate due to heuristic token overlap with unrelated repository context. Grounding invariants prevent saving decisions without evidence in the graph, but question-answering retrieval abstention remains a key area for calibration improvements.
 
 ---
 
