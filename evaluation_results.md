@@ -2,9 +2,9 @@
 
 > **Important**: In accordance with Capstone Project guidelines and `ANTIGRAVITY_HANDOFF_V2.md`, **no metric, percentage, or baseline in this report is fabricated or hand-edited**. All numbers are automatically generated from reproducible run manifests.
 
----
+> **Benchmark Notice**: **Synthetic benchmark — see LIMITATIONS**. WhyBench-Synth is a hand-authored benchmark designed to test internal decision lifecycle tracking, evidence grounding invariants, and abstention behavior.
 
-## 1. WhyBench: Real-World Benchmark Corpus
+## 1. WhyBench-Synth (Hand-Authored Synthetic Benchmark)
 
 Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v2_20261013_100423/manifest.json`).
 

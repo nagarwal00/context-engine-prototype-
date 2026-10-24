@@ -65,7 +65,7 @@ This document tracks all tasks, milestones, and deliverables for the **Context I
 - [x] **Task 3.3: Evaluation Pipeline & Baseline Comparison**
   - [x] Automated benchmark metrics calculation computed from reproducible data without literals (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
   - [x] Benchmark comparison against Baselines (Keyword token search, Docs-only search, Plain LLM, Copilot Q&A).
-  - [x] WhyBench real-world corpus evaluation across benchmark splits (metrics dynamically computed in [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
+  - [x] WhyBench-Synth (hand-authored synthetic benchmark) evaluation across benchmark splits (metrics dynamically computed in [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
 - [x] **Task 3.4: Comprehensive Documentation & Delivery**
   - [x] Generated `explanation.md` detailing architecture, schema, graph algorithms, and drift detection ([`explanation.md`](file:///c:/Users/HP/Desktop/SE_project/explanation.md)).
   - [x] Generated `readme.md` with step-by-step setup, installation, and live demo script for professors ([`readme.md`](file:///c:/Users/HP/Desktop/SE_project/readme.md)).

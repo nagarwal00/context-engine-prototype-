@@ -118,9 +118,9 @@ Here is how our code is split up and what each file actually does:
 
 ---
 
-## 4. The Two Real-World Stories in Our Prototype
+## 4. The Two Synthetic Scenarios in Our Prototype
 
-To make this project realistic, we built two real software engineering stories into our database:
+To make this prototype realistic, we built two simulated engineering scenarios into our database:
 
 ### Story 1: The Thermal Regulation System (`thermal-control-system`)
 1. **The Bug:** During a long test run, the thermal chamber overheated to 94°C because the old system was just an ON/OFF switch (Issue #12).

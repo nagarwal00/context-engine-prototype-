@@ -28,9 +28,9 @@ def generate_evaluation_markdown(manifest: Dict[str, Any]) -> str:
     lines.append("")
     lines.append("> **Important**: In accordance with Capstone Project guidelines and `ANTIGRAVITY_HANDOFF_V2.md`, **no metric, percentage, or baseline in this report is fabricated or hand-edited**. All numbers are automatically generated from reproducible run manifests.")
     lines.append("")
-    lines.append("---")
+    lines.append("> **Benchmark Notice**: **Synthetic benchmark — see LIMITATIONS**. WhyBench-Synth is a hand-authored benchmark designed to test internal decision lifecycle tracking, evidence grounding invariants, and abstention behavior.")
     lines.append("")
-    lines.append("## 1. WhyBench: Real-World Benchmark Corpus")
+    lines.append("## 1. WhyBench-Synth (Hand-Authored Synthetic Benchmark)")
     lines.append("")
     lines.append(f"Evaluated via `tools/run_whybench.py --split {split}` (Manifest: `results/{manifest.get('run_id')}/manifest.json`).")
     lines.append("")
@@ -279,7 +279,7 @@ def generate_evaluation_report(manifest_path: str, output_path: str = None) -> s
     if output_path is None:
         output_path = os.path.join(PROJECT_ROOT, "evaluation_results.md")
 
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8", newline="\n") as f:
         f.write(md_content)
 
     print(f"  [GENERATED] {output_path} from manifest '{manifest_path}'")

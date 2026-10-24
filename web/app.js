@@ -2022,11 +2022,14 @@ const app = {
         const kwHit = (ov.baseline_keyword && typeof ov.baseline_keyword.task_1_hit_rate === 'number') ? `${ov.baseline_keyword.task_1_hit_rate}%` : 'BM25';
         whybenchHtml = `
           <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
+            <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; color: #fef08a; font-size: 0.85rem;">
+              ⚠️ <strong>Synthetic benchmark — see LIMITATIONS</strong>: WhyBench-Synth evaluates hand-authored scenarios designed to test decision reconstruction, lifecycle tracking, invariants, and refusal behaviour.
+            </div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
               <div>
-                <strong style="color: #c084fc; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
+                <strong style="color: #c084fc; font-size: 1.05rem;">Headline WhyBench-Synth Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
                 <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
-                  Evaluated on real-world repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
+                  Evaluated on hand-authored synthetic repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
                   Total questions evaluated: <strong>${esc(wb.questions_evaluated)}</strong> (<strong>${esc(wb.standard_questions)}</strong> standard, <strong>${esc(wb.refusal_questions)}</strong> negative refusal).
                 </p>
               </div>

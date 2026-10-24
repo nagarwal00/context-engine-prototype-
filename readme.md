@@ -218,14 +218,14 @@ When demoing this project to your professor, follow these 8 simple steps:
 
 ### 🖥️ Step 7: Evaluation Metrics & Comparison Table
 - **Action:** Click **Metrics & Baselines** in the left sidebar.
-- **What is on screen:** Metric cards, WhyBench real-world benchmark results, and a baseline comparison table.
+- **What is on screen:** Metric cards, WhyBench-Synth (hand-authored synthetic benchmark) results, and a baseline comparison table.
 - **What to say:**
-  > *"To validate our capstone honestly, we evaluated the system on WhyBench across 71 questions on the frozen `test_v2` split from three open-source repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
+  > *"To validate our capstone honestly, we evaluated the system on WhyBench-Synth across 71 questions on the frozen `test_v2` split from three hand-authored synthetic domain repositories (acme-ecommerce/payment-core, cloud-hypervisor/cloud-hypervisor, cli/cli) and compared it to practical baselines.*  
   > *On Task 1 (Evidence Retrieval), on identical positive questions, Baseline A (BM25) achieves 92.3% and Baseline B (Docs-only) achieves 23.1% compared to CIF's 80.8% decision-evidence match (Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules). On Task 2 (Decision Reconstruction), CIF achieved 80.8% Strict Recall, 100.0% (21/21 matched decisions, small n) State Accuracy, and abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS). All metrics are computed dynamically from real manifests (see `evaluation_results.md`)."*
 
 #### 💡 Answering the Professor: *"Why not just write a README or use an AI Agent?"*
 If the professor challenges the project, say this:
-> 1. *"Docs-only search achieved only 8.5% hit rate on WhyBench because architectural decisions live primarily in PR review debates, issues, and commit histories, not static docs—and a README cannot automatically block violating pull requests in CI."*  
+> 1. *"Docs-only search achieved only 8.5% hit rate on WhyBench-Synth because architectural decisions live primarily in PR review debates, issues, and commit histories, not static docs—and a README cannot automatically block violating pull requests in CI."*  
 > 2. *"General-purpose AI agents may generate answers without provenance and fail to abstain, whereas CIF achieved 100.0% (21/21 matched decisions, small n) state accuracy, abstains correctly on 29/45 (64.4%) of unrecorded-topic questions (16/45 receive an unsupported decision — see LIMITATIONS), and enforces a grounding invariant linking explanations directly to verified source events."*  
 > 3. *"CIF converts accepted decisions into active CI Guard Rules that evaluate pull request diffs in milliseconds to prevent architectural regressions automatically."*
 
