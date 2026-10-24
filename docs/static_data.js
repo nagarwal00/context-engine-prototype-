@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "4f86e69dcfc605a2515fb568deea4c6512d7dd9d7284f8de87e5cdebc6c55b84",
+  "db_snapshot_sha256": "ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -321,8 +321,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_rev_cache_c201",
-                "evt_adr_cache_0009"
+                "evt_adr_cache_0009",
+                "evt_rev_cache_c201"
               ],
               "system_state": "accepted"
             },
@@ -333,8 +333,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_git_thermal_a1b2c3d4",
-                "evt_adr_thermal_0004"
+                "evt_adr_thermal_0004",
+                "evt_git_thermal_a1b2c3d4"
               ],
               "system_state": "accepted"
             },
@@ -379,8 +379,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -401,15 +401,15 @@ window.__CIF_STATIC_DATA__ = {
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_sarah",
-                "evt_issue_thermal_12_comm"
+                "evt_issue_thermal_12_comm",
+                "evt_issue_thermal_12_sarah"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '4f86e69dcfc605a2515fb568deea4c6512d7dd9d7284f8de87e5cdebc6c55b84'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -420,8 +420,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_rev_cache_c201",
-                  "evt_adr_cache_0009"
+                  "evt_adr_cache_0009",
+                  "evt_rev_cache_c201"
                 ],
                 "system_state": "accepted"
               },
@@ -432,8 +432,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_git_thermal_a1b2c3d4",
-                  "evt_adr_thermal_0004"
+                  "evt_adr_thermal_0004",
+                  "evt_git_thermal_a1b2c3d4"
                 ],
                 "system_state": "accepted"
               },
@@ -451,15 +451,15 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
-              "dec_cache_redis_accepted",
               "dec_thermal_pid_accepted",
-              "dec_cache_local_lru_proposed"
+              "dec_cache_local_lru_proposed",
+              "dec_cache_redis_accepted"
             ],
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -610,7 +610,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '4f86e69dcfc605a2515fb568deea4c6512d7dd9d7284f8de87e5cdebc6c55b84'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {

@@ -95,7 +95,7 @@ You will see:
 [OK] Existing database loaded with decisions.
 
 [SERVER LIVE] Prototype is live and running at: http://127.0.0.1:8080/
-[*] Serving all 9 UI surfaces, interactive Context Graph, and Review Queue.
+[*] Serving interactive Context Graph, Review Queue, and all UI surfaces.
 ```
 
 ### Step 3: Open Your Browser
@@ -111,7 +111,7 @@ You will see the full interactive dark-mode dashboard!
 This repository is pre-configured to deploy directly on GitHub Pages with **zero extra services or paid hosting**:
 - **Automatic GitHub Pages workflow:** `.github/workflows/deploy.yml` deploys the web interface automatically on every push.
 - **Classic Branch deployment:** The `docs/` folder contains the static distribution for 1-click branch deployment.
-- **Client-Side Data Engine:** All 9 UI surfaces, interactive graph, CI drift checking, and review actions work 100% in the browser on GitHub Pages.
+- **Client-Side Data Engine:** All interactive UI surfaces, graph, CI drift checking, and review actions work 100% in the browser on GitHub Pages (run `python tools/print_facts.py` to inspect live counts of surfaces, migrations, tests, and benchmark questions).
 
 See [DEPLOYMENT.md](file:///c:/Users/HP/Desktop/SE_project/DEPLOYMENT.md) for full step-by-step instructions.
 
@@ -136,6 +136,12 @@ python run_demo.py
 6. **Drift Test:** It feeds a bad code change into the system and checks that the system catches the violation.
 7. **Abstention Test:** It asks about a fake file that does not exist. It verifies that the system abstains with *"No decision found"* when no evidence exists.
 8. **Scorecard:** It calculates computed accuracy and grounding metrics from real data (see [`evaluation_results.md`](file:///c:/Users/HP/Desktop/SE_project/evaluation_results.md)).
+
+> **Verified Counts from Live Code & Data**:
+> To inspect machine-verified counts of automated test cases, migrations, benchmark questions, and UI surfaces directly from data, run:
+> ```bash
+> python tools/print_facts.py
+> ```
 
 ---
 

@@ -38,7 +38,7 @@ SE_project/
 ├── backend/                        # Core Python Engine & Logic
 │   ├── api.py                      # REST API router & GitHub webhook receiver
 │   ├── db.py                       # SQLite database interface & mechanical invariants
-│   ├── migrations/                 # Versioned database schema migrations (v001-v006)
+│   ├── migrations/                 # Versioned database schema migrations (v001-v007)
 │   ├── models.py                   # Data models (Event, Decision, Entity, Edge)
 │   ├── seed_data.py                # Deterministic seed data generator (thermal & cache)
 │   ├── engine/                     # Brain (drift, graph, bus factor, onboarding)
@@ -69,7 +69,7 @@ To make the application fully interactive on GitHub Pages without sacrificing lo
    The frontend automatically connects to your local Python server (`server.py`) and queries SQLite.
 2. **When running on GitHub Pages (`*.github.io`):**  
    The frontend seamlessly uses the embedded client-side engine (`static_data.js`), enabling:
-   - Full navigation across all 6 core surfaces.
+   - Full navigation across all 11 interactive surfaces (`repositories`, `timeline`, `graph`, `code`, `decisions`, `evidence`, `review`, `onboarding`, `drift-test`, `benchmark`, `bus-factor`).
    - Interactive SVG Context Graph exploration.
    - Live Human Review Queue actions (**Confirm**, **Correct**, **Reject**).
    - Live CI Code Drift Checker with all 3 test presets.
