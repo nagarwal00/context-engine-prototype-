@@ -1,6 +1,6 @@
 # Presenter Notes & Demo Script (Speaker Notes)
 
-> **Notice:** These are internal speaker notes and presentation coaching for demonstrating the Context Intelligence Framework to an audience or examination panel. These are speaker notes, not formal project documentation. For official project architecture, installation, and evaluation details, see [`readme.md`](file:///readme.md).
+> **Notice:** These are internal speaker notes and presentation coaching for demonstrating the Context Intelligence Framework to an audience or examination panel. These are speaker notes, not formal project documentation. For official project architecture, installation, and evaluation details, see [`readme.md`](../../readme.md).
 
 ---
 

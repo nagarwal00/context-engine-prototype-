@@ -25,3 +25,9 @@ jobs:
 
       - name: Run demo verification suite
         run: python run_demo.py
+
+      - name: Check documentation consistency
+        run: python tools/check_docs.py
+
+      - name: Check line endings
+        run: python tools/check_eol.py

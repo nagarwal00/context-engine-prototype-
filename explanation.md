@@ -53,67 +53,67 @@ Here is the entire system pipeline in one clear diagram:
 Here is how our code is split up and what each file actually does:
 
 ### 📁 1. The Blueprint & Storage (`backend/models.py` & `backend/db.py`)
-- [`backend/models.py`](file:///c:/Users/HP/Desktop/SE_project/backend/models.py):
+- [`backend/models.py`](backend/models.py):
   - Defines the core objects:
     - **`Event`**: An individual action from history (a commit, an issue, or a comment).
     - **`Decision`**: A choice made by a developer (has a state: `proposed`, `accepted`, `rejected`, `superseded`, or `unresolved`).
     - **`Entity`**: A specific piece of code (like a file or a Python function).
     - **`Edge`**: A connection between two items (e.g., *Decision A affects Function B*).
-- [`backend/db.py`](file:///c:/Users/HP/Desktop/SE_project/backend/db.py):
+- [`backend/db.py`](backend/db.py):
   - Creates the SQLite database tables.
   - **The Golden Rule (Invariant):** The code physically blocks saving any decision that doesn't have evidence attached! If a decision has no proof, the system forces it to be labeled as `unresolved`. This enforces the grounding invariant that every decision has evidence.
 
 ---
 
 ### 📁 2. The Collectors (`backend/ingestion/`)
-- [`backend/ingestion/git_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/git_adapter.py):
+- [`backend/ingestion/git_adapter.py`](backend/ingestion/git_adapter.py):
   - Reads Git commit history, parses commit messages, extracts which files changed, and builds a clickable URL (`https://github.com/.../commit/...`).
-- [`backend/ingestion/github_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/github_adapter.py):
+- [`backend/ingestion/github_adapter.py`](backend/ingestion/github_adapter.py):
   - Reads GitHub Issues and Pull Requests.
   - Understands phrases like *"Closes #12"* to link a pull request back to the original bug report.
   - Ingests code review comments where developers debated the pros and cons.
-- [`backend/ingestion/adr_adapter.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/adr_adapter.py):
+- [`backend/ingestion/adr_adapter.py`](backend/ingestion/adr_adapter.py):
   - Reads Markdown files inside `docs/adr/`.
   - Parses standard decision records that follow the Nygard format: *Title*, *Status*, *Context*, *Decision*, and *Consequences*.
-- [`backend/ingestion/identity.py`](file:///c:/Users/HP/Desktop/SE_project/backend/ingestion/identity.py):
+- [`backend/ingestion/identity.py`](backend/ingestion/identity.py):
   - Developers use different usernames in different places (e.g., `schen` on GitHub vs `sarah.chen@acme.org` in Git commits). This file maps them all to one canonical person: `Sarah Chen`.
 
 ---
 
 ### 📁 3. The Brain & Analysis (`backend/engine/`)
-- [`backend/engine/entity_res.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/entity_res.py):
+- [`backend/engine/entity_res.py`](backend/engine/entity_res.py):
   - Uses Python's built-in **AST (Abstract Syntax Tree)** library to scan python code and detect exact function names (like `def regulate_temperature`).
   - This allows the system to attach decisions to a specific function rather than just a whole 1,000-line file.
-- [`backend/engine/graph.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/graph.py):
+- [`backend/engine/graph.py`](backend/engine/graph.py):
   - Builds the **Temporal Context Graph**. It tracks relationships over time.
   - For example, if Decision B replaces Decision A, it marks Decision A as `superseded` and updates the timeline.
-- [`backend/engine/reconciliation.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/reconciliation.py):
+- [`backend/engine/reconciliation.py`](backend/engine/reconciliation.py):
   - **Conflict Detector:** If Developer 1 proposes an in-memory cache, and Developer 2 proposes a Redis cluster for the exact same file, this file catches the contradiction, creates a red conflict line, and alerts the Review Queue.
-- [`backend/engine/drift_detector.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/drift_detector.py):
+- [`backend/engine/drift_detector.py`](backend/engine/drift_detector.py):
   - **The CI Guard Dog:** Whenever new code is written in a pull request diff, this file checks if the new code violates a past accepted decision, or if someone accidentally re-introduced an idea that was already tested and rejected.
-- [`backend/engine/explanation.py`](file:///c:/Users/HP/Desktop/SE_project/backend/engine/explanation.py):
+- [`backend/engine/explanation.py`](backend/engine/explanation.py):
   - When the user clicks on a function and asks *"Why does this exist?"*, this file builds the answer strictly using the verified evidence links from the graph according to the grounding invariant, abstaining when evidence is missing.
 
 ---
 
 ### 📁 4. The Server & Web App (`server.py` & `web/`)
-- [`server.py`](file:///c:/Users/HP/Desktop/SE_project/server.py):
+- [`server.py`](server.py):
   - A lightweight, built-in Python web server. Runs on port 8080.
-- [`backend/api.py`](file:///c:/Users/HP/Desktop/SE_project/backend/api.py):
+- [`backend/api.py`](backend/api.py):
   - The API layer that handles requests from the browser (e.g., getting timeline events, querying the graph, running drift checks, or clicking buttons in the review queue).
-- [`web/index.html`](file:///c:/Users/HP/Desktop/SE_project/web/index.html) & [`web/style.css`](file:///c:/Users/HP/Desktop/SE_project/web/style.css) & [`web/app.js`](file:///c:/Users/HP/Desktop/SE_project/web/app.js):
+- [`web/index.html`](web/index.html) & [`web/style.css`](web/style.css) & [`web/app.js`](web/app.js):
   - The modern single-page dashboard.
   - Draws the SVG node-link graph, the horizontal timeline, the code-context accordion, the review queue triage modals, and the live drift testing tool.
 
 ---
 
 ### 📁 5. The Test & Evaluation Suite (`backend/evaluation/` & `run_demo.py`)
-- [`backend/evaluation/ground_truth.py`](file:///c:/Users/HP/Desktop/SE_project/backend/evaluation/ground_truth.py):
+- [`backend/evaluation/ground_truth.py`](backend/evaluation/ground_truth.py):
   - A test dataset containing 32 real, manually verified decisions with their exact expected states and proof links.
-- [`backend/evaluation/benchmark.py`](file:///c:/Users/HP/Desktop/SE_project/backend/evaluation/benchmark.py):
+- [`backend/evaluation/benchmark.py`](backend/evaluation/benchmark.py):
   - Calculates our project's accuracy scores (Precision, Recall, F1 score, Evidence link accuracy, and speed).
   - Compares our scores against 3 existing baselines (Normal Grep search, GitHub Copilot Q&A, and manual ADRs).
-- [`run_demo.py`](file:///c:/Users/HP/Desktop/SE_project/run_demo.py):
+- [`run_demo.py`](run_demo.py):
   - A one-click test runner that automatically executes 21 checks across the entire system to verify everything is working properly.
 
 ---

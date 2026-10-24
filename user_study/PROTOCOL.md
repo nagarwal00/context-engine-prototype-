@@ -36,7 +36,7 @@ For each trial, the investigator records:
 
 ## 5. Trial Procedure (Total Time: ~25 minutes per participant)
 1. **Briefing & Consent (3 minutes):**
-   - Participant reads and signs [`CONSENT.md`](file:///user_study/CONSENT.md).
+   - Participant reads and signs [`CONSENT.md`](CONSENT.md).
    - Investigator explains the study rules: 10-minute cap per task, think-aloud optional.
 2. **Tool Orientation (2 minutes):**
    - Brief 1-minute walkthrough of the CIF UI interface (search bar, decision detail view, evidence drawer).

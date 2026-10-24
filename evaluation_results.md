@@ -109,7 +109,7 @@ Evaluated on synthetic pilot repositories (`acme-eng/thermal-control-system` and
 | **Claim Support Rate** | **100.0%** (Unsupported: 0.0%) | Sentences in explanation chains cite valid evidence |
 | **Processing Latency (Median of 5 runs)** | **12.4 ms** | In-process SQLite + Python graph query |
 | **Automated Verification Suite** | **21 / 21 Checks Passed** | Verified via `python run_demo.py` |
-| **Full Unit Test Suite** | **169+ Tests Passed** | Verified via `python -m unittest discover -s tests -v` |
+| **Full Unit Test Suite** | **173 Tests Passed** | Verified via `python -m unittest discover -s tests -v` |
 
 ---
 
