@@ -53,16 +53,48 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
     All proposals are stored with status='proposed' and source='synthesized', and NEVER auto-activated.
     """
     rules: List[GuardRule] = []
+    seen_rule_ids = set()
     p_paths = derive_paths_from_artifacts(decision.artifacts_affected)
 
-    accepted_text = (decision.title + " " + (decision.rationale or "")).lower()
+    rat = decision.rationale or ""
+    split_parts = re.split(r"(?i)\b(?:rejected\s+alternative(?:s)?|rejected\s+options?|rejected[:\-])\b", rat, maxsplit=1)
+    affirmative_rat = split_parts[0]
+    rejected_rat = split_parts[1] if len(split_parts) > 1 else ""
+
+    accepted_text = (decision.title + " " + affirmative_rat).lower()
     accepted_identifiers = {
         ident.lower()
-        for ident in extract_identifiers(decision.title + " " + (decision.rationale or ""))
+        for ident in extract_identifiers(decision.title + " " + affirmative_rat)
     }
 
+    # Extract explicit require_import modules from affirmative rationale and title
+    require_modules = extract_require_import_modules(decision.title + " " + affirmative_rat)
+    for req_mod in require_modules:
+        rule_id = f"rule_require_import_{decision.decision_id[:8]}_{req_mod}"
+        if rule_id not in seen_rule_ids:
+            seen_rule_ids.add(rule_id)
+            rules.append(GuardRule(
+                rule_id=rule_id,
+                decision_id=decision.decision_id,
+                rule_type="require_import",
+                params={
+                    "module": req_mod,
+                    "paths": p_paths
+                },
+                status="proposed",
+                polarity="must",
+                applies_to=p_paths,
+                source="synthesized",
+                created_by="rule_synthesizer",
+                created_at=decision.made_at
+            ))
+
     # For rejected alternatives of an accepted decision:
-    for alt in decision.alternatives_considered:
+    rejected_items = list(decision.alternatives_considered or [])
+    if rejected_rat.strip():
+        rejected_items.append(rejected_rat)
+
+    for alt in rejected_items:
         if isinstance(alt, dict):
             alt_desc = alt.get("description", "")
             alt_reason = alt.get("rejection_reason", "")
@@ -78,32 +110,16 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
             if cand_lower not in accepted_text and cand_lower not in accepted_identifiers:
                 cand_clean = re.sub(r"[^a-zA-Z0-9_]", "_", cand)[:24]
                 rule_id_pat = f"rule_forbid_pattern_{decision.decision_id[:8]}_{cand_clean}"
-                rules.append(GuardRule(
-                    rule_id=rule_id_pat,
-                    decision_id=decision.decision_id,
-                    rule_type="forbid_pattern",
-                    params={
-                        "regex": rf"\b{re.escape(cand)}\b",
-                        "paths": p_paths,
-                        "message": f"Reintroduces rejected concept: {cand}"
-                    },
-                    status="proposed",
-                    polarity="must_not",
-                    applies_to=p_paths,
-                    source="synthesized",
-                    created_by="rule_synthesizer",
-                    created_at=decision.made_at
-                ))
-
-                if is_module_like(cand):
-                    rule_id_imp = f"rule_forbid_import_{decision.decision_id[:8]}_{cand_clean}"
+                if rule_id_pat not in seen_rule_ids:
+                    seen_rule_ids.add(rule_id_pat)
                     rules.append(GuardRule(
-                        rule_id=rule_id_imp,
+                        rule_id=rule_id_pat,
                         decision_id=decision.decision_id,
-                        rule_type="forbid_import",
+                        rule_type="forbid_pattern",
                         params={
-                            "module": cand,
-                            "paths": p_paths
+                            "regex": rf"\b{re.escape(cand)}\b",
+                            "paths": p_paths,
+                            "message": f"Reintroduces rejected concept: {cand}"
                         },
                         status="proposed",
                         polarity="must_not",
@@ -112,6 +128,26 @@ def propose_rules_from_decision(decision: Decision) -> List[GuardRule]:
                         created_by="rule_synthesizer",
                         created_at=decision.made_at
                     ))
+
+                if is_module_like(cand):
+                    rule_id_imp = f"rule_forbid_import_{decision.decision_id[:8]}_{cand_clean}"
+                    if rule_id_imp not in seen_rule_ids:
+                        seen_rule_ids.add(rule_id_imp)
+                        rules.append(GuardRule(
+                            rule_id=rule_id_imp,
+                            decision_id=decision.decision_id,
+                            rule_type="forbid_import",
+                            params={
+                                "module": cand,
+                                "paths": p_paths
+                            },
+                            status="proposed",
+                            polarity="must_not",
+                            applies_to=p_paths,
+                            source="synthesized",
+                            created_by="rule_synthesizer",
+                            created_at=decision.made_at
+                        ))
 
     # For a rejected decision: the decision itself is rejected
     if decision.state == "rejected":

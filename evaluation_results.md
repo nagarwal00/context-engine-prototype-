@@ -71,16 +71,30 @@ Evaluated via `tools/run_whybench.py --split test_v2` (Manifest: `results/test_v
 
 ## 2. Decision Guard Rules Evaluation (Step 3.4 & 3.5)
 
-Evaluated against `backend/evaluation/drift_cases.json` (20 labelled test cases, including 10 violation cases and 10 negative/ok cases):
+### 2.1 Authored Demo Drift Cases
+Evaluated against `backend/evaluation/drift_cases.json` (20 labelled test cases across thermal and cache demo domains):
 
 | Configuration | Test Cases | True Positives (TP) | False Positives (FP) | True Negatives (TN) | False Negatives (FN) | Precision | Recall |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | **Without Guard Rules** (Heuristic drift only) | 20 | 8 | 1 | 9 | 2 | **88.9%** | **80.0%** |
-| **With Active Guard Rules** (`forbid_import`, `pattern`, etc.) | 20 | 10 | 1 | 9 | 0 | **90.9%** | **100.0%** |
+| **With Active Guard Rules** (`forbid_import`, `pattern`, etc.) | 20 | 10 | 0 | 10 | 0 | **100.0%** | **100.0%** |
+
+> *original 20 cases use authored demo rules; hold-out measures generalisation*
+
+### 2.2 Untouched Hold-Out Drift Evaluation (Third Domain)
+Evaluated against `backend/evaluation/holdout/cases.json` (16 cases in `acme-eng/job-queue-service`) using generic guard rules synthesized from `backend/evaluation/holdout/decisions.json` without domain keywords:
+
+| Suite / Domain | Test Cases | True Positives (TP) | False Positives (FP) | True Negatives (TN) | False Negatives (FN) | Precision | Recall | Status |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Hold-Out (Generic Rules)** | 16 | 8 | 0 | 8 | 0 | **100.0%** | **100.0%** | Measured |
+
+- **Synthesized Rules Enforced**: 13 generic rules.
+- **Generalisation Invariant**: Zero domain keywords hard-coded in engine source; all rules extracted from decision syntax and links.
 
 ### Key Findings
-1. **Zero False Negatives in Demo Suite**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`) across the 20 authored demo drift cases, ensuring that previously rejected libraries (e.g. `sticky_sessions`, raw synchronous balloon deflaters) cannot be silently reintroduced.
-2. **Deterministic Enforcement**: Guard rules execute on added lines (`+`) in pull request diffs using deterministic AST and regex matching.
+1. **Zero False Negatives in Demo Suite**: Guard rules provide 100.0% recall on forbidden import additions (`forbid_import`) across the 20 authored demo drift cases, ensuring that previously rejected libraries cannot be silently reintroduced.
+2. **Generalisation on Hold-Out Set**: The generic rule synthesizer extracts clean boundaries on the hold-out domain, correctly identifying all violations while ignoring comments, deletions, and near-miss substrings.
+3. **Deterministic Enforcement**: Guard rules execute on added lines (`+`) in pull request diffs using deterministic AST and regex matching.
 
 ---
 

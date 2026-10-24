@@ -1,0 +1,205 @@
+{
+  "holdout_evaluation": {
+    "domain": "acme-eng/job-queue-service",
+    "status": "measured",
+    "total_cases": 16,
+    "tp": 8,
+    "fp": 0,
+    "tn": 8,
+    "fn": 0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "synthesized_rules_count": 13,
+    "cases": [
+      {
+        "id": "holdout_01",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_protobuf_serialization",
+        "files": [
+          "src/queue/serializer.py"
+        ]
+      },
+      {
+        "id": "holdout_02",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 2,
+        "decision_id": "dec_queue_rabbitmq_over_zeromq",
+        "files": [
+          "src/queue/broker.py"
+        ]
+      },
+      {
+        "id": "holdout_03",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_exponential_backoff",
+        "files": [
+          "src/queue/retry.py"
+        ]
+      },
+      {
+        "id": "holdout_04",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_celery_rabbitmq",
+        "files": [
+          "src/queue/worker.py"
+        ]
+      },
+      {
+        "id": "holdout_05",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_celery_rabbitmq",
+        "files": [
+          "src/queue/worker.py"
+        ]
+      },
+      {
+        "id": "holdout_06",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 2,
+        "decision_id": "dec_queue_rabbitmq_over_zeromq",
+        "files": [
+          "src/queue/broker.py"
+        ]
+      },
+      {
+        "id": "holdout_07",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_protobuf_serialization",
+        "files": [
+          "src/queue/serializer.py"
+        ]
+      },
+      {
+        "id": "holdout_08",
+        "expected": "violation",
+        "detected": true,
+        "outcome": "TP",
+        "findings_count": 1,
+        "decision_id": "dec_queue_exponential_backoff",
+        "files": [
+          "src/queue/retry.py"
+        ]
+      },
+      {
+        "id": "holdout_09",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_protobuf_serialization",
+        "files": [
+          "src/queue/serializer.py"
+        ]
+      },
+      {
+        "id": "holdout_10",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_protobuf_serialization",
+        "files": [
+          "src/queue/serializer.py"
+        ]
+      },
+      {
+        "id": "holdout_11",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_protobuf_serialization",
+        "files": [
+          "src/queue/serializer.py"
+        ]
+      },
+      {
+        "id": "holdout_12",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_rabbitmq_over_zeromq",
+        "files": [
+          "src/queue/broker.py"
+        ]
+      },
+      {
+        "id": "holdout_13",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_celery_rabbitmq",
+        "files": [
+          "src/queue/worker.py"
+        ]
+      },
+      {
+        "id": "holdout_14",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_celery_rabbitmq",
+        "files": [
+          "src/queue/worker.py"
+        ]
+      },
+      {
+        "id": "holdout_15",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_exponential_backoff",
+        "files": [
+          "src/queue/retry.py"
+        ]
+      },
+      {
+        "id": "holdout_16",
+        "expected": "ok",
+        "detected": false,
+        "outcome": "TN",
+        "findings_count": 0,
+        "decision_id": "dec_queue_exponential_backoff",
+        "files": [
+          "src/queue/retry.py"
+        ]
+      }
+    ]
+  },
+  "original_demo_drift_evaluation": {
+    "domain": "thermal-control-system + distributed-cache-service (demo)",
+    "status": "measured",
+    "total_cases": 20,
+    "tp": 10,
+    "fp": 0,
+    "tn": 10,
+    "fn": 0,
+    "precision": 100.0,
+    "recall": 100.0,
+    "rules_source": "authored"
+  },
+  "notes": "original 20 cases use authored demo rules; hold-out measures generalisation"
+}

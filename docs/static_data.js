@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba",
+  "db_snapshot_sha256": "04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -409,7 +409,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -610,7 +610,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'ec7e62cd3c0bba7fb9dd4f195355490a05e718a0389a0df8cf210b96aa3715ba'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
