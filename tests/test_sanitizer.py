@@ -55,6 +55,16 @@ class TestSanitizer(unittest.TestCase):
         self.email_val = "developer" + "@" + "company-internal-domain.com"
         self.phone_val = "555-019-2834"
 
+        # Step 3.4 extended secret tokens (built strictly by concatenation)
+        self.openai_key = "sk-" + "1234567890abcdefghijklmnopqrstuvwxyzABCD"
+        self.anthropic_key = "sk-" + "ant-" + "api03-1234567890abcdefghijklmnopqrstuvwxyzABCD"
+        self.stripe_sk = "sk_" + "live_" + "1234567890abcdefghijklmnopqrstuv"
+        self.stripe_rk = "rk_" + "live_" + "1234567890abcdefghijklmnopqrstuv"
+        self.gitlab_token = "gl" + "pat-" + "1234567890abcdefghij"
+        self.npm_token = "np" + "m_" + "123456789012345678901234567890123456"
+        self.slack_app_token = "xa" + "pp-" + "1-1234567890123-1234567890123-abcdefghijklmnopqrstuvwxyz"
+        self.basic_auth_val = "dXNlcjpwYXNzMTIz"
+
     def test_sanitize_text_all_secret_categories(self):
         """Verifies that all secret classes are redacted in raw text."""
         # GitHub tokens
@@ -99,6 +109,53 @@ class TestSanitizer(unittest.TestCase):
         self.assertNotIn(self.password_val, s_pass)
         self.assertNotIn(self.api_key_val, s_pass)
         self.assertIn("[REDACTED:SECRET_ASSIGNMENT]", s_pass)
+
+        # Step 3.4 new secret categories
+        # Provider API keys (OpenAI and Anthropic)
+        s_oa = sanitize_text(f"OpenAI key is {self.openai_key}")
+        self.assertNotIn(self.openai_key, s_oa)
+        self.assertIn("[REDACTED:API_KEY]", s_oa)
+
+        s_ant = sanitize_text(f"Anthropic key is {self.anthropic_key}")
+        self.assertNotIn(self.anthropic_key, s_ant)
+        self.assertIn("[REDACTED:API_KEY]", s_ant)
+
+        # Stripe keys
+        s_stripe_sk = sanitize_text(f"Stripe sk is {self.stripe_sk}")
+        self.assertNotIn(self.stripe_sk, s_stripe_sk)
+        self.assertIn("[REDACTED:STRIPE_KEY]", s_stripe_sk)
+
+        s_stripe_rk = sanitize_text(f"Stripe rk is {self.stripe_rk}")
+        self.assertNotIn(self.stripe_rk, s_stripe_rk)
+        self.assertIn("[REDACTED:STRIPE_KEY]", s_stripe_rk)
+
+        # GitLab token
+        s_gl = sanitize_text(f"GitLab PAT is {self.gitlab_token}")
+        self.assertNotIn(self.gitlab_token, s_gl)
+        self.assertIn("[REDACTED:GITLAB_TOKEN]", s_gl)
+
+        # npm token
+        s_npm = sanitize_text(f"NPM token is {self.npm_token}")
+        self.assertNotIn(self.npm_token, s_npm)
+        self.assertIn("[REDACTED:NPM_TOKEN]", s_npm)
+
+        # Slack app token (xapp-)
+        s_xapp = sanitize_text(f"Slack app token is {self.slack_app_token}")
+        self.assertNotIn(self.slack_app_token, s_xapp)
+        self.assertIn("[REDACTED:SLACK_TOKEN]", s_xapp)
+
+        # Basic Auth
+        s_basic = sanitize_text(f"Authorization: Basic {self.basic_auth_val}")
+        self.assertNotIn(self.basic_auth_val, s_basic)
+        self.assertIn("Authorization: Basic [REDACTED:BASIC_AUTH]", s_basic)
+
+    def test_sanitizer_false_positive_guards(self):
+        """Verifies Step 3.4 false-positive guards: task-force-1, sk-learn, npm packages are not redacted."""
+        self.assertEqual(sanitize_text("task-force-1"), "task-force-1")
+        self.assertEqual(sanitize_text("import sk-learn as sklearn"), "import sk-learn as sklearn")
+        self.assertEqual(sanitize_text("run npm install package-name"), "run npm install package-name")
+        self.assertEqual(sanitize_text("sk-short123"), "sk-short123")
+
 
     def test_optional_pii_redaction(self):
         """Verifies that email and phone are preserved by default, but redacted when CIF_REDACT_PII=1."""

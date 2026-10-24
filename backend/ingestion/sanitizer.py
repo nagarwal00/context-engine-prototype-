@@ -30,23 +30,38 @@ RE_AWS_SECRET = re.compile(
     r"(?i)\b(aws_secret_access_key|aws_secret_key)\s*([:=])\s*['\"]?([A-Za-z0-9/+=]{40})['\"]?"
 )
 
-# 3. Slack Tokens
-RE_SLACK_TOKEN = re.compile(r"\b(xox[baprs]-[0-9A-Za-z\-]{10,})\b")
+# 3. Slack Tokens & App Tokens
+RE_SLACK_TOKEN = re.compile(r"\b((?:xox[baprs]|xapp)-[0-9A-Za-z\-]{10,})\b")
 
 # 4. Google API Keys
 RE_GOOGLE_KEY = re.compile(r"\b(AIza[0-9A-Za-z\-_]{35})\b")
 
-# 5. Private Key Blocks
+# 5. Provider API Keys (OpenAI sk-, Anthropic sk-ant-, generic sk- with >=20 chars)
+RE_API_KEY = re.compile(r"\b(sk-(?:ant-)?[A-Za-z0-9_\-]{20,})\b")
+
+# 6. Stripe API Keys (sk_live_, rk_live_)
+RE_STRIPE_KEY = re.compile(r"\b((?:sk_live_|rk_live_)[0-9a-zA-Z]{20,})\b")
+
+# 7. GitLab Personal Access Tokens (glpat-)
+RE_GITLAB_TOKEN = re.compile(r"\b(glpat-[0-9a-zA-Z_\-]{20,})\b")
+
+# 8. npm Access Tokens (npm_ + 36 alphanumeric characters)
+RE_NPM_TOKEN = re.compile(r"\b(npm_[0-9a-zA-Z]{36})\b")
+
+# 9. Private Key Blocks
 RE_PRIVATE_KEY = re.compile(
     r"-----BEGIN\s+[A-Z0-9\s_-]*PRIVATE\s+KEY-----[\s\S]*?-----END\s+[A-Z0-9\s_-]*PRIVATE\s+KEY-----",
     re.MULTILINE
 )
 
-# 6. JSON Web Tokens (JWT)
+# 10. JSON Web Tokens (JWT)
 RE_JWT = re.compile(r"\b(eyJ[A-Za-z0-9\-_]{10,}\.eyJ[A-Za-z0-9\-_]{10,}\.[A-Za-z0-9\-_]{10,})\b")
 
-# 7. Bearer Tokens & Authorization Headers
+# 11. Bearer Tokens & Authorization Headers
 RE_BEARER = re.compile(r"(?i)\b(?:Authorization:\s*)?Bearer\s+([A-Za-z0-9\-_.~+/]{16,}=*)")
+
+# 12. Basic Authentication Headers (Bearer-less Authorization: Basic)
+RE_BASIC_AUTH = re.compile(r"(?i)\bAuthorization:\s*Basic\s+([A-Za-z0-9+/=]{8,})")
 
 # 8. Secret / Password Assignments (negative lookahead prevents double-redacting [REDACTED:...])
 # Filters out common non-secret dictionary words in architectural discussions and code
@@ -93,19 +108,34 @@ def sanitize_text(text: Optional[str]) -> str:
     text = RE_AWS_SECRET.sub(r"\1\2[REDACTED:AWS_SECRET]", text)
     text = RE_AWS_KEY.sub("[REDACTED:AWS_KEY]", text)
 
-    # 4. Slack Tokens
+    # 4. Slack Tokens (including xapp-)
     text = RE_SLACK_TOKEN.sub("[REDACTED:SLACK_TOKEN]", text)
 
     # 5. Google API Keys
     text = RE_GOOGLE_KEY.sub("[REDACTED:GOOGLE_KEY]", text)
 
-    # 6. JWTs
+    # 6. Provider API Keys (OpenAI sk-, Anthropic sk-ant-)
+    text = RE_API_KEY.sub("[REDACTED:API_KEY]", text)
+
+    # 7. Stripe Keys
+    text = RE_STRIPE_KEY.sub("[REDACTED:STRIPE_KEY]", text)
+
+    # 8. GitLab Tokens
+    text = RE_GITLAB_TOKEN.sub("[REDACTED:GITLAB_TOKEN]", text)
+
+    # 9. npm Tokens
+    text = RE_NPM_TOKEN.sub("[REDACTED:NPM_TOKEN]", text)
+
+    # 10. JWTs
     text = RE_JWT.sub("[REDACTED:JWT]", text)
 
-    # 7. Bearer Tokens
+    # 11. Bearer Tokens
     text = RE_BEARER.sub("Bearer [REDACTED:BEARER_TOKEN]", text)
 
-    # 8. Secret / Password Assignments
+    # 12. Basic Authentication
+    text = RE_BASIC_AUTH.sub("Authorization: Basic [REDACTED:BASIC_AUTH]", text)
+
+    # 13. Secret / Password Assignments
     text = RE_SECRET_ASSIGNMENT.sub(_sub_secret_assignment, text)
 
     # 9. Optional PII

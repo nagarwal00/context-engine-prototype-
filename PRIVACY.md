@@ -24,18 +24,23 @@ All ingestion adapters (`GitAdapter`, `GitHubAdapter`, `ADRAdapter`, and direct 
 | **GitHub Tokens** | `ghp_`, `gho_`, `ghs_`, `ghr_`, `github_pat_` | `[REDACTED:GITHUB_TOKEN]` |
 | **AWS Access Key ID** | `AKIA[0-9A-Z]{16}` | `[REDACTED:AWS_KEY]` |
 | **AWS Secret Access Key** | Assignments with 40-character base64 keys | `[REDACTED:AWS_SECRET]` |
-| **Slack Tokens** | `xoxb-`, `xoxa-`, `xoxp-`, `xoxr-`, `xoxs-` | `[REDACTED:SLACK_TOKEN]` |
+| **Slack Tokens** | `xoxb-`, `xoxa-`, `xoxp-`, `xoxr-`, `xoxs-`, `xapp-` | `[REDACTED:SLACK_TOKEN]` |
 | **Google API Keys** | `AIza[0-9A-Za-z\-_]{35}` | `[REDACTED:GOOGLE_KEY]` |
+| **Provider API Keys** | `sk-`, `sk-ant-` (≥20 url-safe chars) | `[REDACTED:API_KEY]` |
+| **Stripe API Keys** | `sk_live_`, `rk_live_` (≥20 chars) | `[REDACTED:STRIPE_KEY]` |
+| **GitLab Tokens** | `glpat-` (≥20 url-safe chars) | `[REDACTED:GITLAB_TOKEN]` |
+| **npm Access Tokens** | `npm_` (36 alphanumeric chars) | `[REDACTED:NPM_TOKEN]` |
 | **Private Keys** | `-----BEGIN [A-Z ]*PRIVATE KEY-----...-----END...-----` | `[REDACTED:PRIVATE_KEY]` |
 | **JSON Web Tokens (JWT)** | Three-part base64url signed tokens (`eyJ...`) | `[REDACTED:JWT]` |
 | **Authorization Bearer** | `Authorization: Bearer <token>` or `Bearer <token>` | `Bearer [REDACTED:BEARER_TOKEN]` |
+| **Basic Authentication** | `Authorization: Basic <credentials>` | `Authorization: Basic [REDACTED:BASIC_AUTH]` |
 | **Secret / Password Assigns** | `password`, `secret`, `token`, `api_key`, `access_key` assignments | `[REDACTED:SECRET_ASSIGNMENT]` |
 | **URL Query Parameters** | Query string parameter values in `source_url` | `[REDACTED:QUERY_PARAM]` |
 | **URL Basic Auth** | `http(s)://user:password@host` | `[REDACTED:CREDENTIALS]` |
 
 ### Optional Personally Identifiable Information (PII)
 
-PII redaction is off by default to preserve developer author attribution, but can be enabled on-demand via environment flags:
+PII redaction is off by default to preserve developer author attribution (emails stay opt-in), but can be enabled on-demand via environment flags:
 
 - **`CIF_REDACT_PII=1`**: Redacts email addresses (`[REDACTED:EMAIL]`) and phone numbers (`[REDACTED:PHONE]`).
 - **`CIF_REDACT_AUTHOR=1`**: Redacts author display names (`[REDACTED:AUTHOR]`).
