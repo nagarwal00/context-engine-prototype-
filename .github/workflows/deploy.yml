@@ -34,8 +34,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Verify Static Snapshot Integrity (Step 6.2)
+      - name: Seed Database and Build Static Snapshot (Step 6.2)
         run: |
+          python tools/init_db.py --seed
           python tools/build_static.py
 
       - name: Upload Static Web Artifact

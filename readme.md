@@ -1,5 +1,8 @@
 # Context Intelligence Framework (CIF)
 
+[![CIF Test Suite](https://github.com/nagarwal00/context-engine-prototype-/actions/workflows/tests.yml/badge.svg)](https://github.com/nagarwal00/context-engine-prototype-/actions/workflows/tests.yml)
+[![Deploy to GitHub Pages](https://github.com/nagarwal00/context-engine-prototype-/actions/workflows/deploy.yml/badge.svg)](https://github.com/nagarwal00/context-engine-prototype-/actions/workflows/deploy.yml)
+
 > A provenance-grounded architectural context engine that captures why code was written, prevents architectural regression in CI, and explains code context with verifiable evidence chains.
 >
 > **Notice:** For presentation scripts, demo talk tracks, and examination coaching, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md). For AI coding assistance disclosure and author responsibilities, see [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md).
