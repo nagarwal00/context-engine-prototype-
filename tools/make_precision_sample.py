@@ -44,8 +44,10 @@ def make_precision_sample(
     if output_path is None:
         output_path = os.path.join(PROJECT_ROOT, "backend", "evaluation", "precision_labels.json")
 
-    db = Database(db_path)
-    with db.get_connection() as conn:
+    import sqlite3
+    db_abs = os.path.abspath(db_path)
+    with sqlite3.connect(f"file:{db_abs}?mode=ro", uri=True) as conn:
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("""
             SELECT decision_id, repo, title, state, confidence, rationale
@@ -87,16 +89,18 @@ def make_precision_sample(
             })
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(sampled_rows, f, indent=2)
+        f.write("\n")
 
     # Also keep whybench/precision_labels.json synchronized ONLY if output_path is default
     default_output = os.path.join(PROJECT_ROOT, "backend", "evaluation", "precision_labels.json")
     whybench_labels_path = os.path.join(PROJECT_ROOT, "backend", "evaluation", "whybench", "precision_labels.json")
     if os.path.abspath(output_path) == os.path.abspath(default_output):
         try:
-            with open(whybench_labels_path, "w", encoding="utf-8") as f:
+            with open(whybench_labels_path, "w", encoding="utf-8", newline="\n") as f:
                 json.dump(sampled_rows, f, indent=2)
+                f.write("\n")
         except Exception:
             pass
 
