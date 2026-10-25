@@ -17,6 +17,7 @@ import shutil
 import ssl
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.parse
@@ -199,18 +200,24 @@ class TestAddRepoFlow(unittest.TestCase):
         if req_body is not None:
             headers["Content-Type"] = "application/json"
 
-        req = urllib.request.Request(url, data=req_body, headers=headers, method=method)
-        try:
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                body = resp.read().decode("utf-8")
-                return resp.getcode(), json.loads(body) if body else {}
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8")
+        for attempt in range(2):
+            req = urllib.request.Request(url, data=req_body, headers=headers, method=method)
             try:
-                parsed = json.loads(body)
-            except Exception:
-                parsed = body
-            return e.code, parsed
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    body = resp.read().decode("utf-8")
+                    return resp.getcode(), json.loads(body) if body else {}
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8")
+                try:
+                    parsed = json.loads(body)
+                except Exception:
+                    parsed = body
+                return e.code, parsed
+            except (BrokenPipeError, ConnectionResetError, urllib.error.URLError):
+                if attempt == 0:
+                    time.sleep(0.05)
+                    continue
+                raise
 
     # 1. Unauthenticated Requests Blocked (401)
     def test_01_unauthenticated_requests_blocked(self):

@@ -29,6 +29,7 @@ BANNED_STRINGS = [
     "bbackend",
     "61 labelled",
     "169+",
+    "173 Tests",
     "6 core surfaces",
     "v001-v006",
 ]
@@ -37,6 +38,7 @@ BANNED_STRINGS = [
 BANNED_STRINGS_ALLOWLIST = {
     "docs/process/ANTIGRAVITY_HANDOFF_V4_FIXES.md",
     "ANTIGRAVITY_HANDOFF_V4_FIXES.md",
+    "Re-evaluation_CIF_v4.md",
 }
 
 # Directories and root files belonging to the actual repository

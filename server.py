@@ -42,13 +42,16 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
     def _send_redirect(self, location: str, extra_headers: dict = None, status: int = 302):
-        self.send_response(status)
-        self.send_header("Location", location)
-        if extra_headers:
-            for k, v in extra_headers.items():
-                if k.lower() != "location":
-                    self.send_header(k, v)
-        self.end_headers()
+        try:
+            self.send_response(status)
+            self.send_header("Location", location)
+            if extra_headers:
+                for k, v in extra_headers.items():
+                    if k.lower() != "location":
+                        self.send_header(k, v)
+            self.end_headers()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -243,26 +246,35 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         status = res.get("status_code", 200 if res.get("status") == "success" else 400)
         self._send_json(res, status=status)
 
+    def handle_one_request(self):
+        try:
+            super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
     def _send_json(self, data, status=200, extra_headers=None):
-        body = json.dumps(data, indent=2).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
+        try:
+            body = json.dumps(data, indent=2).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
 
-        if extra_headers:
-            for k, v in extra_headers.items():
-                self.send_header(k, v)
+            if extra_headers:
+                for k, v in extra_headers.items():
+                    self.send_header(k, v)
 
-        # CORS: Default same-origin only; echo origin only if in CIF_CORS_ORIGINS allowlist
-        origin = self.headers.get("Origin") if hasattr(self, "headers") and self.headers else None
-        allowed_origin = get_cors_origin(origin)
-        if allowed_origin:
-            self.send_header("Access-Control-Allow-Origin", allowed_origin)
-            self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
+            # CORS: Default same-origin only; echo origin only if in CIF_CORS_ORIGINS allowlist
+            origin = self.headers.get("Origin") if hasattr(self, "headers") and self.headers else None
+            allowed_origin = get_cors_origin(origin)
+            if allowed_origin:
+                self.send_header("Access-Control-Allow-Origin", allowed_origin)
+                self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
 
-        self.end_headers()
-        self.wfile.write(body)
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass
 
     def do_OPTIONS(self):
         origin = self.headers.get("Origin") if hasattr(self, "headers") and self.headers else None

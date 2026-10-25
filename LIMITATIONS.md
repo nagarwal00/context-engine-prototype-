@@ -63,3 +63,20 @@ In accordance with academic integrity guidelines for UCS503 Capstone, this docum
 - CIF provides a dedicated offline export adapter (`backend/ingestion/slack_adapter.py`) that ingests standard Slack workspace export directories (`users.json`, `channels.json`, and daily per-channel message logs).
 - Slack messages are mapped to `Event(source_type="slack_message")`, grouped by conversation thread for source independence analysis (`slack_thread:<channel>:<thread_ts>`), resolved through `IdentityResolver`, and rigorously scrubbed by the privacy sanitizer before SQLite persistence.
 
+---
+
+## 9. Hold-Out Dataset Scope & Code-Identifier Dependency
+
+- The hold-out drift evaluation set (`backend/evaluation/holdout/`) demonstrates 100% precision and recall (16/16 cases) on synthesizing guard rules from architectural decisions in a third independent domain (`acme-eng/job-queue-service`).
+- **Limitation**: This mechanism relies on explicit backticked code identifiers, module names, or import tokens in the rationale text (e.g., `` `celery` ``, `` `zeromq` ``, `` `pickle_serializer` ``).
+- Synthesizing active lint rules from unstructured, natural language prose devoid of code tokens remains uncalibrated and is acknowledged as an ongoing research boundary.
+
+---
+
+## 10. Positioning Relative to Related Paradigms (Continuum, Warrant, Context Graph)
+
+- **Continuum (Architectural Knowledge Evolution)**: Research frameworks like Continuum focus on passive, post-hoc mining of architectural tactics from commit logs. CIF departs from this by introducing an *active mechanical grounding invariant* that prevents unevidenced decisions from entering the graph and performs active pre-commit drift interception.
+- **Warrant (Argumentation & Justification)**: Grounded in Toulmin's argumentation model, warrants connect contextual constraints to architectural patterns. CIF reifies warrants into concrete, traversable evidence edges linking decisions to commits, issues, and PRs, surfaced directly in developer tools (Chrome and VS Code extensions).
+- **Context Graph (Operational Enterprise Context)**: Unlike enterprise context graphs requiring heavyweight distributed graph databases (e.g., Neo4j, TigerGraph), CIF implements in-process temporal graph resolution directly over standard-library SQLite, achieving sub-15ms query latencies suited for local developer environments.
+
+

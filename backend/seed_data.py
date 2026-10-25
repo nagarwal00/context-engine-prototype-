@@ -481,11 +481,16 @@ Consequences:
             approved_at="2026-02-06T15:00:00Z"
         ),
     ]
+    eval_titles = {
+        "dec_thermal_pid_01": "Adopt Discrete PID Controller for Chamber Regulation",
+        "dec_thermal_bangbang_02": "Reject Simple On-Off Threshold Controller",
+        "dec_cache_redis_01": "Adopt Distributed Redis Cluster Cache",
+    }
     for er in eval_rules:
         # Register fixture decision if not present
         db.save_decision(Decision(
             decision_id=er.decision_id,
-            title=f"Architectural Decision {er.decision_id}",
+            title=eval_titles.get(er.decision_id, f"Architectural Decision {er.decision_id}"),
             state="accepted" if "bangbang" not in er.decision_id else "rejected",
             made_by=er.approved_by or "architect",
             made_at=er.approved_at or "2026-01-15T00:00:00Z",

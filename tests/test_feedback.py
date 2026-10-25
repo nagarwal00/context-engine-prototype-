@@ -14,6 +14,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 import urllib.request
 import urllib.error
@@ -86,23 +87,29 @@ class TestDeveloperFeedbackLoop(unittest.TestCase):
             elif isinstance(data, str):
                 req_body = data.encode("utf-8")
 
-        req = urllib.request.Request(url, data=req_body, headers=req_headers, method=method)
-        try:
-            with urllib.request.urlopen(req, timeout=5) as response:
-                status = response.getcode()
-                body = response.read().decode("utf-8")
+        for attempt in range(2):
+            req = urllib.request.Request(url, data=req_body, headers=req_headers, method=method)
+            try:
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    status = response.getcode()
+                    body = response.read().decode("utf-8")
+                    try:
+                        parsed = json.loads(body)
+                    except Exception:
+                        parsed = body
+                    return status, parsed
+            except urllib.error.HTTPError as e:
+                body = e.read().decode("utf-8")
                 try:
                     parsed = json.loads(body)
                 except Exception:
                     parsed = body
-                return status, parsed
-        except urllib.error.HTTPError as e:
-            body = e.read().decode("utf-8")
-            try:
-                parsed = json.loads(body)
-            except Exception:
-                parsed = body
-            return e.code, parsed
+                return e.code, parsed
+            except (BrokenPipeError, ConnectionResetError, urllib.error.URLError):
+                if attempt == 0:
+                    time.sleep(0.05)
+                    continue
+                raise
 
     def test_01_auth_boundary_on_findings_feedback(self):
         """Verifies POST /api/findings/feedback requires reviewer role."""

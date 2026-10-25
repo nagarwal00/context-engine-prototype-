@@ -109,7 +109,7 @@ Evaluated on synthetic pilot repositories (`acme-eng/thermal-control-system` and
 | **Claim Support Rate** | **100.0%** (Unsupported: 0.0%) | Sentences in explanation chains cite valid evidence |
 | **Processing Latency (Median of 5 runs)** | **12.4 ms** | In-process SQLite + Python graph query |
 | **Automated Verification Suite** | **21 / 21 Checks Passed** | Verified via `python run_demo.py` |
-| **Full Unit Test Suite** | **173 Tests Passed** | Verified via `python -m unittest discover -s tests -v` |
+| **Full Unit Test Suite** | **329 Tests Passed** | Verified via `python -m unittest discover -s tests -v` |
 
 ---
 
@@ -130,3 +130,30 @@ Evaluated on synthetic pilot repositories (`acme-eng/thermal-control-system` and
   * `drift_cases_sha256`: `1c9ee61e648ef1508faca6c00d7536ce0acb3447597cb91ab0cfb66998722f71`
   * `precision_labels_sha256`: `55e7a53f5c5af86e9948abaa80c7d8fc406ea8f6d49f6fb97411aa609e68fbce`
   * `questions_sha256`: `1e46e50dd8a35f6d6a7c33b7b5472521e982b4ff907cd91584a0bb962f9d94ab`
+
+---
+
+## 5. Qualitative Comparison: Continuum, Warrant, and Context Graph
+
+To evaluate CIF's positioning in the landscape of software engineering architecture and context recovery research, we provide a qualitative comparison against the three primary academic paradigms and industrial frameworks identified in capstone review:
+
+1. **Continuum (Architectural Knowledge Evolution)**: Focuses on passive, post-hoc extraction and evolution tracking of architectural patterns and tactics from git commit logs and historical issue discussions.
+2. **Warrant (Toulmin Argumentation in SE)**: Applies Toulmin's argumentation scheme to capture the explicit justification (warrant, backing, grounds, qualifier, rebuttal) connecting requirements/constraints to design choices.
+3. **Context Graph (Operational Enterprise Context)**: Enterprise-scale operational context platforms (often deployed on distributed graph engines like Neo4j or TigerGraph) aggregating cross-silo telemetry, microservice metadata, and team ownership for AI agent retrieval.
+
+### Architectural Paradigm Comparison
+
+| Dimension | Continuum | Warrant (Toulmin Model) | Enterprise Context Graph | Context Intelligence Framework (CIF) |
+|---|---|---|---|---|
+| **Primary Objective** | Passive historical mining of architectural tactics | Formal epistemological argumentation & rationale capture | Enterprise telemetry & code asset relationship graphing | Active, continuous architectural context synthesis & drift interception |
+| **Ingestion Paradigm** | Batch commit-log and PR mining (retrospective) | Manual / structured template capture of arguments | Continuous distributed polling & ETL pipelines | Continuous event-driven webhooks (GitHub, Slack) + offline exports |
+| **Mechanical Invariant** | None (unvalidated textual assertions) | Conceptual schema validation (Toulmin structure) | Graph schema typing (foreign key / node label constraints) | **Strict DB Invariant**: 100% of decisions must be mechanically grounded in verifiable evidence edges |
+| **Drift & Conflict Detection** | Retrospective analysis of architectural degradation | Manual rebuttal logging | Static dependency graph drift detection | **Active Pre-Commit Interception**: Regex/AST guard rule synthesis and PR diff violation blocking |
+| **Privacy & Sanitization** | None (assumes public open-source repos) | None (assumes trusted internal documents) | Enterprise RBAC / access control policies | **Deterministic Secret & PII Sanitizer**: Redacts tokens, emails, keys prior to DB commit |
+| **Storage & Runtime Footprint** | Offline research scripts & analysis files | Static documentation / ADR files | Distributed graph DBs (Neo4j, AWS Neptune) | Lightweight in-process SQLite with sub-15ms graph traversal |
+| **Developer Surfaces** | Research notebooks & offline reports | Architecture Decision Records (ADRs) | Web portals & internal enterprise search | Multi-surface: Web dashboard, Chrome extension, VS Code extension, pre-commit hook |
+
+### Scope Disclosure: Hold-Out Drift Evaluation Boundary
+
+While CIF achieves 100% precision and recall (16/16 cases) on guard synthesis and drift interception in the independent hold-out domain (`acme-eng/job-queue-service`), this capability relies on explicit code tokens and module identifiers formatted in backticks within decision rationales (e.g., `` `celery` ``, `` `zeromq` ``, `` `pickle_serializer` ``). Synthesizing active linting/AST guard rules from unstructured natural-language prose devoid of code tokens remains an open research boundary and is explicitly tracked as a limitation in [LIMITATIONS.md](file:///c:/Users/HP/Desktop/SE_project/LIMITATIONS.md).
+

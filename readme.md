@@ -183,3 +183,10 @@ For complete evaluation manifests, Wilson confidence intervals, and corrections,
 - [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md) — Transparent disclosure of AI coding assistance, author responsibilities, and integrity notices.
 - [`CONTRIBUTIONS.md`](CONTRIBUTIONS.md) — Team contribution record template with verifiable git history facts.
 - [`explanation.md`](explanation.md) — Deep architectural walkthrough of data models, database schema, and engine pipelines.
+
+### Software Engineering SDLC Specifications
+- [`docs/sdlc/SRS.md`](docs/sdlc/SRS.md) — IEEE Std 830-1998 Software Requirements Specification.
+- [`docs/sdlc/ARCHITECTURE.md`](docs/sdlc/ARCHITECTURE.md) — IEEE Std 1471 Software Architecture Document with Mermaid diagrams.
+- [`docs/sdlc/TEST_PLAN.md`](docs/sdlc/TEST_PLAN.md) — IEEE Std 829-2008 Software Test Plan and Verification Gates.
+- [`docs/sdlc/PROJECT_PLAN.md`](docs/sdlc/PROJECT_PLAN.md) — IEEE Std 1058 17-Week Software Project Management Plan.
+

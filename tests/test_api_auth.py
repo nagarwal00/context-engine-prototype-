@@ -6,6 +6,7 @@ import json
 import os
 import tempfile
 import threading
+import time
 import unittest
 import urllib.request
 import urllib.error
@@ -79,28 +80,34 @@ class TestAPIAuth(unittest.TestCase):
             elif isinstance(data, str):
                 req_body = data.encode("utf-8")
 
-        req = urllib.request.Request(url, data=req_body, headers=req_headers, method=method)
-        try:
-            with urllib.request.urlopen(req, timeout=5) as response:
-                status = response.getcode()
-                body = response.read().decode("utf-8")
+        for attempt in range(2):
+            req = urllib.request.Request(url, data=req_body, headers=req_headers, method=method)
+            try:
+                with urllib.request.urlopen(req, timeout=5) as response:
+                    status = response.getcode()
+                    body = response.read().decode("utf-8")
+                    try:
+                        parsed = json.loads(body)
+                    except Exception:
+                        parsed = body
+                    resp_headers = dict(response.headers)
+                    return status, parsed, resp_headers
+            except urllib.error.HTTPError as e:
+                try:
+                    body = e.read().decode("utf-8")
+                except (ConnectionResetError, ConnectionAbortedError, OSError):
+                    body = ""
                 try:
                     parsed = json.loads(body)
                 except Exception:
                     parsed = body
-                resp_headers = dict(response.headers)
-                return status, parsed, resp_headers
-        except urllib.error.HTTPError as e:
-            try:
-                body = e.read().decode("utf-8")
-            except (ConnectionResetError, ConnectionAbortedError, OSError):
-                body = ""
-            try:
-                parsed = json.loads(body)
-            except Exception:
-                parsed = body
-            resp_headers = dict(e.headers)
-            return e.code, parsed, resp_headers
+                resp_headers = dict(e.headers)
+                return e.code, parsed, resp_headers
+            except (BrokenPipeError, ConnectionResetError, urllib.error.URLError):
+                if attempt == 0:
+                    time.sleep(0.05)
+                    continue
+                raise
 
     def test_viewer_routes_allowed_without_token(self):
         viewer_endpoints = [

@@ -14,6 +14,7 @@ import os
 import shutil
 import tempfile
 import threading
+import time
 import unittest
 import urllib.error
 import urllib.parse
@@ -133,22 +134,28 @@ class TestRepoIsolation(unittest.TestCase):
             headers["Authorization"] = f"Bearer {token}"
             headers["Cookie"] = f"cif_session={token}"
 
-        req = urllib.request.Request(url, data=body_bytes, headers=headers, method=method)
-        try:
-            with urllib.request.urlopen(req) as resp:
-                raw = resp.read().decode("utf-8")
-                try:
-                    parsed = json.loads(raw)
-                except Exception:
-                    parsed = raw
-                return resp.status, parsed, raw
-        except urllib.error.HTTPError as err:
-            err_body = err.read().decode("utf-8")
+        for attempt in range(2):
+            req = urllib.request.Request(url, data=body_bytes, headers=headers, method=method)
             try:
-                parsed = json.loads(err_body)
-            except Exception:
-                parsed = err_body
-            return err.code, parsed, err_body
+                with urllib.request.urlopen(req) as resp:
+                    raw = resp.read().decode("utf-8")
+                    try:
+                        parsed = json.loads(raw)
+                    except Exception:
+                        parsed = raw
+                    return resp.status, parsed, raw
+            except urllib.error.HTTPError as err:
+                err_body = err.read().decode("utf-8")
+                try:
+                    parsed = json.loads(err_body)
+                except Exception:
+                    parsed = err_body
+                return err.code, parsed, err_body
+            except (BrokenPipeError, ConnectionResetError, urllib.error.URLError):
+                if attempt == 0:
+                    time.sleep(0.05)
+                    continue
+                raise
 
     # 1. Anonymous Access Restrictions
     def test_anonymous_access_restricted_to_demo_repos_only(self):

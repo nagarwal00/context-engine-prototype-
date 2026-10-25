@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138",
+  "db_snapshot_sha256": "b8dea6d41ef88152a4e6e13a5386224551b2d47d87fe11b551301f6150cf7e43",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -256,10 +256,14 @@ window.__CIF_STATIC_DATA__ = {
       "data": {
         "baselines": {
           "baseline_copilot": {
+            "accuracy": "not measured",
+            "cited_real_source_rate": "not measured",
             "decision_recall": "not measured",
             "evaluated_samples": 0,
             "hallucination_rate": "not measured",
+            "invented_reason_rate": "not measured",
             "name": "Baseline D: GitHub Copilot",
+            "note": "No manual copilot evaluation records logged in manual_copilot_results.csv",
             "status": "not measured"
           },
           "baseline_docs_only": {
@@ -321,8 +325,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
               ],
               "system_state": "accepted"
             },
@@ -409,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'b8dea6d41ef88152a4e6e13a5386224551b2d47d87fe11b551301f6150cf7e43'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -420,8 +424,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_cache_0009",
-                  "evt_rev_cache_c201"
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
                 ],
                 "system_state": "accepted"
               },
@@ -451,9 +455,9 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
+              "dec_cache_redis_accepted",
               "dec_thermal_pid_accepted",
-              "dec_cache_local_lru_proposed",
-              "dec_cache_redis_accepted"
+              "dec_cache_local_lru_proposed"
             ],
             "missed": [
               {
@@ -501,7 +505,7 @@ window.__CIF_STATIC_DATA__ = {
                 "state": "accepted",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_thermal_pid_01"
+                "title": "Adopt Discrete PID Controller for Chamber Regulation"
               },
               {
                 "alternatives_json": "[]",
@@ -518,7 +522,7 @@ window.__CIF_STATIC_DATA__ = {
                 "state": "rejected",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_thermal_bangbang_02"
+                "title": "Reject Simple On-Off Threshold Controller"
               },
               {
                 "alternatives_json": "[]",
@@ -535,7 +539,7 @@ window.__CIF_STATIC_DATA__ = {
                 "state": "accepted",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_cache_redis_01"
+                "title": "Adopt Distributed Redis Cluster Cache"
               }
             ],
             "unmatched_system_ids": [
@@ -610,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '04c05e097cdbd5f51059a510c881c65793f4b2df0f97d7e1683a6aa5bbc62138'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'b8dea6d41ef88152a4e6e13a5386224551b2d47d87fe11b551301f6150cf7e43'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
@@ -1869,7 +1873,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         },
         {
           "alternatives_considered": [
@@ -1942,7 +1946,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "alternatives_considered": [
@@ -1988,7 +1992,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         }
       ],
       "status": "success"
@@ -2221,7 +2225,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_thermal_pid_01",
-            "label": "Architectural Decision dec_thermal_pid_01",
+            "label": "Adopt Discrete PID Controller for Chamber Regulation",
             "made_at": "2026-01-15T16:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2233,7 +2237,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#ef4444",
             "confidence": 0.8,
             "id": "dec_thermal_bangbang_02",
-            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "label": "Reject Simple On-Off Threshold Controller",
             "made_at": "2026-01-12T15:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2245,7 +2249,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_cache_redis_01",
-            "label": "Architectural Decision dec_cache_redis_01",
+            "label": "Adopt Distributed Redis Cluster Cache",
             "made_at": "2026-02-06T15:00:00Z",
             "made_by": "priya_patel",
             "repo": "acme-eng/distributed-cache-service",
@@ -2569,7 +2573,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_cache_redis_01",
-            "label": "Architectural Decision dec_cache_redis_01",
+            "label": "Adopt Distributed Redis Cluster Cache",
             "made_at": "2026-02-06T15:00:00Z",
             "made_by": "priya_patel",
             "repo": "acme-eng/distributed-cache-service",
@@ -2766,7 +2770,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_thermal_pid_01",
-            "label": "Architectural Decision dec_thermal_pid_01",
+            "label": "Adopt Discrete PID Controller for Chamber Regulation",
             "made_at": "2026-01-15T16:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2778,7 +2782,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#ef4444",
             "confidence": 0.8,
             "id": "dec_thermal_bangbang_02",
-            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "label": "Reject Simple On-Off Threshold Controller",
             "made_at": "2026-01-12T15:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2902,7 +2906,7 @@ window.__CIF_STATIC_DATA__ = {
           "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_pid_01",
-          "decision_title": "Architectural Decision dec_thermal_pid_01",
+          "decision_title": "Adopt Discrete PID Controller for Chamber Regulation",
           "params": {
             "message": "Reintroduces rejected bang-bang threshold control or bypasses PID",
             "paths": [
@@ -2930,7 +2934,7 @@ window.__CIF_STATIC_DATA__ = {
           "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_bangbang_02",
-          "decision_title": "Architectural Decision dec_thermal_bangbang_02",
+          "decision_title": "Reject Simple On-Off Threshold Controller",
           "params": {
             "message": "Reintroduces rejected bang-bang control loop",
             "paths": [
@@ -2958,7 +2962,7 @@ window.__CIF_STATIC_DATA__ = {
           "created_at": "2026-10-23T10:21:13.087815+00:00",
           "created_by": "system",
           "decision_id": "dec_cache_redis_01",
-          "decision_title": "Architectural Decision dec_cache_redis_01",
+          "decision_title": "Adopt Distributed Redis Cluster Cache",
           "params": {
             "message": "Reintroduces in-memory cache defying Redis cluster decision",
             "paths": [
@@ -3052,7 +3056,7 @@ window.__CIF_STATIC_DATA__ = {
           "completed": false,
           "decision_id": "dec_cache_redis_01",
           "id": "chk_dec_dec_cache_redis_01",
-          "title": "Study Decision: Architectural Decision dec_cache_redis_01"
+          "title": "Study Decision: Adopt Distributed Redis Cluster Cache"
         },
         {
           "category": "superseded",
@@ -3119,7 +3123,7 @@ window.__CIF_STATIC_DATA__ = {
             "made_by": "priya_patel",
             "rationale": "Governing architectural baseline decision",
             "state": "accepted",
-            "title": "Architectural Decision dec_cache_redis_01"
+            "title": "Adopt Distributed Redis Cluster Cache"
           }
         ],
         "architectural_evidence": [
@@ -3207,25 +3211,11 @@ window.__CIF_STATIC_DATA__ = {
           "title": "Study Decision: Adopt Discrete PID Controller for Chamber Temperature Regulation"
         },
         {
-          "category": "active_decision",
-          "completed": false,
-          "decision_id": "dec_thermal_pid_01",
-          "id": "chk_dec_dec_thermal_pid_01",
-          "title": "Study Decision: Architectural Decision dec_thermal_pid_01"
-        },
-        {
           "category": "pitfall",
           "completed": false,
           "decision_id": "dec_thermal_deadband_rejected",
           "id": "chk_pitfall_dec_thermal_deadband_rejected",
           "title": "Avoid Pitfall: Reject Simple Deadband Hysteresis for Thermal Control"
-        },
-        {
-          "category": "pitfall",
-          "completed": false,
-          "decision_id": "dec_thermal_bangbang_02",
-          "id": "chk_pitfall_dec_thermal_bangbang_02",
-          "title": "Avoid Pitfall: Architectural Decision dec_thermal_bangbang_02"
         },
         {
           "category": "evidence",
@@ -3267,25 +3257,6 @@ window.__CIF_STATIC_DATA__ = {
             "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
             "state": "accepted",
             "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
-          },
-          {
-            "assumptions": [],
-            "citations": [
-              {
-                "author": "sarah_chen",
-                "event_id": "evt_rev_thermal_comm2",
-                "source_type": "pr_review_comment",
-                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-                "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-              }
-            ],
-            "decision_id": "dec_thermal_pid_01",
-            "evidence_label": "insufficient",
-            "made_at": "2026-01-15T16:00:00Z",
-            "made_by": "sarah_chen",
-            "rationale": "Governing architectural baseline decision",
-            "state": "accepted",
-            "title": "Architectural Decision dec_thermal_pid_01"
           }
         ],
         "architectural_evidence": [
@@ -3308,15 +3279,6 @@ window.__CIF_STATIC_DATA__ = {
             "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
           },
           {
-            "author": "sarah_chen",
-            "event_id": "evt_rev_thermal_comm2",
-            "source_type": "pr_review_comment",
-            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-            "summary": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
-            "timestamp": null,
-            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-          },
-          {
             "author": "marcus_vance",
             "event_id": "evt_rev_thermal_comm1",
             "source_type": "pr_review_comment",
@@ -3324,6 +3286,15 @@ window.__CIF_STATIC_DATA__ = {
             "summary": "We could tighten the deadband on the simple threshold on-off controller to +/- 1.5C. That requires zero external math libraries.",
             "timestamp": null,
             "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "event_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "summary": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "timestamp": null,
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
           }
         ],
         "open_stale_items": [],
@@ -3339,10 +3310,10 @@ window.__CIF_STATIC_DATA__ = {
             "sarah_chen"
           ],
           "role": "Control Systems Engineer",
-          "summary": "Onboarding guide for Thermal in repository 'acme-eng/thermal-control-system'. Contains 4 relevant architectural decisions curated for Control Systems Engineer.",
+          "summary": "Onboarding guide for Thermal in repository 'acme-eng/thermal-control-system'. Contains 2 relevant architectural decisions curated for Control Systems Engineer.",
           "task": "",
           "title": "Thermal Architectural Onboarding (Control Systems Engineer)",
-          "total_relevant_decisions": 4
+          "total_relevant_decisions": 2
         },
         "rejected_pitfalls": [
           {
@@ -3366,27 +3337,12 @@ window.__CIF_STATIC_DATA__ = {
             "rejected_by": "sarah_chen",
             "rejection_reason": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
             "title": "Avoid Pitfall: Reject Simple Deadband Hysteresis for Thermal Control"
-          },
-          {
-            "citations": [
-              {
-                "author": "sarah_chen",
-                "event_id": "evt_rev_thermal_comm2",
-                "source_type": "pr_review_comment",
-                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-                "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-              }
-            ],
-            "decision_id": "dec_thermal_bangbang_02",
-            "rejected_by": "sarah_chen",
-            "rejection_reason": "Governing architectural baseline decision",
-            "title": "Avoid Pitfall: Architectural Decision dec_thermal_bangbang_02"
           }
         ]
       },
       "status": "success",
       "task": "",
-      "total_items": 6
+      "total_items": 4
     },
     "repos": {
       "data": [
@@ -3414,7 +3370,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "alternatives_json": "[]",
@@ -3433,7 +3389,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "alternatives_json": "[]",
@@ -3452,7 +3408,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         },
         {
           "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
@@ -3548,7 +3504,7 @@ window.__CIF_STATIC_DATA__ = {
           "entity_id": "src/cache/store.py",
           "item_type": "drift",
           "made_at": "2026-10-12T00:00:00Z",
-          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_cache_redis_01'",
+          "queue_reason": "Code diff contradicts accepted decision 'Adopt Distributed Redis Cluster Cache'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
         },
@@ -3559,7 +3515,7 @@ window.__CIF_STATIC_DATA__ = {
           "entity_id": "src/thermal/control.py",
           "item_type": "drift",
           "made_at": "2026-10-12T00:00:00Z",
-          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
+          "queue_reason": "Code diff contradicts accepted decision 'Adopt Discrete PID Controller for Chamber Regulation'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
         }
@@ -3640,7 +3596,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "affected_artifacts": [
@@ -3701,7 +3657,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "affected_artifacts": [
@@ -3807,7 +3763,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         }
       ],
       "status": "success"
@@ -3918,7 +3874,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         }
       ],
       "status": "success"
@@ -3980,7 +3936,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "affected_artifacts": [
@@ -4041,7 +3997,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         }
       ],
       "status": "success"
@@ -4205,7 +4161,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         },
         "direct_support": [
           {
@@ -4458,7 +4414,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         "direct_support": [],
         "discussion_events": [],
@@ -4705,7 +4661,7 @@ window.__CIF_STATIC_DATA__ = {
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         "direct_support": [],
         "discussion_events": [],
