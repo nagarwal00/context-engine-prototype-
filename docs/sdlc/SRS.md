@@ -97,7 +97,7 @@ CIF operates as a self-contained, lightweight context engine embedded directly w
 #### 3.1.2 Software Interfaces
 - **GitHub App / Webhook Receiver (`backend/api.py`)**: Consumes `push`, `pull_request`, and `issues` JSON payloads.
 - **Slack Adapter (`backend/ingestion/slack_adapter.py`)**: Parses standard Slack directory export structures (`channels.json`, `users.json`, daily logs).
-- **Git Hook Client (`tools/install_hooks.py`)**: Integrates with local `.git/hooks/pre-commit` to intercept staged diff violations.
+- **CI Guard Client (`tools/ci_check.py`)**: Intercepts pull request diff violations in CI and local workflows.
 
 ---
 
@@ -144,15 +144,15 @@ CIF operates as a self-contained, lightweight context engine embedded directly w
 
 | Requirement | Implementation Artifacts | Verification Method / Test Suite |
 |---|---|---|
-| **FR-1: Ingestion** | `backend/ingestion/`, `backend/models.py` | `tests/test_extractor.py`, `run_demo.py` |
-| **FR-2: Sanitizer** | `backend/security/sanitizer.py` | `tests/test_sanitizer.py`, `tools/scan_secrets.py` |
-| **FR-3: Extraction** | `backend/engine/extractor.py` | `tests/test_extractor.py`, `tests/test_whybench.py` |
-| **FR-4: Grounding** | `backend/db.py`, `backend/models.py` | `tests/test_db.py`, `run_demo.py` Check 1 |
-| **FR-5: Graph Engine** | `backend/engine/graph.py`, `backend/db.py` | `tests/test_graph.py`, `tests/test_api.py` |
-| **FR-6: Guard Synthesis**| `backend/engine/guards.py` | `tests/test_generic_guard_synthesis.py` |
-| **FR-7: Drift Intercept**| `backend/engine/drift.py`, `tools/install_hooks.py` | `tests/test_drift.py`, `run_demo.py` Check 4 |
-| **FR-8: Conflict Match**| `backend/engine/conflict.py` | `tests/test_conflict.py`, `run_demo.py` Check 7 |
+| **FR-1: Ingestion** | `backend/ingestion/`, `backend/models.py` | `tests/test_adapters_and_engine.py`, `run_demo.py` |
+| **FR-2: Sanitizer** | `backend/ingestion/sanitizer.py` | `tests/test_sanitizer.py`, `tools/scan_secrets.py` |
+| **FR-3: Extraction** | `backend/engine/extractor.py` | `tests/test_extractor.py`, `tests/test_benchmark.py` |
+| **FR-4: Grounding** | `backend/db.py`, `backend/models.py` | `tests/test_independence.py`, `run_demo.py` Check 1 |
+| **FR-5: Graph Engine** | `backend/engine/graph.py`, `backend/db.py` | `tests/test_graph_temporal.py`, `tests/test_all_features_and_buttons.py` |
+| **FR-6: Guard Synthesis**| `backend/engine/guard_rules.py` | `tests/test_generic_guard_synthesis.py` |
+| **FR-7: Drift Intercept**| `backend/engine/drift_detector.py`, `tools/ci_check.py` | `tests/test_drift.py`, `run_demo.py` Check 4 |
+| **FR-8: Conflict Match**| `backend/engine/reconciliation.py` | `tests/test_conflict_pairs.py`, `run_demo.py` Check 7 |
 | **FR-9: Lifecycle** | `backend/engine/lifecycle.py`, `backend/db.py` | `tests/test_state_model.py`, `tests/test_history_recorded.py` |
 | **FR-10: Isolation** | `backend/db.py`, `backend/api.py` | `tests/test_repo_isolation.py` |
-| **FR-11: Calibration** | `backend/engine/calibration.py` | `tests/test_calibration.py` |
+| **FR-11: Calibration** | `backend/engine/extractor.py` | `tests/test_extractor.py` |
 | **FR-12: Benchmark** | `backend/evaluation/`, `tools/validate_whybench.py` | `tools/validate_whybench.py`, `tools/print_facts.py` |

@@ -143,6 +143,7 @@ def check_markdown_links(files):
 BACKTICK_ALLOWLIST = {
     "STATUS_AUDIT.md",
     "docs/process/ANTIGRAVITY_HANDOFF_V4_FIXES.md",
+    "Re-evaluation_CIF_v4.md",
 }
 
 

@@ -140,6 +140,8 @@ CODE_OR_PROSE_PATTERNS = [
     "Secret Architecture",
     "secret content",
     "Secret discussion",
+    "secret sanitization",
+    "secret leakage",
 ]
 
 

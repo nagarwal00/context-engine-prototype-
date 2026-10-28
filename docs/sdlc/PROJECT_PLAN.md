@@ -70,11 +70,11 @@ Gates:       G1              G2                        G3                 G4    
   - Implemented finite state machine (`PROPOSED`, `ACCEPTED`, `SUPERSEDED`, `REJECTED`) in `backend/engine/lifecycle.py`.
   - Added historical transition logging in `state_history`.
 - **Week 9: Guard Rule Synthesis & Pre-Commit Drift Interception**
-  - Implemented `backend/engine/guards.py` to compile rejected alternatives into executable AST and regex patterns.
-  - Implemented `backend/engine/drift.py` and pre-commit hook integration script (`tools/install_hooks.py`).
+  - Implemented `backend/engine/guard_rules.py` to compile rejected alternatives into executable AST and regex patterns.
+  - Implemented `backend/engine/drift_detector.py` and CI check script (`tools/ci_check.py`).
 - **Week 10: Multi-Tenant Repository Isolation & Conflict Detection**
   - Added strict repository-level isolation across all query surfaces (`backend/db.py`, `backend/api.py`).
-  - Implemented cross-decision conflict detection using word-boundary pattern matching (`backend/engine/conflict.py`).
+  - Implemented cross-decision conflict detection using word-boundary pattern matching (`backend/engine/reconciliation.py`).
 - **Week 11: Developer Surfaces — Web Dashboard**
   - Developed responsive single-page application in `web/` rendering decision trees, drift monitors, and evidence links.
 - **Week 12: Developer Surfaces — Extensions**
