@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "67fc01ba107f96101a3b55314e336ef0ac066f82d1b4330adc60be85da2cf18c",
+  "db_snapshot_sha256": "c30e734f1039ef40be83f6be8e25cba4b697b6252e6d29fc9e27477d276c4c09",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -337,8 +337,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_thermal_0004",
-                "evt_git_thermal_a1b2c3d4"
+                "evt_git_thermal_a1b2c3d4",
+                "evt_adr_thermal_0004"
               ],
               "system_state": "accepted"
             },
@@ -413,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '67fc01ba107f96101a3b55314e336ef0ac066f82d1b4330adc60be85da2cf18c'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'c30e734f1039ef40be83f6be8e25cba4b697b6252e6d29fc9e27477d276c4c09'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -436,8 +436,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_thermal_0004",
-                  "evt_git_thermal_a1b2c3d4"
+                  "evt_git_thermal_a1b2c3d4",
+                  "evt_adr_thermal_0004"
                 ],
                 "system_state": "accepted"
               },
@@ -455,9 +455,9 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
+              "dec_thermal_pid_accepted",
               "dec_cache_redis_accepted",
-              "dec_cache_local_lru_proposed",
-              "dec_thermal_pid_accepted"
+              "dec_cache_local_lru_proposed"
             ],
             "missed": [
               {
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '67fc01ba107f96101a3b55314e336ef0ac066f82d1b4330adc60be85da2cf18c'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'c30e734f1039ef40be83f6be8e25cba4b697b6252e6d29fc9e27477d276c4c09'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
@@ -3658,6 +3658,17 @@ window.__CIF_STATIC_DATA__ = {
         },
         {
           "confidence": 0.93,
+          "decision_id": "dec_cache_redis_accepted",
+          "edge_id": "edge_drift_src/cach_dec_cach",
+          "entity_id": "src/cache/store.py",
+          "item_type": "drift",
+          "made_at": "2026-10-12T00:00:00Z",
+          "queue_reason": "Code diff contradicts accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster'",
+          "review_status": "pending_review",
+          "title": "Drift on artifact"
+        },
+        {
+          "confidence": 0.93,
           "decision_id": "dec_thermal_pid_01",
           "edge_id": "edge_drift_src/ther_dec_ther",
           "entity_id": "src/thermal/control.py",
@@ -3674,8 +3685,8 @@ window.__CIF_STATIC_DATA__ = {
       "data": {
         "conflicts": 1,
         "decisions": 7,
-        "drifts": 1,
-        "edges": 20,
+        "drifts": 2,
+        "edges": 21,
         "entities": 9,
         "events": 9,
         "finding_feedback": {

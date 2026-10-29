@@ -19,6 +19,27 @@ from backend.api import APIHandler
 from backend.seed_data import populate_seed_data
 from backend.security import get_cors_origin, MAX_BODY_SIZE
 
+def load_dotenv(dotenv_path: str = None) -> None:
+    if dotenv_path is None:
+        dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+    if not os.path.isfile(dotenv_path):
+        return
+    try:
+        with open(dotenv_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                k, v = line.split("=", 1)
+                k = k.strip()
+                v = v.strip().strip("'\"")
+                if k and k not in os.environ:
+                    os.environ[k] = v
+    except Exception:
+        pass
+
+load_dotenv()
+
 # Configurable via environment (Phase 8.2)
 PORT = int(os.environ.get("PORT", "8080"))
 BIND_HOST = os.environ.get("CIF_BIND", "127.0.0.1")

@@ -1,6 +1,6 @@
 # Security and Secret Scan Report (Step 6.3)
 
-- **Scan Date**: 2026-10-28
+- **Scan Date**: 2026-10-29
 - **Scope**: Project Git history (including Phase 7–9 auth, extensions, and process docs), `demo_sample_repo/.git`, `context_intelligence.db`, `whybench.db`
 - **Status**: PASSED (Zero Leaks)
 
@@ -11,7 +11,7 @@
 | **Active / Unredacted Secrets** | **0** | CLEAN ✅ |
 | **Redacted Tokens (`[REDACTED:...]`)** | 0 | Expected (Privacy Sanitizer verified) |
 | **Synthetic Unit Test Tokens** | 27 | Expected (Static test fixtures only) |
-| **Total Patterns Inspected** | 442 | Complete |
+| **Total Patterns Inspected** | 446 | Complete |
 
 ## Target Details
 

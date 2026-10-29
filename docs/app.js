@@ -141,12 +141,13 @@ const app = {
       const userAvatar = document.getElementById('user-avatar');
       const userLogin = document.getElementById('user-login');
 
-      if (res && res.status === 'success' && res.data && res.data.login) {
-        this.currentUser = res.data;
+      const user = (res && res.data && res.data.login) ? res.data : (res && res.login ? res : null);
+      if (res && res.status === 'success' && user) {
+        this.currentUser = user;
         if (btnLogin) btnLogin.style.display = 'none';
         if (userProfile) userProfile.style.display = 'flex';
-        if (userAvatar) userAvatar.src = res.data.avatar_url || '';
-        if (userLogin) userLogin.textContent = res.data.login;
+        if (userAvatar) userAvatar.src = user.avatar_url || '';
+        if (userLogin) userLogin.textContent = user.login;
       } else {
         this.currentUser = null;
         if (btnLogin) btnLogin.style.display = 'inline-flex';

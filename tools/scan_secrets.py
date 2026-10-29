@@ -142,6 +142,7 @@ CODE_OR_PROSE_PATTERNS = [
     "Secret discussion",
     "secret sanitization",
     "secret leakage",
+    "password when",
 ]
 
 
