@@ -162,6 +162,100 @@ const app = {
 
   closeLoginModal() {
     document.getElementById('github-login-modal').classList.add('hidden');
+    const msg = document.getElementById('dash-auth-msg');
+    if (msg) {
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+  },
+
+  setDashboardAuthMode(mode) {
+    this._dashAuthMode = mode;
+    const signinTab = document.getElementById('dash-auth-tab-signin');
+    const registerTab = document.getElementById('dash-auth-tab-register');
+    const submitBtn = document.getElementById('dash-auth-submit-btn');
+    const msg = document.getElementById('dash-auth-msg');
+    if (signinTab && registerTab && submitBtn) {
+      if (mode === 'register') {
+        signinTab.classList.remove('active');
+        registerTab.classList.add('active');
+        submitBtn.textContent = 'Create Account & Sign In';
+      } else {
+        registerTab.classList.remove('active');
+        signinTab.classList.add('active');
+        submitBtn.textContent = 'Sign in';
+      }
+    }
+    if (msg) {
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+  },
+
+  async submitDashboardAuth(e) {
+    if (e) e.preventDefault();
+    const mode = this._dashAuthMode || 'signin';
+    const usernameEl = document.getElementById('dash-auth-username');
+    const passwordEl = document.getElementById('dash-auth-password');
+    const submitBtn = document.getElementById('dash-auth-submit-btn');
+    const msg = document.getElementById('dash-auth-msg');
+
+    const username = usernameEl ? usernameEl.value.trim() : '';
+    const password = passwordEl ? passwordEl.value : '';
+
+    if (!username) {
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#fca5a5';
+        msg.textContent = 'Username is required.';
+      }
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Please wait...';
+    }
+
+    try {
+      const endpoint = mode === 'register' ? '/auth/register' : '/auth/login';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, action: mode })
+      });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.color = '#86efac';
+          msg.textContent = data.message || 'Signed in successfully!';
+        }
+        window.setTimeout(() => {
+          window.location.reload();
+        }, 350);
+      } else {
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.color = '#fca5a5';
+          msg.textContent = data.message || 'Authentication failed.';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = mode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+        }
+      }
+    } catch (err) {
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#fca5a5';
+        msg.textContent = 'Network error. Please try again.';
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+      }
+    }
   },
 
   closeAddRepoModal() {

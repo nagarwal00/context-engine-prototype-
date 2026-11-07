@@ -412,3 +412,205 @@ button { font: inherit; }
   .hero-watch:hover > span,
   .text-link:hover > span[aria-hidden="true"] { animation: none; }
 }
+
+/* Auth Modal and Sign In / Register Dialog */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 8, 0.78);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+.modal-backdrop.hidden, .hidden {
+  display: none !important;
+}
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: #0f1015;
+  border: 1px solid #36323d;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  position: relative;
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #8c8b94;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.provider-login-intro {
+  color: #9ea0aa;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+.provider-login-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fff;
+  background: #16171e;
+  border: 1px solid #363540;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+.provider-login-link:hover {
+  background: #22181d;
+  border-color: #992338;
+  color: #fff;
+  transform: translateY(-1px);
+}
+.provider-login-note {
+  font-size: 0.76rem;
+  color: #787985;
+  line-height: 1.45;
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid #23242c;
+}
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 18px 0 14px;
+  color: #646573;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.auth-divider::before, .auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #23242c;
+}
+.auth-divider span {
+  padding: 0 10px;
+}
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: #0a0b0e;
+  padding: 4px;
+  border-radius: 8px;
+  border: 1px solid #23242c;
+  margin-bottom: 16px;
+}
+.auth-tab {
+  background: transparent;
+  border: none;
+  color: #8e8d97;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.auth-tab.active {
+  background: #1e1f29;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.auth-field {
+  margin-bottom: 12px;
+  text-align: left;
+}
+.auth-field label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #b2b1b9;
+  margin-bottom: 6px;
+}
+.auth-field input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background: #0a0b0f;
+  border: 1px solid #282933;
+  border-radius: 6px;
+  color: #f2f2f5;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+.auth-field input:focus {
+  border-color: #d0213e;
+  box-shadow: 0 0 0 2px rgba(208, 33, 62, 0.2);
+}
+.auth-msg {
+  font-size: 0.8rem;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  text-align: center;
+}
+.auth-msg.error {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid #7f1d1d;
+  color: #fca5a5;
+}
+.auth-msg.success {
+  background: rgba(22, 101, 52, 0.15);
+  border: 1px solid #14532d;
+  color: #86efac;
+}
+.auth-card-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #23242c;
+  text-align: center;
+}
+.auth-guest-link {
+  color: #a4a3af;
+  font-size: 0.82rem;
+  transition: color 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.auth-guest-link:hover {
+  color: #ff9cac;
+}

@@ -1,15 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
   <title>Context Intelligence Framework — Living Decision History</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="app-layout">
     <!-- Top Navigation Bar -->
@@ -17,8 +22,9 @@
       <div class="header-left">
         <div class="brand-logo">
           <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
           </svg>
           <div class="brand-text">
             <span class="brand-title">Context Intelligence</span>
@@ -40,32 +46,51 @@
 
       <div class="header-right">
         <!-- Phase 8.3: Live engine / Static snapshot mode badge -->
-        <span class="mode-badge" id="engine-mode-badge" title="Live engine: API calls succeed. Static snapshot: using frozen data.">⬤ Checking…</span>
+        <span class="mode-badge" id="engine-mode-badge"
+          title="Live engine: API calls succeed. Static snapshot: using frozen data.">⬤ Checking…</span>
         <details class="workspace-menu" id="workspace-menu">
-          <summary aria-label="Workspace controls">Workspace <span class="workspace-chevron" aria-hidden="true">⌄</span></summary>
+          <summary aria-label="Workspace controls">Workspace <span class="workspace-chevron" aria-hidden="true">⌄</span>
+          </summary>
           <div class="workspace-menu-panel">
             <div class="workspace-menu-heading">Workspace</div>
-            <button class="btn btn-secondary btn-sm workspace-login-button" type="button" onclick="app.openLoginModal()">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6.4v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.1H15v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1V14h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+            <button class="btn btn-secondary btn-sm workspace-login-button" type="button"
+              onclick="app.openLoginModal()">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                <path
+                  d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6.4v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.1H15v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1V14h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+              </svg>
               Login with GitHub
             </button>
             <div class="auth-token-box workspace-repo-field">
               <label for="workspace-repo-url">Repository URL</label>
-              <input type="url" id="workspace-repo-url" placeholder="https://github.com/owner/repo" class="auth-input-field" />
+              <input type="url" id="workspace-repo-url" placeholder="https://github.com/owner/repo"
+                class="auth-input-field" />
             </div>
-            <button class="btn btn-primary btn-sm workspace-add-repo" onclick="app.openAddRepoModal()" title="Enter an access token and connect this repository">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <button class="btn btn-primary btn-sm workspace-add-repo" onclick="app.openAddRepoModal()"
+              title="Enter an access token and connect this repository">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="10" rx="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
               Access Token
             </button>
             <div class="workspace-actions">
-            <button class="btn btn-secondary btn-sm" onclick="app.emptyDashboard()" title="Wipe all decisions to start with an empty dashboard">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-              Clear workspace
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="app.reseedData()" title="Restore pilot repository demo data">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-              Restore demo data
-            </button>
+              <button class="btn btn-secondary btn-sm" onclick="app.emptyDashboard()"
+                title="Wipe all decisions to start with an empty dashboard">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                Clear workspace
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="app.reseedData()"
+                title="Restore pilot repository demo data">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                </svg>
+                Restore demo data
+              </button>
             </div>
           </div>
         </details>
@@ -78,27 +103,52 @@
         <nav class="nav-menu">
           <div class="nav-section-label">Workspace</div>
           <a class="nav-item active" data-surface="timeline" onclick="app.navigate('timeline')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
             <span>Project Timeline</span>
           </a>
           <a class="nav-item" data-surface="graph" onclick="app.navigate('graph')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="18" cy="5" r="3" />
+              <circle cx="6" cy="12" r="3" />
+              <circle cx="18" cy="19" r="3" />
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+            </svg>
             <span>Context Graph</span>
           </a>
           <a class="nav-item" data-surface="code" onclick="app.navigate('code')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
             <span>Code-Context View</span>
           </a>
           <a class="nav-item" data-surface="decisions" onclick="app.navigate('decisions')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+              <line x1="16" y1="13" x2="8" y2="13" />
+              <line x1="16" y1="17" x2="8" y2="17" />
+              <polyline points="10 9 9 9 8 9" />
+            </svg>
             <span>Decision Explorer</span>
           </a>
           <a class="nav-item" data-surface="evidence" onclick="app.navigate('evidence')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
             <span>Evidence Panel</span>
           </a>
           <a class="nav-item" data-surface="review" onclick="app.navigate('review')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+              <path d="M9 14l2 2 4-4" />
+            </svg>
             <span>Review Queue</span>
             <span class="badge-count" id="sidebar-review-badge">0</span>
           </a>
@@ -106,19 +156,35 @@
           <details class="nav-more">
             <summary class="nav-section-label">Tools &amp; evaluation</summary>
             <a class="nav-item" data-surface="onboarding" onclick="app.navigate('onboarding')">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+              </svg>
               <span>Onboarding Tour</span>
             </a>
             <a class="nav-item" data-surface="drift-test" onclick="app.navigate('drift-test')">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                <polyline points="2 17 12 22 22 17" />
+                <polyline points="2 12 12 17 22 12" />
+              </svg>
               <span>Live CI Drift Check</span>
             </a>
             <a class="nav-item" data-surface="benchmark" onclick="app.navigate('benchmark')">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
               <span>Metrics &amp; Baselines</span>
             </a>
             <a class="nav-item" data-surface="bus-factor" onclick="app.navigate('bus-factor')">
-              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
               <span>Bus Factor Map</span>
             </a>
           </details>
@@ -134,7 +200,7 @@
 
       <!-- Main Surface Container -->
       <main class="surface-container">
-        
+
         <!-- SURFACE 1: Project Timeline -->
         <section id="surface-timeline" class="surface-view active">
           <div class="view-header">
@@ -142,9 +208,12 @@
               <span class="eyebrow">DECISION HISTORY</span>
               <h1 class="view-title">The thinking behind the <em>code.</em></h1>
               <p class="view-desc">A clear record of <strong>what your team chose, what changed, and why.</strong></p>
-              <button class="repo-onboarding-hint" type="button" onclick="document.getElementById('workspace-menu').open = true; document.querySelector('.workspace-add-repo').focus();" aria-label="Open Workspace to add a repository">
+              <button class="repo-onboarding-hint" type="button"
+                onclick="document.getElementById('workspace-menu').open = true; document.querySelector('.workspace-add-repo').focus();"
+                aria-label="Open Workspace to add a repository">
                 <span class="repo-hint-icon" aria-hidden="true">＋</span>
-                <span class="repo-hint-copy"><strong>New here?</strong><small>Add your repository from Workspace in the top bar.</small></span>
+                <span class="repo-hint-copy"><strong>New here?</strong><small>Add your repository from Workspace in the
+                    top bar.</small></span>
                 <span class="repo-hint-arrow" aria-hidden="true">↗</span>
               </button>
             </div>
@@ -158,57 +227,63 @@
 
           <!-- STEP 2.6: Historical "As Of" Query & Counterfactual Explorer -->
           <details class="asof-disclosure">
-            <summary><span>Explore a past moment</span><span>See what the team knew on a specific date <span aria-hidden="true">↗</span></span></summary>
-          <div class="asof-panel-card">
-            <div class="asof-header">
-              <div>
-                <h3 class="asof-title">Historical &ldquo;As Of&rdquo; Query &amp; Counterfactual Explorer</h3>
-                <p class="asof-desc">Reconstruct what the team believed at any historical point in time with non-speculative alternative evaluation.</p>
-              </div>
-              <div class="asof-quick-prompts">
-                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-04')">&ldquo;What did the team believe on 2026-02-04, and why?&rdquo;</span>
-                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-06')">&ldquo;What did the team believe on 2026-02-06, and why?&rdquo;</span>
-              </div>
-            </div>
-            <div class="asof-controls-bar">
-              <div class="asof-input-group">
-                <label for="asof-date-input">As Of Date:</label>
-                <input type="date" id="asof-date-input" class="asof-date-input" value="2026-02-04">
-              </div>
-              <div class="asof-input-group">
-                <label for="asof-artifact-input">Artifact (optional):</label>
-                <input type="text" id="asof-artifact-input" class="asof-text-input" placeholder="e.g. src/cache/store.py">
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="app.runAsOfQuery()">Reconstruct Beliefs ⏱</button>
-              <button class="btn btn-secondary btn-sm" id="btn-asof-reset" onclick="app.resetAsOfQuery()" style="display: none;">Show Live Timeline</button>
-            </div>
-
-            <!-- As Of Results Pane -->
-            <div id="asof-results-pane" class="asof-results-pane" style="display: none;">
-              <!-- Grounded Explanation Banner -->
-              <div class="asof-explanation-box" id="asof-explanation-box"></div>
-
-              <div class="asof-grid">
-                <!-- Left: Reconstructed Decisions as of Date -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Decisions Believed as of Date</h4>
-                  <div id="asof-decisions-container" class="asof-card-stack"></div>
+            <summary><span>Explore a past moment</span><span>See what the team knew on a specific date <span
+                  aria-hidden="true">↗</span></span></summary>
+            <div class="asof-panel-card">
+              <div class="asof-header">
+                <div>
+                  <h3 class="asof-title">Historical &ldquo;As Of&rdquo; Query &amp; Counterfactual Explorer</h3>
+                  <p class="asof-desc">Reconstruct what the team believed at any historical point in time with
+                    non-speculative alternative evaluation.</p>
                 </div>
-
-                <!-- Middle: Documented Alternatives -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Documented Alternatives</h4>
-                  <div id="asof-alternatives-container" class="asof-card-stack"></div>
-                </div>
-
-                <!-- Right: Changed Afterwards & Later Evidence -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Changed Afterwards &amp; Later Evidence</h4>
-                  <div id="asof-changes-container" class="asof-card-stack"></div>
+                <div class="asof-quick-prompts">
+                  <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-04')">&ldquo;What did the team believe
+                    on 2026-02-04, and why?&rdquo;</span>
+                  <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-06')">&ldquo;What did the team believe
+                    on 2026-02-06, and why?&rdquo;</span>
                 </div>
               </div>
+              <div class="asof-controls-bar">
+                <div class="asof-input-group">
+                  <label for="asof-date-input">As Of Date:</label>
+                  <input type="date" id="asof-date-input" class="asof-date-input" value="2026-02-04">
+                </div>
+                <div class="asof-input-group">
+                  <label for="asof-artifact-input">Artifact (optional):</label>
+                  <input type="text" id="asof-artifact-input" class="asof-text-input"
+                    placeholder="e.g. src/cache/store.py">
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="app.runAsOfQuery()">Reconstruct Beliefs ⏱</button>
+                <button class="btn btn-secondary btn-sm" id="btn-asof-reset" onclick="app.resetAsOfQuery()"
+                  style="display: none;">Show Live Timeline</button>
+              </div>
+
+              <!-- As Of Results Pane -->
+              <div id="asof-results-pane" class="asof-results-pane" style="display: none;">
+                <!-- Grounded Explanation Banner -->
+                <div class="asof-explanation-box" id="asof-explanation-box"></div>
+
+                <div class="asof-grid">
+                  <!-- Left: Reconstructed Decisions as of Date -->
+                  <div class="asof-column">
+                    <h4 class="asof-column-title">Decisions Believed as of Date</h4>
+                    <div id="asof-decisions-container" class="asof-card-stack"></div>
+                  </div>
+
+                  <!-- Middle: Documented Alternatives -->
+                  <div class="asof-column">
+                    <h4 class="asof-column-title">Documented Alternatives</h4>
+                    <div id="asof-alternatives-container" class="asof-card-stack"></div>
+                  </div>
+
+                  <!-- Right: Changed Afterwards & Later Evidence -->
+                  <div class="asof-column">
+                    <h4 class="asof-column-title">Changed Afterwards &amp; Later Evidence</h4>
+                    <div id="asof-changes-container" class="asof-card-stack"></div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
           </details>
 
           <div class="timeline-wrapper" id="timeline-container">
@@ -222,7 +297,8 @@
             <div>
               <span class="eyebrow">CONNECTED PROJECT HISTORY</span>
               <h1 class="view-title">Context graph</h1>
-              <p class="view-desc">Follow the connections between decisions, code, and the evidence that shaped them.</p>
+              <p class="view-desc">Follow the connections between decisions, code, and the evidence that shaped them.
+              </p>
             </div>
             <div class="graph-legend">
               <span class="legend-item"><span class="legend-dot decision-acc"></span> Accepted</span>
@@ -248,7 +324,8 @@
             <div>
               <span class="eyebrow">ARTIFACT FIELD GUIDE</span>
               <h1 class="view-title">Code-Context View</h1>
-              <p class="view-desc">Select any code artifact (file or AST-level function) to inspect its full grounded decision chain: "Why does this look like this?"</p>
+              <p class="view-desc">Select any code artifact (file or AST-level function) to inspect its full grounded
+                decision chain: "Why does this look like this?"</p>
             </div>
           </div>
           <div class="code-context-split">
@@ -272,10 +349,12 @@
             <div>
               <span class="eyebrow">DECISION REGISTER</span>
               <h1 class="view-title">Decision Explorer</h1>
-              <p class="view-desc">Faceted search across all reconstructed decisions with state history, alternatives considered, and confidence scores.</p>
+              <p class="view-desc">Faceted search across all reconstructed decisions with state history, alternatives
+                considered, and confidence scores.</p>
             </div>
             <div class="search-box">
-              <input type="text" id="decision-search-input" placeholder="Search decisions by title or rationale..." oninput="app.searchDecisions(this.value)">
+              <input type="text" id="decision-search-input" placeholder="Search decisions by title or rationale..."
+                oninput="app.searchDecisions(this.value)">
             </div>
           </div>
           <div class="faceted-tabs">
@@ -286,7 +365,8 @@
             <button class="facet-tab" onclick="app.filterDecisionsByState('reopened')">Reopened</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('superseded')">Superseded</button>
             <button class="facet-tab" onclick="app.filterDecisionsByState('rejected')">Rejected</button>
-            <button class="facet-tab" id="facet-tab-lifecycle" onclick="app.showLifecycleTab()">Lifecycle &amp; Audit</button>
+            <button class="facet-tab" id="facet-tab-lifecycle" onclick="app.showLifecycleTab()">Lifecycle &amp;
+              Audit</button>
           </div>
           <div class="decisions-grid" id="decisions-container">
             <!-- Decision cards injected here -->
@@ -300,7 +380,8 @@
                   <!-- Injected by app.js -->
                 </select>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="app.showDecisionsGrid()">← Back to Decisions Grid</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.showDecisionsGrid()">← Back to Decisions
+                Grid</button>
             </div>
 
             <!-- Decision Summary Card & Metadata -->
@@ -331,11 +412,14 @@
               <div class="audit-log-header">
                 <div>
                   <h3 class="panel-section-title" style="margin-bottom: 2px;">Global Audit Log</h3>
-                  <p class="view-desc" style="font-size: 0.8rem;">Complete chronological log of all decision state mutations across repositories.</p>
+                  <p class="view-desc" style="font-size: 0.8rem;">Complete chronological log of all decision state
+                    mutations across repositories.</p>
                 </div>
                 <div class="audit-filter-controls">
-                  <input type="text" id="audit-filter-actor" placeholder="Filter actor..." oninput="app.filterAuditLog()" class="audit-input">
-                  <input type="text" id="audit-filter-date" placeholder="Date (YYYY-MM-DD)..." oninput="app.filterAuditLog()" class="audit-input">
+                  <input type="text" id="audit-filter-actor" placeholder="Filter actor..."
+                    oninput="app.filterAuditLog()" class="audit-input">
+                  <input type="text" id="audit-filter-date" placeholder="Date (YYYY-MM-DD)..."
+                    oninput="app.filterAuditLog()" class="audit-input">
                   <button class="btn btn-secondary btn-sm" onclick="app.clearAuditFilters()">Reset</button>
                 </div>
               </div>
@@ -366,7 +450,8 @@
             <div>
               <span class="eyebrow">SOURCE RECORD</span>
               <h1 class="view-title">Evidence Panel</h1>
-              <p class="view-desc">Direct inspectability of supporting citations. Every decision is tied to immutable, clickable source URLs.</p>
+              <p class="view-desc">Direct inspectability of supporting citations. Every decision is tied to immutable,
+                clickable source URLs.</p>
             </div>
             <div class="decision-picker-wrapper">
               <label for="evidence-decision-select">Decision:</label>
@@ -385,7 +470,8 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Human Review Queue</h1>
-              <p class="view-desc">Triage queue for low-confidence candidate extractions (&lt; 0.90), contributor disagreements, and code-level drift candidates.</p>
+              <p class="view-desc">Triage queue for low-confidence candidate extractions (&lt; 0.90), contributor
+                disagreements, and code-level drift candidates.</p>
             </div>
           </div>
           <div class="review-queue-list" id="review-queue-container">
@@ -398,7 +484,8 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Adaptive Developer Onboarding</h1>
-              <p class="view-desc">Personalized, graph-driven learning paths tailored to your engineering role, subsystem, and target files. Recover architectural context and avoid known pitfalls.</p>
+              <p class="view-desc">Personalized, graph-driven learning paths tailored to your engineering role,
+                subsystem, and target files. Recover architectural context and avoid known pitfalls.</p>
             </div>
           </div>
 
@@ -407,37 +494,48 @@
             <div class="form-row">
               <label><strong>Quick Persona Presets:</strong></label>
               <div class="preset-buttons">
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('thermal')">Persona 1: Thermal Control Engineer (Thermal Regulation)</button>
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('cache')">Persona 2: Infrastructure / SRE (Distributed Cache)</button>
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('security')">Persona 3: Security Auditor (Auth & Keyring)</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('thermal')">Persona 1:
+                  Thermal Control Engineer (Thermal Regulation)</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('cache')">Persona 2:
+                  Infrastructure / SRE (Distributed Cache)</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('security')">Persona 3:
+                  Security Auditor (Auth & Keyring)</button>
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
               <div class="form-row">
                 <label for="onboarding-role-input">Engineering Role / Persona:</label>
-                <input type="text" id="onboarding-role-input" class="code-textarea" style="height: 38px; resize: none;" value="Control Systems Engineer" placeholder="e.g. Backend Engineer, SRE, Security Auditor" />
+                <input type="text" id="onboarding-role-input" class="code-textarea" style="height: 38px; resize: none;"
+                  value="Control Systems Engineer" placeholder="e.g. Backend Engineer, SRE, Security Auditor" />
               </div>
               <div class="form-row">
                 <label for="onboarding-module-input">Target Subsystem / Module:</label>
-                <input type="text" id="onboarding-module-input" class="code-textarea" style="height: 38px; resize: none;" value="thermal" placeholder="e.g. thermal, cache, payment, auth" />
+                <input type="text" id="onboarding-module-input" class="code-textarea"
+                  style="height: 38px; resize: none;" value="thermal"
+                  placeholder="e.g. thermal, cache, payment, auth" />
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
               <div class="form-row">
                 <label for="onboarding-files-input">Optional Focus Files (comma separated):</label>
-                <input type="text" id="onboarding-files-input" class="code-textarea" style="height: 38px; resize: none;" value="src/thermal/control.py" placeholder="e.g. src/thermal/control.py" />
+                <input type="text" id="onboarding-files-input" class="code-textarea" style="height: 38px; resize: none;"
+                  value="src/thermal/control.py" placeholder="e.g. src/thermal/control.py" />
               </div>
               <div class="form-row">
                 <label for="onboarding-task-input">Optional Specific Task or Ticket:</label>
-                <input type="text" id="onboarding-task-input" class="code-textarea" style="height: 38px; resize: none;" value="Implement anti-windup clamping" placeholder="e.g. Add Redis failover, refactor auth token storage" />
+                <input type="text" id="onboarding-task-input" class="code-textarea" style="height: 38px; resize: none;"
+                  value="Implement anti-windup clamping"
+                  placeholder="e.g. Add Redis failover, refactor auth token storage" />
               </div>
             </div>
 
             <div class="form-actions" style="margin-top: 16px;">
               <button class="btn btn-primary" onclick="app.generateOnboardingPath()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 Generate Adaptive Learning Path
               </button>
             </div>
@@ -447,10 +545,14 @@
           <div id="onboarding-checklist-card" class="timeline-card" style="margin-bottom: 24px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
                 Onboarding Reading Checklist
               </h3>
-              <div id="onboarding-progress-badge" class="badge" style="background: rgba(26, 139, 102, 0.15); color: #1a8b66; font-weight: 600;">
+              <div id="onboarding-progress-badge" class="badge"
+                style="background: rgba(26, 139, 102, 0.15); color: #1a8b66; font-weight: 600;">
                 0 / 0 completed
               </div>
             </div>
@@ -470,17 +572,22 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Live CI Code-Level Drift Tester</h1>
-              <p class="view-desc">Simulate a Pull Request or Git Commit diff against the repository. Watch the system evaluate recent accepted decisions and flag violations in real-time.</p>
+              <p class="view-desc">Simulate a Pull Request or Git Commit diff against the repository. Watch the system
+                evaluate recent accepted decisions and flag violations in real-time.</p>
             </div>
           </div>
           <div class="drift-tester-card">
             <div class="form-row">
               <label>Select Preset Scenario to Test:</label>
               <div class="preset-buttons">
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('thermal_revert')">Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('cache_memory')">Scenario 2: Cache Violation (In-Memory Dict vs Redis)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('guard_rule_violation')">Scenario 3: Guard Rule Violation (Forbidden Import)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 4: Consistent Code (Normal Refactor)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('thermal_revert')">Scenario 1: Thermal
+                  Revert (Reintroduces Rejected On-Off)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('cache_memory')">Scenario 2: Cache
+                  Violation (In-Memory Dict vs Redis)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('guard_rule_violation')">Scenario 3:
+                  Guard Rule Violation (Forbidden Import)</button>
+                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 4: Consistent
+                  Code (Normal Refactor)</button>
               </div>
             </div>
             <div class="form-row">
@@ -489,7 +596,9 @@
             </div>
             <div class="form-actions">
               <button class="btn btn-primary" onclick="app.executeDriftCheck()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
                 Run CI Drift Detection Pass
               </button>
             </div>
@@ -504,7 +613,8 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Evaluation Metrics & Baseline Benchmark</h1>
-              <p class="view-desc">Live evaluation against 32 manually labeled ground truth decisions across both pilot repositories per Section 12.</p>
+              <p class="view-desc">Live evaluation against 32 manually labeled ground truth decisions across both pilot
+                repositories per Section 12.</p>
             </div>
           </div>
           <div class="benchmark-grid" id="benchmark-container">
@@ -517,11 +627,14 @@
           <div class="view-header">
             <div>
               <h1 class="view-title">Bus Factor &amp; Knowledge Concentration Map</h1>
-              <p class="view-desc">Module-level knowledge concentration derived from substantive architectural decisions, ADR authors, and code reviewers (raw commit counts excluded).</p>
+              <p class="view-desc">Module-level knowledge concentration derived from substantive architectural
+                decisions, ADR authors, and code reviewers (raw commit counts excluded).</p>
             </div>
             <div class="header-actions">
               <button class="btn btn-secondary btn-sm" onclick="app.loadBusFactorData()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                </svg>
                 Refresh Map
               </button>
             </div>
@@ -560,41 +673,53 @@
       </div>
       <div class="modal-body" id="add-repo-modal-body">
         <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5;">
-          Enter any public or private GitHub repository. The system will fetch commits, PR discussions, and issues, parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
+          Enter any public or private GitHub repository. The system will fetch commits, PR discussions, and issues,
+          parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
         </p>
         <div style="margin-bottom: 14px;">
           <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Repository (owner/repo or URL):
           </label>
-          <input type="text" id="ingest-repo-input" placeholder="e.g. pallets/flask or https://github.com/my-org/my-project" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+          <input type="text" id="ingest-repo-input"
+            placeholder="e.g. pallets/flask or https://github.com/my-org/my-project"
+            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="margin-bottom: 14px;">
-            <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Access Token (optional — needed for private repositories or higher API limits):
           </label>
-          <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+          <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)"
+            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 16px;">
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
+          <label
+            style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
             <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #2c508b;">
             Start with Empty Dashboard (Wipe pilot sample data)
           </label>
         </div>
 
         <!-- Live Progress Status Log -->
-        <div id="ingest-progress-box" class="hidden" style="background: #090d14; border: 1px solid #19212e; border-radius: 6px; padding: 12px; margin-top: 12px;">
+        <div id="ingest-progress-box" class="hidden"
+          style="background: #090d14; border: 1px solid #19212e; border-radius: 6px; padding: 12px; margin-top: 12px;">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <div class="spinner-sm" id="ingest-spinner"></div>
-            <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #2b6e8c;">Ingesting repository...</span>
+            <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #2b6e8c;">Ingesting
+              repository...</span>
           </div>
-          <div id="ingest-log-messages" style="font-size: 0.78rem; color: #94a3b8; font-family: monospace; max-height: 120px; overflow-y: auto; line-height: 1.6;">
+          <div id="ingest-log-messages"
+            style="font-size: 0.78rem; color: #94a3b8; font-family: monospace; max-height: 120px; overflow-y: auto; line-height: 1.6;">
           </div>
         </div>
       </div>
       <div class="modal-footer" id="add-repo-modal-footer">
         <button class="btn btn-secondary" onclick="app.closeAddRepoModal()">Cancel</button>
         <button class="btn btn-primary" id="btn-start-ingest" onclick="app.submitIngestRepo()">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
           Ingest & Extract Context
         </button>
       </div>
@@ -604,18 +729,49 @@
   <div id="github-login-modal" class="modal-backdrop hidden">
     <div class="modal-card provider-login-card" role="dialog" aria-modal="true" aria-labelledby="provider-login-title">
       <div class="modal-header">
-      <h3 id="provider-login-title">Account sign-in</h3>
-        <button class="modal-close" type="button" onclick="app.closeLoginModal()" aria-label="Close sign-in dialog">&times;</button>
+        <h3 id="provider-login-title">Account sign-in</h3>
+        <button class="modal-close" type="button" onclick="app.closeLoginModal()"
+          aria-label="Close sign-in dialog">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="provider-login-intro">Sign in with GitHub to access your repositories and synchronize context changes in real time.</p>
-        <a class="btn btn-primary provider-login-link" href="/auth/github/login?next=/dashboard.html" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; font-weight: 600;">
-          <svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" style="width: 16px; height: 16px;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <p class="provider-login-intro">Sign in with GitHub to access your repositories and synchronize context changes
+          in real time.</p>
+        <a class="btn btn-primary provider-login-link" href="/auth/github/login?next=/dashboard.html"
+          style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; font-weight: 600;">
+          <svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" style="width: 16px; height: 16px;">
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+          </svg>
           Continue with GitHub
         </a>
         <p class="provider-login-note" style="font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
-          If GitHub App credentials are not configured, this will automatically sign you in with a local development session.
+          If GitHub App credentials are not configured, this will automatically sign you in with a local development
+          session.
         </p>
+
+        <div style="display: flex; align-items: center; text-align: center; margin: 16px 0 12px; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">
+          <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
+          <span style="padding: 0 10px;">or login / register with account</span>
+          <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 12px;">
+          <button type="button" id="dash-auth-tab-signin" class="btn btn-sm btn-secondary active" onclick="app.setDashboardAuthMode('signin')">Sign In</button>
+          <button type="button" id="dash-auth-tab-register" class="btn btn-sm btn-secondary" onclick="app.setDashboardAuthMode('register')">Register</button>
+        </div>
+
+        <form id="dash-auth-form" onsubmit="app.submitDashboardAuth(event)">
+          <div style="margin-bottom: 10px; text-align: left;">
+            <label for="dash-auth-username" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Username or Email</label>
+            <input type="text" id="dash-auth-username" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="e.g. developer" required autocomplete="username" />
+          </div>
+          <div style="margin-bottom: 12px; text-align: left;">
+            <label for="dash-auth-password" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Password</label>
+            <input type="password" id="dash-auth-password" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="••••••••" required autocomplete="current-password" />
+          </div>
+          <button type="submit" id="dash-auth-submit-btn" class="btn btn-primary" style="width: 100%; min-height: 38px;">Sign in</button>
+          <div id="dash-auth-msg" style="display: none; font-size: 0.8rem; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center;"></div>
+        </form>
       </div>
     </div>
   </div>
@@ -623,4 +779,5 @@
   <script src="static_data.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

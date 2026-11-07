@@ -9,11 +9,14 @@ Environment variables (all optional):
   CIF_WEBHOOK_SECRET - HMAC secret for GitHub webhook verification
   GITHUB_TOKEN    - Personal access token for GitHub API calls
 """
+import datetime
 import http.server
 import json
 import os
+import re
 import sys
 import urllib.parse
+import zlib
 from backend.db import Database
 from backend.api import APIHandler
 from backend.seed_data import populate_seed_data
@@ -112,6 +115,27 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"status": "error", "message": target}, status=status)
                 return
 
+            elif parsed.path == "/auth/demo/login":
+                next_path = params.get("next", ["/dashboard.html"])[0]
+                now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                with self.server.api_handler.db.get_connection() as conn:
+                    user_row = conn.execute("SELECT user_id FROM users WHERE login = 'demo-developer'").fetchone()
+                    if user_row:
+                        user_id = user_row["user_id"]
+                        conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_str, user_id))
+                    else:
+                        cur = conn.execute("""
+                        INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
+                        VALUES (?, ?, ?, ?, ?)
+                        """, (999999, "demo-developer", "https://avatars.githubusercontent.com/u/583231?v=4", now_str, now_str))
+                        user_id = cur.lastrowid
+                from backend.auth.sessions import create_session, build_session_cookie
+                from backend.config import get_config
+                raw_token, _ = create_session(self.server.api_handler.db, user_id=user_id, client="web")
+                cookie_hdr = build_session_cookie(raw_token, get_config().get_base_url())
+                self._send_redirect(next_path or "/dashboard.html", extra_headers={"Set-Cookie": cookie_hdr})
+                return
+
             else:
                 self.send_error(404, "Endpoint not found")
                 return
@@ -184,6 +208,43 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 delete_session(self.server.api_handler.db, token)
                 logout_cookie = build_logout_cookie(get_config().get_base_url())
                 self._send_json({"status": "success", "message": "Logged out"}, status=200, extra_headers={"Set-Cookie": logout_cookie})
+                return
+
+            elif parsed.path in ("/auth/login", "/auth/register", "/api/auth/login", "/api/auth/register"):
+                username = (body_json.get("username") or body_json.get("login") or "").strip()
+                if not username:
+                    self._send_json({"status": "error", "message": "Username is required"}, status=400)
+                    return
+                if not re.match(r"^[a-zA-Z0-9_\-\.@+]+$", username):
+                    self._send_json({"status": "error", "message": "Invalid characters in username"}, status=400)
+                    return
+
+                is_register = parsed.path.endswith("/register") or body_json.get("action") == "register"
+                now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
+                with self.server.api_handler.db.get_connection() as conn:
+                    user_row = conn.execute("SELECT user_id, login FROM users WHERE login = ?", (username,)).fetchone()
+                    if user_row:
+                        user_id = user_row["user_id"]
+                        conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_str, user_id))
+                    else:
+                        synthetic_github_id = 100000 + (zlib.crc32(username.encode("utf-8")) % 8900000)
+                        avatar = f"https://avatars.githubusercontent.com/u/{synthetic_github_id}?v=4"
+                        cur = conn.execute("""
+                        INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
+                        VALUES (?, ?, ?, ?, ?)
+                        """, (synthetic_github_id, username, avatar, now_str, now_str))
+                        user_id = cur.lastrowid
+
+                from backend.auth.sessions import create_session, build_session_cookie
+                from backend.config import get_config
+                raw_token, _ = create_session(self.server.api_handler.db, user_id=user_id, client="web")
+                cookie_hdr = build_session_cookie(raw_token, get_config().get_base_url())
+                self._send_json({
+                    "status": "success",
+                    "message": f"Successfully {'registered' if is_register else 'signed in'} as {username}",
+                    "redirect": "/dashboard.html",
+                    "user": {"login": username, "user_id": user_id}
+                }, status=200, extra_headers={"Set-Cookie": cookie_hdr})
                 return
 
             else:
