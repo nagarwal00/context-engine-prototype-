@@ -39,9 +39,10 @@
       <a href="#capabilities">About</a>
       <a href="#integrations">Services</a>
       <a href="#workflow">Workflow</a>
-      <a href="#footer">Contact</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <a class="button button-outline header-cta" href="login.html" id="header-get-started">Get started <span aria-hidden="true">→</span></a>
+    <a class="button button-outline header-cta" href="login.html" id="header-get-started">Get started <span
+        aria-hidden="true">→</span></a>
   </header>
 
   <main id="top">
@@ -189,7 +190,8 @@
     </section>
   </main>
 
-  <footer class="site-footer" id="footer">
+  <footer class="site-footer" id="contact">
+    <span id="footer" style="position: absolute; top: -80px;"></span>
     <div class="footer-panel">
       <div class="footer-brand-column">
         <a class="brand" href="#top" aria-label="Context Engine home">
@@ -207,13 +209,6 @@
         <p>Decisions, evidence, and code connected in one living project history.</p>
       </div>
       <div class="footer-link-column">
-        <h2>PRODUCT</h2>
-        <a href="dashboard.html">Project timeline</a>
-        <a href="dashboard.html">Context graph</a>
-        <a href="dashboard.html">Code context</a>
-        <a href="dashboard.html">Evidence trails</a>
-      </div>
-      <div class="footer-link-column">
         <h2>EXPLORE</h2>
         <a href="#capabilities">Capabilities</a>
         <a href="#workflow">How it works</a>
@@ -221,12 +216,15 @@
         <a href="dashboard.html">Open workspace</a>
       </div>
       <div class="footer-link-column">
-        <h2>DEVELOPERS</h2>
-        <a href="dashboard.html">Onboarding tour</a>
-        <a href="dashboard.html">Review queue</a>
-        <a href="dashboard.html">Drift checks</a>
-        <a href="https://github.com/nagarwal00/context-engine-prototype-" target="_blank"
-          rel="noopener noreferrer">GitHub repository <span aria-hidden="true">↗</span></a>
+        <h2>TEAM LEADER</h2>
+        <a href="mailto:nagarwal_be24@thapar.edu">Nistha Agarwal</a>
+        <a href="mailto:nagarwal_be24@thapar.edu">nagarwal_be24@thapar.edu</a>
+      </div>
+      <div class="footer-link-column">
+        <h2>TEAM MEMBERS</h2>
+        <a href="mailto:ggoyal_be24@thapar.edu">Granth Goyal - ggoyal_be24@thapar.edu</a>
+        <a href="mailto:hoberoi_be24@thapar.edu">Harman Oberoi - hoberoi_be24@thapar.edu</a>
+        <a href="mailto:asingh67_be24@thapar.edu">Ayush Raj Singh - asingh67_be24@thapar.edu</a>
       </div>
       <div class="footer-bottom">
         <span>Copyright © <span id="footer-year">2026</span> Context Engine. All rights reserved.</span>
@@ -236,22 +234,26 @@
   </footer>
 
   <!-- Account Sign-In / Register Modal -->
-  <div id="login-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-login-title">
+  <div id="login-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true"
+    aria-labelledby="modal-login-title">
     <div class="modal-card provider-login-card">
       <div class="modal-header">
         <h3 id="modal-login-title">Account sign-in</h3>
         <button class="modal-close" type="button" id="modal-login-close" aria-label="Close dialog">&times;</button>
       </div>
       <div class="modal-body">
-        <p class="provider-login-intro">Sign in with GitHub to access your repositories and synchronize context changes in real time.</p>
+        <p class="provider-login-intro">Sign in with GitHub to access your repositories and synchronize context changes
+          in real time.</p>
         <a class="provider-login-link" href="/auth/github/login?next=/dashboard.html">
           <svg viewBox="0 0 16 16" fill="currentColor" style="width: 18px; height: 18px;">
-            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
           </svg>
           <span>Continue with GitHub</span>
         </a>
         <p class="provider-login-note">
-          If GitHub App credentials are not configured, this will automatically sign you in with a local development session.
+          If GitHub App credentials are not configured, this will automatically sign you in with a local development
+          session.
         </p>
 
         <div class="auth-divider">
@@ -266,13 +268,16 @@
         <form id="landing-auth-form" class="auth-form" onsubmit="return false;">
           <div class="auth-field">
             <label for="landing-username">Username or Email</label>
-            <input type="text" id="landing-username" name="username" placeholder="e.g. developer" required autocomplete="username" />
+            <input type="text" id="landing-username" name="username" placeholder="e.g. developer" required
+              autocomplete="username" />
           </div>
           <div class="auth-field">
             <label for="landing-password">Password</label>
-            <input type="password" id="landing-password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+            <input type="password" id="landing-password" name="password" placeholder="••••••••" required
+              autocomplete="current-password" />
           </div>
-          <button type="submit" id="landing-auth-submit" class="button button-primary" style="width: 100%; margin-top: 10px;">Sign in</button>
+          <button type="submit" id="landing-auth-submit" class="button button-primary"
+            style="width: 100%; margin-top: 10px;">Sign in</button>
           <div id="landing-auth-msg" class="auth-msg hidden"></div>
         </form>
 
