@@ -83,6 +83,23 @@
     getStartedBtn.addEventListener('click', openLoginModal);
   }
 
+  let isAuthenticated = false;
+  fetch('/api/me')
+    .then(r => {
+      if (r.ok) isAuthenticated = true;
+    })
+    .catch(() => {});
+
+  // Intercept dashboard links if not authenticated
+  document.querySelectorAll('a[href="dashboard.html"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      if (!isAuthenticated) {
+        e.preventDefault();
+        openLoginModal(e);
+      }
+    });
+  });
+
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', closeLoginModal);
   }

@@ -194,7 +194,7 @@
       </div>
 
       <div class="auth-card-footer">
-        <a href="dashboard.html" class="auth-guest-link">Explore workspace without signing in &rarr;</a>
+        <span style="color: #64748b; font-size: 0.8rem;">Authentication required to access workspace</span>
       </div>
     </div>
   </main>
@@ -261,8 +261,10 @@
                 authMsg.className = 'auth-msg success';
                 authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
               }
+              const urlParams = new URLSearchParams(window.location.search);
+              const nextUrl = urlParams.get('next') || data.redirect || 'dashboard.html';
               window.setTimeout(() => {
-                window.location.href = data.redirect || 'dashboard.html';
+                window.location.href = nextUrl;
               }, 400);
             } else {
               if (authMsg) {
@@ -291,7 +293,9 @@
       fetch('/api/me')
         .then(res => {
           if (res.ok) {
-            window.location.href = 'dashboard.html';
+            const urlParams = new URLSearchParams(window.location.search);
+            const nextUrl = urlParams.get('next') || 'dashboard.html';
+            window.location.href = nextUrl;
           }
         })
         .catch(() => { });

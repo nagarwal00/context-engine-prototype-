@@ -13,6 +13,21 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script>
+    (function () {
+      if (!window.location.hostname.endsWith('github.io')) {
+        fetch('/api/me')
+          .then(function (res) {
+            if (!res.ok) {
+              window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+            }
+          })
+          .catch(function () {
+            window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+          });
+      }
+    })();
+  </script>
 </head>
 
 <body>
