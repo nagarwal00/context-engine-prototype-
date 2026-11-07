@@ -42,7 +42,28 @@ def get_secure_ssl_context() -> ssl.SSLContext:
         return ssl.create_default_context(cafile=certifi.where())
     except Exception:
         pass
-    return ssl.create_default_context()
+
+    # Auto-detect certifi bundle from Windows user cache if not on sys.path
+    win_local = os.environ.get("LOCALAPPDATA", "")
+    if win_local:
+        candidates = [
+            os.path.join(win_local, "Packages", "PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0", "LocalCache", "local-packages", "Python311", "site-packages", "certifi", "cacert.pem"),
+            os.path.join(win_local, "Programs", "Python", "Python311", "Lib", "site-packages", "certifi", "cacert.pem"),
+        ]
+        for c in candidates:
+            if os.path.exists(c):
+                return ssl.create_default_context(cafile=c)
+
+    ctx = ssl.create_default_context()
+    if hasattr(ssl, "enum_certificates"):
+        try:
+            for store in ("ROOT", "CA"):
+                for cert, encoding, trust in ssl.enum_certificates(store):
+                    if encoding == "x509_asn":
+                        ctx.load_verify_locations(cdata=cert)
+        except Exception:
+            pass
+    return ctx
 
 
 def validate_next_path(next_path: Optional[str]) -> str:
