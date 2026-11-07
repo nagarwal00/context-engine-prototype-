@@ -81,6 +81,10 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self._send_json(res, status=200)
             return
 
+        if parsed.path in ("/dashboard", "/repos"):
+            self._send_redirect("/dashboard.html", status=302)
+            return
+
         if parsed.path.startswith("/auth/"):
             params = urllib.parse.parse_qs(parsed.query)
             if parsed.path == "/auth/github/login":

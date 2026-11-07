@@ -356,7 +356,7 @@
             "made_at": "2026-01-15T16:00:00Z",
             "review_status": "auto_confirmed",
             "repo": "acme-eng/thermal-control-system",
-            "color": "#10b981"
+            "color": "#1a8b66"
           },
           {
             "id": "dec_cache_local_lru_proposed",
@@ -368,7 +368,7 @@
             "made_at": "2026-02-03T14:30:00Z",
             "review_status": "pending_review",
             "repo": "acme-eng/distributed-cache-service",
-            "color": "#8b5cf6"
+            "color": "#f65c76"
           },
           {
             "id": "dec_cache_redis_accepted",
@@ -380,7 +380,7 @@
             "made_at": "2026-02-06T15:00:00Z",
             "review_status": "auto_confirmed",
             "repo": "acme-eng/distributed-cache-service",
-            "color": "#10b981"
+            "color": "#1a8b66"
           },
           {
             "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
@@ -389,7 +389,7 @@
             "entity_type": "file",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Core thermal regulation module",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
@@ -398,7 +398,7 @@
             "entity_type": "function",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Applies feedback loop control algorithm",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
@@ -407,7 +407,7 @@
             "entity_type": "function",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Reads raw temperature sensor hardware bus",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
@@ -416,7 +416,7 @@
             "entity_type": "file",
             "repo": "acme-eng/thermal-control-system",
             "summary": "ADR 0004 documentation",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_dep_acme-eng_thermal-control-system_scipy",
@@ -425,7 +425,7 @@
             "entity_type": "dependency",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Dependency package scipy (==1.11.2)",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
@@ -434,7 +434,7 @@
             "entity_type": "file",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Distributed caching implementation",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
@@ -443,7 +443,7 @@
             "entity_type": "function",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Fetch key from cache cluster",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
@@ -452,7 +452,7 @@
             "entity_type": "function",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Write key-value pair to cluster with TTL",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_dep_acme-eng_distributed-cache-service_redis",
@@ -461,7 +461,7 @@
             "entity_type": "dependency",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Dependency package redis (==4.5.4)",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "evt_issue_thermal_12",
@@ -719,7 +719,7 @@
             "made_at": "2026-01-15T16:00:00Z",
             "review_status": "auto_confirmed",
             "repo": "acme-eng/thermal-control-system",
-            "color": "#10b981"
+            "color": "#1a8b66"
           },
           {
             "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
@@ -728,7 +728,7 @@
             "entity_type": "file",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Core thermal regulation module",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
@@ -737,7 +737,7 @@
             "entity_type": "function",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Applies feedback loop control algorithm",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
@@ -746,7 +746,7 @@
             "entity_type": "function",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Reads raw temperature sensor hardware bus",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
@@ -755,7 +755,7 @@
             "entity_type": "file",
             "repo": "acme-eng/thermal-control-system",
             "summary": "ADR 0004 documentation",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_dep_acme-eng_thermal-control-system_scipy",
@@ -764,7 +764,7 @@
             "entity_type": "dependency",
             "repo": "acme-eng/thermal-control-system",
             "summary": "Dependency package scipy (==1.11.2)",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "evt_issue_thermal_12",
@@ -894,7 +894,7 @@
             "made_at": "2026-02-03T14:30:00Z",
             "review_status": "pending_review",
             "repo": "acme-eng/distributed-cache-service",
-            "color": "#8b5cf6"
+            "color": "#f65c76"
           },
           {
             "id": "dec_cache_redis_accepted",
@@ -906,7 +906,7 @@
             "made_at": "2026-02-06T15:00:00Z",
             "review_status": "auto_confirmed",
             "repo": "acme-eng/distributed-cache-service",
-            "color": "#10b981"
+            "color": "#1a8b66"
           },
           {
             "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
@@ -915,7 +915,7 @@
             "entity_type": "file",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Distributed caching implementation",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
@@ -924,7 +924,7 @@
             "entity_type": "function",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Fetch key from cache cluster",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
@@ -933,7 +933,7 @@
             "entity_type": "function",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Write key-value pair to cluster with TTL",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "ent_dep_acme-eng_distributed-cache-service_redis",
@@ -942,7 +942,7 @@
             "entity_type": "dependency",
             "repo": "acme-eng/distributed-cache-service",
             "summary": "Dependency package redis (==4.5.4)",
-            "color": "#3b82f6"
+            "color": "#2c508b"
           },
           {
             "id": "evt_issue_cache_34",

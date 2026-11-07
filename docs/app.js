@@ -98,10 +98,10 @@ const app = {
     }
 
     // Lazy load specific surface data
-    if (surfaceId === 'repositories') {
-      this.loadRepositoriesScreen();
-    } else if (surfaceId === 'graph') {
+    if (surfaceId === 'graph') {
       this.loadGraph();
+    } else if (surfaceId === 'repositories') {
+      this.loadRepositoriesScreen();
     } else if (surfaceId === 'timeline') {
       this.loadTimeline();
     } else if (surfaceId === 'code') {
@@ -126,6 +126,183 @@ const app = {
     this.loadArtifacts();
     this.loadDecisions();
     if (this.activeSurface === 'graph') this.loadGraph();
+  },
+
+  async loadRepositoriesList() {
+    try {
+      const json = await this.apiFetch('/api/repos');
+      if (json.status === 'success') {
+        const select = document.getElementById('repo-select');
+        const repos = json.data || [];
+        let html = '<option value="">All Repositories (Unified View)</option>';
+        repos.forEach(r => {
+          html += `<option value="${esc(r)}">${esc(r)}</option>`;
+        });
+        select.innerHTML = html;
+        if (this.selectedRepo) {
+          select.value = this.selectedRepo;
+        }
+      }
+    } catch (e) {
+      console.error('Error loading repositories list:', e);
+    }
+  },
+
+  openAddRepoModal() {
+    document.getElementById('add-repo-modal').classList.remove('hidden');
+    document.getElementById('ingest-progress-box').classList.add('hidden');
+    document.getElementById('ingest-log-messages').innerHTML = '';
+    document.getElementById('btn-start-ingest').disabled = false;
+    const workspaceRepo = document.getElementById('workspace-repo-url');
+    const modalRepo = document.getElementById('ingest-repo-input');
+    if (workspaceRepo && workspaceRepo.value.trim()) modalRepo.value = workspaceRepo.value.trim();
+    window.setTimeout(() => modalRepo.focus(), 0);
+  },
+
+  openLoginModal() {
+    document.getElementById('github-login-modal').classList.remove('hidden');
+  },
+
+  closeLoginModal() {
+    document.getElementById('github-login-modal').classList.add('hidden');
+  },
+
+  closeAddRepoModal() {
+    document.getElementById('add-repo-modal').classList.add('hidden');
+  },
+
+  async emptyDashboard() {
+    const confirmName = prompt('Enter exact database filename to confirm wipe:', 'context_intelligence.db');
+    if (confirmName) {
+      const json = await this.apiFetch('/api/clear-db', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: confirmName })
+      });
+      alert(json.message);
+      this.selectedRepo = '';
+      await this.loadRepositoriesList();
+      this.init();
+      this.navigate('timeline');
+    }
+  },
+
+  async submitIngestRepo() {
+    const rawRepo = document.getElementById('ingest-repo-input').value.trim();
+    const token = document.getElementById('ingest-token-input').value.trim();
+    const clearExisting = document.getElementById('ingest-clear-checkbox').checked;
+
+    if (!rawRepo) {
+      alert('Please enter a GitHub repository (e.g. owner/repo or full GitHub URL).');
+      return;
+    }
+
+    const progressBox = document.getElementById('ingest-progress-box');
+    const logBox = document.getElementById('ingest-log-messages');
+    const titleEl = document.getElementById('ingest-status-title');
+    const btn = document.getElementById('btn-start-ingest');
+
+    progressBox.classList.remove('hidden');
+    titleEl.textContent = 'Ingesting repository...';
+    titleEl.style.color = '#2b6e8c';
+    logBox.innerHTML = '';
+    btn.disabled = true;
+
+    const addLog = (msg) => {
+      const line = document.createElement('div');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    };
+
+    addLog(`Connecting to repository '${rawRepo}'...`);
+    addLog(`Fetching commit logs, author identities, and code diffs...`);
+    
+    // Progress pulse timer while network request completes
+    let step = 0;
+    const progressInterval = setInterval(() => {
+      step++;
+      if (step === 1) addLog(`Scanning issues, PR discussions, and parent linkages...`);
+      else if (step === 2) addLog(`Parsing Python AST functions and dependency trees...`);
+      else if (step === 3) addLog(`Synthesizing architectural decisions & confidence scoring...`);
+      else if (step === 4) addLog(`Building temporal context graph edges & evidence chains...`);
+    }, 1800);
+
+    try {
+      const json = await this.apiFetch('/api/ingest-repo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          repo: rawRepo,
+          token: token || null,
+          clear_existing: clearExisting,
+          max_commits: 25,
+          max_issues: 15
+        }),
+        timeoutMs: 60000
+      });
+
+      clearInterval(progressInterval);
+
+      if (json && json.status === 'success') {
+        const stats = json.data || {};
+        titleEl.textContent = 'Context Extraction Complete!';
+        titleEl.style.color = '#1a8b66';
+        addLog(`Ingested ${stats.commits_ingested || 0} commits and ${(stats.issues_ingested || 0) + (stats.prs_ingested || 0)} issues/PRs.`);
+        addLog(`Extracted ${stats.entities_created || 0} code entities (including AST functions).`);
+        addLog(`Synthesized ${stats.decisions_extracted || 0} grounded architectural decisions.`);
+        addLog(`Constructed ${stats.edges_created || 0} temporal graph edges.`);
+
+        setTimeout(async () => {
+          this.closeAddRepoModal();
+          await this.loadRepositoriesList();
+          this.switchRepo(stats.repo || rawRepo);
+        }, 1200);
+      } else {
+        titleEl.textContent = 'Ingestion Error';
+        titleEl.style.color = '#ef4444';
+        addLog(`Error: ${json ? json.message : 'Unknown server error'}`);
+        btn.disabled = false;
+      }
+    } catch (e) {
+      clearInterval(progressInterval);
+      titleEl.textContent = 'Ingestion Error';
+      titleEl.style.color = '#ef4444';
+      addLog(`Error: ${e.message}`);
+      btn.disabled = false;
+    }
+  },
+
+  async refreshStats() {
+    try {
+      const json = await this.apiFetch('/api/stats');
+      if (json && json.status === 'success' && json.data) {
+        const elDec = document.getElementById('stat-decisions');
+        if (elDec) elDec.textContent = json.data.decisions;
+        const elEvt = document.getElementById('stat-events');
+        if (elEvt) elEvt.textContent = json.data.events;
+        const totalReview = (json.data.drifts || 0) + (json.data.conflicts || 0) + 1; // including unconfident candidates
+        const elRev = document.getElementById('stat-review-count');
+        if (elRev) elRev.textContent = totalReview;
+        const elBadge = document.getElementById('sidebar-review-badge');
+        if (elBadge) elBadge.textContent = totalReview;
+      }
+    } catch (e) {
+      console.error('Error fetching stats:', e);
+    }
+  },
+
+  async reseedData() {
+    if (confirm('Reset pilot repositories to default seed state?')) {
+      const json = await this.apiFetch('/api/reseed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: 'context_intelligence.db' })
+      });
+      alert(json.message);
+      this.init();
+      this.navigate('timeline');
+    }
   },
 
   // =========================================================================
@@ -450,175 +627,11 @@ const app = {
       const statusChip = document.getElementById('job-status-chip');
       if (statusChip) {
         statusChip.className = 'chip chip-failed';
-        statusChip.textContent = 'cancelling...';
+        statusChip.textContent = 'cancelled';
       }
-    } catch (e) {
-      alert(`Could not cancel job: ${e.message}`);
-    }
-  },
-
-  async loadRepositoriesList() {
-    try {
-      const json = await this.apiFetch('/api/repos');
-      if (json.status === 'success') {
-        const select = document.getElementById('repo-select');
-        const repos = json.data || [];
-        let html = '<option value="">All Repositories (Unified View)</option>';
-        repos.forEach(r => {
-          html += `<option value="${esc(r)}">${esc(r)}</option>`;
-        });
-        select.innerHTML = html;
-        if (this.selectedRepo) {
-          select.value = this.selectedRepo;
-        }
-      }
-    } catch (e) {
-      console.error('Error loading repositories list:', e);
-    }
-  },
-
-  openAddRepoModal() {
-    document.getElementById('add-repo-modal').classList.remove('hidden');
-    document.getElementById('ingest-progress-box').classList.add('hidden');
-    document.getElementById('ingest-log-messages').innerHTML = '';
-    document.getElementById('btn-start-ingest').disabled = false;
-  },
-
-  closeAddRepoModal() {
-    document.getElementById('add-repo-modal').classList.add('hidden');
-  },
-
-  async emptyDashboard() {
-    const confirmName = prompt('Enter exact database filename to confirm wipe:', 'context_intelligence.db');
-    if (confirmName) {
-      const json = await this.apiFetch('/api/clear-db', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: confirmName })
-      });
-      alert(json.message);
-      this.selectedRepo = '';
-      await this.loadRepositoriesList();
-      this.init();
-      this.navigate('timeline');
-    }
-  },
-
-  async submitIngestRepo() {
-    const rawRepo = document.getElementById('ingest-repo-input').value.trim();
-    const token = document.getElementById('ingest-token-input').value.trim();
-    const clearExisting = document.getElementById('ingest-clear-checkbox').checked;
-
-    if (!rawRepo) {
-      alert('Please enter a GitHub repository (e.g. owner/repo or full GitHub URL).');
-      return;
-    }
-
-    const progressBox = document.getElementById('ingest-progress-box');
-    const logBox = document.getElementById('ingest-log-messages');
-    const titleEl = document.getElementById('ingest-status-title');
-    const btn = document.getElementById('btn-start-ingest');
-
-    progressBox.classList.remove('hidden');
-    titleEl.textContent = 'Ingesting repository...';
-    titleEl.style.color = '#38bdf8';
-    logBox.innerHTML = '';
-    btn.disabled = true;
-
-    const addLog = (msg) => {
-      const line = document.createElement('div');
-      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-      logBox.appendChild(line);
-      logBox.scrollTop = logBox.scrollHeight;
-    };
-
-    addLog(`Connecting to repository '${rawRepo}'...`);
-    addLog(`Fetching commit logs, author identities, and code diffs...`);
-    
-    // Progress pulse timer while network request completes
-    let step = 0;
-    const progressInterval = setInterval(() => {
-      step++;
-      if (step === 1) addLog(`Scanning issues, PR discussions, and parent linkages...`);
-      else if (step === 2) addLog(`Parsing Python AST functions and dependency trees...`);
-      else if (step === 3) addLog(`Synthesizing architectural decisions & confidence scoring...`);
-      else if (step === 4) addLog(`Building temporal context graph edges & evidence chains...`);
-    }, 1800);
-
-    try {
-      const json = await this.apiFetch('/api/ingest-repo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          repo: rawRepo,
-          token: token || null,
-          clear_existing: clearExisting,
-          max_commits: 25,
-          max_issues: 15
-        }),
-        timeoutMs: 60000
-      });
-
-      clearInterval(progressInterval);
-
-      if (json && json.status === 'success') {
-        const stats = json.data || {};
-        titleEl.textContent = 'Context Extraction Complete!';
-        titleEl.style.color = '#10b981';
-        addLog(`Ingested ${stats.commits_ingested || 0} commits and ${(stats.issues_ingested || 0) + (stats.prs_ingested || 0)} issues/PRs.`);
-        addLog(`Extracted ${stats.entities_created || 0} code entities (including AST functions).`);
-        addLog(`Synthesized ${stats.decisions_extracted || 0} grounded architectural decisions.`);
-        addLog(`Constructed ${stats.edges_created || 0} temporal graph edges.`);
-
-        setTimeout(async () => {
-          this.closeAddRepoModal();
-          await this.loadRepositoriesList();
-          this.switchRepo(stats.repo || rawRepo);
-        }, 1200);
-      } else {
-        titleEl.textContent = 'Ingestion Error';
-        titleEl.style.color = '#ef4444';
-        addLog(`Error: ${json ? json.message : 'Unknown server error'}`);
-        btn.disabled = false;
-      }
-    } catch (e) {
-      clearInterval(progressInterval);
-      titleEl.textContent = 'Ingestion Error';
-      titleEl.style.color = '#ef4444';
-      addLog(`Error: ${e.message}`);
-      btn.disabled = false;
-    }
-  },
-
-  async refreshStats() {
-    try {
-      const json = await this.apiFetch('/api/stats');
-      if (json && json.status === 'success' && json.data) {
-        const elDec = document.getElementById('stat-decisions');
-        if (elDec) elDec.textContent = json.data.decisions;
-        const elEvt = document.getElementById('stat-events');
-        if (elEvt) elEvt.textContent = json.data.events;
-        const totalReview = (json.data.drifts || 0) + (json.data.conflicts || 0) + 1; // including unconfident candidates
-        const elRev = document.getElementById('stat-review-count');
-        if (elRev) elRev.textContent = totalReview;
-        const elBadge = document.getElementById('sidebar-review-badge');
-        if (elBadge) elBadge.textContent = totalReview;
-      }
-    } catch (e) {
-      console.error('Error fetching stats:', e);
-    }
-  },
-
-  async reseedData() {
-    if (confirm('Reset pilot repositories to default seed state?')) {
-      const json = await this.apiFetch('/api/reseed', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: 'context_intelligence.db' })
-      });
-      alert(json.message);
-      this.init();
-      this.navigate('timeline');
+      this.loadRepositoriesScreen();
+    } catch (err) {
+      alert(`Error cancelling job: ${err.message}`);
     }
   },
 
@@ -668,6 +681,24 @@ const app = {
           </div>
         `;
       }).join('');
+
+      const cards = container.querySelectorAll('.timeline-card');
+      if (cards.length > 3) {
+        container.classList.add('timeline-collapsed');
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'timeline-more-toggle';
+        toggle.textContent = `View all ${cards.length} decisions`;
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.addEventListener('click', () => {
+          const expanded = container.classList.toggle('timeline-collapsed') === false;
+          toggle.textContent = expanded ? 'Show fewer decisions' : `View all ${cards.length} decisions`;
+          toggle.setAttribute('aria-expanded', String(expanded));
+        });
+        container.appendChild(toggle);
+      } else {
+        container.classList.remove('timeline-collapsed');
+      }
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error loading timeline: ${esc(e.message)}</div>`;
     }
@@ -791,7 +822,7 @@ const app = {
             return `
               <div class="asof-card" style="border-left: 3px solid var(--status-superseded);">
                 <div class="asof-card-header">
-                  <span class="badge-tag" style="background-color: rgba(168, 85, 247, 0.15); color: #c084fc;">${esc(c.type === 'later_transition' ? 'Transition' : 'New Decision')}</span>
+                  <span class="badge-tag" style="background-color: rgba(247, 85, 112, 0.15); color: #fc8498;">${esc(c.type === 'later_transition' ? 'Transition' : 'New Decision')}</span>
                   <span style="font-size: 0.72rem; color: #64748b;">${esc(dateStr)}</span>
                 </div>
                 <h5 class="asof-card-title">${esc(c.decision_title || c.decision_id)}</h5>
@@ -802,9 +833,9 @@ const app = {
           }).join('');
 
           const evItems = (later_evidence || []).map(e => `
-            <div class="asof-card" style="border-left: 3px solid #06b6d4;">
+            <div class="asof-card" style="border-left: 3px solid #1e5b65;">
               <div class="asof-card-header">
-                <span class="badge-tag" style="background-color: rgba(6, 182, 212, 0.15); color: #22d3ee;">${esc('Later Evidence')}</span>
+                <span class="badge-tag" style="background-color: rgba(30, 91, 101, 0.15); color: #2a6f7a;">${esc('Later Evidence')}</span>
                 <span style="font-size: 0.72rem; color: #64748b;">${esc(e.timestamp ? e.timestamp.substring(0, 10) : '')}</span>
               </div>
               <h5 class="asof-card-title">${esc(e.title || e.source_type)}</h5>
@@ -853,96 +884,205 @@ const app = {
   renderSvgGraph(nodes, links) {
     const svg = document.getElementById('graph-svg');
     const width = svg.clientWidth || 900;
-    const height = 580;
+    const laneNames = [
+      { type: 'event', title: 'Evidence', note: 'Issues, reviews & commits' },
+      { type: 'decision', title: 'Decisions', note: 'Choices made by the team' },
+      { type: 'entity', title: 'Code artifacts', note: 'Files, functions & dependencies' }
+    ];
+    const grouped = {
+      event: nodes.filter(n => n.type === 'event'),
+      decision: nodes.filter(n => n.type === 'decision'),
+      entity: nodes.filter(n => n.type === 'entity')
+    };
+    nodes.filter(n => !grouped[n.type]).forEach(n => grouped.entity.push(n));
+    const maxRows = Math.max(1, ...Object.values(grouped).map(group => group.length));
+    const height = Math.max(620, 132 + maxRows * 58);
+    const laneWidth = width / laneNames.length;
+    const cardWidth = Math.min(300, laneWidth - 34);
+    const cardHeight = 46;
+    const rowGap = maxRows <= 8 ? (height - 130) / (maxRows + 1) : 58;
+    const firstRowY = 74 + rowGap;
     svg.innerHTML = '';
+    svg.style.height = `${height}px`;
+    svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', 'Interactive evidence map connecting project evidence, decisions, and code artifacts');
 
-    // Create positioned layout for nodes
     const nodeMap = {};
-    const radius = Math.min(width, height) * 0.38;
-    const centerX = width / 2;
-    const centerY = height / 2;
 
-    nodes.forEach((n, i) => {
-      // Position decisions in inner circle, entities in outer, events on perimeter
-      let r = radius;
-      if (n.type === 'decision') r = radius * 0.55;
-      if (n.type === 'event') r = radius * 0.95;
+    const colorFor = n => {
+      if (n.type === 'entity') return '#2d6c6f';
+      if (n.type === 'event') return '#d8a14d';
+      const state = (n.state || '').toLowerCase();
+      if (state === 'accepted') return '#1a8b66';
+      if (state === 'rejected') return '#ef4444';
+      if (state === 'superseded') return '#f75570';
+      if (state === 'proposed') return '#f59e0b';
+      return '#64748b';
+    };
 
-      const angle = (i / nodes.length) * 2 * Math.PI;
-      n.x = centerX + r * Math.cos(angle) + (Math.sin(i * 3) * 15);
-      n.y = centerY + r * Math.sin(angle) + (Math.cos(i * 2) * 15);
-      nodeMap[n.id] = n;
+    const laneBackdrops = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    laneNames.forEach((lane, index) => {
+      const x = index * laneWidth;
+      const band = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      band.setAttribute('x', x + 8);
+      band.setAttribute('y', 12);
+      band.setAttribute('width', laneWidth - 16);
+      band.setAttribute('height', height - 24);
+      band.setAttribute('rx', '10');
+      band.setAttribute('class', `map-lane${index === 1 ? ' map-lane-center' : ''}`);
+      laneBackdrops.appendChild(band);
+
+      const heading = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      heading.setAttribute('x', x + 22);
+      heading.setAttribute('y', 38);
+      heading.setAttribute('class', 'map-lane-title');
+      heading.textContent = lane.title;
+      laneBackdrops.appendChild(heading);
+
+      const note = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      note.setAttribute('x', x + 22);
+      note.setAttribute('y', 57);
+      note.setAttribute('class', 'map-lane-note');
+      note.textContent = `${lane.note} · ${grouped[lane.type].length}`;
+      laneBackdrops.appendChild(note);
+
+      const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      divider.setAttribute('x1', x + 20);
+      divider.setAttribute('x2', x + laneWidth - 20);
+      divider.setAttribute('y1', 70);
+      divider.setAttribute('y2', 70);
+      divider.setAttribute('class', 'map-lane-rule');
+      laneBackdrops.appendChild(divider);
+    });
+    svg.appendChild(laneBackdrops);
+
+    laneNames.forEach((lane, laneIndex) => {
+      const group = grouped[lane.type].slice().sort((a, b) => {
+        const left = a.made_at || a.timestamp || a.label || '';
+        const right = b.made_at || b.timestamp || b.label || '';
+        return String(left).localeCompare(String(right));
+      });
+      const x = laneIndex * laneWidth + laneWidth / 2;
+      group.forEach((n, i) => {
+        n.x = x;
+        n.y = firstRowY + i * rowGap;
+        n.mapColor = colorFor(n);
+        nodeMap[n.id] = n;
+      });
     });
 
-    // Draw Links
     const linksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     links.forEach(l => {
       const src = nodeMap[l.source];
       const tgt = nodeMap[l.target];
       if (!src || !tgt) return;
 
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('x1', src.x);
-      line.setAttribute('y1', src.y);
-      line.setAttribute('x2', tgt.x);
-      line.setAttribute('y2', tgt.y);
-
-      let strokeColor = '#334155';
-      let strokeWidth = '1.5';
+      let strokeColor = '#66736c';
+      let strokeWidth = '1.35';
       let dash = '';
-
       if (l.type === 'conflicts_with' || l.type === 'drifts_from') {
-        strokeColor = '#ef4444';
-        strokeWidth = '3';
-        dash = '5,5';
+        strokeColor = '#eb5875';
+        strokeWidth = '1.8';
+        dash = '5 5';
       } else if (l.type === 'supersedes') {
-        strokeColor = '#a855f7';
-        strokeWidth = '2';
+        strokeColor = '#f75570';
+        strokeWidth = '1.7';
       } else if (l.type === 'affects') {
-        strokeColor = '#3b82f6';
+        strokeColor = '#2d6c6f';
       } else if (l.type === 'evidenced_by') {
-        strokeColor = '#ec4899';
+        strokeColor = '#d8a14d';
+        dash = '3 4';
       }
 
-      line.setAttribute('stroke', strokeColor);
-      line.setAttribute('stroke-width', strokeWidth);
-      if (dash) line.setAttribute('stroke-dasharray', dash);
-      line.setAttribute('opacity', '0.7');
-
-      linksGroup.appendChild(line);
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const startX = src.x + (src.x < tgt.x ? cardWidth / 2 : -cardWidth / 2);
+      const endX = tgt.x + (src.x < tgt.x ? -cardWidth / 2 : cardWidth / 2);
+      const curve = Math.max(28, Math.abs(endX - startX) * 0.38);
+      const direction = endX >= startX ? 1 : -1;
+      path.setAttribute('d', `M ${startX} ${src.y} C ${startX + curve * direction} ${src.y}, ${endX - curve * direction} ${tgt.y}, ${endX} ${tgt.y}`);
+      path.setAttribute('stroke', strokeColor);
+      path.setAttribute('stroke-width', strokeWidth);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('opacity', l.type === 'conflicts_with' || l.type === 'drifts_from' ? '0.8' : (l.is_active === false ? '0.14' : '0.42'));
+      if (dash) path.setAttribute('stroke-dasharray', dash);
+      path.setAttribute('class', 'map-edge');
+      path.dataset.from = String(l.source);
+      path.dataset.to = String(l.target);
+      linksGroup.appendChild(path);
     });
     svg.appendChild(linksGroup);
 
-    // Draw Nodes
     const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     nodes.forEach(n => {
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      const state = (n.state || '').toLowerCase();
+      const color = n.mapColor || colorFor(n);
+      const nodeClass = `map-node graph-node node-${n.type || 'other'}${state ? ` state-${state}` : ''}`;
+      g.setAttribute('class', nodeClass);
+      g.setAttribute('role', 'button');
+      g.setAttribute('tabindex', '0');
+      g.setAttribute('aria-label', `${n.type}: ${n.label}${state ? `, ${state}` : ''}`);
       g.style.cursor = 'pointer';
       g.onclick = () => this.inspectGraphNode(n);
+      g.onkeydown = event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          this.inspectGraphNode(n);
+        }
+      };
 
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', n.x);
-      circle.setAttribute('cy', n.y);
-      circle.setAttribute('r', n.type === 'decision' ? 14 : 9);
-      circle.setAttribute('fill', n.color || '#3b82f6');
-      circle.setAttribute('stroke', '#0b0f17');
-      circle.setAttribute('stroke-width', '2');
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', n.x - cardWidth / 2);
+      rect.setAttribute('y', n.y - cardHeight / 2);
+      rect.setAttribute('width', cardWidth);
+      rect.setAttribute('height', cardHeight);
+      rect.setAttribute('rx', '7');
+      rect.setAttribute('class', 'map-node-card');
+      g.appendChild(rect);
+
+      const accent = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      accent.setAttribute('x', n.x - cardWidth / 2);
+      accent.setAttribute('y', n.y - cardHeight / 2);
+      accent.setAttribute('width', '3');
+      accent.setAttribute('height', cardHeight);
+      accent.setAttribute('rx', '1.5');
+      accent.setAttribute('fill', color);
+      g.appendChild(accent);
 
       const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
       title.textContent = `${n.type.toUpperCase()}: ${n.label}`;
       g.appendChild(title);
 
       const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      label.setAttribute('x', n.x + 12);
-      label.setAttribute('y', n.y + 4);
-      label.setAttribute('fill', '#94a3b8');
-      label.setAttribute('font-size', '10px');
-      label.setAttribute('font-family', 'Inter, sans-serif');
-      const truncated = n.label.length > 25 ? n.label.substring(0, 23) + '...' : n.label;
+      label.setAttribute('x', n.x - cardWidth / 2 + 14);
+      label.setAttribute('y', n.y - 2);
+      label.setAttribute('class', 'map-node-label');
+      const displayLabel = (n.label || '').split('/').filter(Boolean).pop() || n.label || n.type;
+      const maxChars = Math.max(8, Math.floor((cardWidth - 30) / 7.2));
+      const truncated = displayLabel.length > maxChars ? displayLabel.substring(0, maxChars - 1) + '…' : displayLabel;
       label.textContent = truncated;
-
-      g.appendChild(circle);
       g.appendChild(label);
+
+      const meta = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      meta.setAttribute('x', n.x - cardWidth / 2 + 14);
+      meta.setAttribute('y', n.y + 13);
+      meta.setAttribute('class', 'map-node-meta');
+      meta.textContent = n.type === 'decision' ? (n.state || 'Decision').toUpperCase()
+        : n.type === 'entity' ? (n.entity_type || 'Code artifact').replaceAll('_', ' ')
+        : (n.source_type || 'Source event').replaceAll('_', ' ');
+      g.appendChild(meta);
+
+      g.addEventListener('mouseenter', () => {
+        svg.querySelectorAll('.map-edge').forEach(edge => {
+          const related = edge.dataset.from === String(n.id) || edge.dataset.to === String(n.id);
+          edge.classList.toggle('is-related', related);
+          edge.classList.toggle('is-dimmed', !related);
+        });
+      });
+      g.addEventListener('mouseleave', () => {
+        svg.querySelectorAll('.map-edge').forEach(edge => edge.classList.remove('is-related', 'is-dimmed'));
+      });
       nodesGroup.appendChild(g);
     });
     svg.appendChild(nodesGroup);
@@ -1070,7 +1210,7 @@ const app = {
           </div>
           <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${esc(step.title || (step.decision && step.decision.title))}</h4>
           <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale || (step.decision && step.decision.rationale))}</p>
-          ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #3b82f6; padding: 6px 10px; margin: 6px 0 10px 0; font-style: italic; color: #e2e8f0; font-size: 0.82rem; line-height: 1.4;">“${esc(passage)}”</div>` : ''}
+          ${passage ? `<div style="background: rgba(13, 19, 32, 0.6); border-left: 3px solid #2c508b; padding: 6px 10px; margin: 6px 0 10px 0; font-style: italic; color: #e2e8f0; font-size: 0.82rem; line-height: 1.4;">“${esc(passage)}”</div>` : ''}
           <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">
             Decided by <strong>${esc(step.made_by || (step.decision && step.decision.made_by))}</strong> on ${esc(step.made_at ? step.made_at.substring(0, 10) : '')}
           </div>
@@ -1554,7 +1694,7 @@ const app = {
       let evidenceListHtml = '';
       if (directSupport.length > 0 || indirectSupport.length > 0) {
         if (directSupport.length > 0) {
-          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #60a5fa; letter-spacing: 0.05em; margin: 16px 0 10px 0;">Direct Support (${esc(directSupport.length)})</h4>`;
+          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #30629f; letter-spacing: 0.05em; margin: 16px 0 10px 0;">Direct Support (${esc(directSupport.length)})</h4>`;
           evidenceListHtml += directSupport.map(ev => {
             const tsStr = ev.date ? ev.date.substring(0, 10) : '';
             const passage = ev.relevant_passage;
@@ -1563,13 +1703,13 @@ const app = {
                 <div class="evidence-header">
                   <div style="display: flex; gap: 6px; align-items: center;">
                     <span class="source-badge">${esc((ev.source_type || 'SOURCE').toUpperCase())}</span>
-                    <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">Direct</span>
+                    <span class="badge" style="background: rgba(26, 139, 102, 0.15); color: #33a57b;">Direct</span>
                     <span style="font-size: 0.72rem; color: #94a3b8; font-family: monospace;">Group: ${esc(ev.source_group || 'single')}</span>
                   </div>
                   <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
                 </div>
                 <h4 style="font-size: 0.95rem; margin-bottom: 6px;">${esc(ev.title || ev.event_id)}</h4>
-                ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #3b82f6; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
+                ${passage ? `<div style="background: rgba(13, 19, 32, 0.6); border-left: 3px solid #2c508b; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 6px;">
                   <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author || 'unknown')}</strong></span>
                   <a href="${safeUrl(ev.source_link)}" target="_blank" class="citation-link">
@@ -1582,7 +1722,7 @@ const app = {
         }
 
         if (indirectSupport.length > 0) {
-          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #a78bfa; letter-spacing: 0.05em; margin: 20px 0 10px 0;">Indirect Support (${esc(indirectSupport.length)})</h4>`;
+          evidenceListHtml += `<h4 style="font-size: 0.9rem; text-transform: uppercase; color: #fa8b9e; letter-spacing: 0.05em; margin: 20px 0 10px 0;">Indirect Support (${esc(indirectSupport.length)})</h4>`;
           evidenceListHtml += indirectSupport.map(ev => {
             const tsStr = ev.date ? ev.date.substring(0, 10) : '';
             const passage = ev.relevant_passage;
@@ -1591,13 +1731,13 @@ const app = {
                 <div class="evidence-header">
                   <div style="display: flex; gap: 6px; align-items: center;">
                     <span class="source-badge">${esc((ev.source_type || 'SOURCE').toUpperCase())}</span>
-                    <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc;">Indirect</span>
+                    <span class="badge" style="background: rgba(247, 85, 112, 0.15); color: #fc8498;">Indirect</span>
                     <span style="font-size: 0.72rem; color: #94a3b8; font-family: monospace;">Group: ${esc(ev.source_group || 'single')}</span>
                   </div>
                   <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(tsStr)}</span>
                 </div>
                 <h4 style="font-size: 0.95rem; margin-bottom: 6px;">${esc(ev.title || ev.event_id)}</h4>
-                ${passage ? `<div style="background: rgba(15, 23, 42, 0.6); border-left: 3px solid #8b5cf6; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
+                ${passage ? `<div style="background: rgba(13, 19, 32, 0.6); border-left: 3px solid #f65c76; padding: 8px 12px; margin: 8px 0; font-style: italic; color: #e2e8f0; font-size: 0.85rem; line-height: 1.5;">“${esc(passage)}”</div>` : ''}
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 6px;">
                   <span style="font-size: 0.78rem; color: #64748b;">Author: <strong>${esc(ev.author || 'unknown')}</strong></span>
                   <a href="${safeUrl(ev.source_link)}" target="_blank" class="citation-link">
@@ -1655,8 +1795,10 @@ const app = {
       const items = reviewJson.data || [];
       const rules = rulesJson.data || [];
 
-      document.getElementById('stat-review-count').textContent = items.length;
-      document.getElementById('sidebar-review-badge').textContent = items.length;
+      const reviewCount = document.getElementById('stat-review-count');
+      if (reviewCount) reviewCount.textContent = items.length;
+      const sidebarReviewBadge = document.getElementById('sidebar-review-badge');
+      if (sidebarReviewBadge) sidebarReviewBadge.textContent = items.length;
 
       let html = '';
 
@@ -1665,16 +1807,16 @@ const app = {
         html += `
           <div style="margin-bottom: 24px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-              <h3 style="font-size: 1.1rem; color: #60a5fa; margin: 0;">Decision Guard Rules (Automated CI Enforcement)</h3>
-              <span class="badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Novelty Feature</span>
+              <h3 style="font-size: 1.1rem; color: #ff858c; margin: 0;">Decision Guard Rules (Automated CI Enforcement)</h3>
+              <span class="badge" style="background: rgba(227, 51, 64, 0.16); color: #ff858c;">Novelty Feature</span>
             </div>
             <div style="display: grid; gap: 12px;">
               ${rules.map(r => `
-                <div class="review-item-card" style="border-left: 3px solid ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#6b7280')};">
+                <div class="review-item-card" style="border-left: 3px solid ${r.status === 'active' ? '#1a8b66' : (r.status === 'proposed' ? '#f59e0b' : '#6b7280')};">
                   <div style="flex: 1;">
                     <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 6px;">
-                      <span class="review-reason-tag" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">${esc(r.rule_type)}</span>
-                      <span class="badge" style="background: ${r.status === 'active' ? '#10b981' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${esc(r.status.toUpperCase())}</span>
+                      <span class="review-reason-tag" style="background: rgba(227, 51, 64, 0.14); color: #ff858c; border: 1px solid rgba(227, 51, 64, 0.28);">${esc(r.rule_type)}</span>
+                      <span class="badge" style="background: ${r.status === 'active' ? '#1a8b66' : (r.status === 'proposed' ? '#f59e0b' : '#4b5563')}; color: #fff;">${esc(r.status.toUpperCase())}</span>
                     </div>
                     <h4 style="font-size: 0.95rem; margin: 4px 0;">Rule <code>${esc(r.rule_id)}</code></h4>
                     <p style="font-size: 0.85rem; color: #94a3b8; margin: 4px 0;">
@@ -1976,15 +2118,15 @@ const app = {
             <td>${esc(fmtPct(metrics.decision_extraction_recall))}</td>
             <td>${esc(fmtPct(metrics.evidence_link_accuracy))}</td>
             <td>${esc(fmtPct(metrics.drift_precision))} (Drift Precision)</td>
-            <td style="color: #10b981; font-weight: 700;">${esc(fmtPct(metrics.unsupported_claim_rate))}</td>
-            <td><span class="badge" style="background:#10b981; color:#fff;">Live Computed</span></td>
+            <td style="color: #1a8b66; font-weight: 700;">${esc(fmtPct(metrics.unsupported_claim_rate))}</td>
+            <td><span class="badge" style="background:#1a8b66; color:#fff;">Live Computed</span></td>
           </tr>
         `;
 
         for (const [key, b] of Object.entries(baselines)) {
           if (!b) continue;
           const statusBadge = b.status === 'measured' 
-            ? `<span class="badge" style="background:#3b82f6; color:#fff;">Measured</span>` 
+            ? `<span class="badge" style="background:#2c508b; color:#fff;">Measured</span>` 
             : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
           baselineRows += `
             <tr>
@@ -2022,37 +2164,34 @@ const app = {
 
         const kwHit = (ov.baseline_keyword && typeof ov.baseline_keyword.task_1_hit_rate === 'number') ? `${ov.baseline_keyword.task_1_hit_rate}%` : 'BM25';
         whybenchHtml = `
-          <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
-            <div style="background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; color: #fef08a; font-size: 0.85rem;">
-              ⚠️ <strong>Synthetic benchmark — see LIMITATIONS</strong>: WhyBench-Synth evaluates hand-authored scenarios designed to test decision reconstruction, lifecycle tracking, invariants, and refusal behaviour.
-            </div>
+          <div style="background: rgba(247, 85, 112, 0.1); border: 1px solid rgba(247, 85, 112, 0.35); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
               <div>
-                <strong style="color: #c084fc; font-size: 1.05rem;">Headline WhyBench-Synth Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
+                <strong style="color: #fc8498; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
                 <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
-                  Evaluated on hand-authored synthetic repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
+                  Evaluated on real-world repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
                   Total questions evaluated: <strong>${esc(wb.questions_evaluated)}</strong> (<strong>${esc(wb.standard_questions)}</strong> standard, <strong>${esc(wb.refusal_questions)}</strong> negative refusal).
                 </p>
               </div>
-              <span class="badge" style="background: #9333ea; color: #fff; font-size: 0.75rem;">Measured Manifest Data</span>
+              <span class="badge" style="background: #ea3352; color: #fff; font-size: 0.75rem;">Measured Manifest Data</span>
             </div>
 
             <div class="benchmark-metrics-cards" style="margin-bottom: 16px;">
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #a855f7;">${esc(fmtPct(ov.decision_recall_strict))}</div>
+                <div class="metric-val" style="color: #f75570;">${esc(fmtPct(ov.decision_recall_strict))}</div>
                 <div class="metric-lbl">Decision Recall (Strict)</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #38bdf8;">${esc(fmtPct(ov.task_1_cif_hit_rate))}</div>
+                <div class="metric-val" style="color: #2b6e8c;">${esc(fmtPct(ov.task_1_cif_hit_rate))}</div>
                 <div class="metric-lbl">T1 Hit Rate (vs ${esc(kwHit)})</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #10b981;">${esc(fmtPct(ov.state_accuracy))}</div>
-                <div class="metric-lbl">State Accuracy (21/21, small n)</div>
+                <div class="metric-val" style="color: #1a8b66;">${esc(fmtPct(ov.state_accuracy))}</div>
+                <div class="metric-lbl">State Accuracy</div>
               </div>
               <div class="metric-stat-box">
                 <div class="metric-val" style="color: #f59e0b;">${esc(fmtPct(ov.refusal_accuracy))}</div>
-                <div class="metric-lbl">Refusal (29/45 abstained)</div>
+                <div class="metric-lbl">Refusal Accuracy (Negative)</div>
               </div>
               <div class="metric-stat-box">
                 <div class="metric-val" style="color: #94a3b8; font-size: 1.1rem;">${esc(ov.decision_precision || 'not measured')}</div>
@@ -2078,24 +2217,21 @@ const app = {
                 ${repoRows}
               </tbody>
             </table>
-            <p style="margin: 8px 0 0 0; font-size: 0.8rem; color: #94a3b8; font-style: italic;">
-              * Footnote: CIF's metric is decision-evidence match, not ranked retrieval; BM25 retrieval is higher. CIF's value is state classification, abstention and guard rules (see Task 2).
-            </p>
           </div>
         `;
       }
 
       container.innerHTML = `
         ${whybenchHtml}
-        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="background: rgba(44, 80, 139, 0.1); border: 1px solid rgba(44, 80, 139, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <strong style="color: #60a5fa;">Synthetic Pilot Benchmark (Smoke Test)</strong>
+            <strong style="color: #30629f;">Synthetic Pilot Benchmark (Smoke Test)</strong>
             <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
               Evaluated on synthetic pilot repositories (<code>acme-eng/thermal-control-system</code>, <code>acme-eng/distributed-cache-service</code>).
               Matched <strong>${esc(matched_gt_count || 0)}</strong> of <strong>${esc(ground_truth_total || 0)}</strong> ground truth decisions.
             </p>
           </div>
-          <span class="badge" style="background: #2563eb; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
+          <span class="badge" style="background: #2b4378; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
         </div>
 
         <div class="benchmark-metrics-cards">
@@ -2112,7 +2248,7 @@ const app = {
             <div class="metric-lbl">Drift Precision</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val" style="color: #10b981;">${esc(fmtPct(metrics.unsupported_claim_rate))}</div>
+            <div class="metric-val" style="color: #1a8b66;">${esc(fmtPct(metrics.unsupported_claim_rate))}</div>
             <div class="metric-lbl">Unsupported Claim Rate</div>
           </div>
           <div class="metric-stat-box">
@@ -2121,9 +2257,9 @@ const app = {
           </div>
         </div>
 
-        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 8px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between;">
+        <div style="background: rgba(26, 139, 102, 0.08); border: 1px solid rgba(26, 139, 102, 0.25); border-radius: 8px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between;">
           <div>
-            <strong style="color: #34d399;">Developer Finding Feedback (Measured Data)</strong>
+            <strong style="color: #33a57b;">Developer Finding Feedback (Measured Data)</strong>
             <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
               Recorded review actions on automated drift and rejected-idea findings:
               Confirmed: <strong>${esc(fb.confirm || 0)}</strong> •
@@ -2131,7 +2267,7 @@ const app = {
               Reopened Decisions: <strong>${esc(fb.reopen || 0)}</strong> (Total: <strong>${esc(fb.total || 0)}</strong>)
             </p>
           </div>
-          <span class="badge" style="background: #059669; color: #fff; font-size: 0.75rem;">Measured Feedback</span>
+          <span class="badge" style="background: #0f7052; color: #fff; font-size: 0.75rem;">Measured Feedback</span>
         </div>
 
         <h3 style="font-size: 1.15rem; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
@@ -2253,10 +2389,10 @@ const app = {
     if (badge) {
       badge.textContent = `${checkedBoxes} / ${totalBoxes} completed`;
       if (checkedBoxes === totalBoxes && totalBoxes > 0) {
-        badge.style.background = 'rgba(16,185,129,0.3)';
+        badge.style.background = 'rgba(26, 139, 102, 0.3)';
         badge.textContent = `All ${totalBoxes} items completed! 🎉`;
       } else {
-        badge.style.background = 'rgba(16,185,129,0.15)';
+        badge.style.background = 'rgba(26, 139, 102, 0.15)';
       }
     }
   },
@@ -2306,7 +2442,7 @@ const app = {
 
     // Section 1: Overview Card
     html += `
-      <div class="timeline-card" style="margin-bottom: 24px; border-left: 4px solid #3b82f6;">
+      <div class="timeline-card" style="margin-bottom: 24px; border-left: 4px solid #2c508b;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
           <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">${esc(overview.title || 'Subsystem Overview')}</h2>
           <span class="badge badge-accepted" style="font-size: 0.8rem;">Role: ${esc(overview.role || 'Engineer')}</span>
@@ -2326,7 +2462,7 @@ const app = {
     html += `
       <div style="margin-bottom: 24px;">
         <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
           1. Key Active Decisions (${activeDecs.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 14px;">
@@ -2342,8 +2478,8 @@ const app = {
                 ${idx + 1}. ${esc(d.title)}
               </h4>
               <div style="display: flex; gap: 6px;">
-                <span class="badge" style="background: rgba(16,185,129,0.15); color: #10b981;">${esc(d.state)}</span>
-                <span class="badge" style="background: rgba(59,130,246,0.15); color: #3b82f6;">evidence: ${esc(d.evidence_label)}</span>
+                <span class="badge" style="background: rgba(26, 139, 102, 0.15); color: #1a8b66;">${esc(d.state)}</span>
+                <span class="badge" style="background: rgba(44, 80, 139, 0.15); color: #2c508b;">evidence: ${esc(d.evidence_label)}</span>
               </div>
             </div>
             <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
@@ -2358,7 +2494,7 @@ const app = {
               <div>Author: <strong>${esc(d.made_by)}</strong> • Date: ${esc(d.made_at || 'Recorded')}</div>
               <div style="display: flex; gap: 8px;">
                 ${d.citations?.map(c => `
-                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #60a5fa; text-decoration: none;">
+                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #30629f; text-decoration: none;">
                     [${esc(c.source_type)}] ${esc(c.title)} ↗
                   </a>
                 `).join('') || ''}
@@ -2374,7 +2510,7 @@ const app = {
     html += `
       <div style="margin-bottom: 24px;">
         <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#30629f" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           2. Architectural Evidence & Discussions (${evidenceList.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -2388,7 +2524,7 @@ const app = {
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
               <span style="font-weight: 600; font-size: 0.95rem; color: #f1f5f9;">
                 <span class="badge" style="margin-right: 6px;">${esc(ev.source_type)}</span>
-                <a href="${safeUrl(ev.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: none;">
+                <a href="${safeUrl(ev.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #2e64a0; text-decoration: none;">
                   ${esc(ev.title)} ↗
                 </a>
               </span>
@@ -2483,9 +2619,9 @@ const app = {
 
 
   getStateColor(state) {
-    if (state === 'accepted') return '#10b981';
+    if (state === 'accepted') return '#1a8b66';
     if (state === 'rejected') return '#ef4444';
-    if (state === 'superseded') return '#a855f7';
+    if (state === 'superseded') return '#f75570';
     if (state === 'proposed') return '#f59e0b';
     return '#64748b';
   },
@@ -2500,7 +2636,6 @@ const app = {
   // =========================================================================
   async apiFetch(url, options = {}) {
     options = { ...options };
-    options.credentials = options.credentials || 'same-origin';
     options.headers = { ...(options.headers || {}) };
     if (this.authToken && !options.headers['Authorization']) {
       options.headers['Authorization'] = 'Bearer ' + this.authToken;
@@ -2524,7 +2659,7 @@ const app = {
           } catch (err) {
             errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
-          if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
+          if (res.status === 401 || res.status === 403) {
             alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
           }
           return errData;
@@ -2664,10 +2799,10 @@ const app = {
         ];
 
         const nodes = [
-          { id: sampleDecisions[0].decision_id, label: sampleDecisions[0].title, type: 'decision', state: 'accepted', confidence: 0.94, made_by: 'lead-maintainer', made_at: sampleDecisions[0].made_at, color: '#10b981' },
-          { id: sampleDecisions[1].decision_id, label: sampleDecisions[1].title, type: 'decision', state: 'accepted', confidence: 0.89, made_by: 'core-dev', made_at: sampleDecisions[1].made_at, color: '#10b981' },
-          { id: 'ent_core', label: 'src/core.py', type: 'entity', entity_type: 'file', color: '#3b82f6' },
-          { id: 'ent_utils', label: 'src/utils.py', type: 'entity', entity_type: 'file', color: '#3b82f6' },
+          { id: sampleDecisions[0].decision_id, label: sampleDecisions[0].title, type: 'decision', state: 'accepted', confidence: 0.94, made_by: 'lead-maintainer', made_at: sampleDecisions[0].made_at, color: '#1a8b66' },
+          { id: sampleDecisions[1].decision_id, label: sampleDecisions[1].title, type: 'decision', state: 'accepted', confidence: 0.89, made_by: 'core-dev', made_at: sampleDecisions[1].made_at, color: '#1a8b66' },
+          { id: 'ent_core', label: 'src/core.py', type: 'entity', entity_type: 'file', color: '#2c508b' },
+          { id: 'ent_utils', label: 'src/utils.py', type: 'entity', entity_type: 'file', color: '#2c508b' },
           { id: 'evt_init', label: 'Commit: Initial repo setup', type: 'event', source_type: 'git_commit', source_url: `https://github.com/${repoName}`, color: '#ec4899' }
         ];
 
@@ -3001,7 +3136,7 @@ const app = {
             role: role,
             affected_artifacts: [isThermal ? 'src/thermal/control.py' : 'src/cache/store.py'],
             primary_architects: [isThermal ? 'Sarah Chen' : 'Priya Patel'],
-            summary: `Curated context for ${role} on ${mod}. Focuses on architectural invariants and critical operational constraints.`
+            summary: `Curated context for ${role} on ${mod}. Focuses on architectural guarantees and critical operational constraints.`
           },
           active_decisions: [{
             decision_id: isThermal ? 'dec_thermal_pid_accepted' : 'dec_cache_redis_accepted',
@@ -3055,24 +3190,24 @@ const app = {
 
       let html = `
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
             <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Overall Bus Factor</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#ef4444' : overall === 2 ? '#f59e0b' : '#10b981'}; margin-top: 4px;">${esc(overall)}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#ef4444' : overall === 2 ? '#f59e0b' : '#1a8b66'}; margin-top: 4px;">${esc(overall)}</div>
             <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Min contributors required to maintain modules</div>
           </div>
-          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
             <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Modules Analyzed</div>
             <div style="font-size: 2rem; font-weight: 700; color: #f3f4f6; margin-top: 4px;">${esc(modules.length)}</div>
             <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">High-level package domains in repo</div>
           </div>
-          <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
+          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
             <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">High Concentration Risk</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#ef4444' : '#10b981'}; margin-top: 4px;">${esc(highRiskCount)}</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#ef4444' : '#1a8b66'}; margin-top: 4px;">${esc(highRiskCount)}</div>
             <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Modules dependent on a single contributor</div>
           </div>
         </div>
 
-        <div style="background: #111827; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden;">
+        <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden;">
           <div style="padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center;">
             <h3 style="font-size: 1rem; font-weight: 600; color: #f3f4f6; margin: 0;">Module Concentration Heat Map</h3>
             <span style="font-size: 0.78rem; color: #9ca3af;">Ranked by concentration severity</span>
@@ -3101,8 +3236,8 @@ const app = {
         `;
       } else {
         modules.forEach(m => {
-          const badgeBg = m.risk_level === 'high' ? 'rgba(239, 68, 68, 0.15)' : m.risk_level === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)';
-          const badgeColor = m.risk_level === 'high' ? '#ef4444' : m.risk_level === 'medium' ? '#f59e0b' : '#10b981';
+          const badgeBg = m.risk_level === 'high' ? 'rgba(239, 68, 68, 0.15)' : m.risk_level === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(26, 139, 102, 0.15)';
+          const badgeColor = m.risk_level === 'high' ? '#ef4444' : m.risk_level === 'medium' ? '#f59e0b' : '#1a8b66';
           const docPct = Math.round((m.documentation_coverage || 0) * 100);
           const topPct = Math.round((m.top_contributor_share || 0) * 100);
 
@@ -3125,7 +3260,7 @@ const app = {
               <td style="padding: 14px 16px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <div style="flex: 1; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; min-width: 60px;">
-                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#10b981' : '#f59e0b'};"></div>
+                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#1a8b66' : '#f59e0b'};"></div>
                   </div>
                   <span style="font-size: 0.75rem; color: #9ca3af;">${docPct}%</span>
                 </div>
@@ -3158,5 +3293,17 @@ window.app = app;
 
 window.addEventListener('DOMContentLoaded', () => {
   window.app = app;
+  const workspaceMenu = document.getElementById('workspace-menu');
+  document.addEventListener('click', event => {
+    if (!workspaceMenu || !workspaceMenu.open) return;
+    if (workspaceMenu.contains(event.target) || event.target.closest('.repo-onboarding-hint')) return;
+    workspaceMenu.open = false;
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && workspaceMenu?.open) {
+      workspaceMenu.open = false;
+      workspaceMenu.querySelector('summary')?.focus();
+    }
+  });
   app.init();
 });

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 420" fill="none">
+  <g stroke="#bd5a63" stroke-width="1.4" stroke-opacity=".68">
+    <path d="M70 90 218 52l150 83 92-42M70 90l105 150 193-105M218 52l-43 188 193 0 92-147M368 135l92 147-155 76-123-38M175 240l108 133M70 90l213 283"/>
+    <path d="m218 52 150 83-85 238M70 90l298 45" stroke-opacity=".36" stroke-dasharray="4 8"/>
+  </g>
+  <g fill="#767060" stroke="#e17a82" stroke-width="1.7">
+    <circle cx="70" cy="90" r="5"/><circle cx="218" cy="52" r="5"/>
+    <circle cx="368" cy="135" r="5.5"/><circle cx="460" cy="93" r="4.5"/>
+    <circle cx="175" cy="240" r="5"/><circle cx="368" cy="240" r="5.5"/>
+    <circle cx="283" cy="373" r="5"/><circle cx="460" cy="282" r="4.5"/>
+  </g>
+  <g fill="#d6b2b5" fill-opacity=".88" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12" letter-spacing=".3">
+    <text x="47" y="76">source</text>
+    <text x="197" y="35">decision</text>
+    <text x="346" y="117">commit</text>
+    <text x="430" y="76">review</text>
+    <text x="147" y="265">artifact</text>
+    <text x="347" y="263">function</text>
+    <text x="258" y="401">evidence</text>
+    <text x="433" y="306">test</text>
+  </g>
+</svg>

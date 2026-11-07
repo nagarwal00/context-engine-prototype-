@@ -1,681 +1,183 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self';">
-  <title>Context Intelligence Framework — Living Decision History</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self';">
+  <meta name="theme-color" content="#08090d">
+  <meta name="description" content="Context Engine connects engineering decisions, evidence, and code changes in one living history.">
+  <title>Context Engine — The story behind every change</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="landing.css">
 </head>
 <body>
-  <div class="app-layout">
-    <!-- Top Navigation Bar -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="brand-logo">
-          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"/>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-          </svg>
-          <div class="brand-text">
-            <span class="brand-title">Context Intelligence</span>
-            <span class="brand-subtitle">Living Decision History</span>
-          </div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Context Engine home">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 4v8m0 8v8M4 16h8m8 0h8M7.5 7.5l5.7 5.7m5.6 5.6 5.7 5.7m0-17-5.7 5.7m-5.6 5.6-5.7 5.7" stroke="currentColor" stroke-width="1.7"/><circle cx="16" cy="16" r="4.2" stroke="currentColor" stroke-width="1.7"/><circle cx="16" cy="4" r="2" fill="currentColor"/><circle cx="28" cy="16" r="2" fill="currentColor"/><circle cx="16" cy="28" r="2" fill="currentColor"/><circle cx="4" cy="16" r="2" fill="currentColor"/></svg></span>
+      <span class="brand-name">Context Engine</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a class="active" href="#top">Home</a>
+      <a href="#capabilities">About</a>
+      <a href="#integrations">Services</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#footer">Contact</a>
+    </nav>
+    <a class="button button-outline header-cta" href="dashboard.html">Get started <span aria-hidden="true">→</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-art" aria-hidden="true"><img src="assets/crimson-jellyfish.png" alt=""></div>
+      <div class="hero-content">
+        <p class="eyebrow"><span class="eyebrow-line"></span> DECISIONS INTO CONTEXT</p>
+        <h1 id="hero-title">Build what’s<br><span>next.</span></h1>
+        <p class="hero-copy">We connect the <strong>decisions, evidence, and code</strong> behind your project so your team can move forward with the full story in view.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="dashboard.html">Open workspace <span aria-hidden="true">→</span></a>
+          <a class="hero-watch" href="#capabilities"><span aria-hidden="true">▶</span> Explore the platform</a>
         </div>
       </div>
+      <a class="hero-scroll" href="#capabilities"><span class="scroll-mouse" aria-hidden="true"></span><span>SCROLL TO EXPLORE</span><i></i></a>
+      <div class="hero-signoff">CONTEXT FOR EVERY CHANGE <i></i></div>
+      <div class="hero-bottom-rule" aria-hidden="true"></div>
+    </section>
 
-      <div class="header-center">
-        <div class="repo-selector-wrapper">
-          <label for="repo-select">Repository:</label>
-          <select id="repo-select" onchange="app.switchRepo(this.value)">
-            <option value="">All Pilot Repositories (Unified Graph)</option>
-            <option value="acme-eng/thermal-control-system">acme-eng/thermal-control-system</option>
-            <option value="acme-eng/distributed-cache-service">acme-eng/distributed-cache-service</option>
-          </select>
+    <section class="signal-strip" aria-label="Project context areas">
+      <span class="strip-lead">ONE CONNECTED VIEW</span>
+      <div class="strip-item"><span class="strip-icon">01</span> Decisions</div>
+      <div class="strip-item"><span class="strip-icon">02</span> Evidence</div>
+      <div class="strip-item"><span class="strip-icon">03</span> Code context</div>
+      <div class="strip-item"><span class="strip-icon">04</span> Change history</div>
+    </section>
+
+    <section class="section capabilities" id="capabilities">
+      <div class="section-heading">
+        <p class="eyebrow"><span class="eyebrow-line"></span> SEE THE WHOLE PICTURE</p>
+        <h2>Good engineering has a <em>memory.</em></h2>
+        <p>Find the decision, the discussion that informed it, and the code it continues to shape.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card feature-card-wide">
+          <div class="feature-copy">
+            <span class="feature-index">01 / DECISION HISTORY</span>
+            <h3>Know <em>why</em> the system looks this way.</h3>
+            <p>Follow decisions over time, including what changed, what was superseded, and what the team knew at each point.</p>
+            <a class="text-link" href="dashboard.html">Explore the timeline <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="mini-timeline" aria-hidden="true">
+            <div class="mini-date">FEB 2026 <i></i></div>
+            <div class="mini-entry"><span class="mini-marker accepted"></span><div><b>Keep cache state local to each worker</b><small>ACCEPTED · ADR-0009</small></div></div>
+            <div class="mini-entry"><span class="mini-marker superseded"></span><div><b>In-memory cache with a process cap</b><small>SUPERSEDED · ADR-0002</small></div></div>
+            <div class="mini-date">JAN 2026 <i></i></div>
+            <div class="mini-entry"><span class="mini-marker proposed"></span><div><b>Adopt bounded retries for ingestion</b><small>PROPOSED · REVIEW OPEN</small></div></div>
+          </div>
+        </article>
+        <article class="feature-card">
+          <span class="feature-index">02 / CODE CONTEXT</span>
+          <div class="feature-icon icon-violet" aria-hidden="true">{ }</div>
+            <h3>Trace decisions to the <em>code.</em></h3>
+          <p>Start with a file or function and follow its grounded decision chain back to the sources.</p>
+          <a class="text-link" href="dashboard.html">Inspect code context <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="feature-card">
+          <span class="feature-index">03 / EVIDENCE TRAILS</span>
+          <div class="feature-icon icon-coral" aria-hidden="true">↗</div>
+          <h3>Keep the sources close.</h3>
+          <p>Review direct and indirect support, citations, disagreements, and missing corroboration together.</p>
+          <a class="text-link" href="dashboard.html">Review evidence <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="feature-card feature-card-wide feature-card-graph">
+          <div class="feature-copy">
+            <span class="feature-index">04 / CONTEXT GRAPH</span>
+            <h3>See how everything connects.</h3>
+            <p>Navigate relationships between repository events, decisions, and code artifacts in one interactive map.</p>
+            <a class="text-link" href="dashboard.html">Open the context graph <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="mini-graph" aria-hidden="true">
+            <svg viewBox="0 0 430 210" fill="none">
+              <path d="M80 104 204 55 340 94M80 104l116 69 144-79M204 55l-8 118M340 94l-28 86-116-7" stroke="#484583" stroke-width="1.4"/>
+              <path d="m80 104 260-10M204 55l108 125" stroke="#d17975" stroke-width="1" stroke-dasharray="4 6" opacity=".7"/>
+              <circle cx="80" cy="104" r="7" fill="#16172a" stroke="#ff92a4" stroke-width="2"/><circle cx="204" cy="55" r="8" fill="#201b39" stroke="#ff788f" stroke-width="2"/><circle cx="196" cy="173" r="7" fill="#152822" stroke="#4ea585" stroke-width="2"/><circle cx="340" cy="94" r="8" fill="#201b39" stroke="#ff788f" stroke-width="2"/><circle cx="312" cy="180" r="6" fill="#2b1b1e" stroke="#df777b" stroke-width="2"/>
+              <text x="47" y="87">source</text><text x="176" y="34">decision</text><text x="160" y="198">code file</text><text x="321" y="73">ADR</text><text x="288" y="204">drift</text>
+            </svg>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="workflow" id="workflow">
+      <div class="workflow-inner">
+        <div class="section-heading section-heading-left">
+          <p class="eyebrow"><span class="eyebrow-line"></span> FROM REPOSITORY TO REASONING</p>
+          <h2>Context that keeps up with change.</h2>
+          <p>Bring a repository into the workspace. Follow the decisions and source material as the codebase moves.</p>
+        </div>
+        <div class="workflow-steps">
+          <article class="workflow-step"><span>01</span><div><h3>Connect a repository</h3><p>Bring in a GitHub repository and explore its reconstructed project history.</p></div><b>↗</b></article>
+          <article class="workflow-step"><span>02</span><div><h3>Explore decisions and evidence</h3><p>Move from a decision to its supporting conversations, events, and citations.</p></div><b>↗</b></article>
+          <article class="workflow-step"><span>03</span><div><h3>Review changes with context</h3><p>Use the timeline, code view, review queue, and drift tools to understand what changed.</p></div><b>↗</b></article>
         </div>
       </div>
+    </section>
 
-      <div class="header-right">
-        <!-- Phase 8.3: Live engine / Static snapshot mode badge -->
-        <span class="mode-badge" id="engine-mode-badge" title="Live engine: API calls succeed. Static snapshot: using frozen data.">⬤ Checking…</span>
-        <div class="stats-badge" id="header-stats">
-          <span class="stat-pill"><span class="dot accepted"></span> <span id="stat-decisions">--</span> Decisions</span>
-          <span class="stat-pill"><span class="dot event"></span> <span id="stat-events">--</span> Events</span>
-          <span class="stat-pill alert" id="stat-review-pill"><span class="dot review"></span> <span id="stat-review-count">--</span> Queue Items</span>
-        </div>
-
-        <!-- User Menu (Step 7.9) -->
-        <div id="user-menu" class="user-menu">
-          <a href="login.html" id="btn-login" class="btn btn-primary btn-sm">
-            <svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 4px;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-            Sign in with GitHub
-          </a>
-          <div id="user-profile" class="user-profile" style="display: none;">
-            <img id="user-avatar" class="user-avatar" src="" alt="User" />
-            <span id="user-login" class="user-login-name"></span>
-            <button class="btn btn-secondary btn-sm" onclick="app.signOut()" style="padding: 2px 8px; font-size: 0.78rem;">Sign Out</button>
-          </div>
-        </div>
-
-        <!-- Collapsed Admin Section (Rule R2) -->
-        <details class="admin-details">
-          <summary class="btn btn-secondary btn-sm" title="Operations & Admin Tools">Admin ▾</summary>
-          <div class="admin-dropdown-menu">
-            <label style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Admin Token (CIF_ADMIN_TOKEN)</label>
-            <input type="password" id="auth-token-input" placeholder="Admin token" class="auth-input-field" onchange="app.setAuthToken(this.value)" />
-            <button class="btn btn-secondary btn-sm" onclick="app.emptyDashboard()" title="Wipe all decisions to start with an empty dashboard">Empty DB</button>
-            <button class="btn btn-secondary btn-sm" onclick="app.reseedData()" title="Restore pilot repository demo data">Reset Demo</button>
-          </div>
-        </details>
+    <section class="integration" id="integrations">
+      <div class="integration-orb" aria-hidden="true"><span>REPO</span><i></i><b>DECISIONS</b><i></i><em>CODE</em></div>
+      <div class="integration-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> BUILT AROUND YOUR REPOSITORY</p>
+        <h2>One place to connect the work to <em>the why.</em></h2>
+        <p>Use the repository workspace to bring engineering history, decisions, source evidence, and affected artifacts into a shared view.</p>
+        <a class="button button-primary" href="dashboard.html">Open Context Engine <span aria-hidden="true">↗</span></a>
       </div>
-    </header>
+    </section>
 
-    <div class="app-body">
-      <!-- Sidebar Navigation -->
-      <aside class="app-sidebar">
-        <nav class="nav-menu">
-          <div class="nav-section-label">CORE VIEWS (§11)</div>
-          <a class="nav-item" data-surface="repositories" onclick="app.navigate('repositories')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            <span>Repositories</span>
-          </a>
-          <a class="nav-item active" data-surface="timeline" onclick="app.navigate('timeline')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Project Timeline</span>
-          </a>
-          <a class="nav-item" data-surface="graph" onclick="app.navigate('graph')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            <span>Context Graph</span>
-          </a>
-          <a class="nav-item" data-surface="code" onclick="app.navigate('code')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            <span>Code-Context View</span>
-          </a>
-          <a class="nav-item" data-surface="decisions" onclick="app.navigate('decisions')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span>Decision Explorer</span>
-          </a>
-          <a class="nav-item" data-surface="evidence" onclick="app.navigate('evidence')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-            <span>Evidence Panel</span>
-          </a>
-          <a class="nav-item" data-surface="review" onclick="app.navigate('review')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
-            <span>Review Queue</span>
-            <span class="badge-count" id="sidebar-review-badge">0</span>
-          </a>
+    <section class="closing-cta">
+      <p class="eyebrow">MAKE THE REASONING VISIBLE</p>
+      <h2>Give every change its <em>context.</em></h2>
+      <p>Explore the project timeline, decision history, code links, and evidence trails.</p>
+      <a class="button button-primary" href="dashboard.html">Enter the workspace <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
 
-          <div class="nav-section-label">DEMO & EVALUATION (§12)</div>
-          <a class="nav-item" data-surface="onboarding" onclick="app.navigate('onboarding')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            <span>Onboarding Tour</span>
-          </a>
-          <a class="nav-item" data-surface="drift-test" onclick="app.navigate('drift-test')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-            <span>Live CI Drift Check</span>
-          </a>
-          <a class="nav-item" data-surface="benchmark" onclick="app.navigate('benchmark')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            <span>Metrics & Baselines</span>
-          </a>
-          <a class="nav-item" data-surface="bus-factor" onclick="app.navigate('bus-factor')">
-            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>Bus Factor Map</span>
-          </a>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="scope-notice">
-            <span class="scope-tag">17-Week Capstone</span>
-            <p>Evaluating multi-source reasoning, code-level provenance, and drift detection.</p>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Main Surface Container -->
-      <main class="surface-container">
-        
-        <!-- SURFACE 0: Connected Repositories (Step 7.9) -->
-        <section id="surface-repositories" data-view="repositories" class="surface-view" style="display: none;">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Connected Repositories</h1>
-              <p class="view-desc">Discover installations, monitor real-time ingestion, and manage repository context isolation.</p>
-            </div>
-            <div class="filter-group">
-              <button class="btn btn-secondary btn-sm" onclick="app.loadRepositoriesScreen()">Refresh ⟳</button>
-            </div>
-          </div>
-
-          <!-- Active Ingestion Job Progress Widget -->
-          <div id="job-progress-widget" class="job-progress-widget" style="display: none;">
-            <div class="job-progress-header">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="spinner-small" id="job-spinner"></span>
-                <strong id="job-repo-name" style="font-size: 1rem; color: var(--text-primary);">owner/repo</strong>
-                <span class="chip chip-running" id="job-status-chip">running</span>
-              </div>
-              <button class="btn btn-danger btn-xs" id="btn-cancel-job" onclick="app.cancelCurrentJob()">Cancel Ingestion</button>
-            </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill" id="job-progress-bar" style="width: 5%;"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">
-              <span id="job-phase-desc">Initializing repository extraction...</span>
-              <span id="job-percent-label">5%</span>
-            </div>
-            <div class="job-counts-grid">
-              <div class="job-count-pill"><strong id="job-commits-count">0</strong> Commits</div>
-              <div class="job-count-pill"><strong id="job-prs-count">0</strong> PRs</div>
-              <div class="job-count-pill"><strong id="job-issues-count">0</strong> Issues</div>
-              <div class="job-count-pill"><strong id="job-entities-count">0</strong> Entities</div>
-              <div class="job-count-pill"><strong id="job-decisions-count">0</strong> Decisions</div>
-              <div class="job-count-pill"><strong id="job-edges-count">0</strong> Edges</div>
-            </div>
-            <div id="job-error-msg" style="display: none; margin-top: 10px; color: #ef4444; font-size: 0.84rem; font-weight: 500;"></div>
-          </div>
-
-          <!-- Repositories List Card -->
-          <div class="repos-table-container" style="margin-bottom: 24px;">
-            <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <h3 style="font-size: 0.95rem; font-weight: 600; margin: 0;">Connected Repositories</h3>
-                <span id="repo-count-label" style="font-size: 0.78rem; color: var(--text-muted);">0 repositories monitored</span>
-              </div>
-            </div>
-            <table class="repos-table">
-              <thead>
-                <tr>
-                  <th>Repository</th>
-                  <th>Visibility / Access</th>
-                  <th>Status</th>
-                  <th>Decisions / Events</th>
-                  <th>Last Synced</th>
-                  <th style="text-align: right;">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="repos-table-body">
-                <tr><td colspan="6" class="loading-state" style="padding: 24px; text-align: center; color: var(--text-muted);">Loading repositories...</td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Add / Connect Repository Card -->
-          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 20px 24px;">
-            <h3 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 6px;">Connect a Repository</h3>
-            <p style="font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px;">
-              Select a repository authorized via your GitHub App installation, or enter full name. Whole-repo ingestion runs in the background.
-            </p>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
-              <select id="github-install-select" class="auth-input-field" style="min-width: 260px;" onchange="app.onGitHubSelectChange(this.value)">
-                <option value="">-- Available GitHub Repositories --</option>
-              </select>
-              <input type="text" id="manual-repo-input" class="auth-input-field" placeholder="Or enter owner/repo" style="min-width: 220px;" />
-              <button class="btn btn-primary" id="btn-add-repo-submit" onclick="app.submitAddRepository()">Connect &amp; Ingest</button>
-            </div>
-            <div style="margin-top: 14px; font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <span>Strict per-repository isolation (Rule R3). Ingested data is private to members with GitHub access. See <a href="PRIVACY.md" target="_blank" style="color: var(--color-primary);">Privacy &amp; Data Rights</a>.</span>
-            </div>
-          </div>
-        </section>
-
-        <!-- SURFACE 1: Project Timeline -->
-        <section id="surface-timeline" data-view="timeline" class="surface-view active">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Project Timeline</h1>
-              <p class="view-desc">Horizontal chronological view of decision milestones, state changes, and ADR adoptions.</p>
-            </div>
-            <div class="filter-group">
-              <button class="filter-btn active" onclick="app.filterTimelineState('all')">All</button>
-              <button class="filter-btn" onclick="app.filterTimelineState('accepted')">Accepted</button>
-              <button class="filter-btn" onclick="app.filterTimelineState('superseded')">Superseded</button>
-              <button class="filter-btn" onclick="app.filterTimelineState('rejected')">Rejected</button>
-            </div>
-          </div>
-
-          <!-- STEP 2.6: Historical "As Of" Query & Counterfactual Explorer -->
-          <div class="asof-panel-card">
-            <div class="asof-header">
-              <div>
-                <h3 class="asof-title">Historical &ldquo;As Of&rdquo; Query &amp; Counterfactual Explorer</h3>
-                <p class="asof-desc">Reconstruct what the team believed at any historical point in time with non-speculative alternative evaluation.</p>
-              </div>
-              <div class="asof-quick-prompts">
-                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-04')">&ldquo;What did the team believe on 2026-02-04, and why?&rdquo;</span>
-                <span class="asof-chip" onclick="app.setAsOfQueryDate('2026-02-06')">&ldquo;What did the team believe on 2026-02-06, and why?&rdquo;</span>
-              </div>
-            </div>
-            <div class="asof-controls-bar">
-              <div class="asof-input-group">
-                <label for="asof-date-input">As Of Date:</label>
-                <input type="date" id="asof-date-input" class="asof-date-input" value="2026-02-04">
-              </div>
-              <div class="asof-input-group">
-                <label for="asof-artifact-input">Artifact (optional):</label>
-                <input type="text" id="asof-artifact-input" class="asof-text-input" placeholder="e.g. src/cache/store.py">
-              </div>
-              <button class="btn btn-primary btn-sm" onclick="app.runAsOfQuery()">Reconstruct Beliefs ⏱</button>
-              <button class="btn btn-secondary btn-sm" id="btn-asof-reset" onclick="app.resetAsOfQuery()" style="display: none;">Show Live Timeline</button>
-            </div>
-
-            <!-- As Of Results Pane -->
-            <div id="asof-results-pane" class="asof-results-pane" style="display: none;">
-              <!-- Grounded Explanation Banner -->
-              <div class="asof-explanation-box" id="asof-explanation-box"></div>
-
-              <div class="asof-grid">
-                <!-- Left: Reconstructed Decisions as of Date -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Decisions Believed as of Date</h4>
-                  <div id="asof-decisions-container" class="asof-card-stack"></div>
-                </div>
-
-                <!-- Middle: Documented Alternatives -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Documented Alternatives</h4>
-                  <div id="asof-alternatives-container" class="asof-card-stack"></div>
-                </div>
-
-                <!-- Right: Changed Afterwards & Later Evidence -->
-                <div class="asof-column">
-                  <h4 class="asof-column-title">Changed Afterwards &amp; Later Evidence</h4>
-                  <div id="asof-changes-container" class="asof-card-stack"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="timeline-wrapper" id="timeline-container">
-            <!-- Timeline items injected here -->
-          </div>
-        </section>
-
-        <!-- SURFACE 2: Context Graph -->
-        <section id="surface-graph" data-view="graph" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Temporal Context Graph</h1>
-              <p class="view-desc">Interactive node-link graph connecting Decisions, Code Artifacts, and Evidence Events with time-bounded edges.</p>
-            </div>
-            <div class="graph-legend">
-              <span class="legend-item"><span class="legend-dot decision-acc"></span> Accepted</span>
-              <span class="legend-item"><span class="legend-dot decision-rej"></span> Rejected</span>
-              <span class="legend-item"><span class="legend-dot decision-sup"></span> Superseded</span>
-              <span class="legend-item"><span class="legend-dot entity"></span> Code Entity</span>
-              <span class="legend-item"><span class="legend-dot event"></span> Evidence Event</span>
-              <span class="legend-item"><span class="legend-line conflict"></span> Conflict/Drift</span>
-            </div>
-          </div>
-          <div class="graph-viewport-card">
-            <svg id="graph-svg" class="graph-svg" width="100%" height="600"></svg>
-            <div id="graph-node-details" class="graph-details-overlay hidden">
-              <!-- Node inspector details -->
-            </div>
-          </div>
-        </section>
-
-        <!-- SURFACE 3: Code-Context View -->
-        <section id="surface-code" data-view="code" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Code-Context View</h1>
-              <p class="view-desc">Select any code artifact (file or AST-level function) to inspect its full grounded decision chain: "Why does this look like this?"</p>
-            </div>
-          </div>
-          <div class="code-context-split">
-            <div class="artifact-nav-pane">
-              <h3 class="pane-subtitle">Resolved Code Artifacts</h3>
-              <div class="artifact-list" id="code-artifact-list">
-                <!-- Injected artifact tree items -->
-              </div>
-            </div>
-            <div class="artifact-explanation-pane">
-              <div id="explanation-container">
-                <div class="placeholder-state">Select an artifact on the left to inspect its decision chain.</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SURFACE 4: Decision Explorer -->
-        <section id="surface-decisions" data-view="decisions" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Decision Explorer</h1>
-              <p class="view-desc">Faceted search across all reconstructed decisions with state history, alternatives considered, and confidence scores.</p>
-            </div>
-            <div class="search-box">
-              <input type="text" id="decision-search-input" placeholder="Search decisions by title or rationale..." oninput="app.searchDecisions(this.value)">
-            </div>
-          </div>
-          <div class="faceted-tabs">
-            <button class="facet-tab active" onclick="app.filterDecisionsByState('all')">All Decisions</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('accepted')">Accepted</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('tested')">Tested</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('proposed')">Proposed</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('reopened')">Reopened</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('superseded')">Superseded</button>
-            <button class="facet-tab" onclick="app.filterDecisionsByState('rejected')">Rejected</button>
-            <button class="facet-tab" id="facet-tab-lifecycle" onclick="app.showLifecycleTab()">Lifecycle &amp; Audit</button>
-          </div>
-          <div class="decisions-grid" id="decisions-container">
-            <!-- Decision cards injected here -->
-          </div>
-          <!-- Lifecycle & Audit View Container (Step 2.5) -->
-          <div id="lifecycle-container" class="lifecycle-container" style="display: none;">
-            <div class="lifecycle-toolbar">
-              <div class="lifecycle-select-group">
-                <label for="lifecycle-decision-select">Decision History:</label>
-                <select id="lifecycle-decision-select" onchange="app.loadDecisionLifecycle(this.value)">
-                  <!-- Injected by app.js -->
-                </select>
-              </div>
-              <button class="btn btn-secondary btn-sm" onclick="app.showDecisionsGrid()">← Back to Decisions Grid</button>
-            </div>
-
-            <!-- Decision Summary Card & Metadata -->
-            <div id="lifecycle-decision-summary" class="lifecycle-summary-card">
-              <!-- Injected by app.js -->
-            </div>
-
-            <div class="lifecycle-content-grid">
-              <!-- Left / Main: Vertical Timeline -->
-              <div class="lifecycle-timeline-pane">
-                <h3 class="panel-section-title">Transition Timeline</h3>
-                <div id="lifecycle-timeline-list" class="lifecycle-timeline-list">
-                  <!-- Injected by app.js -->
-                </div>
-              </div>
-
-              <!-- Right: Supersession Chain Detail -->
-              <div class="lifecycle-chain-pane">
-                <h3 class="panel-section-title">Supersession Chain</h3>
-                <div id="lifecycle-chain-details" class="lifecycle-chain-details">
-                  <!-- Injected by app.js -->
-                </div>
-              </div>
-            </div>
-
-            <!-- Global Audit Log Section -->
-            <div class="audit-log-section">
-              <div class="audit-log-header">
-                <div>
-                  <h3 class="panel-section-title" style="margin-bottom: 2px;">Global Audit Log</h3>
-                  <p class="view-desc" style="font-size: 0.8rem;">Complete chronological log of all decision state mutations across repositories.</p>
-                </div>
-                <div class="audit-filter-controls">
-                  <input type="text" id="audit-filter-actor" placeholder="Filter actor..." oninput="app.filterAuditLog()" class="audit-input">
-                  <input type="text" id="audit-filter-date" placeholder="Date (YYYY-MM-DD)..." oninput="app.filterAuditLog()" class="audit-input">
-                  <button class="btn btn-secondary btn-sm" onclick="app.clearAuditFilters()">Reset</button>
-                </div>
-              </div>
-              <div class="audit-table-responsive">
-                <table class="audit-table">
-                  <thead>
-                    <tr>
-                      <th>Changed At</th>
-                      <th>Decision</th>
-                      <th>Transition</th>
-                      <th>Actor</th>
-                      <th>Notes / Reason</th>
-                      <th>Type</th>
-                    </tr>
-                  </thead>
-                  <tbody id="audit-table-body">
-                    <!-- Injected by app.js -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- SURFACE 5: Evidence Panel -->
-        <section id="surface-evidence" data-view="evidence" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Evidence Panel</h1>
-              <p class="view-desc">Direct inspectability of supporting citations. Every decision is tied to immutable, clickable source URLs.</p>
-            </div>
-            <div class="decision-picker-wrapper">
-              <label for="evidence-decision-select">Decision:</label>
-              <select id="evidence-decision-select" onchange="app.loadEvidenceForDecision(this.value)">
-                <!-- Decision options injected here -->
-              </select>
-            </div>
-          </div>
-          <div class="evidence-content" id="evidence-container">
-            <!-- Supporting citations and discussion items injected here -->
-          </div>
-        </section>
-
-        <!-- SURFACE 6: Review Queue -->
-        <section id="surface-review" data-view="review" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Human Review Queue</h1>
-              <p class="view-desc">Triage queue for low-confidence candidate extractions (&lt; 0.90), contributor disagreements, and code-level drift candidates.</p>
-            </div>
-          </div>
-          <div class="review-queue-list" id="review-queue-container">
-            <!-- Review cards injected here -->
-          </div>
-        </section>
-
-        <!-- EXTRA SURFACE: Onboarding Mode (Step 5.4 Adaptive Developer Onboarding) -->
-        <section id="surface-onboarding" data-view="onboarding" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Adaptive Developer Onboarding</h1>
-              <p class="view-desc">Personalized, graph-driven learning paths tailored to your engineering role, subsystem, and target files. Recover architectural context and avoid known pitfalls.</p>
-            </div>
-          </div>
-
-          <!-- Onboarding Request & Persona Form -->
-          <div class="drift-tester-card" style="margin-bottom: 24px;">
-            <div class="form-row">
-              <label><strong>Quick Persona Presets:</strong></label>
-              <div class="preset-buttons">
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('thermal')">Persona 1: Thermal Control Engineer (Thermal Regulation)</button>
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('cache')">Persona 2: Infrastructure / SRE (Distributed Cache)</button>
-                <button class="btn btn-secondary btn-sm" onclick="app.loadOnboardingPreset('security')">Persona 3: Security Auditor (Auth & Keyring)</button>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px;">
-              <div class="form-row">
-                <label for="onboarding-role-input">Engineering Role / Persona:</label>
-                <input type="text" id="onboarding-role-input" class="code-textarea" style="height: 38px; resize: none;" value="Control Systems Engineer" placeholder="e.g. Backend Engineer, SRE, Security Auditor" />
-              </div>
-              <div class="form-row">
-                <label for="onboarding-module-input">Target Subsystem / Module:</label>
-                <input type="text" id="onboarding-module-input" class="code-textarea" style="height: 38px; resize: none;" value="thermal" placeholder="e.g. thermal, cache, payment, auth" />
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px;">
-              <div class="form-row">
-                <label for="onboarding-files-input">Optional Focus Files (comma separated):</label>
-                <input type="text" id="onboarding-files-input" class="code-textarea" style="height: 38px; resize: none;" value="src/thermal/control.py" placeholder="e.g. src/thermal/control.py" />
-              </div>
-              <div class="form-row">
-                <label for="onboarding-task-input">Optional Specific Task or Ticket:</label>
-                <input type="text" id="onboarding-task-input" class="code-textarea" style="height: 38px; resize: none;" value="Implement anti-windup clamping" placeholder="e.g. Add Redis failover, refactor auth token storage" />
-              </div>
-            </div>
-
-            <div class="form-actions" style="margin-top: 16px;">
-              <button class="btn btn-primary" onclick="app.generateOnboardingPath()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Generate Adaptive Learning Path
-              </button>
-            </div>
-          </div>
-
-          <!-- Interactive Onboarding Checklist Card -->
-          <div id="onboarding-checklist-card" class="timeline-card" style="margin-bottom: 24px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                Onboarding Reading Checklist
-              </h3>
-              <div id="onboarding-progress-badge" class="badge" style="background: rgba(16,185,129,0.15); color: #10b981; font-weight: 600;">
-                0 / 0 completed
-              </div>
-            </div>
-            <div id="onboarding-checklist-items" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Checklist checkboxes injected here -->
-            </div>
-          </div>
-
-          <!-- Dynamic Learning Path Output Container -->
-          <div class="onboarding-cards" id="onboarding-tour-container">
-            <!-- Dynamic ordered learning path injected here -->
-          </div>
-        </section>
-
-        <!-- EXTRA SURFACE: Live CI Drift Check -->
-        <section id="surface-drift-test" data-view="drift-test" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Live CI Code-Level Drift Tester</h1>
-              <p class="view-desc">Simulate a Pull Request or Git Commit diff against the repository. Watch the system evaluate recent accepted decisions and flag violations in real-time.</p>
-            </div>
-          </div>
-          <div class="drift-tester-card">
-            <div class="form-row">
-              <label>Select Preset Scenario to Test:</label>
-              <div class="preset-buttons">
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('thermal_revert')">Scenario 1: Thermal Revert (Reintroduces Rejected On-Off)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('cache_memory')">Scenario 2: Cache Violation (In-Memory Dict vs Redis)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('guard_rule_violation')">Scenario 3: Guard Rule Violation (Forbidden Import)</button>
-                <button class="btn btn-secondary" onclick="app.loadDriftPreset('clean_change')">Scenario 4: Consistent Code (Normal Refactor)</button>
-              </div>
-            </div>
-            <div class="form-row">
-              <label for="drift-diff-input">Code Diff (Unified Diff format):</label>
-              <textarea id="drift-diff-input" class="code-textarea" rows="8"></textarea>
-            </div>
-            <div class="form-actions">
-              <button class="btn btn-primary" onclick="app.executeDriftCheck()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Run CI Drift Detection Pass
-              </button>
-            </div>
-            <div id="drift-result-display" class="drift-results-wrapper hidden">
-              <!-- Drift results injected here -->
-            </div>
-          </div>
-        </section>
-
-        <!-- EXTRA SURFACE: Metrics & Baselines (§12) -->
-        <section id="surface-benchmark" data-view="benchmark" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Evaluation Metrics & Baseline Benchmark</h1>
-              <p class="view-desc">Live evaluation against 32 manually labeled ground truth decisions across both pilot repositories per Section 12.</p>
-            </div>
-          </div>
-          <div class="benchmark-grid" id="benchmark-container">
-            <!-- Benchmark metrics cards and comparative table injected here -->
-          </div>
-        </section>
-
-        <!-- EXTRA SURFACE: Bus Factor & Knowledge Concentration Map (Step 5.3) -->
-        <section id="surface-bus-factor" data-view="bus-factor" class="surface-view">
-          <div class="view-header">
-            <div>
-              <h1 class="view-title">Bus Factor &amp; Knowledge Concentration Map</h1>
-              <p class="view-desc">Module-level knowledge concentration derived from substantive architectural decisions, ADR authors, and code reviewers (raw commit counts excluded).</p>
-            </div>
-            <div class="header-actions">
-              <button class="btn btn-secondary btn-sm" onclick="app.loadBusFactorData()">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                Refresh Map
-              </button>
-            </div>
-          </div>
-          <div id="bus-factor-container" class="bus-factor-wrapper">
-            <!-- Rendered dynamically by app.js -->
-          </div>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
-  <!-- Review Queue Action Modal -->
-  <div id="review-modal" class="modal-backdrop hidden">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="modal-title">Review Queue Action</h3>
-        <button class="modal-close" onclick="app.closeReviewModal()">&times;</button>
+  <footer class="site-footer" id="footer">
+    <div class="footer-panel">
+      <div class="footer-brand-column">
+        <a class="brand" href="#top" aria-label="Context Engine home">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 4v8m0 8v8M4 16h8m8 0h8M7.5 7.5l5.7 5.7m5.6 5.6 5.7 5.7m0-17-5.7 5.7m-5.6 5.6-5.7 5.7" stroke="currentColor" stroke-width="1.7"/><circle cx="16" cy="16" r="4.2" stroke="currentColor" stroke-width="1.7"/><circle cx="16" cy="4" r="2" fill="currentColor"/><circle cx="28" cy="16" r="2" fill="currentColor"/><circle cx="16" cy="28" r="2" fill="currentColor"/><circle cx="4" cy="16" r="2" fill="currentColor"/></svg></span>
+          <span class="brand-name">Context Engine</span>
+        </a>
+        <p>Decisions, evidence, and code connected in one living project history.</p>
       </div>
-      <div class="modal-body" id="modal-body">
-        <!-- Form elements injected here -->
+      <div class="footer-link-column">
+        <h2>PRODUCT</h2>
+        <a href="dashboard.html">Project timeline</a>
+        <a href="dashboard.html">Context graph</a>
+        <a href="dashboard.html">Code context</a>
+        <a href="dashboard.html">Evidence trails</a>
       </div>
-      <div class="modal-footer" id="modal-footer">
-        <!-- Action buttons injected here -->
+      <div class="footer-link-column">
+        <h2>EXPLORE</h2>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#workflow">How it works</a>
+        <a href="#integrations">Repository workflow</a>
+        <a href="dashboard.html">Open workspace</a>
+      </div>
+      <div class="footer-link-column">
+        <h2>DEVELOPERS</h2>
+        <a href="dashboard.html">Onboarding tour</a>
+        <a href="dashboard.html">Review queue</a>
+        <a href="dashboard.html">Drift checks</a>
+        <a href="https://github.com/nagarwal00/context-engine-prototype-" target="_blank" rel="noopener noreferrer">GitHub repository <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="footer-bottom">
+        <span>Copyright © <span id="footer-year">2026</span> Context Engine. All rights reserved.</span>
+        <a href="#top">Back to top ↑</a>
       </div>
     </div>
-  </div>
-
-  <!-- Add GitHub Repository Ingestion Modal -->
-  <div id="add-repo-modal" class="modal-backdrop hidden">
-    <div class="modal-card" style="max-width: 580px;">
-      <div class="modal-header">
-        <h3>Connect & Ingest GitHub Repository</h3>
-        <button class="modal-close" onclick="app.closeAddRepoModal()">&times;</button>
-      </div>
-      <div class="modal-body" id="add-repo-modal-body">
-        <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 14px; line-height: 1.5;">
-          Enter any public or private GitHub repository. The system will fetch commits, PR discussions, and issues, parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
-        </p>
-        <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
-            GitHub Repository (owner/repo or URL):
-          </label>
-          <input type="text" id="ingest-repo-input" placeholder="e.g. pallets/flask or https://github.com/my-org/my-project" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
-        </div>
-        <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
-            Personal Access Token (Optional - recommended for private repos or >60 req/hr):
-          </label>
-          <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)" style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
-        </div>
-        <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 16px;">
-          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
-            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #3b82f6;">
-            Start with Empty Dashboard (Wipe pilot sample data)
-          </label>
-        </div>
-
-        <!-- Live Progress Status Log -->
-        <div id="ingest-progress-box" class="hidden" style="background: #090d14; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; margin-top: 12px;">
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-            <div class="spinner-sm" id="ingest-spinner"></div>
-            <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #38bdf8;">Ingesting repository...</span>
-          </div>
-          <div id="ingest-log-messages" style="font-size: 0.78rem; color: #94a3b8; font-family: monospace; max-height: 120px; overflow-y: auto; line-height: 1.6;">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer" id="add-repo-modal-footer">
-        <button class="btn btn-secondary" onclick="app.closeAddRepoModal()">Cancel</button>
-        <button class="btn btn-primary" id="btn-start-ingest" onclick="app.submitIngestRepo()">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Ingest & Extract Context
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <script src="static_data.js"></script>
-  <script src="app.js"></script>
+  </footer>
+  <script src="landing.js"></script>
 </body>
 </html>
