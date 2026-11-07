@@ -2659,7 +2659,7 @@ const app = {
           } catch (err) {
             errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
-          if (res.status === 401 || res.status === 403) {
+          if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
             alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
           }
           return errData;
