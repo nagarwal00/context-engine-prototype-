@@ -81,13 +81,13 @@
         <p>Find the decision, the discussion that informed it, and the code it continues to shape.</p>
       </div>
       <div class="feature-grid">
-        <article class="feature-card feature-card-wide">
+        <a class="feature-card feature-card-wide" href="dashboard.html?surface=timeline">
           <div class="feature-copy">
             <span class="feature-index">01 / DECISION HISTORY</span>
             <h3>Know <em>why</em> the system looks this way.</h3>
             <p>Follow decisions over time, including what changed, what was superseded, and what the team knew at each
               point.</p>
-            <a class="text-link" href="dashboard.html?surface=timeline">Explore the timeline <span aria-hidden="true">↗</span></a>
+            <span class="text-link">Explore the timeline <span aria-hidden="true">↗</span></span>
           </div>
           <div class="mini-timeline" aria-hidden="true">
             <div class="mini-date">FEB 2026 <i></i></div>
@@ -102,28 +102,28 @@
               <div><b>Adopt bounded retries for ingestion</b><small>PROPOSED · REVIEW OPEN</small></div>
             </div>
           </div>
-        </article>
-        <article class="feature-card">
+        </a>
+        <a class="feature-card" href="dashboard.html?surface=code">
           <span class="feature-index">02 / CODE CONTEXT</span>
           <div class="feature-icon icon-violet" aria-hidden="true">{ }</div>
           <h3>Trace decisions to the <em>code.</em></h3>
           <p>Start with a file or function and follow its grounded decision chain back to the sources.</p>
-          <a class="text-link" href="dashboard.html?surface=code">Inspect code context <span aria-hidden="true">↗</span></a>
-        </article>
-        <article class="feature-card">
+          <span class="text-link">Inspect code context <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="feature-card" href="dashboard.html?surface=evidence">
           <span class="feature-index">03 / EVIDENCE TRAILS</span>
           <div class="feature-icon icon-coral" aria-hidden="true">↗</div>
           <h3>Keep the sources close.</h3>
           <p>Review direct and indirect support, citations, disagreements, and missing corroboration together.</p>
-          <a class="text-link" href="dashboard.html?surface=evidence">Review evidence <span aria-hidden="true">↗</span></a>
-        </article>
-        <article class="feature-card feature-card-wide feature-card-graph">
+          <span class="text-link">Review evidence <span aria-hidden="true">↗</span></span>
+        </a>
+        <a class="feature-card feature-card-wide feature-card-graph" href="dashboard.html?surface=graph">
           <div class="feature-copy">
             <span class="feature-index">04 / CONTEXT GRAPH</span>
             <h3>See how everything connects.</h3>
             <p>Navigate relationships between repository events, decisions, and code artifacts in one interactive map.
             </p>
-            <a class="text-link" href="dashboard.html?surface=graph">Open the context graph <span aria-hidden="true">↗</span></a>
+            <span class="text-link">Open the context graph <span aria-hidden="true">↗</span></span>
           </div>
           <div class="mini-graph" aria-hidden="true">
             <svg viewBox="0 0 430 210" fill="none">
@@ -140,7 +140,7 @@
                 file</text><text x="321" y="73">ADR</text><text x="288" y="204">drift</text>
             </svg>
           </div>
-        </article>
+        </a>
       </div>
     </section>
 
@@ -272,6 +272,14 @@
           If GitHub App credentials are not configured, this will automatically sign you in with a local development
           session.
         </p>
+
+        <a href="/auth/demo/login?next=/dashboard.html" class="demo-action-btn" style="margin-top: 10px;">
+          <svg viewBox="0 0 16 16" fill="currentColor" style="width: 14px; height: 14px;">
+            <path
+              d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.25 8.75l-4 2.5a.75.75 0 0 1-1.15-.65v-5.2a.75.75 0 0 1 1.15-.65l4 2.5a.75.75 0 0 1 0 1.5z" />
+          </svg>
+          Sign in as Demo Developer
+        </a>
 
         <div class="auth-divider">
           <span>or sign in / register with account</span>

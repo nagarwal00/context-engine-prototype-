@@ -76,6 +76,12 @@
       ghLink.href = '/auth/github/login?next=' + encodeURIComponent(nextParam);
     }
 
+    const demoLink = loginModal ? loginModal.querySelector('.demo-action-btn') : null;
+    if (demoLink) {
+      const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
+      demoLink.href = '/auth/demo/login?next=' + encodeURIComponent(nextParam);
+    }
+
     if (loginModal) {
       loginModal.classList.remove('hidden');
       const input = loginModal.querySelector('input');
@@ -180,7 +186,8 @@
           body: JSON.stringify({
             username: username,
             password: password,
-            action: currentAuthMode
+            action: currentAuthMode,
+            next: pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl
           })
         });
 
@@ -191,7 +198,7 @@
             authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
           }
           window.setTimeout(() => {
-            window.location.href = pendingRedirectUrl || data.redirect || 'dashboard.html';
+            window.location.href = data.redirect || pendingRedirectUrl || 'dashboard.html';
           }, 400);
         } else {
           if (authMsg) {

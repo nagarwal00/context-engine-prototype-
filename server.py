@@ -261,10 +261,13 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 from backend.config import get_config
                 raw_token, _ = create_session(self.server.api_handler.db, user_id=user_id, client="web")
                 cookie_hdr = build_session_cookie(raw_token, get_config().get_base_url())
+                next_target = body_json.get("next") or params.get("next", ["/dashboard.html"])[0] or "/dashboard.html"
+                if not next_target.startswith("/") or next_target.startswith("//"):
+                    next_target = "/dashboard.html"
                 self._send_json({
                     "status": "success",
                     "message": f"Successfully {'registered' if is_register else 'signed in'} as {username}",
-                    "redirect": "/dashboard.html",
+                    "redirect": next_target,
                     "user": {"login": username, "user_id": user_id}
                 }, status=200, extra_headers={"Set-Cookie": cookie_hdr})
                 return

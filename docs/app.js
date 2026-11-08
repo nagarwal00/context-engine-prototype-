@@ -1164,6 +1164,13 @@ const app = {
       container.querySelectorAll('.btn-show-lifecycle').forEach(btn => {
         btn.addEventListener('click', () => app.showDecisionLifecycle(btn.dataset.decisionId));
       });
+
+      if (this.activeSurface === 'evidence') {
+        const select = document.getElementById('evidence-decision-select');
+        if (select && (!select.value || select.children.length === 0)) {
+          this.populateEvidenceSelect();
+        }
+      }
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }

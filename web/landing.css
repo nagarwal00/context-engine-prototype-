@@ -397,6 +397,35 @@ a.strip-item:hover .strip-icon {
   background: linear-gradient(150deg, rgba(19, 20, 27, .97), rgba(13, 14, 19, .96));
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+a.feature-card:hover,
+.feature-card:hover {
+  border-color: #555060;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+a.feature-card:hover h3 em,
+.feature-card:hover h3 em {
+  color: #ffa8ae;
+}
+
+a.feature-card:hover .text-link,
+.feature-card:hover .text-link {
+  color: #fff;
+}
+
+a.feature-card:hover .text-link span,
+.feature-card:hover .text-link span {
+  display: inline-block;
+  transform: translate(2px, -2px);
+  transition: transform .18s;
 }
 
 .feature-card-wide {
