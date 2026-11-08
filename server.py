@@ -65,6 +65,14 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
+    def end_headers(self):
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path.endswith(".html") or parsed.path.endswith(".css") or parsed.path.endswith(".js") or parsed.path in ("", "/"):
+            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+        super().end_headers()
+
     def _send_redirect(self, location: str, extra_headers: dict = None, status: int = 302):
         try:
             self.send_response(status)
