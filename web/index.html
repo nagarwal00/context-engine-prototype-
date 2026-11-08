@@ -45,11 +45,8 @@
       <a href="#contact">Contact</a>
     </nav>
     <div class="header-auth-group">
-      <div class="auth-status-badge status-unauthenticated" id="auth-status-badge" role="status" aria-live="polite"
-        title="Not logged in">
-        <span class="auth-status-dot" aria-hidden="true"></span>
-        <span class="auth-status-text" id="auth-status-text">Not logged in</span>
-      </div>
+      <a class="button button-outline header-cta" href="login.html" id="header-get-started">Get started <span
+          aria-hidden="true">→</span></a>
       <button type="button" class="button-logout button-logout-disabled" id="header-logout-btn"
         title="You are not logged in" aria-label="Log out">
         <svg class="logout-icon" viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true">
@@ -58,8 +55,11 @@
         </svg>
         <span>Logout</span>
       </button>
-      <a class="button button-outline header-cta" href="login.html" id="header-get-started">Get started <span
-          aria-hidden="true">→</span></a>
+      <div class="auth-status-badge status-unauthenticated" id="auth-status-badge" role="status" aria-live="polite"
+        title="Not logged in">
+        <span class="auth-status-dot" aria-hidden="true"></span>
+        <span class="auth-status-text" id="auth-status-text">Not logged in</span>
+      </div>
     </div>
   </header>
 

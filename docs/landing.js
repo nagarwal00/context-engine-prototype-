@@ -99,7 +99,7 @@
 
     if (getStartedBtn) {
       if (isAuthenticated) {
-        getStartedBtn.innerHTML = 'Workspace <span aria-hidden="true">→</span>';
+        getStartedBtn.innerHTML = 'Get started <span aria-hidden="true">→</span>';
         getStartedBtn.setAttribute('href', 'dashboard.html');
       } else {
         getStartedBtn.innerHTML = 'Get started <span aria-hidden="true">→</span>';
