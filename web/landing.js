@@ -58,8 +58,115 @@
   const authSubmit = document.getElementById('landing-auth-submit');
   const authMsg = document.getElementById('landing-auth-msg');
 
+  const authStatusBadge = document.getElementById('auth-status-badge');
+  const authStatusText = document.getElementById('auth-status-text');
+  const logoutBtn = document.getElementById('header-logout-btn');
+
+  let isAuthenticated = false;
+  let currentUser = null;
   let currentAuthMode = 'signin';
   let pendingRedirectUrl = 'dashboard.html';
+
+  const updateAuthUI = (auth, user) => {
+    isAuthenticated = Boolean(auth);
+    currentUser = user || null;
+
+    if (authStatusBadge) {
+      if (isAuthenticated && currentUser && currentUser.login) {
+        authStatusBadge.className = 'auth-status-badge status-authenticated';
+        authStatusBadge.title = `Signed in as ${currentUser.login}`;
+        const avatarHtml = currentUser.avatar_url
+          ? `<img class="auth-avatar" src="${currentUser.avatar_url}" alt="" />`
+          : '';
+        authStatusBadge.innerHTML = `<span class="auth-status-dot" aria-hidden="true"></span>${avatarHtml}<span class="auth-status-text">${currentUser.login}</span>`;
+      } else {
+        authStatusBadge.className = 'auth-status-badge status-unauthenticated';
+        authStatusBadge.title = 'Not signed in';
+        authStatusBadge.innerHTML = `<span class="auth-status-dot" aria-hidden="true"></span><span class="auth-status-text">Not logged in</span>`;
+      }
+    }
+
+    if (logoutBtn) {
+      if (isAuthenticated) {
+        logoutBtn.classList.remove('button-logout-disabled');
+        logoutBtn.removeAttribute('disabled');
+        logoutBtn.title = 'Log out of Context Engine';
+      } else {
+        logoutBtn.classList.add('button-logout-disabled');
+        logoutBtn.title = 'You are not logged in';
+      }
+    }
+
+    if (getStartedBtn) {
+      if (isAuthenticated) {
+        getStartedBtn.innerHTML = 'Workspace <span aria-hidden="true">→</span>';
+        getStartedBtn.setAttribute('href', 'dashboard.html');
+      } else {
+        getStartedBtn.innerHTML = 'Get started <span aria-hidden="true">→</span>';
+        getStartedBtn.setAttribute('href', 'login.html');
+      }
+    }
+  };
+
+  const checkAuth = async () => {
+    try {
+      const res = await fetch('/auth/me');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.authenticated && data.user) {
+          updateAuthUI(true, data.user);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    try {
+      const res = await fetch('/api/me');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'success' && data.login) {
+          updateAuthUI(true, { login: data.login, avatar_url: data.avatar_url });
+          return;
+        }
+      }
+    } catch (e) {}
+
+    updateAuthUI(false, null);
+  };
+
+  checkAuth();
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!isAuthenticated) {
+        openLoginModal('dashboard.html');
+        return;
+      }
+
+      logoutBtn.disabled = true;
+      logoutBtn.style.opacity = '0.6';
+      logoutBtn.innerHTML = '<span>Logging out...</span>';
+
+      try {
+        await fetch('/auth/logout', { method: 'POST' });
+      } catch (err) {}
+
+      updateAuthUI(false, null);
+      logoutBtn.disabled = false;
+      logoutBtn.style.opacity = '';
+      logoutBtn.innerHTML = `
+        <svg class="logout-icon" viewBox="0 0 16 16" fill="none" width="13" height="13" aria-hidden="true">
+          <path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10.5 11.5 14 8m0 0-3.5-3.5M14 8H5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Logout</span>
+      `;
+
+      if (window.location.search.includes('logged_out')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+  }
 
   const openLoginModal = (target) => {
     if (typeof target === 'string') {
@@ -101,17 +208,12 @@
 
   if (getStartedBtn) {
     getStartedBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      openLoginModal('dashboard.html');
+      if (!isAuthenticated) {
+        e.preventDefault();
+        openLoginModal('dashboard.html');
+      }
     });
   }
-
-  let isAuthenticated = false;
-  fetch('/api/me')
-    .then(r => {
-      if (r.ok) isAuthenticated = true;
-    })
-    .catch(() => {});
 
   // Intercept all feature and workspace links if not authenticated
   document.querySelectorAll('a[href^="dashboard.html"]').forEach(link => {
@@ -196,6 +298,9 @@
           if (authMsg) {
             authMsg.className = 'auth-msg success';
             authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
+          }
+          if (data.user) {
+            updateAuthUI(true, data.user);
           }
           window.setTimeout(() => {
             window.location.href = data.redirect || pendingRedirectUrl || 'dashboard.html';

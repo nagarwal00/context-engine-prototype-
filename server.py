@@ -158,6 +158,40 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 self._send_redirect(next_path or "/dashboard.html", extra_headers={"Set-Cookie": cookie_hdr})
                 return
 
+            elif parsed.path == "/auth/me":
+                from backend.auth.sessions import extract_session_token, get_session
+                headers_dict = {k: v for k, v in self.headers.items()}
+                token, _ = extract_session_token(headers_dict)
+                session = get_session(self.server.api_handler.db, token) if token else None
+                if session:
+                    self._send_json({
+                        "status": "success",
+                        "authenticated": True,
+                        "user": {
+                            "login": session["login"],
+                            "avatar_url": session["avatar_url"],
+                            "user_id": session["user_id"]
+                        }
+                    }, status=200)
+                else:
+                    self._send_json({
+                        "status": "success",
+                        "authenticated": False,
+                        "user": None
+                    }, status=200)
+                return
+
+            elif parsed.path in ("/auth/logout", "/logout"):
+                from backend.auth.sessions import extract_session_token, delete_session, build_logout_cookie
+                from backend.config import get_config
+                headers_dict = {k: v for k, v in self.headers.items()}
+                token, _ = extract_session_token(headers_dict)
+                if token:
+                    delete_session(self.server.api_handler.db, token)
+                logout_cookie = build_logout_cookie(get_config().get_base_url())
+                self._send_redirect("/index.html?logged_out=1", extra_headers={"Set-Cookie": logout_cookie})
+                return
+
             else:
                 self.send_error(404, "Endpoint not found")
                 return
@@ -183,6 +217,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
+        params = urllib.parse.parse_qs(parsed.query)
         headers_dict = {k: v for k, v in self.headers.items()}
         client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
@@ -190,7 +225,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         from backend.auth.sessions import extract_session_token, validate_csrf_origin
         from backend.config import get_config
         _, auth_type = extract_session_token(headers_dict)
-        if auth_type == "cookie":
+        if auth_type == "cookie" and parsed.path not in ("/auth/logout", "/logout", "/api/auth/logout"):
             origin = self.headers.get("Origin")
             if not validate_csrf_origin(origin, get_config().get_base_url()):
                 self._send_json({"status": "error", "message": "CSRF check failed: Origin header mismatch"}, status=403)
@@ -224,10 +259,12 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                     self._send_json({"status": "error", "message": "Invalid or expired authorization code"}, status=400)
                 return
 
-            elif parsed.path == "/auth/logout":
+            elif parsed.path in ("/auth/logout", "/logout", "/api/auth/logout"):
                 from backend.auth.sessions import delete_session, build_logout_cookie
+                from backend.config import get_config
                 token, _ = extract_session_token(headers_dict)
-                delete_session(self.server.api_handler.db, token)
+                if token:
+                    delete_session(self.server.api_handler.db, token)
                 logout_cookie = build_logout_cookie(get_config().get_base_url())
                 self._send_json({"status": "success", "message": "Logged out"}, status=200, extra_headers={"Set-Cookie": logout_cookie})
                 return
@@ -412,6 +449,10 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
+
+def check_bind_safety(bind_host: str) -> None:
+    if bind_host in ("0.0.0.0", "::"):
+        print(f"[SECURITY] Bound to public interface {bind_host}. Ensure firewall is active.")
 
 def run():
     print("=" * 70)

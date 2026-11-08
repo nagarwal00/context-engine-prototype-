@@ -326,12 +326,23 @@ def validate_csrf_origin(origin_header: Optional[str], base_url: str) -> bool:
     """
     Validates the Origin header for state-changing cookie-authenticated requests.
     Returns True if Origin matches the origin component of CIF_BASE_URL.
+    Also accepts localhost and 127.0.0.1 interchangeably on identical ports.
     """
     if not origin_header:
         return False
     parsed_base = urlparse(base_url)
-    expected_origin = f"{parsed_base.scheme}://{parsed_base.netloc}"
-    return origin_header.rstrip("/").lower() == expected_origin.rstrip("/").lower()
+    expected_origin = f"{parsed_base.scheme}://{parsed_base.netloc}".rstrip("/").lower()
+    norm_origin = origin_header.rstrip("/").lower()
+    if norm_origin == expected_origin:
+        return True
+    p_req = urlparse(norm_origin)
+    p_exp = urlparse(expected_origin)
+    if (p_req.scheme == p_exp.scheme and
+        p_req.port == p_exp.port and
+        p_req.hostname in ("localhost", "127.0.0.1") and
+        p_exp.hostname in ("localhost", "127.0.0.1")):
+        return True
+    return False
 
 
 def build_session_cookie(raw_token: str, base_url: str, max_age: int = 604800) -> str:
