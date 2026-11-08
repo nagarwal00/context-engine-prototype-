@@ -118,7 +118,7 @@
           return;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const res = await fetch('/api/me');
@@ -129,7 +129,7 @@
           return;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     updateAuthUI(false, null);
   };
@@ -150,7 +150,7 @@
 
       try {
         await fetch('/auth/logout', { method: 'POST' });
-      } catch (err) {}
+      } catch (err) { }
 
       updateAuthUI(false, null);
       logoutBtn.disabled = false;
