@@ -68,10 +68,10 @@
 
     <section class="signal-strip" aria-label="Project context areas">
       <span class="strip-lead">ONE CONNECTED VIEW</span>
-      <div class="strip-item"><span class="strip-icon">01</span> Decisions</div>
-      <div class="strip-item"><span class="strip-icon">02</span> Evidence</div>
-      <div class="strip-item"><span class="strip-icon">03</span> Code context</div>
-      <div class="strip-item"><span class="strip-icon">04</span> Change history</div>
+      <a class="strip-item" href="dashboard.html?surface=decisions"><span class="strip-icon">01</span> Decisions</a>
+      <a class="strip-item" href="dashboard.html?surface=evidence"><span class="strip-icon">02</span> Evidence</a>
+      <a class="strip-item" href="dashboard.html?surface=code"><span class="strip-icon">03</span> Code context</a>
+      <a class="strip-item" href="dashboard.html?surface=timeline"><span class="strip-icon">04</span> Change history</a>
     </section>
 
     <section class="section capabilities" id="capabilities">
@@ -87,7 +87,7 @@
             <h3>Know <em>why</em> the system looks this way.</h3>
             <p>Follow decisions over time, including what changed, what was superseded, and what the team knew at each
               point.</p>
-            <a class="text-link" href="dashboard.html">Explore the timeline <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="dashboard.html?surface=timeline">Explore the timeline <span aria-hidden="true">↗</span></a>
           </div>
           <div class="mini-timeline" aria-hidden="true">
             <div class="mini-date">FEB 2026 <i></i></div>
@@ -108,14 +108,14 @@
           <div class="feature-icon icon-violet" aria-hidden="true">{ }</div>
           <h3>Trace decisions to the <em>code.</em></h3>
           <p>Start with a file or function and follow its grounded decision chain back to the sources.</p>
-          <a class="text-link" href="dashboard.html">Inspect code context <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="dashboard.html?surface=code">Inspect code context <span aria-hidden="true">↗</span></a>
         </article>
         <article class="feature-card">
           <span class="feature-index">03 / EVIDENCE TRAILS</span>
           <div class="feature-icon icon-coral" aria-hidden="true">↗</div>
           <h3>Keep the sources close.</h3>
           <p>Review direct and indirect support, citations, disagreements, and missing corroboration together.</p>
-          <a class="text-link" href="dashboard.html">Review evidence <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="dashboard.html?surface=evidence">Review evidence <span aria-hidden="true">↗</span></a>
         </article>
         <article class="feature-card feature-card-wide feature-card-graph">
           <div class="feature-copy">
@@ -123,7 +123,7 @@
             <h3>See how everything connects.</h3>
             <p>Navigate relationships between repository events, decisions, and code artifacts in one interactive map.
             </p>
-            <a class="text-link" href="dashboard.html">Open the context graph <span aria-hidden="true">↗</span></a>
+            <a class="text-link" href="dashboard.html?surface=graph">Open the context graph <span aria-hidden="true">↗</span></a>
           </div>
           <div class="mini-graph" aria-hidden="true">
             <svg viewBox="0 0 430 210" fill="none">
@@ -152,24 +152,24 @@
           <p>Bring a repository into the workspace. Follow the decisions and source material as the codebase moves.</p>
         </div>
         <div class="workflow-steps">
-          <article class="workflow-step"><span>01</span>
+          <a class="workflow-step" href="dashboard.html?surface=timeline"><span>01</span>
             <div>
               <h3>Connect a repository</h3>
               <p>Bring in a GitHub repository and explore its reconstructed project history.</p>
             </div><b>↗</b>
-          </article>
-          <article class="workflow-step"><span>02</span>
+          </a>
+          <a class="workflow-step" href="dashboard.html?surface=decisions"><span>02</span>
             <div>
               <h3>Explore decisions and evidence</h3>
               <p>Move from a decision to its supporting conversations, events, and citations.</p>
             </div><b>↗</b>
-          </article>
-          <article class="workflow-step"><span>03</span>
+          </a>
+          <a class="workflow-step" href="dashboard.html?surface=review"><span>03</span>
             <div>
               <h3>Review changes with context</h3>
               <p>Use the timeline, code view, review queue, and drift tools to understand what changed.</p>
             </div><b>↗</b>
-          </article>
+          </a>
         </div>
       </div>
     </section>
@@ -181,7 +181,7 @@
         <h2>One place to connect the work to <em>the why.</em></h2>
         <p>Use the repository workspace to bring engineering history, decisions, source evidence, and affected artifacts
           into a shared view.</p>
-        <a class="button button-primary" href="dashboard.html">Open Context Engine <span aria-hidden="true">↗</span></a>
+        <a class="button button-primary" href="dashboard.html?surface=graph">Open Context Engine <span aria-hidden="true">↗</span></a>
       </div>
     </section>
 
@@ -189,7 +189,7 @@
       <p class="eyebrow">MAKE THE REASONING VISIBLE</p>
       <h2>Give every change its <em>context.</em></h2>
       <p>Explore the project timeline, decision history, code links, and evidence trails.</p>
-      <a class="button button-primary" href="dashboard.html">Enter the workspace <span aria-hidden="true">↗</span></a>
+      <a class="button button-primary" href="dashboard.html?surface=timeline">Enter the workspace <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 

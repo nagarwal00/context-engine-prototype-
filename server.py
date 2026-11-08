@@ -98,10 +98,16 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             token, _ = extract_session_token(headers_dict)
             session = get_session(self.server.api_handler.db, token) if token else None
             if not session:
-                self._send_redirect("/login.html?next=" + urllib.parse.quote(parsed.path), status=302)
+                target_url = parsed.path
+                if parsed.query:
+                    target_url += "?" + parsed.query
+                self._send_redirect("/login.html?next=" + urllib.parse.quote(target_url), status=302)
                 return
             if parsed.path in ("/dashboard", "/repos"):
-                self._send_redirect("/dashboard.html", status=302)
+                target = "/dashboard.html"
+                if parsed.query:
+                    target += "?" + parsed.query
+                self._send_redirect(target, status=302)
                 return
 
         if parsed.path.startswith("/auth/"):

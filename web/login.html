@@ -201,6 +201,17 @@
 
   <script>
     (() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nextTarget = urlParams.get('next') || '/dashboard.html';
+      const ghBtn = document.getElementById('github-login-btn');
+      if (ghBtn) {
+        ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(nextTarget);
+      }
+      const demoBtn = document.querySelector('.demo-action-btn');
+      if (demoBtn) {
+        demoBtn.href = '/auth/demo/login?next=' + encodeURIComponent(nextTarget);
+      }
+
       const authTabs = document.querySelectorAll('.auth-tab');
       const authForm = document.getElementById('page-auth-form');
       const authSubmit = document.getElementById('page-auth-submit');

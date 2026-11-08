@@ -322,6 +322,21 @@ button {
   border-right: 0;
 }
 
+a.strip-item {
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .18s, background .18s;
+}
+
+a.strip-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+a.strip-item:hover .strip-icon {
+  color: #ff9da9;
+}
+
 .strip-icon {
   color: #d98290;
   font: .72rem var(--mono);
@@ -605,6 +620,29 @@ button {
 .workflow-step>b {
   color: #f1a1ae;
   font-weight: 400;
+  transition: transform .18s, color .18s;
+}
+
+a.workflow-step {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .18s;
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 6px;
+}
+
+a.workflow-step:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+a.workflow-step:hover h3 {
+  color: #ff9da9;
+}
+
+a.workflow-step:hover>b {
+  color: #fff;
+  transform: translate(2px, -2px);
 }
 
 .integration {

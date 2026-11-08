@@ -59,9 +59,23 @@
   const authMsg = document.getElementById('landing-auth-msg');
 
   let currentAuthMode = 'signin';
+  let pendingRedirectUrl = 'dashboard.html';
 
-  const openLoginModal = (e) => {
-    if (e) e.preventDefault();
+  const openLoginModal = (target) => {
+    if (typeof target === 'string') {
+      pendingRedirectUrl = target;
+    } else if (target && target.currentTarget && target.currentTarget.getAttribute('href')) {
+      pendingRedirectUrl = target.currentTarget.getAttribute('href');
+    } else {
+      pendingRedirectUrl = 'dashboard.html';
+    }
+
+    const ghLink = loginModal ? loginModal.querySelector('.provider-login-link') : null;
+    if (ghLink) {
+      const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
+      ghLink.href = '/auth/github/login?next=' + encodeURIComponent(nextParam);
+    }
+
     if (loginModal) {
       loginModal.classList.remove('hidden');
       const input = loginModal.querySelector('input');
@@ -80,7 +94,10 @@
   };
 
   if (getStartedBtn) {
-    getStartedBtn.addEventListener('click', openLoginModal);
+    getStartedBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openLoginModal('dashboard.html');
+    });
   }
 
   let isAuthenticated = false;
@@ -90,12 +107,12 @@
     })
     .catch(() => {});
 
-  // Intercept dashboard links if not authenticated
-  document.querySelectorAll('a[href="dashboard.html"]').forEach(link => {
+  // Intercept all feature and workspace links if not authenticated
+  document.querySelectorAll('a[href^="dashboard.html"]').forEach(link => {
     link.addEventListener('click', (e) => {
       if (!isAuthenticated) {
         e.preventDefault();
-        openLoginModal(e);
+        openLoginModal(link.getAttribute('href'));
       }
     });
   });
@@ -174,7 +191,7 @@
             authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
           }
           window.setTimeout(() => {
-            window.location.href = data.redirect || 'dashboard.html';
+            window.location.href = pendingRedirectUrl || data.redirect || 'dashboard.html';
           }, 400);
         } else {
           if (authMsg) {

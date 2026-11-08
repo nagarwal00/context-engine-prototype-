@@ -40,6 +40,74 @@ const app = {
     this.loadReviewQueue();
     this.loadBenchmarkData();
     this.loadOnboardingTour();
+
+    const targetSurface = this.getRequestedSurface();
+    if (targetSurface) {
+      this.navigate(targetSurface);
+    }
+
+    window.addEventListener('hashchange', () => {
+      const s = this.getRequestedSurface();
+      if (s && s !== this.activeSurface) {
+        this.navigate(s);
+      }
+    });
+  },
+
+  getRequestedSurface() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const queryParam = params.get('surface') || params.get('view') || params.get('feature') || params.get('tab');
+      if (queryParam) {
+        const norm = this.normalizeSurfaceName(queryParam);
+        if (norm) return norm;
+      }
+      const hash = (window.location.hash || '').replace(/^#/, '').trim();
+      if (hash) {
+        const norm = this.normalizeSurfaceName(hash);
+        if (norm) return norm;
+      }
+    } catch (_) {}
+    return null;
+  },
+
+  normalizeSurfaceName(raw) {
+    if (!raw) return null;
+    const clean = String(raw).toLowerCase().trim().replace(/_/g, '-');
+    const validSurfaces = [
+      'timeline', 'graph', 'code', 'decisions', 'evidence',
+      'review', 'onboarding', 'drift-test', 'benchmark', 'bus-factor'
+    ];
+    if (validSurfaces.includes(clean)) return clean;
+
+    const aliases = {
+      'project-timeline': 'timeline',
+      'history': 'timeline',
+      'changes': 'timeline',
+      'change-history': 'timeline',
+      'context-graph': 'graph',
+      'contextgraph': 'graph',
+      'code-context': 'code',
+      'codecontext': 'code',
+      'decision': 'decisions',
+      'decision-history': 'decisions',
+      'decision-explorer': 'decisions',
+      'evidence-panel': 'evidence',
+      'evidence-trails': 'evidence',
+      'evidencetrails': 'evidence',
+      'review-queue': 'review',
+      'triage': 'review',
+      'onboarding-tour': 'onboarding',
+      'tour': 'onboarding',
+      'drift': 'drift-test',
+      'drift-check': 'drift-test',
+      'drift-checks': 'drift-test',
+      'drifttest': 'drift-test',
+      'benchmarks': 'benchmark',
+      'busfactor': 'bus-factor',
+      'knowledge-concentration': 'bus-factor'
+    };
+    return aliases[clean] || null;
   },
 
   bindGlobalEvents() {
@@ -96,6 +164,12 @@ const app = {
       target.classList.add('active');
     }
 
+    if (window.location.hash !== '#' + surfaceId) {
+      try {
+        history.replaceState(null, '', '#' + surfaceId);
+      } catch (_) {}
+    }
+
     // Lazy load specific surface data
     if (surfaceId === 'graph') {
       this.loadGraph();
@@ -111,6 +185,10 @@ const app = {
       this.loadReviewQueue();
     } else if (surfaceId === 'bus-factor') {
       this.loadBusFactorData();
+    } else if (surfaceId === 'onboarding') {
+      this.loadOnboardingTour();
+    } else if (surfaceId === 'benchmark') {
+      this.loadBenchmarkData();
     }
   },
 
@@ -162,6 +240,100 @@ const app = {
 
   closeLoginModal() {
     document.getElementById('github-login-modal').classList.add('hidden');
+    const msg = document.getElementById('dash-auth-msg');
+    if (msg) {
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+  },
+
+  setDashboardAuthMode(mode) {
+    this._dashAuthMode = mode;
+    const signinTab = document.getElementById('dash-auth-tab-signin');
+    const registerTab = document.getElementById('dash-auth-tab-register');
+    const submitBtn = document.getElementById('dash-auth-submit-btn');
+    const msg = document.getElementById('dash-auth-msg');
+    if (signinTab && registerTab && submitBtn) {
+      if (mode === 'register') {
+        signinTab.classList.remove('active');
+        registerTab.classList.add('active');
+        submitBtn.textContent = 'Create Account & Sign In';
+      } else {
+        registerTab.classList.remove('active');
+        signinTab.classList.add('active');
+        submitBtn.textContent = 'Sign in';
+      }
+    }
+    if (msg) {
+      msg.style.display = 'none';
+      msg.textContent = '';
+    }
+  },
+
+  async submitDashboardAuth(e) {
+    if (e) e.preventDefault();
+    const mode = this._dashAuthMode || 'signin';
+    const usernameEl = document.getElementById('dash-auth-username');
+    const passwordEl = document.getElementById('dash-auth-password');
+    const submitBtn = document.getElementById('dash-auth-submit-btn');
+    const msg = document.getElementById('dash-auth-msg');
+
+    const username = usernameEl ? usernameEl.value.trim() : '';
+    const password = passwordEl ? passwordEl.value : '';
+
+    if (!username) {
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#fca5a5';
+        msg.textContent = 'Username is required.';
+      }
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Please wait...';
+    }
+
+    try {
+      const endpoint = mode === 'register' ? '/auth/register' : '/auth/login';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, action: mode })
+      });
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.color = '#86efac';
+          msg.textContent = data.message || 'Signed in successfully!';
+        }
+        window.setTimeout(() => {
+          window.location.reload();
+        }, 350);
+      } else {
+        if (msg) {
+          msg.style.display = 'block';
+          msg.style.color = '#fca5a5';
+          msg.textContent = data.message || 'Authentication failed.';
+        }
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = mode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+        }
+      }
+    } catch (err) {
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#fca5a5';
+        msg.textContent = 'Network error. Please try again.';
+      }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+      }
+    }
   },
 
   closeAddRepoModal() {
@@ -2326,7 +2498,7 @@ const app = {
           } catch (err) {
             errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
-          if (res.status === 401 || res.status === 403) {
+          if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
             alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
           }
           return errData;

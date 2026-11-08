@@ -19,11 +19,11 @@
         fetch('/api/me')
           .then(function (res) {
             if (!res.ok) {
-              window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+              window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash));
             }
           })
           .catch(function () {
-            window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search));
+            window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash));
           });
       }
     })();
