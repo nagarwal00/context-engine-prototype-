@@ -559,15 +559,15 @@
           <!-- Interactive Onboarding Checklist Card -->
           <div id="onboarding-checklist-card" class="timeline-card" style="margin-bottom: 24px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2">
+              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px; color: #0f172a;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2">
                   <polyline points="9 11 12 14 22 4" />
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                 </svg>
                 Onboarding Reading Checklist
               </h3>
               <div id="onboarding-progress-badge" class="badge"
-                style="background: rgba(26, 139, 102, 0.15); color: #1a8b66; font-weight: 600;">
+                style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; font-weight: 600;">
                 0 / 0 completed
               </div>
             </div>
@@ -692,31 +692,31 @@
           parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
         </p>
         <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+          <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Repository (owner/repo or URL):
           </label>
           <input type="text" id="ingest-repo-input"
             placeholder="e.g. pallets/flask or https://github.com/my-org/my-project"
-            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+            style="width: 100%; padding: 9px 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+          <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Access Token (optional — needed for private repositories or higher API limits):
           </label>
           <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)"
-            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+            style="width: 100%; padding: 9px 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 16px;">
           <label
-            style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
-            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #2c508b;">
+            style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #334155; cursor: pointer;">
+            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #be123c;">
             Start with Empty Dashboard (Wipe pilot sample data)
           </label>
         </div>
 
         <!-- Live Progress Status Log -->
         <div id="ingest-progress-box" class="hidden"
-          style="background: #090d14; border: 1px solid #19212e; border-radius: 6px; padding: 12px; margin-top: 12px;">
+          style="background: #f8fafc; border: 1px solid #dbe4ee; border-radius: 6px; padding: 12px; margin-top: 12px;">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <div class="spinner-sm" id="ingest-spinner"></div>
             <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #2b6e8c;">Ingesting

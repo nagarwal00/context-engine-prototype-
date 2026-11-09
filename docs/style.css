@@ -3554,6 +3554,234 @@ a {
   background: #fee2e2 !important;
 }
 
+/* ==========================================================================
+   Comprehensive Table & Row Hover / Light Surface Overrides (Alpine Mist)
+   Prevents pointer hovers and active states from turning black
+   ========================================================================== */
+
+/* Tables & Table Rows on Pointer Hover */
+table {
+  background: #ffffff !important;
+  border-collapse: collapse !important;
+}
+
+table th,
+.benchmark-table th,
+.audit-table th,
+thead th {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-bottom: 1px solid #dbe4ee !important;
+  font-weight: 600 !important;
+}
+
+table td,
+.benchmark-table td,
+.audit-table td,
+tbody td {
+  background: transparent;
+  color: #0f172a !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* Explicit table row hover: light subtle tint, never black */
+tr:hover,
+tr:hover td,
+tbody tr:hover,
+tbody tr:hover td,
+table tr:hover td,
+.benchmark-table tr:hover td,
+.audit-table tr:hover td {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+tr:hover td strong,
+tr:hover td b,
+tr:hover td a,
+tr:hover td span,
+tr:hover td code {
+  color: #0f172a !important;
+}
+
+/* Benchmark Highlight Row & Table Overrides */
+#surface-benchmark .benchmark-table,
+.benchmark-table {
+  background: #ffffff !important;
+  border: 1px solid #dbe4ee !important;
+}
+
+#surface-benchmark .benchmark-table .highlight-row,
+.benchmark-table .highlight-row,
+.highlight-row {
+  background: #f8fafc !important;
+  box-shadow: inset 3px 0 #be123c !important;
+}
+
+#surface-benchmark .benchmark-table .highlight-row td,
+.benchmark-table .highlight-row td,
+.highlight-row td {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+#surface-benchmark .benchmark-table .highlight-row:hover td,
+.benchmark-table .highlight-row:hover td,
+.highlight-row:hover td {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.benchmark-card, .metric-stat-box {
+  background: #ffffff !important;
+  border: 1px solid #dbe4ee !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.metric-val {
+  color: #be123c !important;
+}
+
+.metric-lbl {
+  color: #64748b !important;
+}
+
+/* Global timeline cards & onboarding cards (matching Image 5 Evidence card design) */
+.timeline-card,
+#surface-timeline .timeline-card,
+#onboarding-checklist-card,
+#onboarding-tour-container .timeline-card,
+.onboarding-cards .timeline-card {
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #dbe4ee !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.timeline-card:hover,
+#surface-timeline .timeline-card:hover,
+#onboarding-checklist-card:hover,
+#onboarding-tour-container .timeline-card:hover,
+.onboarding-cards .timeline-card:hover {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+}
+
+#onboarding-checklist-card h3 {
+  color: #0f172a !important;
+}
+
+#onboarding-checklist-items label {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  transition: background 0.15s ease, border-color 0.15s ease !important;
+}
+
+#onboarding-checklist-items label:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Bus Factor Container styling */
+#bus-factor-container {
+  color: #0f172a !important;
+}
+
+#bus-factor-container table {
+  background: #ffffff !important;
+}
+
+#bus-factor-container tr:hover td {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Form Inputs & Code Textareas */
+.code-textarea,
+input[type="text"],
+input[type="password"],
+textarea {
+  color: #0f172a !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.code-textarea:focus,
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  border-color: #be123c !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(190, 18, 60, 0.15) !important;
+  outline: none !important;
+}
+
+/* Generic Pointer / Hover Fixes - prevent any dark background on hover across components */
+.card:hover, .panel:hover, .surface-card:hover, .metric-card:hover,
+.drift-tester-card:hover, .benchmark-card:hover {
+  border-color: #cbd5e1 !important;
+}
+
+.sidebar a:hover, .side-nav a:hover, .nav-item:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+#surface-code .artifact-item:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+#surface-decisions .decision-card:hover {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+#surface-decisions .decision-card button:hover {
+  background: #f1f5f9 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+
+/* Drift Alert Box Light Overrides */
+.drift-alert-box {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04) !important;
+}
+
+.drift-alert-box.drift-found {
+  background: #fff1f2 !important;
+  border: 1px solid #fecdd3 !important;
+  border-left: 4px solid #be123c !important;
+  color: #9f1239 !important;
+}
+
+.drift-alert-box.drift-found h4 {
+  color: #9f1239 !important;
+}
+
+.drift-alert-box.drift-found p {
+  color: #334155 !important;
+}
+
+.drift-alert-box.clean {
+  background: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  border-left: 4px solid #16a34a !important;
+  color: #166534 !important;
+}
+
+.drift-alert-box.clean h4 {
+  color: #166534 !important;
+}
+
+.drift-alert-box.clean p {
+  color: #334155 !important;
+}
+
 ::selection {
   color: #ffffff;
   background: #be123c;
