@@ -333,8 +333,8 @@ body {
   text-transform: uppercase;
 }
 #surface-benchmark .benchmark-table .highlight-row {
-  background: #141925;
-  box-shadow: inset 2px 0 #d45b6a;
+  background: #f8fafc;
+  box-shadow: inset 3px 0 #be123c;
 }
 
 /* Restore the earlier, calmer labeled graph motif on the timeline. */

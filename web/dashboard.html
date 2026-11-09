@@ -764,28 +764,42 @@
           session.
         </p>
 
-        <div style="display: flex; align-items: center; text-align: center; margin: 16px 0 12px; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">
+        <div
+          style="display: flex; align-items: center; text-align: center; margin: 16px 0 12px; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">
           <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
           <span style="padding: 0 10px;">or login / register with account</span>
           <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 12px;">
-          <button type="button" id="dash-auth-tab-signin" class="btn btn-sm btn-secondary active" onclick="app.setDashboardAuthMode('signin')">Sign In</button>
-          <button type="button" id="dash-auth-tab-register" class="btn btn-sm btn-secondary" onclick="app.setDashboardAuthMode('register')">Register</button>
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 12px;">
+          <button type="button" id="dash-auth-tab-signin" class="btn btn-sm btn-secondary active"
+            onclick="app.setDashboardAuthMode('signin')">Sign In</button>
+          <button type="button" id="dash-auth-tab-register" class="btn btn-sm btn-secondary"
+            onclick="app.setDashboardAuthMode('register')">Register</button>
         </div>
 
         <form id="dash-auth-form" onsubmit="app.submitDashboardAuth(event)">
           <div style="margin-bottom: 10px; text-align: left;">
-            <label for="dash-auth-username" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Username or Email</label>
-            <input type="text" id="dash-auth-username" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="e.g. developer" required autocomplete="username" />
+            <label for="dash-auth-username"
+              style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Username or
+              Email</label>
+            <input type="text" id="dash-auth-username" class="auth-input-field"
+              style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;"
+              placeholder="e.g. developer" required autocomplete="username" />
           </div>
           <div style="margin-bottom: 12px; text-align: left;">
-            <label for="dash-auth-password" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Password</label>
-            <input type="password" id="dash-auth-password" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="••••••••" required autocomplete="current-password" />
+            <label for="dash-auth-password"
+              style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Password</label>
+            <input type="password" id="dash-auth-password" class="auth-input-field"
+              style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;"
+              placeholder="••••••••" required autocomplete="current-password" />
           </div>
-          <button type="submit" id="dash-auth-submit-btn" class="btn btn-primary" style="width: 100%; min-height: 38px;">Sign in</button>
-          <div id="dash-auth-msg" style="display: none; font-size: 0.8rem; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center;"></div>
+          <button type="submit" id="dash-auth-submit-btn" class="btn btn-primary"
+            style="width: 100%; min-height: 38px;">Sign in</button>
+          <div id="dash-auth-msg"
+            style="display: none; font-size: 0.8rem; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center;">
+          </div>
         </form>
       </div>
     </div>

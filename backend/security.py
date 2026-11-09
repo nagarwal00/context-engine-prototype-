@@ -39,7 +39,7 @@ def is_dev_mode(client_ip: Optional[str] = None) -> bool:
         return False
     if client_ip:
         return client_ip in ("127.0.0.1", "localhost", "::1", "testclient")
-    return True
+    return False
 
 
 def get_cors_origin(origin_header: Optional[str]) -> Optional[str]:
@@ -91,7 +91,7 @@ def extract_bearer_token(headers: Dict[str, str]) -> Optional[str]:
 def authenticate_caller(
     db: Database,
     headers: Dict[str, str],
-    client_ip: Optional[str] = "127.0.0.1"
+    client_ip: Optional[str] = None
 ) -> Tuple[Optional[Dict[str, Any]], bool]:
     """
     Identifies the caller from request headers:
@@ -127,7 +127,7 @@ def authenticate_caller(
 def authorize(
     headers: Dict[str, str],
     required_role: str,
-    client_ip: Optional[str] = "127.0.0.1",
+    client_ip: Optional[str] = None,
     db: Optional[Database] = None,
     path: Optional[str] = None,
     query_params: Optional[Dict[str, List[str]]] = None,
@@ -196,7 +196,7 @@ def authorize(
 
 def get_authenticated_role(
     headers: Optional[Dict[str, str]] = None,
-    client_ip: Optional[str] = "127.0.0.1",
+    client_ip: Optional[str] = None,
     db: Optional[Database] = None
 ) -> str:
     """Returns the authenticated role for the request: 'admin', 'reviewer', or 'viewer'."""

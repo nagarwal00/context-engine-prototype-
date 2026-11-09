@@ -77,10 +77,8 @@ def authorize_repo(
 
     # 1. Demo Repositories
     if visibility == "demo":
-        if need == "repo_read":
+        if need in ("repo_read", "repo_review"):
             return True, 200, "Authorized (demo repo)"
-        elif need == "repo_review":
-            return False, 403, "Writes and reviews are disabled on demo repositories"
         return False, 400, f"Invalid need: {need}"
 
     # 2. Non-demo repositories (public or private added by users)
@@ -276,6 +274,10 @@ def resolve_repo_for_request(
         "/api/findings/feedback",
         "/api/bus-factor",
         "/api/onboarding",
+        "/api/review-action",
+        "/api/guard-rules/approve",
+        "/api/guard-rules/disable",
+        "/api/drift-check",
     )
     if path in demo_defaults:
         return "acme-eng/thermal-control-system"

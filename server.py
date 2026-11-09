@@ -225,7 +225,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         from backend.auth.sessions import extract_session_token, validate_csrf_origin
         from backend.config import get_config
         _, auth_type = extract_session_token(headers_dict)
-        if auth_type == "cookie" and parsed.path not in ("/auth/logout", "/logout", "/api/auth/logout"):
+        if auth_type == "cookie":
             origin = self.headers.get("Origin")
             if not validate_csrf_origin(origin, get_config().get_base_url()):
                 self._send_json({"status": "error", "message": "CSRF check failed: Origin header mismatch"}, status=403)
