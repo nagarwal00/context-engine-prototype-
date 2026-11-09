@@ -6559,6 +6559,15 @@ a {
 
 /* Timeline Hero */
 #surface-timeline .view-header {
+  min-height: 320px !important;
+  margin: -34px clamp(-82px, -5.2vw, -24px) 28px !important;
+  padding: 48px 24px 36px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  gap: 0 !important;
   background:
     radial-gradient(ellipse 56% 100% at 100% 50%, rgba(190, 218, 240, 0.45), transparent 78%),
     linear-gradient(115deg, #e4ebf2 0%, #edf3f8 55%, #e8eff5 100%) !important;
@@ -6568,6 +6577,122 @@ a {
 #surface-timeline .view-header::before {
   color: rgba(71, 85, 105, 0.16) !important;
   mask-image: linear-gradient(90deg, #000 0%, #000 48%, transparent 100%) !important;
+}
+
+#surface-timeline .view-header>div {
+  max-width: 800px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#surface-timeline .view-header .eyebrow {
+  display: inline-block !important;
+  margin-bottom: 12px !important;
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15em !important;
+  color: #be123c !important;
+}
+
+#surface-timeline .view-title {
+  max-width: 780px !important;
+  margin: 0 auto 16px !important;
+  font-size: clamp(2.4rem, 4.8vw, 3.8rem) !important;
+  line-height: 1.15 !important;
+  color: #0f172a !important;
+}
+
+#surface-timeline .view-desc {
+  max-width: 680px !important;
+  margin: 0 auto 20px !important;
+  color: #475569 !important;
+  font-size: 1.05rem !important;
+  line-height: 1.5 !important;
+}
+
+#surface-timeline .view-desc strong {
+  color: #0f172a !important;
+  font-weight: 650 !important;
+}
+
+.repo-onboarding-hint {
+  width: max-content !important;
+  max-width: min(100%, 540px) !important;
+  margin: 0 auto 22px !important;
+  padding: 8px 18px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border: 1px solid rgba(190, 18, 60, 0.22) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+}
+
+.repo-onboarding-hint:hover {
+  background: #ffffff !important;
+  border-color: rgba(190, 18, 60, 0.45) !important;
+  box-shadow: 0 3px 10px rgba(190, 18, 60, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.repo-hint-icon {
+  width: 26px !important;
+  height: 26px !important;
+  flex: 0 0 26px !important;
+  display: grid !important;
+  place-items: center !important;
+  color: #be123c !important;
+  background: rgba(190, 18, 60, 0.1) !important;
+  border-radius: 6px !important;
+  font-size: 0.95rem !important;
+  line-height: 1 !important;
+}
+
+.repo-hint-copy {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.repo-hint-copy strong {
+  color: #be123c !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.01em !important;
+}
+
+.repo-hint-copy small {
+  color: #475569 !important;
+  font-size: 0.78rem !important;
+  line-height: 1.35 !important;
+}
+
+.repo-hint-arrow {
+  margin-left: 2px !important;
+  color: #be123c !important;
+  font-size: 0.9rem !important;
+}
+
+#surface-timeline .filter-group {
+  display: inline-flex !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  margin: 0 auto !important;
+}
+
+#surface-timeline .filter-btn {
+  padding: 7px 16px !important;
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  border-radius: 6px !important;
 }
 
 #surface-timeline .timeline-wrapper::before {
