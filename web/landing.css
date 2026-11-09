@@ -2396,7 +2396,8 @@ a.workflow-step:hover>b {
   --violet-bright: #e11d48;
 }
 
-html, body {
+html,
+body {
   background-color: #edf3f8 !important;
   color: #0f172a !important;
 }
@@ -2548,18 +2549,28 @@ body {
 
 .hero-watch {
   color: #0f172a !important;
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .hero-watch:hover {
   color: #be123c !important;
-  border-color: #be123c !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .hero-watch>span {
-  border-color: #cbd5e1 !important;
+  border-color: rgba(15, 23, 42, 0.28) !important;
+  background: transparent !important;
+  color: inherit !important;
+}
+
+.hero-watch:hover>span {
+  border-color: #be123c !important;
+  color: #be123c !important;
 }
 
 .hero-scroll,
