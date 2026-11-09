@@ -1657,7 +1657,6 @@ const app = {
           <div style="margin-bottom: 24px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
               <h3 style="font-size: 1.1rem; color: #ff858c; margin: 0;">Decision Guard Rules (Automated CI Enforcement)</h3>
-              <span class="badge" style="background: rgba(227, 51, 64, 0.16); color: #ff858c;">Novelty Feature</span>
             </div>
             <div style="display: grid; gap: 12px;">
               ${rules.map(r => `
