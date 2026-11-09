@@ -74,6 +74,19 @@ button {
   height: 32px;
 }
 
+.brand-logo-img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.brand:hover .brand-logo-img {
+  transform: scale(1.06);
+}
+
 .brand-name {
   color: #f0eff2;
   font-size: 1.15rem;

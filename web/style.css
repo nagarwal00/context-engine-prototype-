@@ -82,7 +82,21 @@ body {
 .brand-icon {
   width: 28px;
   height: 28px;
-  color: var(--color-primary);
+  object-fit: contain;
+}
+
+.brand-logo-img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+  transition: transform 0.2s ease;
+}
+
+.brand-logo:hover .brand-logo-img {
+  transform: scale(1.06);
+}
 }
 
 .brand-title {
