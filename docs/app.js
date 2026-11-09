@@ -1954,8 +1954,16 @@ const app = {
       const { metrics, baselines, ground_truth_total, matched_gt_count, details, finding_feedback } = json.data;
       const fb = finding_feedback || metrics.finding_feedback || { total: 0, confirm: 0, dismiss: 0, reopen: 0 };
 
-      const fmtPct = (val) => (typeof val === 'number' ? `${val}%` : (val || 'Not Measured'));
-      const fmtVal = (val, unit = '') => (typeof val === 'number' ? `${val}${unit}` : (val || 'Not Measured'));
+      const fmtPct = (val) => {
+        if (typeof val === 'number') return `${val}%`;
+        if (typeof val === 'string' && val.toLowerCase() === 'not measured') return 'Not Measured';
+        return val || 'Not Measured';
+      };
+      const fmtVal = (val, unit = '') => {
+        if (typeof val === 'number') return `${val}${unit}`;
+        if (typeof val === 'string' && val.toLowerCase() === 'not measured') return 'Not Measured';
+        return val || 'Not Measured';
+      };
 
       let baselineRows = '';
       if (baselines) {
@@ -2042,7 +2050,7 @@ const app = {
                 <div class="metric-lbl">Refusal Accuracy (Negative)</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #475569; font-size: 1.1rem;">${esc(ov.decision_precision || 'not measured')}</div>
+                <div class="metric-val" style="color: #475569; font-size: 1.1rem;">${esc(ov.decision_precision && ov.decision_precision.toLowerCase() !== 'not measured' ? ov.decision_precision : 'Not Measured')}</div>
                 <div class="metric-lbl" title="${esc(ov.decision_precision_reason || '')}">Precision</div>
               </div>
             </div>
