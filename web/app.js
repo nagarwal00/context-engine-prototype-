@@ -29,7 +29,7 @@ const app = {
   selectedArtifact: null,
   cachedDecisions: [],
   cachedArtifacts: [],
-  
+
   init() {
     this.bindGlobalEvents();
     this.refreshStats();
@@ -67,7 +67,7 @@ const app = {
         const norm = this.normalizeSurfaceName(hash);
         if (norm) return norm;
       }
-    } catch (_) {}
+    } catch (_) { }
     return null;
   },
 
@@ -167,7 +167,7 @@ const app = {
     if (window.location.hash !== '#' + surfaceId) {
       try {
         history.replaceState(null, '', '#' + surfaceId);
-      } catch (_) {}
+      } catch (_) { }
     }
 
     // Lazy load specific surface data
@@ -386,7 +386,7 @@ const app = {
 
     addLog(`Connecting to repository '${rawRepo}'...`);
     addLog(`Fetching commit logs, author identities, and code diffs...`);
-    
+
     // Progress pulse timer while network request completes
     let step = 0;
     const progressInterval = setInterval(() => {
@@ -480,7 +480,7 @@ const app = {
   async loadTimeline() {
     const container = document.getElementById('timeline-container');
     container.innerHTML = '<div class="loading-state">Loading timeline events...</div>';
-    
+
     let url = '/api/timeline';
     if (this.selectedRepo) url += `?repo=${encodeURIComponent(this.selectedRepo)}`;
 
@@ -501,7 +501,7 @@ const app = {
       container.innerHTML = filtered.map(d => {
         const dateStr = d.made_at ? d.made_at.substring(0, 10) : 'Recent';
         const artifactsStr = (d.affected_artifacts || []).map(a => `<span class="stat-pill">${esc(a.canonical_path)}</span>`).join(' ');
-        
+
         return `
           <div class="timeline-card">
             <div class="timeline-node-dot" style="background-color: ${esc(this.getStateColor(d.state))}"></div>
@@ -909,7 +909,7 @@ const app = {
       meta.setAttribute('class', 'map-node-meta');
       meta.textContent = n.type === 'decision' ? (n.state || 'Decision').toUpperCase()
         : n.type === 'entity' ? (n.entity_type || 'Code artifact').replaceAll('_', ' ')
-        : (n.source_type || 'Source event').replaceAll('_', ' ');
+          : (n.source_type || 'Source event').replaceAll('_', ' ');
       g.appendChild(meta);
 
       g.addEventListener('mouseenter', () => {
@@ -1508,7 +1508,7 @@ const app = {
             <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">${esc(decision.decision_id)}</span>
           </div>
           <h3 style="font-size: 1.15rem; margin-bottom: 6px;">${esc(decision.title)}</h3>
-          <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(decision.rationale || 'No extracted rationale.')}</p>
+          <p style="font-size: 0.88rem; color: #475569; line-height: 1.5; margin-bottom: 10px;">${esc(decision.rationale || 'No extracted rationale.')}</p>
           <div style="font-size: 0.78rem; color: #64748b;">
             Decided by <strong>${esc(decision.made_by)}</strong> on ${esc(decision.made_at ? decision.made_at.substring(0, 10) : '')}
           </div>
@@ -1528,9 +1528,12 @@ const app = {
       }
       if (missingCorroboration.length > 0) {
         warningsHtml += `
-          <div style="margin-bottom: 16px; padding: 12px; background: rgba(245, 158, 11, 0.12); border-left: 4px solid #f59e0b; border-radius: 4px;">
-            <div style="font-weight: 600; color: #fbbf24; font-size: 0.85rem; margin-bottom: 6px;">Missing Corroboration:</div>
-            <ul style="margin: 0; padding-left: 18px; font-size: 0.82rem; color: #fde68a;">
+          <div class="evidence-card" style="margin-bottom: 16px; padding: 14px 16px; background: #ffffff; border: 1px solid #dbe4ee; border-left: 4px solid var(--accent); border-radius: 6px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+              <div style="font-weight: 600; color: #0f172a; font-size: 0.92rem;">Missing Corroboration:</div>
+              <span class="badge" style="background: rgba(190, 18, 60, 0.08); color: #be123c; border: 1px solid rgba(190, 18, 60, 0.2); font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;">Pending Review</span>
+            </div>
+            <ul style="margin: 0; padding-left: 18px; font-size: 0.86rem; color: #475569; line-height: 1.5;">
               ${missingCorroboration.map(m => `<li>${esc(m)}</li>`).join('')}
             </ul>
           </div>
@@ -1693,9 +1696,9 @@ const app = {
           <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Candidate Decisions & Contradictions for Arbitration</h3>
           <div style="display: grid; gap: 12px;">
             ${items.map(item => {
-              const id = item.decision_id || item.edge_id;
-              const confStr = item.confidence !== undefined ? Math.round(item.confidence * 100) + '%' : '';
-              return `
+          const id = item.decision_id || item.edge_id;
+          const confStr = item.confidence !== undefined ? Math.round(item.confidence * 100) + '%' : '';
+          return `
                 <div class="review-item-card">
                   <div style="flex: 1;">
                     <span class="review-reason-tag">${esc(item.queue_reason)}</span>
@@ -1712,7 +1715,7 @@ const app = {
                   </div>
                 </div>
               `;
-            }).join('')}
+        }).join('')}
           </div>
         `;
       }
@@ -1971,8 +1974,8 @@ const app = {
 
         for (const [key, b] of Object.entries(baselines)) {
           if (!b) continue;
-          const statusBadge = b.status === 'measured' 
-            ? `<span class="badge" style="background:#2c508b; color:#fff;">Measured</span>` 
+          const statusBadge = b.status === 'measured'
+            ? `<span class="badge" style="background:#2c508b; color:#fff;">Measured</span>`
             : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
           baselineRows += `
             <tr>
@@ -2224,7 +2227,7 @@ const app = {
     }
     try {
       localStorage.setItem('cif_onboarding_checks', JSON.stringify(Array.from(this.onboardingCheckedItems)));
-    } catch (e) {}
+    } catch (e) { }
     this.updateChecklistProgressBadge();
   },
 
@@ -2255,7 +2258,7 @@ const app = {
       if (saved) {
         this.onboardingCheckedItems = new Set(JSON.parse(saved));
       }
-    } catch (e) {}
+    } catch (e) { }
 
     // Render Checklist
     if (checklistCard && checklistContainer && data.checklist && data.checklist.length > 0) {
@@ -2559,7 +2562,7 @@ const app = {
     this._stateCache = state;
     try {
       localStorage.setItem('cif_live_state', JSON.stringify(state));
-    } catch (e) {}
+    } catch (e) { }
   },
 
   clientMockApi(url, options = {}) {
@@ -2789,7 +2792,7 @@ const app = {
       if (path === '/api/reseed') {
         try {
           localStorage.removeItem('cif_live_state');
-        } catch (e) {}
+        } catch (e) { }
         this._stateCache = null;
         return { status: 'success', message: 'Pilot database reseeded successfully to initial state.' };
       }
