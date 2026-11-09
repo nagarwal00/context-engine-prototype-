@@ -2013,7 +2013,7 @@ const app = {
         const kwHit = (ov.baseline_keyword && typeof ov.baseline_keyword.task_1_hit_rate === 'number') ? `${ov.baseline_keyword.task_1_hit_rate}%` : 'BM25';
         whybenchHtml = `
           <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px;">
               <div>
                 <strong style="color: #be123c; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
                 <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
@@ -2021,7 +2021,7 @@ const app = {
                   Total questions evaluated: <strong>${esc(wb.questions_evaluated)}</strong> (<strong>${esc(wb.standard_questions)}</strong> standard, <strong>${esc(wb.refusal_questions)}</strong> negative refusal).
                 </p>
               </div>
-              <span class="badge" style="background: #be123c; color: #fff; font-size: 0.75rem;">Measured Manifest Data</span>
+              <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(190, 18, 60, 0.12); color: #be123c; border: 1px solid rgba(190, 18, 60, 0.28); letter-spacing: 0.02em;">Measured Manifest Data</span>
             </div>
 
             <div class="benchmark-metrics-cards" style="margin-bottom: 16px;">
@@ -2071,7 +2071,7 @@ const app = {
 
       container.innerHTML = `
         ${whybenchHtml}
-        <div style="background: #f0f7ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+        <div style="background: #f0f7ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
           <div>
             <strong style="color: #0369a1;">Synthetic Pilot Benchmark (Smoke Test)</strong>
             <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
@@ -2079,7 +2079,7 @@ const app = {
               Matched <strong>${esc(matched_gt_count || 0)}</strong> of <strong>${esc(ground_truth_total || 0)}</strong> ground truth decisions.
             </p>
           </div>
-          <span class="badge" style="background: #0284c7; color: #fff; font-size: 0.75rem;">Pipeline Smoke Test</span>
+          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.28); letter-spacing: 0.02em;">Pipeline Smoke Test</span>
         </div>
 
         <div class="benchmark-metrics-cards">
@@ -2105,7 +2105,7 @@ const app = {
           </div>
         </div>
 
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
           <div>
             <strong style="color: #15803d;">Developer Finding Feedback (Measured Data)</strong>
             <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
@@ -2115,7 +2115,7 @@ const app = {
               Reopened Decisions: <strong>${esc(fb.reopen || 0)}</strong> (Total: <strong>${esc(fb.total || 0)}</strong>)
             </p>
           </div>
-          <span class="badge" style="background: #16a34a; color: #fff; font-size: 0.75rem;">Measured Feedback</span>
+          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(22, 163, 74, 0.12); color: #15803d; border: 1px solid rgba(22, 163, 74, 0.28); letter-spacing: 0.02em;">Measured Feedback</span>
         </div>
 
         <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
