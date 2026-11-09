@@ -7048,6 +7048,11 @@ tr:hover td code {
   color: #0f172a !important;
 }
 
+.benchmark-table .badge {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .benchmark-card,
 .metric-stat-box {
   background: #ffffff !important;

@@ -1967,15 +1967,15 @@ const app = {
             <td>${esc(fmtPct(metrics.evidence_link_accuracy))}</td>
             <td>${esc(fmtPct(metrics.drift_precision))} (Drift Precision)</td>
             <td style="color: #1a8b66; font-weight: 700;">${esc(fmtPct(metrics.unsupported_claim_rate))}</td>
-            <td><span class="badge" style="background:#1a8b66; color:#fff;">Live Computed</span></td>
+            <td><span class="badge" style="background: transparent; color: #15803d; border: 1px solid rgba(22, 163, 74, 0.4); font-weight: 600; white-space: nowrap;">Live Computed</span></td>
           </tr>
         `;
 
         for (const [key, b] of Object.entries(baselines)) {
           if (!b) continue;
           const statusBadge = b.status === 'measured'
-            ? `<span class="badge" style="background:#2c508b; color:#fff;">Measured</span>`
-            : `<span class="badge" style="background:#6b7280; color:#fff;">Not Measured</span>`;
+            ? `<span class="badge" style="background: transparent; color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.4); font-weight: 600; white-space: nowrap;">Measured</span>`
+            : `<span class="badge" style="background: transparent; color: #64748b; border: 1px solid rgba(100, 116, 139, 0.35); font-weight: 600; white-space: nowrap;">Not Measured</span>`;
           baselineRows += `
             <tr>
               <td><strong>${esc(b.name || key)}</strong></td>
