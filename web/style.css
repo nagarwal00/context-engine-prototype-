@@ -6762,9 +6762,18 @@ a {
   border-left-color: #be123c !important;
 }
 
+#surface-code .explanation-banner p {
+  color: #475569 !important;
+  line-height: 1.6 !important;
+}
+
 #surface-code .chain-step-card {
   background: #ffffff !important;
   border: 1px solid #dbe4ee !important;
+}
+
+#surface-code .chain-step-card p {
+  color: #475569 !important;
 }
 
 #surface-code .citation-link {

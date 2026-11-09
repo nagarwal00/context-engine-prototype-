@@ -642,7 +642,7 @@ const app = {
                 <span style="font-size: 0.72rem; color: #64748b;">For: ${esc(a.for_decision_title ? a.for_decision_title.substring(0, 24) : '')}</span>
               </div>
               <h5 class="asof-card-title">${esc(a.description)}</h5>
-              <div class="asof-card-body" style="color: #cbd5e1;">
+              <div class="asof-card-body" style="color: #475569;">
                 <strong>Outcome:</strong> ${esc(a.rejection_reason)}
               </div>
             </div>
@@ -943,18 +943,18 @@ const app = {
       const confStr = node.confidence !== undefined ? Math.round(node.confidence * 100) + '%' : 'N/A';
       const madeAtStr = node.made_at ? node.made_at.substring(0, 10) : '';
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">State: <strong>${esc(node.state)}</strong> | Confidence: <strong>${esc(confStr)}</strong></p>
-        <p style="color: #cbd5e1; font-size: 0.82rem; margin-bottom: 12px;">Made by <strong>${esc(node.made_by)}</strong> on ${esc(madeAtStr)}</p>
+        <p style="color: #475569; font-size: 0.8rem; margin-bottom: 10px;">State: <strong>${esc(node.state)}</strong> | Confidence: <strong>${esc(confStr)}</strong></p>
+        <p style="color: #475569; font-size: 0.82rem; margin-bottom: 12px;">Made by <strong>${esc(node.made_by)}</strong> on ${esc(madeAtStr)}</p>
         <button class="btn btn-primary btn-sm btn-graph-evidence" data-decision-id="${esc(node.id)}">View Evidence Trail</button>
       `;
     } else if (node.type === 'entity') {
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Entity Type: <code>${esc(node.entity_type)}</code></p>
+        <p style="color: #475569; font-size: 0.8rem; margin-bottom: 10px;">Entity Type: <code>${esc(node.entity_type)}</code></p>
         <button class="btn btn-primary btn-sm btn-graph-inspect" data-artifact-label="${esc(node.label)}">Inspect Decision Chain</button>
       `;
     } else if (node.type === 'event') {
       content += `
-        <p style="color: #94a3b8; font-size: 0.8rem; margin-bottom: 10px;">Source: <code>${esc(node.source_type)}</code></p>
+        <p style="color: #475569; font-size: 0.8rem; margin-bottom: 10px;">Source: <code>${esc(node.source_type)}</code></p>
         <a href="${safeUrl(node.source_url)}" target="_blank" class="citation-link">Open Source Link ↗</a>
       `;
     }
@@ -1048,9 +1048,9 @@ const app = {
             <span style="font-size: 0.75rem; color: #64748b; font-family: monospace;">Step ${esc(step.step_number)}</span>
           </div>
           <h4 style="font-size: 1.05rem; margin-bottom: 6px;">${esc(step.title || (step.decision && step.decision.title))}</h4>
-          <p style="font-size: 0.86rem; color: #94a3b8; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale || (step.decision && step.decision.rationale))}</p>
+          <p style="font-size: 0.86rem; color: #475569; line-height: 1.5; margin-bottom: 10px;">${esc(step.rationale || (step.decision && step.decision.rationale))}</p>
           ${passage ? `<div style="background: rgba(13, 19, 32, 0.6); border-left: 3px solid #2c508b; padding: 6px 10px; margin: 6px 0 10px 0; font-style: italic; color: #e2e8f0; font-size: 0.82rem; line-height: 1.4;">“${esc(passage)}”</div>` : ''}
-          <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">
+          <div style="font-size: 0.78rem; color: #475569; margin-bottom: 6px;">
             Decided by <strong>${esc(step.made_by || (step.decision && step.decision.made_by))}</strong> on ${esc(step.made_at ? step.made_at.substring(0, 10) : '')}
           </div>
 
@@ -1069,15 +1069,15 @@ const app = {
 
       let supportRateHtml = '';
       if (data.claim_support_rate !== undefined && data.claim_support_rate !== null) {
-        supportRateHtml = `<div style="font-size: 0.8rem; color: #94a3b8; margin-top: 8px;">Sentence Support Rate: <strong>${esc(Math.round(data.claim_support_rate * 100))}%</strong></div>`;
+        supportRateHtml = `<div style="font-size: 0.8rem; color: #475569; margin-top: 8px;">Sentence Support Rate: <strong style="color: #0f172a;">${esc(Math.round(data.claim_support_rate * 100))}%</strong></div>`;
       }
 
       let unsupportedHtml = '';
       if (data.unsupported_sentences && data.unsupported_sentences.length > 0) {
         unsupportedHtml = `
-          <div style="margin-top: 10px; padding: 8px 12px; background: rgba(239, 68, 68, 0.15); border-left: 3px solid #ef4444; border-radius: 4px; font-size: 0.82rem; color: #fca5a5;">
-            Flagged Unsupported Sentences:
-            <ul style="margin: 4px 0 0 16px; padding: 0;">
+          <div style="margin-top: 10px; padding: 8px 12px; background: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; border-radius: 4px; font-size: 0.82rem; color: #991b1b;">
+            <strong style="color: #991b1b;">Flagged Unsupported Sentences:</strong>
+            <ul style="margin: 4px 0 0 16px; padding: 0; color: #7f1d1d;">
               ${data.unsupported_sentences.map(s => `<li>${esc(s)}</li>`).join('')}
             </ul>
           </div>
@@ -1087,7 +1087,7 @@ const app = {
       const content = `
         <div class="explanation-banner">
           <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Why does <code>${esc(canonicalPath)}</code> look like this?</h3>
-          <p style="font-size: 0.9rem; color: #cbd5e1;">${esc(data.explanation).replace(/\n\n/g, '<br><br>')}</p>
+          <p style="font-size: 0.9rem; color: #475569; line-height: 1.6;">${esc(data.explanation).replace(/\n\n/g, '<br><br>')}</p>
           ${supportRateHtml}
           ${unsupportedHtml}
         </div>
@@ -1319,7 +1319,7 @@ const app = {
                     <span>Actor: <strong>${esc(t.changed_by)}</strong></span>
                     <span>Timestamp: <code>${esc(dateStr)}</code></span>
                   </div>
-                  <div style="font-size: 0.84rem; color: #cbd5e1; margin-top: 4px;">
+                  <div style="font-size: 0.84rem; color: #475569; margin-top: 4px;">
                     ${esc(t.notes || 'No reason provided.')}
                   </div>
                 </div>
@@ -1926,7 +1926,7 @@ const app = {
         resultDisplay.innerHTML = `
           <div class="drift-alert-box" style="background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; color: #fbbf24;">
             <h4 style="font-size: 1.05rem; margin-bottom: 6px;">⚠️ Check incomplete: ${esc(errors.length)} rule(s) could not run</h4>
-            <p style="font-size: 0.88rem; line-height: 1.5; color: #cbd5e1;">One or more decision guard rules encountered errors during evaluation and could not complete.</p>
+            <p style="font-size: 0.88rem; line-height: 1.5; color: #475569;">One or more decision guard rules encountered errors during evaluation and could not complete.</p>
           </div>
         `;
       } else {
