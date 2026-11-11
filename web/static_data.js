@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "51fc2725e04ada5712c980dab4753022f5adc9e748411195cff34621f7b1f8cd",
+  "db_snapshot_sha256": "6cb619d448c632d74fb6d0681b0a3205050becd608ddf6f511c73d9c4a619131",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -15,7 +15,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 1,
           "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
           "entity_type": "dependency",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -27,7 +28,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 1,
           "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
           "entity_type": "dependency",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -39,7 +41,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 0,
           "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
           "entity_type": "file",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -51,7 +54,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
           "entity_type": "file",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -63,7 +67,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
           "entity_type": "file",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -75,7 +80,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
           "entity_type": "function",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -87,7 +93,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
           "entity_type": "function",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -99,7 +106,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 0,
           "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
           "entity_type": "function",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -111,7 +119,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
           "entity_type": "function",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         }
       ],
       "status": "success"
@@ -128,7 +137,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 1,
           "entity_id": "ent_dep_acme-eng_distributed-cache-service_redis",
           "entity_type": "dependency",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -140,7 +150,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
           "entity_type": "file",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -152,7 +163,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
           "entity_type": "function",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         },
         {
           "aliases": [
@@ -164,7 +176,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
           "entity_type": "function",
-          "repo": "acme-eng/distributed-cache-service"
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service"
         }
       ],
       "status": "success"
@@ -181,7 +194,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 1,
           "entity_id": "ent_dep_acme-eng_thermal-control-system_scipy",
           "entity_type": "dependency",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -193,7 +207,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 0,
           "entity_id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
           "entity_type": "file",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -205,7 +220,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
           "entity_type": "file",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -217,7 +233,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 0,
           "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
           "entity_type": "function",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         },
         {
           "aliases": [
@@ -229,7 +246,8 @@ window.__CIF_STATIC_DATA__ = {
           "decision_count": 2,
           "entity_id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
           "entity_type": "function",
-          "repo": "acme-eng/thermal-control-system"
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system"
         }
       ],
       "status": "success"
@@ -238,10 +256,14 @@ window.__CIF_STATIC_DATA__ = {
       "data": {
         "baselines": {
           "baseline_copilot": {
+            "accuracy": "not measured",
+            "cited_real_source_rate": "not measured",
             "decision_recall": "not measured",
             "evaluated_samples": 0,
             "hallucination_rate": "not measured",
+            "invented_reason_rate": "not measured",
             "name": "Baseline D: GitHub Copilot",
+            "note": "No manual copilot evaluation records logged in manual_copilot_results.csv",
             "status": "not measured"
           },
           "baseline_docs_only": {
@@ -315,8 +337,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_thermal_0004",
-                "evt_git_thermal_a1b2c3d4"
+                "evt_git_thermal_a1b2c3d4",
+                "evt_adr_thermal_0004"
               ],
               "system_state": "accepted"
             },
@@ -391,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '51fc2725e04ada5712c980dab4753022f5adc9e748411195cff34621f7b1f8cd'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '6cb619d448c632d74fb6d0681b0a3205050becd608ddf6f511c73d9c4a619131'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -414,8 +436,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_thermal_0004",
-                  "evt_git_thermal_a1b2c3d4"
+                  "evt_git_thermal_a1b2c3d4",
+                  "evt_adr_thermal_0004"
                 ],
                 "system_state": "accepted"
               },
@@ -433,9 +455,9 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
-              "dec_cache_redis_accepted",
+              "dec_cache_local_lru_proposed",
               "dec_thermal_pid_accepted",
-              "dec_cache_local_lru_proposed"
+              "dec_cache_redis_accepted"
             ],
             "missed": [
               {
@@ -461,6 +483,7 @@ window.__CIF_STATIC_DATA__ = {
                 "made_by": "sarah_chen",
                 "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
                 "repo": "acme-eng/thermal-control-system",
+                "repo_full_name": "acme-eng/thermal-control-system",
                 "review_status": "auto_confirmed",
                 "state": "rejected",
                 "superseded_by_decision_id": null,
@@ -477,11 +500,12 @@ window.__CIF_STATIC_DATA__ = {
                 "made_by": "sarah_chen",
                 "rationale": "Governing architectural baseline decision",
                 "repo": "acme-eng/thermal-control-system",
+                "repo_full_name": "acme-eng/thermal-control-system",
                 "review_status": "pending_review",
                 "state": "accepted",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_thermal_pid_01"
+                "title": "Adopt Discrete PID Controller for Chamber Regulation"
               },
               {
                 "alternatives_json": "[]",
@@ -493,15 +517,16 @@ window.__CIF_STATIC_DATA__ = {
                 "made_by": "sarah_chen",
                 "rationale": "Governing architectural baseline decision",
                 "repo": "acme-eng/thermal-control-system",
+                "repo_full_name": "acme-eng/thermal-control-system",
                 "review_status": "pending_review",
                 "state": "rejected",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_thermal_bangbang_02"
+                "title": "Reject Simple On-Off Threshold Controller"
               },
               {
                 "alternatives_json": "[]",
-                "confidence": 0.8,
+                "confidence": 1.0,
                 "decision_id": "dec_cache_redis_01",
                 "evidence_assessment": "insufficient",
                 "freshness": "fresh",
@@ -509,11 +534,12 @@ window.__CIF_STATIC_DATA__ = {
                 "made_by": "priya_patel",
                 "rationale": "Governing architectural baseline decision",
                 "repo": "acme-eng/distributed-cache-service",
-                "review_status": "pending_review",
+                "repo_full_name": "acme-eng/distributed-cache-service",
+                "review_status": "human_confirmed",
                 "state": "accepted",
                 "superseded_by_decision_id": null,
                 "supersedes_decision_id": null,
-                "title": "Architectural Decision dec_cache_redis_01"
+                "title": "Adopt Distributed Redis Cluster Cache"
               }
             ],
             "unmatched_system_ids": [
@@ -588,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '51fc2725e04ada5712c980dab4753022f5adc9e748411195cff34621f7b1f8cd'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '6cb619d448c632d74fb6d0681b0a3205050becd608ddf6f511c73d9c4a619131'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
@@ -629,30 +655,34 @@ window.__CIF_STATIC_DATA__ = {
                 "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
                 "status": "measured",
                 "task_1_applicable": true,
-                "task_1_hit_rate": 8.5,
+                "task_1_hit_rate": 23.1,
                 "task_1_top_k": 5,
                 "task_2_applicable": false,
                 "task_2_decision_recall": "n/a",
                 "task_2_refusal_accuracy": "n/a (always answers)",
                 "task_2_state_accuracy": "n/a",
                 "top_k": 5,
-                "total_count": 71
+                "total_count": 26,
+                "wilson95_high": 0.4205,
+                "wilson95_low": 0.1103
               },
               "baseline_keyword": {
                 "decision_recall": 59.2,
-                "found_count": 42,
+                "found_count": 24,
                 "name": "Baseline A: Keyword Search (Grep/BM25)",
                 "note": "Task 1 (Evidence Retrieval) only; Task 2 (Decision Reconstruction) is n/a.",
                 "status": "measured",
                 "task_1_applicable": true,
-                "task_1_hit_rate": 59.2,
+                "task_1_hit_rate": 92.3,
                 "task_1_top_k": 5,
                 "task_2_applicable": false,
                 "task_2_decision_recall": "n/a",
                 "task_2_refusal_accuracy": "n/a (always answers)",
                 "task_2_state_accuracy": "n/a",
                 "top_k": 5,
-                "total_count": 71
+                "total_count": 26,
+                "wilson95_high": 0.9786,
+                "wilson95_low": 0.7586
               },
               "baseline_llm": {
                 "decision_recall": "not measured",
@@ -686,12 +716,20 @@ window.__CIF_STATIC_DATA__ = {
               "state_correct_count": 21,
               "strict_matched_gt_count": 21,
               "task_1_cif_hit_rate": 80.8,
-              "task_1_cif_hits": 21
+              "task_1_cif_hits": 21,
+              "task_1_cif_wilson95_high": 0.9149,
+              "task_1_cif_wilson95_low": 0.6212
             },
             "per_repository": {
               "acme-ecommerce/payment-core": {
-                "baseline_docs_only_hit_rate": 8.0,
-                "baseline_keyword_hit_rate": 56.0,
+                "baseline_docs_only_hit_rate": 20.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5098,
+                "baseline_docs_only_wilson95_low": 0.0567,
+                "baseline_keyword_hit_rate": 90.0,
+                "baseline_keyword_hits": 9,
+                "baseline_keyword_wilson95_high": 0.9821,
+                "baseline_keyword_wilson95_low": 0.5958,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 80.0,
@@ -706,11 +744,19 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 8,
                 "strict_matched_gt_count": 8,
                 "task_1_cif_hit_rate": 80.0,
-                "task_1_cif_hits": 8
+                "task_1_cif_hits": 8,
+                "task_1_cif_wilson95_high": 0.9433,
+                "task_1_cif_wilson95_low": 0.4902
               },
               "cli/cli": {
-                "baseline_docs_only_hit_rate": 8.7,
-                "baseline_keyword_hit_rate": 56.5,
+                "baseline_docs_only_hit_rate": 25.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5907,
+                "baseline_docs_only_wilson95_low": 0.0715,
+                "baseline_keyword_hit_rate": 100.0,
+                "baseline_keyword_hits": 8,
+                "baseline_keyword_wilson95_high": 1.0,
+                "baseline_keyword_wilson95_low": 0.6756,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 87.5,
@@ -725,11 +771,19 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 7,
                 "strict_matched_gt_count": 7,
                 "task_1_cif_hit_rate": 87.5,
-                "task_1_cif_hits": 7
+                "task_1_cif_hits": 7,
+                "task_1_cif_wilson95_high": 0.9776,
+                "task_1_cif_wilson95_low": 0.5291
               },
               "cloud-hypervisor/cloud-hypervisor": {
-                "baseline_docs_only_hit_rate": 8.7,
-                "baseline_keyword_hit_rate": 65.2,
+                "baseline_docs_only_hit_rate": 25.0,
+                "baseline_docs_only_hits": 2,
+                "baseline_docs_only_wilson95_high": 0.5907,
+                "baseline_docs_only_wilson95_low": 0.0715,
+                "baseline_keyword_hit_rate": 87.5,
+                "baseline_keyword_hits": 7,
+                "baseline_keyword_wilson95_high": 0.9776,
+                "baseline_keyword_wilson95_low": 0.5291,
                 "decision_precision": "not measured",
                 "decision_precision_reason": "snapshot hash mismatch: labels generated from 'db0b1b05341cfddaab5a935aae3993ed12d5a355f86f014ba406e495bdf33d5a', current DB hash is '26bd603a325232bd25e2e0fce3ef17daf916629f61bc25324b2afdd1ed8cc63d'",
                 "decision_recall_lenient": 75.0,
@@ -744,7 +798,9 @@ window.__CIF_STATIC_DATA__ = {
                 "state_correct_count": 6,
                 "strict_matched_gt_count": 6,
                 "task_1_cif_hit_rate": 75.0,
-                "task_1_cif_hits": 6
+                "task_1_cif_hits": 6,
+                "task_1_cif_wilson95_high": 0.9285,
+                "task_1_cif_wilson95_low": 0.4093
               }
             }
           },
@@ -1276,7 +1332,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CH_TEST_NEG_09",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Was Tokio async runtime chosen over standard threads in PR #11172200 io_uring discussions?",
+              "question": "Was Tokio async runtime chosen over standard threads in PR #1240 io_uring discussions?",
               "repo": "cloud-hypervisor/cloud-hypervisor",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1240"
@@ -1286,7 +1342,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CH_TEST_NEG_10",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Did PR #10271022 discuss and adopt NVIDIA proprietary vGPU grid licensing manager?",
+              "question": "Did PR #1312 discuss and adopt NVIDIA proprietary vGPU grid licensing manager?",
               "repo": "cloud-hypervisor/cloud-hypervisor",
               "status": "correct_refusal",
               "system_answer": "No recorded architectural decision found (Refused)"
@@ -1316,7 +1372,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CH_TEST_NEG_13",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Did PR #19194200 comments adopt Thunderbolt PCIe external hotplug device specifications?",
+              "question": "Did PR #1180 comments adopt Thunderbolt PCIe external hotplug device specifications?",
               "repo": "cloud-hypervisor/cloud-hypervisor",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1180"
@@ -1326,7 +1382,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CH_TEST_NEG_14",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Did bot automated benchmark comments on PR #44000b22 decide to enforce 1GB hugepages for all guests?",
+              "question": "Did bot automated benchmark comments on PR #1042 decide to enforce 1GB hugepages for all guests?",
               "repo": "cloud-hypervisor/cloud-hypervisor",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cloud-hypervisor_cloud-hypervisor_github_pr_1042"
@@ -1336,7 +1392,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CH_TEST_NEG_15",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Was gVisor container sandbox architecture adopted in PR #1c274a00 serverless profile?",
+              "question": "Was gVisor container sandbox architecture adopted in PR #1390 serverless profile?",
               "repo": "cloud-hypervisor/cloud-hypervisor",
               "status": "correct_refusal",
               "system_answer": "No recorded architectural decision found (Refused)"
@@ -1426,7 +1482,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CLI_TEST_NEG_09",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Was AWS Secrets Manager integration adopted in PR #881125 comments for cloud tokens?",
+              "question": "Was AWS Secrets Manager integration adopted in PR #518 comments for cloud tokens?",
               "repo": "cli/cli",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cli_cli_github_pr_518"
@@ -1446,7 +1502,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CLI_TEST_NEG_11",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Did issue #38650a discuss switching to gRPC-Web for repository pull request pagination?",
+              "question": "Did issue #480 discuss switching to gRPC-Web for repository pull request pagination?",
               "repo": "cli/cli",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cli_cli_github_pr_592"
@@ -1486,7 +1542,7 @@ window.__CIF_STATIC_DATA__ = {
               "id": "WB_CLI_TEST_NEG_15",
               "is_refusal_case": true,
               "negative_type": "mention_without_decision",
-              "question": "Did dependabot comments on PR #477525 decide to replace shurcooL/graphql with khan/genqlient?",
+              "question": "Did dependabot comments on PR #592 decide to replace shurcooL/graphql with khan/genqlient?",
               "repo": "cli/cli",
               "status": "false_positive_decision",
               "system_decision_id": "dec_cli_cli_github_pr_592"
@@ -1497,6 +1553,122 @@ window.__CIF_STATIC_DATA__ = {
           "run_id": "test_v2_20261013_100423",
           "split": "test_v2",
           "standard_questions": 26,
+          "task1_fair_corrections": {
+            "cif_metric_definition": "single strictly-matched decision cites >=1 expected evidence event; not a ranked top-5 retrieval",
+            "generated_by": "tools/recompute_task1_fair.py",
+            "original_values": {
+              "baseline_docs_only_rate": 8.5,
+              "baseline_docs_only_total_count": 71,
+              "baseline_keyword_rate": 59.2,
+              "baseline_keyword_total_count": 71
+            },
+            "overall": {
+              "baseline_docs_only": {
+                "hits": 6,
+                "n": 26,
+                "rate": 23.1,
+                "wilson95_high": 0.4205,
+                "wilson95_low": 0.1103
+              },
+              "baseline_keyword": {
+                "hits": 24,
+                "n": 26,
+                "rate": 92.3,
+                "wilson95_high": 0.9786,
+                "wilson95_low": 0.7586
+              },
+              "cif": {
+                "hits": 21,
+                "n": 26,
+                "rate": 80.8,
+                "wilson95_high": 0.9149,
+                "wilson95_low": 0.6212
+              }
+            },
+            "per_repository": {
+              "acme-ecommerce/payment-core": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 10,
+                  "original_rate": 8.0,
+                  "rate": 20.0,
+                  "wilson95_high": 0.5098,
+                  "wilson95_low": 0.0567
+                },
+                "baseline_keyword": {
+                  "hits": 9,
+                  "n": 10,
+                  "original_rate": 56.0,
+                  "rate": 90.0,
+                  "wilson95_high": 0.9821,
+                  "wilson95_low": 0.5958
+                },
+                "cif": {
+                  "hits": 8,
+                  "n": 10,
+                  "rate": 80.0,
+                  "wilson95_high": 0.9433,
+                  "wilson95_low": 0.4902
+                },
+                "positives_n": 10
+              },
+              "cli/cli": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 8,
+                  "original_rate": 8.7,
+                  "rate": 25.0,
+                  "wilson95_high": 0.5907,
+                  "wilson95_low": 0.0715
+                },
+                "baseline_keyword": {
+                  "hits": 8,
+                  "n": 8,
+                  "original_rate": 56.5,
+                  "rate": 100.0,
+                  "wilson95_high": 1.0,
+                  "wilson95_low": 0.6756
+                },
+                "cif": {
+                  "hits": 7,
+                  "n": 8,
+                  "rate": 87.5,
+                  "wilson95_high": 0.9776,
+                  "wilson95_low": 0.5291
+                },
+                "positives_n": 8
+              },
+              "cloud-hypervisor/cloud-hypervisor": {
+                "baseline_docs_only": {
+                  "hits": 2,
+                  "n": 8,
+                  "original_rate": 8.7,
+                  "rate": 25.0,
+                  "wilson95_high": 0.5907,
+                  "wilson95_low": 0.0715
+                },
+                "baseline_keyword": {
+                  "hits": 7,
+                  "n": 8,
+                  "original_rate": 65.2,
+                  "rate": 87.5,
+                  "wilson95_high": 0.9776,
+                  "wilson95_low": 0.5291
+                },
+                "cif": {
+                  "hits": 6,
+                  "n": 8,
+                  "rate": 75.0,
+                  "wilson95_high": 0.9285,
+                  "wilson95_low": 0.4093
+                },
+                "positives_n": 8
+              }
+            },
+            "positives_n": 26,
+            "reason": "baselines were originally scored over all questions incl. negatives; CIF over positives only",
+            "split": "test_v2"
+          },
           "timestamp": "2026-10-13T10:04:34.739827"
         }
       },
@@ -1677,6 +1849,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -1686,7 +1859,7 @@ window.__CIF_STATIC_DATA__ = {
         {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.8,
+          "confidence": 1.0,
           "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
@@ -1695,11 +1868,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/distributed-cache-service",
-          "review_status": "pending_review",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "review_status": "human_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         },
         {
           "alternatives_considered": [
@@ -1721,6 +1895,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "marcus_vance",
           "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "pending_review",
           "state": "superseded",
           "superseded_by_decision_id": "dec_cache_redis_accepted",
@@ -1747,6 +1922,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -1765,11 +1941,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "alternatives_considered": [
@@ -1791,6 +1968,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "rejected",
           "superseded_by_decision_id": null,
@@ -1809,11 +1987,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         }
       ],
       "status": "success"
@@ -2007,7 +2186,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.98,
             "id": "dec_thermal_pid_accepted",
             "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
@@ -2019,7 +2198,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#f65c76",
+            "color": "#8b5cf6",
             "confidence": 0.82,
             "id": "dec_cache_local_lru_proposed",
             "label": "Retain In-Memory LRU Cache with Process Memory Cap",
@@ -2031,7 +2210,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.97,
             "id": "dec_cache_redis_accepted",
             "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
@@ -2043,10 +2222,10 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_thermal_pid_01",
-            "label": "Architectural Decision dec_thermal_pid_01",
+            "label": "Adopt Discrete PID Controller for Chamber Regulation",
             "made_at": "2026-01-15T16:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2058,7 +2237,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#ef4444",
             "confidence": 0.8,
             "id": "dec_thermal_bangbang_02",
-            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "label": "Reject Simple On-Off Threshold Controller",
             "made_at": "2026-01-12T15:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2067,19 +2246,19 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
-            "confidence": 0.8,
+            "color": "#10b981",
+            "confidence": 1.0,
             "id": "dec_cache_redis_01",
-            "label": "Architectural Decision dec_cache_redis_01",
+            "label": "Adopt Distributed Redis Cluster Cache",
             "made_at": "2026-02-06T15:00:00Z",
             "made_by": "priya_patel",
             "repo": "acme-eng/distributed-cache-service",
-            "review_status": "pending_review",
+            "review_status": "human_confirmed",
             "state": "accepted",
             "type": "decision"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
             "label": "src/thermal/control.py",
@@ -2088,7 +2267,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
             "label": "src/thermal/control.py::regulate_temperature",
@@ -2097,7 +2276,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
             "label": "src/thermal/control.py::read_telemetry_sensor",
@@ -2106,7 +2285,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
             "label": "docs/adr/0004-pid-thermal-regulation.md",
@@ -2115,7 +2294,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "dependency",
             "id": "ent_dep_acme-eng_thermal-control-system_scipy",
             "label": "deps::scipy",
@@ -2124,7 +2303,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
             "label": "src/cache/store.py",
@@ -2133,7 +2312,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
             "label": "src/cache/store.py::cache_get",
@@ -2142,7 +2321,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
             "label": "src/cache/store.py::cache_set",
@@ -2151,7 +2330,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "dependency",
             "id": "ent_dep_acme-eng_distributed-cache-service_redis",
             "label": "deps::redis",
@@ -2367,7 +2546,7 @@ window.__CIF_STATIC_DATA__ = {
         ],
         "nodes": [
           {
-            "color": "#f65c76",
+            "color": "#8b5cf6",
             "confidence": 0.82,
             "id": "dec_cache_local_lru_proposed",
             "label": "Retain In-Memory LRU Cache with Process Memory Cap",
@@ -2379,7 +2558,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.97,
             "id": "dec_cache_redis_accepted",
             "label": "Migrate from In-Memory LRU to Distributed Redis Cluster",
@@ -2391,19 +2570,19 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
-            "confidence": 0.8,
+            "color": "#10b981",
+            "confidence": 1.0,
             "id": "dec_cache_redis_01",
-            "label": "Architectural Decision dec_cache_redis_01",
+            "label": "Adopt Distributed Redis Cluster Cache",
             "made_at": "2026-02-06T15:00:00Z",
             "made_by": "priya_patel",
             "repo": "acme-eng/distributed-cache-service",
-            "review_status": "pending_review",
+            "review_status": "human_confirmed",
             "state": "accepted",
             "type": "decision"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
             "label": "src/cache/store.py",
@@ -2412,7 +2591,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
             "label": "src/cache/store.py::cache_get",
@@ -2421,7 +2600,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
             "label": "src/cache/store.py::cache_set",
@@ -2430,7 +2609,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "dependency",
             "id": "ent_dep_acme-eng_distributed-cache-service_redis",
             "label": "deps::redis",
@@ -2576,7 +2755,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.98,
             "id": "dec_thermal_pid_accepted",
             "label": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
@@ -2588,10 +2767,10 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#1a8b66",
+            "color": "#10b981",
             "confidence": 0.8,
             "id": "dec_thermal_pid_01",
-            "label": "Architectural Decision dec_thermal_pid_01",
+            "label": "Adopt Discrete PID Controller for Chamber Regulation",
             "made_at": "2026-01-15T16:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2603,7 +2782,7 @@ window.__CIF_STATIC_DATA__ = {
             "color": "#ef4444",
             "confidence": 0.8,
             "id": "dec_thermal_bangbang_02",
-            "label": "Architectural Decision dec_thermal_bangbang_02",
+            "label": "Reject Simple On-Off Threshold Controller",
             "made_at": "2026-01-12T15:00:00Z",
             "made_by": "sarah_chen",
             "repo": "acme-eng/thermal-control-system",
@@ -2612,7 +2791,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "decision"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
             "label": "src/thermal/control.py",
@@ -2621,7 +2800,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
             "label": "src/thermal/control.py::regulate_temperature",
@@ -2630,7 +2809,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "function",
             "id": "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_read_telemetry_sensor",
             "label": "src/thermal/control.py::read_telemetry_sensor",
@@ -2639,7 +2818,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "file",
             "id": "ent_file_acme-eng_thermal-control-system_docs_adr_0004-pid-thermal-regulation_md",
             "label": "docs/adr/0004-pid-thermal-regulation.md",
@@ -2648,7 +2827,7 @@ window.__CIF_STATIC_DATA__ = {
             "type": "entity"
           },
           {
-            "color": "#2c508b",
+            "color": "#3b82f6",
             "entity_type": "dependency",
             "id": "ent_dep_acme-eng_thermal-control-system_scipy",
             "label": "deps::scipy",
@@ -2724,10 +2903,10 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-01-15T16:00:00Z",
           "approved_by": "sarah_chen",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-28T08:41:25.701657+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_pid_01",
-          "decision_title": "Architectural Decision dec_thermal_pid_01",
+          "decision_title": "Adopt Discrete PID Controller for Chamber Regulation",
           "params": {
             "message": "Reintroduces rejected bang-bang threshold control or bypasses PID",
             "paths": [
@@ -2739,6 +2918,7 @@ window.__CIF_STATIC_DATA__ = {
           "params_json": "{\"regex\": \"\\\\b(on_off|threshold|hysteresis|bang_bang|on_off_relay)\\\\b\", \"paths\": [\"src/thermal/**/*.py\", \"src/thermal/control.py\"], \"message\": \"Reintroduces rejected bang-bang threshold control or bypasses PID\"}",
           "polarity": "must_not",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "rule_id": "rule_constraint_thermal_pid_01",
           "rule_type": "forbid_pattern",
           "source": "human",
@@ -2751,10 +2931,10 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-01-12T15:00:00Z",
           "approved_by": "sarah_chen",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-28T08:41:25.701657+00:00",
           "created_by": "system",
           "decision_id": "dec_thermal_bangbang_02",
-          "decision_title": "Architectural Decision dec_thermal_bangbang_02",
+          "decision_title": "Reject Simple On-Off Threshold Controller",
           "params": {
             "message": "Reintroduces rejected bang-bang control loop",
             "paths": [
@@ -2766,6 +2946,7 @@ window.__CIF_STATIC_DATA__ = {
           "params_json": "{\"regex\": \"\\\\b(on_off_relay|bang_bang)\\\\b\", \"paths\": [\"src/thermal/**/*.py\", \"src/thermal/control.py\"], \"message\": \"Reintroduces rejected bang-bang control loop\"}",
           "polarity": "must_not",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "rule_id": "rule_constraint_thermal_bangbang_02",
           "rule_type": "forbid_pattern",
           "source": "human",
@@ -2778,10 +2959,10 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-02-06T15:00:00Z",
           "approved_by": "priya_patel",
-          "created_at": "2026-10-12T10:56:10.068329+00:00",
+          "created_at": "2026-10-28T08:41:25.701657+00:00",
           "created_by": "system",
           "decision_id": "dec_cache_redis_01",
-          "decision_title": "Architectural Decision dec_cache_redis_01",
+          "decision_title": "Adopt Distributed Redis Cluster Cache",
           "params": {
             "message": "Reintroduces in-memory cache defying Redis cluster decision",
             "paths": [
@@ -2793,32 +2974,9 @@ window.__CIF_STATIC_DATA__ = {
           "params_json": "{\"regex\": \"(?:dict_cache\\\\s*=|local_cache\\\\s*=|cache_store\\\\s*=)\", \"paths\": [\"src/cache/**/*.py\", \"src/cache/store.py\"], \"message\": \"Reintroduces in-memory cache defying Redis cluster decision\"}",
           "polarity": "must_not",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "rule_id": "rule_constraint_cache_redis_01",
           "rule_type": "forbid_pattern",
-          "source": "human",
-          "status": "active"
-        },
-        {
-          "applies_to": [
-            "src/cache/**/*.py"
-          ],
-          "approved_at": "2026-02-06T15:00:00Z",
-          "approved_by": "priya_patel",
-          "created_at": "2026-02-06T15:00:00Z",
-          "created_by": "rule_synthesizer",
-          "decision_id": "dec_cache_redis_accepted",
-          "decision_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
-          "params": {
-            "module": "redis",
-            "paths": [
-              "src/cache/**/*.py"
-            ]
-          },
-          "params_json": "{\"module\": \"redis\", \"paths\": [\"src/cache/**/*.py\"]}",
-          "polarity": "must",
-          "repo": "acme-eng/distributed-cache-service",
-          "rule_id": "rule_require_import_dec_cach_redis",
-          "rule_type": "require_import",
           "source": "human",
           "status": "active"
         },
@@ -2829,8 +2987,8 @@ window.__CIF_STATIC_DATA__ = {
           ],
           "approved_at": "2026-01-15T16:00:00Z",
           "approved_by": "sarah_chen",
-          "created_at": "2026-01-15T16:00:00Z",
-          "created_by": "rule_synthesizer",
+          "created_at": "2026-10-28T08:41:25.221704+00:00",
+          "created_by": "system",
           "decision_id": "dec_thermal_pid_accepted",
           "decision_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
           "params": {
@@ -2844,10 +3002,195 @@ window.__CIF_STATIC_DATA__ = {
           "params_json": "{\"regex\": \"(?:on_off_relay|threshold_high|hysteresis_loop|bang_bang)\", \"paths\": [\"src/thermal/**/*.py\", \"**/control.py\"], \"message\": \"Reintroduces rejected bang-bang threshold hysteresis\"}",
           "polarity": "must_not",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "rule_id": "rule_forbid_pattern_dec_ther_bangbang",
           "rule_type": "forbid_pattern",
           "source": "human",
           "status": "active"
+        },
+        {
+          "applies_to": [
+            "src/cache/**/*.py",
+            "**/store.py"
+          ],
+          "approved_at": "2026-02-06T15:00:00Z",
+          "approved_by": "priya_patel",
+          "created_at": "2026-10-28T08:41:25.221704+00:00",
+          "created_by": "system",
+          "decision_id": "dec_cache_redis_accepted",
+          "decision_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "params": {
+            "message": "Reintroduces rejected in-memory dictionary cache",
+            "paths": [
+              "src/cache/**/*.py",
+              "**/store.py"
+            ],
+            "regex": "(?:dict_cache\\s*=\\s*\\{\\}|local_cache\\s*=\\s*\\{\\})"
+          },
+          "params_json": "{\"regex\": \"(?:dict_cache\\\\s*=\\\\s*\\\\{\\\\}|local_cache\\\\s*=\\\\s*\\\\{\\\\})\", \"paths\": [\"src/cache/**/*.py\", \"**/store.py\"], \"message\": \"Reintroduces rejected in-memory dictionary cache\"}",
+          "polarity": "must_not",
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "rule_id": "rule_forbid_pattern_dec_cach_dictcache",
+          "rule_type": "forbid_pattern",
+          "source": "human",
+          "status": "active"
+        },
+        {
+          "applies_to": [
+            "src/cache/**/*.py"
+          ],
+          "approved_at": "2026-02-06T15:00:00Z",
+          "approved_by": "priya_patel",
+          "created_at": "2026-10-28T08:41:25.221704+00:00",
+          "created_by": "system",
+          "decision_id": "dec_cache_redis_accepted",
+          "decision_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "params": {
+            "module": "redis",
+            "paths": [
+              "src/cache/**/*.py"
+            ]
+          },
+          "params_json": "{\"module\": \"redis\", \"paths\": [\"src/cache/**/*.py\"]}",
+          "polarity": "must",
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "rule_id": "rule_require_import_dec_cach_redis",
+          "rule_type": "require_import",
+          "source": "human",
+          "status": "active"
+        },
+        {
+          "applies_to": [
+            "src/payments/**/*.py",
+            "src/**/*.py"
+          ],
+          "approved_at": "2026-02-01T00:00:00Z",
+          "approved_by": "alex_lead",
+          "created_at": "2026-10-28T08:41:25.221704+00:00",
+          "created_by": "system",
+          "decision_id": "dec_cache_redis_accepted",
+          "decision_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
+          "params": {
+            "module": "sticky_sessions",
+            "paths": [
+              "src/payments/**/*.py",
+              "src/**/*.py"
+            ]
+          },
+          "params_json": "{\"module\": \"sticky_sessions\", \"paths\": [\"src/payments/**/*.py\", \"src/**/*.py\"]}",
+          "polarity": "must_not",
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "rule_id": "rule_forbid_import_payments_sticky",
+          "rule_type": "forbid_import",
+          "source": "human",
+          "status": "active"
+        },
+        {
+          "applies_to": [
+            "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "**/ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+            "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+            "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+            "**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set"
+          ],
+          "approved_at": null,
+          "approved_by": null,
+          "created_at": "2026-02-03T14:30:00Z",
+          "created_by": "rule_synthesizer",
+          "decision_id": "dec_cache_local_lru_proposed",
+          "decision_title": "Retain In-Memory LRU Cache with Process Memory Cap",
+          "params": {
+            "message": "Reintroduces rejected concept: in-process",
+            "paths": [
+              "ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+              "**/ent_file_acme-eng_distributed-cache-service_src_cache_store_py",
+              "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+              "**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get",
+              "ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set",
+              "**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set"
+            ],
+            "regex": "\\bin\\-process\\b"
+          },
+          "params_json": "{\"regex\": \"\\\\bin\\\\-process\\\\b\", \"paths\": [\"ent_file_acme-eng_distributed-cache-service_src_cache_store_py\", \"**/ent_file_acme-eng_distributed-cache-service_src_cache_store_py\", \"ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get\", \"**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_get\", \"ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set\", \"**/ent_fn_acme-eng_distributed-cache-service_src_cache_store_py_cache_set\"], \"message\": \"Reintroduces rejected concept: in-process\"}",
+          "polarity": "must_not",
+          "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "rule_id": "rule_forbid_pattern_dec_cach_in_process",
+          "rule_type": "forbid_pattern",
+          "source": "proposed",
+          "status": "proposed"
+        },
+        {
+          "applies_to": [
+            "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "ent_dep_acme-eng_thermal-control-system_scipy",
+            "**/ent_dep_acme-eng_thermal-control-system_scipy"
+          ],
+          "approved_at": "2026-11-09T18:15:38.913422Z",
+          "approved_by": "human_reviewer",
+          "created_at": "2026-01-15T16:00:00Z",
+          "created_by": "rule_synthesizer",
+          "decision_id": "dec_thermal_pid_accepted",
+          "decision_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
+          "params": {
+            "message": "Reintroduces rejected concept: On-off",
+            "paths": [
+              "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+              "**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+              "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+              "**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+              "ent_dep_acme-eng_thermal-control-system_scipy",
+              "**/ent_dep_acme-eng_thermal-control-system_scipy"
+            ],
+            "regex": "\\bOn\\-off\\b"
+          },
+          "params_json": "{\"regex\": \"\\\\bOn\\\\-off\\\\b\", \"paths\": [\"ent_file_acme-eng_thermal-control-system_src_thermal_control_py\", \"**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py\", \"ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature\", \"**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature\", \"ent_dep_acme-eng_thermal-control-system_scipy\", \"**/ent_dep_acme-eng_thermal-control-system_scipy\"], \"message\": \"Reintroduces rejected concept: On-off\"}",
+          "polarity": "must_not",
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
+          "rule_id": "rule_forbid_pattern_dec_ther_On_off",
+          "rule_type": "forbid_pattern",
+          "source": "proposed",
+          "status": "active"
+        },
+        {
+          "applies_to": [
+            "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+            "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+            "**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature"
+          ],
+          "approved_at": null,
+          "approved_by": "human_reviewer",
+          "created_at": "2026-01-12T15:00:00Z",
+          "created_by": "rule_synthesizer",
+          "decision_id": "dec_thermal_deadband_rejected",
+          "decision_title": "Reject Simple Deadband Hysteresis for Thermal Control",
+          "params": {
+            "message": "Reintroduces rejected concept: on-off",
+            "paths": [
+              "ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+              "**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py",
+              "ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature",
+              "**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature"
+            ],
+            "regex": "\\bon\\-off\\b"
+          },
+          "params_json": "{\"regex\": \"\\\\bon\\\\-off\\\\b\", \"paths\": [\"ent_file_acme-eng_thermal-control-system_src_thermal_control_py\", \"**/ent_file_acme-eng_thermal-control-system_src_thermal_control_py\", \"ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature\", \"**/ent_fn_acme-eng_thermal-control-system_src_thermal_control_py_regulate_temperature\"], \"message\": \"Reintroduces rejected concept: on-off\"}",
+          "polarity": "must_not",
+          "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
+          "rule_id": "rule_forbid_pattern_dec_ther_on_off",
+          "rule_type": "forbid_pattern",
+          "source": "proposed",
+          "status": "disabled"
         }
       ],
       "status": "success"
@@ -2872,7 +3215,7 @@ window.__CIF_STATIC_DATA__ = {
           "completed": false,
           "decision_id": "dec_cache_redis_01",
           "id": "chk_dec_dec_cache_redis_01",
-          "title": "Study Decision: Architectural Decision dec_cache_redis_01"
+          "title": "Study Decision: Adopt Distributed Redis Cluster Cache"
         },
         {
           "category": "superseded",
@@ -2939,7 +3282,7 @@ window.__CIF_STATIC_DATA__ = {
             "made_by": "priya_patel",
             "rationale": "Governing architectural baseline decision",
             "state": "accepted",
-            "title": "Architectural Decision dec_cache_redis_01"
+            "title": "Adopt Distributed Redis Cluster Cache"
           }
         ],
         "architectural_evidence": [
@@ -3027,25 +3370,11 @@ window.__CIF_STATIC_DATA__ = {
           "title": "Study Decision: Adopt Discrete PID Controller for Chamber Temperature Regulation"
         },
         {
-          "category": "active_decision",
-          "completed": false,
-          "decision_id": "dec_thermal_pid_01",
-          "id": "chk_dec_dec_thermal_pid_01",
-          "title": "Study Decision: Architectural Decision dec_thermal_pid_01"
-        },
-        {
           "category": "pitfall",
           "completed": false,
           "decision_id": "dec_thermal_deadband_rejected",
           "id": "chk_pitfall_dec_thermal_deadband_rejected",
           "title": "Avoid Pitfall: Reject Simple Deadband Hysteresis for Thermal Control"
-        },
-        {
-          "category": "pitfall",
-          "completed": false,
-          "decision_id": "dec_thermal_bangbang_02",
-          "id": "chk_pitfall_dec_thermal_bangbang_02",
-          "title": "Avoid Pitfall: Architectural Decision dec_thermal_bangbang_02"
         },
         {
           "category": "evidence",
@@ -3087,25 +3416,6 @@ window.__CIF_STATIC_DATA__ = {
             "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
             "state": "accepted",
             "title": "Adopt Discrete PID Controller for Chamber Temperature Regulation"
-          },
-          {
-            "assumptions": [],
-            "citations": [
-              {
-                "author": "sarah_chen",
-                "event_id": "evt_rev_thermal_comm2",
-                "source_type": "pr_review_comment",
-                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-                "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-              }
-            ],
-            "decision_id": "dec_thermal_pid_01",
-            "evidence_label": "insufficient",
-            "made_at": "2026-01-15T16:00:00Z",
-            "made_by": "sarah_chen",
-            "rationale": "Governing architectural baseline decision",
-            "state": "accepted",
-            "title": "Architectural Decision dec_thermal_pid_01"
           }
         ],
         "architectural_evidence": [
@@ -3128,15 +3438,6 @@ window.__CIF_STATIC_DATA__ = {
             "title": "feat(thermal): implement discrete PID controller with anti-windup (Closes #12)"
           },
           {
-            "author": "sarah_chen",
-            "event_id": "evt_rev_thermal_comm2",
-            "source_type": "pr_review_comment",
-            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-            "summary": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
-            "timestamp": null,
-            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-          },
-          {
             "author": "marcus_vance",
             "event_id": "evt_rev_thermal_comm1",
             "source_type": "pr_review_comment",
@@ -3144,6 +3445,15 @@ window.__CIF_STATIC_DATA__ = {
             "summary": "We could tighten the deadband on the simple threshold on-off controller to +/- 1.5C. That requires zero external math libraries.",
             "timestamp": null,
             "title": "Marcus on Issue #12: Proposed deadband tuning"
+          },
+          {
+            "author": "sarah_chen",
+            "event_id": "evt_rev_thermal_comm2",
+            "source_type": "pr_review_comment",
+            "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
+            "summary": "I benchmarked deadband tuning in simulation. It increased latency by 17% and still caused a 6.2C overshoot on rapid thermal transient. We must reject on-off hysteresis and move to continuous PID control.",
+            "timestamp": null,
+            "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
           }
         ],
         "open_stale_items": [],
@@ -3159,10 +3469,10 @@ window.__CIF_STATIC_DATA__ = {
             "sarah_chen"
           ],
           "role": "Control Systems Engineer",
-          "summary": "Onboarding guide for Thermal in repository 'acme-eng/thermal-control-system'. Contains 4 relevant architectural decisions curated for Control Systems Engineer.",
+          "summary": "Onboarding guide for Thermal in repository 'acme-eng/thermal-control-system'. Contains 2 relevant architectural decisions curated for Control Systems Engineer.",
           "task": "",
           "title": "Thermal Architectural Onboarding (Control Systems Engineer)",
-          "total_relevant_decisions": 4
+          "total_relevant_decisions": 2
         },
         "rejected_pitfalls": [
           {
@@ -3186,27 +3496,12 @@ window.__CIF_STATIC_DATA__ = {
             "rejected_by": "sarah_chen",
             "rejection_reason": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
             "title": "Avoid Pitfall: Reject Simple Deadband Hysteresis for Thermal Control"
-          },
-          {
-            "citations": [
-              {
-                "author": "sarah_chen",
-                "event_id": "evt_rev_thermal_comm2",
-                "source_type": "pr_review_comment",
-                "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
-                "title": "Sarah on Issue #12: Benchmark results against deadband tuning"
-              }
-            ],
-            "decision_id": "dec_thermal_bangbang_02",
-            "rejected_by": "sarah_chen",
-            "rejection_reason": "Governing architectural baseline decision",
-            "title": "Avoid Pitfall: Architectural Decision dec_thermal_bangbang_02"
           }
         ]
       },
       "status": "success",
       "task": "",
-      "total_items": 6
+      "total_items": 4
     },
     "repos": {
       "data": [
@@ -3229,11 +3524,12 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "alternatives_json": "[]",
@@ -3247,29 +3543,12 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
-        },
-        {
-          "alternatives_json": "[]",
-          "confidence": 0.8,
-          "decision_id": "dec_cache_redis_01",
-          "evidence_assessment": "insufficient",
-          "freshness": "fresh",
-          "item_type": "decision",
-          "made_at": "2026-02-06T15:00:00Z",
-          "made_by": "priya_patel",
-          "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
-          "rationale": "Governing architectural baseline decision",
-          "repo": "acme-eng/distributed-cache-service",
-          "review_status": "pending_review",
-          "state": "accepted",
-          "superseded_by_decision_id": null,
-          "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "alternatives_json": "[{\"description\": \"Redis cluster deployment\", \"rejection_reason\": \"Adds operational complexity and 1-2ms network hop over in-process memory\", \"evidence_event_ids\": [\"evt_pr_cache_38\"]}]",
@@ -3283,6 +3562,7 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'weak': single source group without independent corroboration",
           "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "pending_review",
           "state": "superseded",
           "superseded_by_decision_id": "dec_cache_redis_accepted",
@@ -3301,6 +3581,7 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'weak': single source group without independent corroboration",
           "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "rejected",
           "superseded_by_decision_id": null,
@@ -3319,6 +3600,7 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3337,6 +3619,7 @@ window.__CIF_STATIC_DATA__ = {
           "queue_reason": "Evidence quality assessed as 'insufficient': missing evidence links or corroboration",
           "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3356,12 +3639,12 @@ window.__CIF_STATIC_DATA__ = {
         },
         {
           "confidence": 0.93,
-          "decision_id": "dec_cache_redis_01",
+          "decision_id": "dec_cache_redis_accepted",
           "edge_id": "edge_drift_src/cach_dec_cach",
           "entity_id": "src/cache/store.py",
           "item_type": "drift",
           "made_at": "2026-10-12T00:00:00Z",
-          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_cache_redis_01'",
+          "queue_reason": "Code diff contradicts accepted decision 'Migrate from In-Memory LRU to Distributed Redis Cluster'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
         },
@@ -3372,7 +3655,7 @@ window.__CIF_STATIC_DATA__ = {
           "entity_id": "src/thermal/control.py",
           "item_type": "drift",
           "made_at": "2026-10-12T00:00:00Z",
-          "queue_reason": "Code diff contradicts accepted decision 'Architectural Decision dec_thermal_pid_01'",
+          "queue_reason": "Code diff contradicts accepted decision 'Adopt Discrete PID Controller for Chamber Regulation'",
           "review_status": "pending_review",
           "title": "Drift on artifact"
         }
@@ -3428,6 +3711,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "rejected",
           "superseded_by_decision_id": null,
@@ -3447,11 +3731,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "affected_artifacts": [
@@ -3487,6 +3772,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3506,11 +3792,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         {
           "affected_artifacts": [
@@ -3546,6 +3833,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "marcus_vance",
           "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "pending_review",
           "state": "superseded",
           "superseded_by_decision_id": "dec_cache_redis_accepted",
@@ -3590,6 +3878,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3600,7 +3889,7 @@ window.__CIF_STATIC_DATA__ = {
           "affected_artifacts": [],
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.8,
+          "confidence": 1.0,
           "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
@@ -3609,11 +3898,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/distributed-cache-service",
-          "review_status": "pending_review",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "review_status": "human_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         }
       ],
       "status": "success"
@@ -3654,6 +3944,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "marcus_vance",
           "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "pending_review",
           "state": "superseded",
           "superseded_by_decision_id": "dec_cache_redis_accepted",
@@ -3698,6 +3989,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3708,7 +4000,7 @@ window.__CIF_STATIC_DATA__ = {
           "affected_artifacts": [],
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.8,
+          "confidence": 1.0,
           "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "evidence_count": 1,
@@ -3717,11 +4009,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/distributed-cache-service",
-          "review_status": "pending_review",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "review_status": "human_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         }
       ],
       "status": "success"
@@ -3758,6 +4051,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "rejected",
           "superseded_by_decision_id": null,
@@ -3777,11 +4071,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         {
           "affected_artifacts": [
@@ -3817,6 +4112,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -3836,11 +4132,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         }
       ],
       "status": "success"
@@ -3877,6 +4174,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "marcus_vance",
           "rationale": "Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "pending_review",
           "state": "superseded",
           "superseded_by_decision_id": "dec_cache_redis_accepted",
@@ -3916,6 +4214,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/distributed-cache-service",
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "source_id": "38",
             "source_type": "github_pr",
             "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38",
@@ -3951,9 +4250,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "marcus_vance",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_local_lru_proposed_1791802569932891100_80f194",
+            "history_id": "hist_init_dec_cache_local_lru_proposed_1793176884375890100_51e0a8",
             "notes": "Initial state: proposed. Reason: Keep cache strictly inside Python heap to guarantee sub-millisecond access and avoid external Redis infra.",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "proposed"
           },
           {
@@ -3961,9 +4261,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "marcus_vance",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": "proposed",
-            "history_id": "hist_dec_cache_local_lru_proposed_1791802569979622000_cda5bc",
+            "history_id": "hist_dec_cache_local_lru_proposed_1793176884569011000_4effb6",
             "notes": "Transition: proposed -> accepted. Reason: Accepted temporary in-memory LRU cache with soft memory cap",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "accepted"
           },
           {
@@ -3971,9 +4272,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_local_lru_proposed",
             "from_state": "accepted",
-            "history_id": "hist_dec_cache_local_lru_proposed_1791802570043053900_572e11",
+            "history_id": "hist_dec_cache_local_lru_proposed_1793176885148866700_e2f04b",
             "notes": "Transition: accepted -> superseded. Reason: ADR 0009: Migrated from in-memory cache to distributed Redis cluster",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "superseded"
           }
         ]
@@ -3986,7 +4288,7 @@ window.__CIF_STATIC_DATA__ = {
         "decision": {
           "alternatives_considered": [],
           "alternatives_json": "[]",
-          "confidence": 0.8,
+          "confidence": 1.0,
           "decision_id": "dec_cache_redis_01",
           "evidence_assessment": "insufficient",
           "freshness": "fresh",
@@ -3994,11 +4296,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/distributed-cache-service",
-          "review_status": "pending_review",
+          "repo_full_name": "acme-eng/distributed-cache-service",
+          "review_status": "human_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_cache_redis_01"
+          "title": "Adopt Distributed Redis Cluster Cache"
         },
         "direct_support": [
           {
@@ -4040,6 +4343,7 @@ window.__CIF_STATIC_DATA__ = {
               }
             },
             "repo": "acme-eng/distributed-cache-service",
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "source_id": "docs/adr/0009-redis-cluster-cache.md",
             "source_type": "adr",
             "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
@@ -4060,9 +4364,43 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_redis_01",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_redis_01_1791802570113587600_482019",
+            "history_id": "hist_init_dec_cache_redis_01_1793176886251372900_2b552c",
             "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/distributed-cache-service",
+            "state": "accepted"
+          },
+          {
+            "changed_at": "2026-11-09T08:53:51.298137+00:00",
+            "changed_by": "admin",
+            "decision_id": "dec_cache_redis_01",
+            "from_state": null,
+            "history_id": "hist_rev_dec_cache_redis_01_1794214431301010000_54bb29",
+            "notes": "Review confirmed: Verified by human reviewer",
+            "reconstructed": 0,
+            "repo_full_name": null,
+            "state": "accepted"
+          },
+          {
+            "changed_at": "2026-11-09T08:54:17.932992+00:00",
+            "changed_by": "admin",
+            "decision_id": "dec_cache_redis_01",
+            "from_state": null,
+            "history_id": "hist_rev_dec_cache_redis_01_1794214457936904500_a426b8",
+            "notes": "Review confirmed: Verified by anonymous demo tester",
+            "reconstructed": 0,
+            "repo_full_name": null,
+            "state": "accepted"
+          },
+          {
+            "changed_at": "2026-11-09T09:11:17.804461+00:00",
+            "changed_by": "admin",
+            "decision_id": "dec_cache_redis_01",
+            "from_state": null,
+            "history_id": "hist_rev_dec_cache_redis_01_1794215477807462000_902bb6",
+            "notes": "Review confirmed: Verified by human reviewer",
+            "reconstructed": 0,
+            "repo_full_name": null,
             "state": "accepted"
           }
         ]
@@ -4106,6 +4444,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "priya_patel",
           "rationale": "ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
           "repo": "acme-eng/distributed-cache-service",
+          "repo_full_name": "acme-eng/distributed-cache-service",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -4173,6 +4512,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/distributed-cache-service",
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "source_id": "c201",
             "source_type": "pr_review_comment",
             "source_url": "https://github.com/acme-eng/distributed-cache-service/pull/38#discussion_r201",
@@ -4198,6 +4538,7 @@ window.__CIF_STATIC_DATA__ = {
               }
             },
             "repo": "acme-eng/distributed-cache-service",
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "source_id": "docs/adr/0009-redis-cluster-cache.md",
             "source_type": "adr",
             "source_url": "https://github.com/acme-eng/distributed-cache-service/blob/main/docs/adr/0009-redis-cluster-cache.md",
@@ -4217,9 +4558,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "priya_patel",
             "decision_id": "dec_cache_redis_accepted",
             "from_state": null,
-            "history_id": "hist_init_dec_cache_redis_accepted_1791802569986703100_4d5cc5",
+            "history_id": "hist_init_dec_cache_redis_accepted_1793176884609039700_f92774",
             "notes": "Initial state: accepted. Reason: ADR 0009: Decommission local in-memory dict and migrate to Redis cluster to prevent container OOMs and maintain cache consistency across autoscaled pods.",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "accepted"
           }
         ]
@@ -4240,11 +4582,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "rejected",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_bangbang_02"
+          "title": "Reject Simple On-Off Threshold Controller"
         },
         "direct_support": [],
         "discussion_events": [],
@@ -4264,6 +4607,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "c102",
             "source_type": "pr_review_comment",
             "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
@@ -4300,9 +4644,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_bangbang_02",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_bangbang_02_1791802570087292500_53b481",
+            "history_id": "hist_init_dec_thermal_bangbang_02_1793176885896508100_aeeb7b",
             "notes": "Initial state: rejected. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/thermal-control-system",
             "state": "rejected"
           }
         ]
@@ -4339,6 +4684,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "rejected",
           "superseded_by_decision_id": null,
@@ -4420,6 +4766,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "c101",
             "source_type": "pr_review_comment",
             "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-101",
@@ -4438,6 +4785,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "c102",
             "source_type": "pr_review_comment",
             "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
@@ -4457,9 +4805,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_deadband_rejected",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_deadband_rejected_1791802569780099100_c753a5",
+            "history_id": "hist_init_dec_thermal_deadband_rejected_1793176883177676700_60866a",
             "notes": "Initial state: rejected. Reason: Tested in simulation following Issue #12; deadband was insufficient to prevent emergency chamber thermal trip.",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/thermal-control-system",
             "state": "rejected"
           }
         ]
@@ -4480,11 +4829,12 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "Governing architectural baseline decision",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "pending_review",
           "state": "accepted",
           "superseded_by_decision_id": null,
           "supersedes_decision_id": null,
-          "title": "Architectural Decision dec_thermal_pid_01"
+          "title": "Adopt Discrete PID Controller for Chamber Regulation"
         },
         "direct_support": [],
         "discussion_events": [],
@@ -4504,6 +4854,7 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "raw_metadata": {},
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "c102",
             "source_type": "pr_review_comment",
             "source_url": "https://github.com/acme-eng/thermal-control-system/issues/12#issuecomment-102",
@@ -4540,9 +4891,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_pid_01",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_pid_01_1791802570068329100_7962b6",
+            "history_id": "hist_init_dec_thermal_pid_01_1793176885709476900_b5d805",
             "notes": "Initial state: accepted. Reason: Governing architectural baseline decision",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/thermal-control-system",
             "state": "accepted"
           }
         ]
@@ -4579,6 +4931,7 @@ window.__CIF_STATIC_DATA__ = {
           "made_by": "sarah_chen",
           "rationale": "ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
           "repo": "acme-eng/thermal-control-system",
+          "repo_full_name": "acme-eng/thermal-control-system",
           "review_status": "auto_confirmed",
           "state": "accepted",
           "superseded_by_decision_id": null,
@@ -4653,6 +5006,7 @@ window.__CIF_STATIC_DATA__ = {
               }
             },
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "docs/adr/0004-pid-thermal-regulation.md",
             "source_type": "adr",
             "source_url": "https://github.com/acme-eng/thermal-control-system/blob/main/docs/adr/0004-pid-thermal-regulation.md",
@@ -4674,6 +5028,7 @@ window.__CIF_STATIC_DATA__ = {
               "diff_summary": "@@ -14,6 +14,24 @@ def regulate_temperature(current_temp, target_temp):\n- if current_temp > target_temp: fan_on()\n+ error = target_temp - current_temp\n+ p_term = Kp * error\n+ i_term = Ki * (integral + error * dt)\n+ output = clamp(p_term + i_term + d_term, 0.0, 100.0)"
             },
             "repo": "acme-eng/thermal-control-system",
+            "repo_full_name": "acme-eng/thermal-control-system",
             "source_id": "a1b2c3d4e5f67890",
             "source_type": "git_commit",
             "source_url": "https://github.com/acme-eng/thermal-control-system/commit/a1b2c3d4e5f67890",
@@ -4691,9 +5046,10 @@ window.__CIF_STATIC_DATA__ = {
             "changed_by": "sarah_chen",
             "decision_id": "dec_thermal_pid_accepted",
             "from_state": null,
-            "history_id": "hist_init_dec_thermal_pid_accepted_1791802569828514400_0aedec",
+            "history_id": "hist_init_dec_thermal_pid_accepted_1793176883313335300_ca61ca",
             "notes": "Initial state: accepted. Reason: ADR 0004: Continuous PID loop with anti-windup clamping guarantees stability within +/- 0.4C of setpoint under heavy duty cycle.",
             "reconstructed": 0,
+            "repo_full_name": "acme-eng/thermal-control-system",
             "state": "accepted"
           }
         ]
