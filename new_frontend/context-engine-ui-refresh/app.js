@@ -295,15 +295,39 @@ const app = {
       submitBtn.textContent = 'Please wait...';
     }
 
+    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+
+    const handleStaticAuth = () => {
+      try {
+        localStorage.setItem('cif_user', JSON.stringify({ login: username, user_id: 1, role: 'developer' }));
+        localStorage.setItem('cif_authenticated', 'true');
+      } catch (_) { }
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color = '#86efac';
+        msg.textContent = 'Signed in successfully!';
+      }
+      window.setTimeout(() => {
+        const m = document.getElementById('add-repo-modal');
+        if (m) m.classList.add('hidden');
+        window.location.reload();
+      }, 350);
+    };
+
     try {
       const endpoint = mode === 'register' ? '/auth/register' : '/auth/login';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, action: mode })
-      });
-      const data = await res.json();
-      if (res.ok && data.status === 'success') {
+      let res = null;
+      let data = null;
+      try {
+        res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, action: mode })
+        });
+        data = await res.json();
+      } catch (_) { }
+
+      if (res && res.ok && data && data.status === 'success') {
         if (msg) {
           msg.style.display = 'block';
           msg.style.color = '#86efac';
@@ -312,11 +336,13 @@ const app = {
         window.setTimeout(() => {
           window.location.reload();
         }, 350);
+      } else if (isStatic) {
+        handleStaticAuth();
       } else {
         if (msg) {
           msg.style.display = 'block';
           msg.style.color = '#fca5a5';
-          msg.textContent = data.message || 'Authentication failed.';
+          msg.textContent = (data && data.message) || 'Authentication failed.';
         }
         if (submitBtn) {
           submitBtn.disabled = false;
@@ -324,6 +350,10 @@ const app = {
         }
       }
     } catch (err) {
+      if (isStatic) {
+        handleStaticAuth();
+        return;
+      }
       if (msg) {
         msg.style.display = 'block';
         msg.style.color = '#fca5a5';
@@ -1670,7 +1700,7 @@ const app = {
                     <p style="font-size: 0.85rem; color: #94a3b8; margin: 4px 0;">
                       Governed by: <strong>${esc(r.decision_title || r.decision_id)}</strong>
                     </p>
-                    <pre style="background: #0b0f17; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #cbd5e1; margin-top: 6px;">${esc(JSON.stringify(r.params, null, 2))}</pre>
+                    <pre style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; color: #0f172a; margin-top: 6px;">${esc(JSON.stringify(r.params, null, 2))}</pre>
                   </div>
                   <div class="review-actions">
                     ${r.status !== 'active' ? `<button class="btn btn-primary btn-sm btn-approve-rule" data-rule-id="${esc(r.rule_id)}">Approve (Enforce in CI)</button>` : ''}
@@ -1781,12 +1811,12 @@ const app = {
     document.getElementById('modal-title').textContent = `Correct Decision Record`;
     document.getElementById('modal-body').innerHTML = `
       <div style="margin-bottom: 14px;">
-        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Corrected Title:</label>
-        <input type="text" id="modal-correct-title" value="${esc(title)}" style="width: 100%; padding: 8px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 4px;">
+        <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">Corrected Title:</label>
+        <input type="text" id="modal-correct-title" value="${esc(title)}" style="width: 100%; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px;">
       </div>
       <div style="margin-bottom: 14px;">
-        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Corrected State:</label>
-        <select id="modal-correct-state" style="width: 100%; padding: 8px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 4px;">
+        <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">Corrected State:</label>
+        <select id="modal-correct-state" style="width: 100%; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px;">
           <option value="accepted">Accepted</option>
           <option value="rejected">Rejected</option>
           <option value="superseded">Superseded</option>
@@ -1794,8 +1824,8 @@ const app = {
         </select>
       </div>
       <div>
-        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Correction Notes / Audit Justification:</label>
-        <textarea id="modal-correct-rationale" rows="3" style="width: 100%; padding: 8px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 4px;" placeholder="Reason for correcting extraction..."></textarea>
+        <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">Correction Notes / Audit Justification:</label>
+        <textarea id="modal-correct-rationale" rows="3" style="width: 100%; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px;" placeholder="Reason for correcting extraction..."></textarea>
       </div>
     `;
 
@@ -2020,42 +2050,42 @@ const app = {
 
         const kwHit = (ov.baseline_keyword && typeof ov.baseline_keyword.task_1_hit_rate === 'number') ? `${ov.baseline_keyword.task_1_hit_rate}%` : 'BM25';
         whybenchHtml = `
-          <div style="background: rgba(247, 85, 112, 0.1); border: 1px solid rgba(247, 85, 112, 0.35); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px;">
+          <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px;">
               <div>
-                <strong style="color: #fc8498; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
-                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
-                  Evaluated on real-world repositories (Manifest: <code>${esc(wb.run_id)}</code>, Commit: <code>${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
+                <strong style="color: #be123c; font-size: 1.05rem;">Headline WhyBench Evaluation (Split: ${esc(wb.split || 'dev')})</strong>
+                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
+                  Evaluated on real-world repositories (Manifest: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0f172a;">${esc(wb.run_id)}</code>, Commit: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0f172a;">${esc(wb.environment && wb.environment.git_commit ? wb.environment.git_commit.slice(0, 8) : 'HEAD')}</code>).
                   Total questions evaluated: <strong>${esc(wb.questions_evaluated)}</strong> (<strong>${esc(wb.standard_questions)}</strong> standard, <strong>${esc(wb.refusal_questions)}</strong> negative refusal).
                 </p>
               </div>
-              <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(234, 51, 82, 0.16); color: #ea3352; border: 1px solid rgba(234, 51, 82, 0.32); letter-spacing: 0.02em;">Measured Manifest Data</span>
+              <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(190, 18, 60, 0.12); color: #be123c; border: 1px solid rgba(190, 18, 60, 0.28); letter-spacing: 0.02em;">Measured Manifest Data</span>
             </div>
 
             <div class="benchmark-metrics-cards" style="margin-bottom: 16px;">
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #f75570;">${esc(fmtPct(ov.decision_recall_strict))}</div>
+                <div class="metric-val" style="color: #be123c;">${esc(fmtPct(ov.decision_recall_strict))}</div>
                 <div class="metric-lbl">Decision Recall (Strict)</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #2b6e8c;">${esc(fmtPct(ov.task_1_cif_hit_rate))}</div>
+                <div class="metric-val" style="color: #0369a1;">${esc(fmtPct(ov.task_1_cif_hit_rate))}</div>
                 <div class="metric-lbl">T1 Hit Rate (vs ${esc(kwHit)})</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #1a8b66;">${esc(fmtPct(ov.state_accuracy))}</div>
+                <div class="metric-val" style="color: #16a34a;">${esc(fmtPct(ov.state_accuracy))}</div>
                 <div class="metric-lbl">State Accuracy</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #f59e0b;">${esc(fmtPct(ov.refusal_accuracy))}</div>
+                <div class="metric-val" style="color: #d97706;">${esc(fmtPct(ov.refusal_accuracy))}</div>
                 <div class="metric-lbl">Refusal Accuracy (Negative)</div>
               </div>
               <div class="metric-stat-box">
-                <div class="metric-val" style="color: #94a3b8; font-size: 1.1rem;">${esc(ov.decision_precision && ov.decision_precision.toLowerCase() !== 'not measured' ? ov.decision_precision : 'Not Measured')}</div>
+                <div class="metric-val" style="color: #475569; font-size: 1.1rem;">${esc(ov.decision_precision && ov.decision_precision.toLowerCase() !== 'not measured' ? ov.decision_precision : 'Not Measured')}</div>
                 <div class="metric-lbl" title="${esc(ov.decision_precision_reason || '')}">Precision</div>
               </div>
             </div>
 
-            <h4 style="font-size: 0.95rem; margin: 14px 0 8px 0; color: #e2e8f0;">Per-Repository Benchmark Breakdown</h4>
+            <h4 style="font-size: 0.95rem; margin: 14px 0 8px 0; color: #0f172a;">Per-Repository Benchmark Breakdown</h4>
             <table class="benchmark-table" style="font-size: 0.85rem;">
               <thead>
                 <tr>
@@ -2079,15 +2109,15 @@ const app = {
 
       container.innerHTML = `
         ${whybenchHtml}
-        <div style="background: rgba(44, 80, 139, 0.1); border: 1px solid rgba(44, 80, 139, 0.3); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="background: #f0f7ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
           <div>
-            <strong style="color: #30629f;">Synthetic Pilot Benchmark (Smoke Test)</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+            <strong style="color: #0369a1;">Synthetic Pilot Benchmark (Smoke Test)</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
               Evaluated on synthetic pilot repositories (<code>acme-eng/thermal-control-system</code>, <code>acme-eng/distributed-cache-service</code>).
               Matched <strong>${esc(matched_gt_count || 0)}</strong> of <strong>${esc(ground_truth_total || 0)}</strong> ground truth decisions.
             </p>
           </div>
-          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(43, 67, 120, 0.16); color: #30629f; border: 1px solid rgba(43, 67, 120, 0.3); letter-spacing: 0.02em;">Pipeline Smoke Test</span>
+          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.28); letter-spacing: 0.02em;">Pipeline Smoke Test</span>
         </div>
 
         <div class="benchmark-metrics-cards">
@@ -2104,7 +2134,7 @@ const app = {
             <div class="metric-lbl">Drift Precision</div>
           </div>
           <div class="metric-stat-box">
-            <div class="metric-val" style="color: #1a8b66;">${esc(fmtPct(metrics.unsupported_claim_rate))}</div>
+            <div class="metric-val" style="color: #16a34a;">${esc(fmtPct(metrics.unsupported_claim_rate))}</div>
             <div class="metric-lbl">Unsupported Claim Rate</div>
           </div>
           <div class="metric-stat-box">
@@ -2113,20 +2143,20 @@ const app = {
           </div>
         </div>
 
-        <div style="background: rgba(26, 139, 102, 0.08); border: 1px solid rgba(26, 139, 102, 0.25); border-radius: 8px; padding: 12px 16px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 14px 18px; margin: 20px 0; display: flex; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
           <div>
-            <strong style="color: #33a57b;">Developer Finding Feedback (Measured Data)</strong>
-            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #94a3b8;">
+            <strong style="color: #15803d;">Developer Finding Feedback (Measured Data)</strong>
+            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #475569;">
               Recorded review actions on automated drift and rejected-idea findings:
               Confirmed: <strong>${esc(fb.confirm || 0)}</strong> •
               Dismissed: <strong>${esc(fb.dismiss || 0)}</strong> •
               Reopened Decisions: <strong>${esc(fb.reopen || 0)}</strong> (Total: <strong>${esc(fb.total || 0)}</strong>)
             </p>
           </div>
-          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(26, 139, 102, 0.16); color: #33a57b; border: 1px solid rgba(26, 139, 102, 0.3); letter-spacing: 0.02em;">Measured Feedback</span>
+          <span class="badge" style="display: inline-flex; align-items: center; white-space: nowrap; flex-shrink: 0; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(22, 163, 74, 0.12); color: #15803d; border: 1px solid rgba(22, 163, 74, 0.28); letter-spacing: 0.02em;">Measured Feedback</span>
         </div>
 
-        <h3 style="font-size: 1.15rem; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
+        <h3 style="font-size: 1.15rem; color: #0f172a; margin-bottom: 14px; margin-top: 24px;">Comparative Benchmark Against Practical Baselines</h3>
         <table class="benchmark-table">
           <thead>
             <tr>
@@ -2273,10 +2303,10 @@ const app = {
       checklistContainer.innerHTML = data.checklist.map(item => {
         const isChecked = this.onboardingCheckedItems.has(item.id);
         return `
-          <label style="display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: rgba(255,255,255,0.03); border-radius: 6px; cursor: pointer; font-size: 0.88rem;">
+          <label style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; cursor: pointer; font-size: 0.88rem;">
             <input type="checkbox" class="onboarding-chkbox" data-id="${esc(item.id)}" ${isChecked ? 'checked' : ''} onchange="app.toggleOnboardingCheck('${esc(item.id)}')" />
-            <span style="color: ${isChecked ? '#94a3b8' : '#e2e8f0'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">
-              <span class="badge" style="font-size: 0.72rem; padding: 2px 6px; margin-right: 6px;">${esc(item.category)}</span>
+            <span style="color: ${isChecked ? '#94a3b8' : '#0f172a'}; text-decoration: ${isChecked ? 'line-through' : 'none'};">
+              <span class="badge" style="font-size: 0.72rem; padding: 2px 6px; margin-right: 6px; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;">${esc(item.category)}</span>
               ${esc(item.title)}
             </span>
           </label>
@@ -2298,18 +2328,18 @@ const app = {
 
     // Section 1: Overview Card
     html += `
-      <div class="timeline-card" style="margin-bottom: 24px; border-left: 4px solid #2c508b;">
+      <div class="timeline-card" style="margin-bottom: 24px; border-left: 4px solid #be123c;">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
-          <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">${esc(overview.title || 'Subsystem Overview')}</h2>
-          <span class="badge badge-accepted" style="font-size: 0.8rem;">Role: ${esc(overview.role || 'Engineer')}</span>
+          <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: #0f172a;">${esc(overview.title || 'Subsystem Overview')}</h2>
+          <span class="badge" style="font-size: 0.8rem; background: #ecfdf5; color: #16a34a; border: 1px solid #a7f3d0;">Role: ${esc(overview.role || 'Engineer')}</span>
         </div>
-        <p style="font-size: 0.92rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;">
+        <p style="font-size: 0.92rem; color: #334155; line-height: 1.5; margin-bottom: 12px;">
           ${esc(overview.summary || '')}
         </p>
-        <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px;">
-          <div><strong>Subsystem:</strong> <code>${esc(overview.module || 'core')}</code></div>
-          <div><strong>Primary Architects:</strong> ${overview.primary_architects?.map(a => `<span class="badge">${esc(a)}</span>`).join(' ') || 'None recorded'}</div>
-          <div><strong>Target Files:</strong> ${overview.affected_artifacts?.map(a => `<code>${esc(a)}</code>`).join(', ') || 'N/A'}</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px; font-size: 0.85rem; color: #475569; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+          <div><strong>Subsystem:</strong> <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0f172a;">${esc(overview.module || 'core')}</code></div>
+          <div><strong>Primary Architects:</strong> ${overview.primary_architects?.map(a => `<span class="badge" style="background: #f1f5f9; color: #0f172a; border: 1px solid #dbe4ee;">${esc(a)}</span>`).join(' ') || 'None recorded'}</div>
+          <div><strong>Target Files:</strong> ${overview.affected_artifacts?.map(a => `<code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; color: #0f172a;">${esc(a)}</code>`).join(', ') || 'N/A'}</div>
         </div>
       </div>
     `;
@@ -2317,8 +2347,8 @@ const app = {
     // Section 2: Key Active Decisions
     html += `
       <div style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #0f172a;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
           1. Key Active Decisions (${activeDecs.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 14px;">
@@ -2330,27 +2360,27 @@ const app = {
         html += `
           <div class="timeline-card" style="margin-bottom: 0;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <h4 style="font-size: 1.05rem; margin: 0; color: #f8fafc;">
+              <h4 style="font-size: 1.05rem; margin: 0; color: #0f172a;">
                 ${idx + 1}. ${esc(d.title)}
               </h4>
               <div style="display: flex; gap: 6px;">
-                <span class="badge" style="background: rgba(26, 139, 102, 0.15); color: #1a8b66;">${esc(d.state)}</span>
-                <span class="badge" style="background: rgba(44, 80, 139, 0.15); color: #2c508b;">evidence: ${esc(d.evidence_label)}</span>
+                <span class="badge" style="background: #ecfdf5; color: #16a34a; border: 1px solid #a7f3d0;">${esc(d.state)}</span>
+                <span class="badge" style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;">evidence: ${esc(d.evidence_label)}</span>
               </div>
             </div>
-            <p style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 10px;">
+            <p style="font-size: 0.9rem; color: #334155; line-height: 1.5; margin-bottom: 10px;">
               <strong>Rationale:</strong> ${esc(d.rationale)}
             </p>
             ${d.assumptions && d.assumptions.length > 0 ? `
-              <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px;">
+              <div style="font-size: 0.85rem; color: #d97706; margin-bottom: 8px;">
                 <strong>Key Assumptions:</strong> ${d.assumptions.map(a => `• ${esc(a)}`).join(' ')}
               </div>
             ` : ''}
-            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #94a3b8; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px;">
               <div>Author: <strong>${esc(d.made_by)}</strong> • Date: ${esc(d.made_at || 'Recorded')}</div>
               <div style="display: flex; gap: 8px;">
                 ${d.citations?.map(c => `
-                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #30629f; text-decoration: none;">
+                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #be123c; text-decoration: none; font-weight: 500;">
                     [${esc(c.source_type)}] ${esc(c.title)} ↗
                   </a>
                 `).join('') || ''}
@@ -2365,8 +2395,8 @@ const app = {
     // Section 3: Important Commits & Architectural Discussions
     html += `
       <div style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#30629f" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; color: #0f172a;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
           2. Architectural Evidence & Discussions (${evidenceList.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 10px;">
@@ -2376,17 +2406,17 @@ const app = {
     } else {
       evidenceList.forEach(ev => {
         html += `
-          <div class="timeline-card" style="padding: 12px 16px; margin-bottom: 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <span style="font-weight: 600; font-size: 0.95rem; color: #f1f5f9;">
-                <span class="badge" style="margin-right: 6px;">${esc(ev.source_type)}</span>
-                <a href="${safeUrl(ev.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #2e64a0; text-decoration: none;">
+          <div class="timeline-card" style="padding: 14px 18px; margin-bottom: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-weight: 600; font-size: 0.95rem; color: #0f172a;">
+                <span class="badge" style="margin-right: 6px; background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;">${esc(ev.source_type)}</span>
+                <a href="${safeUrl(ev.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #be123c; text-decoration: none;">
                   ${esc(ev.title)} ↗
                 </a>
               </span>
-              <span style="font-size: 0.8rem; color: #94a3b8;">${esc(ev.author || 'contributor')}</span>
+              <span style="font-size: 0.8rem; color: #64748b;">${esc(ev.author || 'contributor')}</span>
             </div>
-            <p style="font-size: 0.86rem; color: #94a3b8; margin: 0; line-height: 1.4;">
+            <p style="font-size: 0.86rem; color: #475569; margin: 0; line-height: 1.5;">
               ${esc(ev.summary)}
             </p>
           </div>
@@ -2398,8 +2428,8 @@ const app = {
     // Section 4: Rejected Alternatives & Known Pitfalls
     html += `
       <div style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #f87171; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #be123c; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           3. Rejected Alternatives & Known Pitfalls (${pitfalls.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -2409,21 +2439,21 @@ const app = {
     } else {
       pitfalls.forEach(p => {
         html += `
-          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.04);">
+          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #be123c; background: #fff1f2;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <h4 style="font-size: 1.02rem; margin: 0; color: #fca5a5;">
+              <h4 style="font-size: 1.02rem; margin: 0; color: #9f1239;">
                 ⚠️ DO NOT REINTRODUCE: ${esc(p.title)}
               </h4>
-              <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5;">rejected</span>
+              <span class="badge" style="background: #fecdd3; color: #9f1239; border: 1px solid #fda4af;">rejected</span>
             </div>
-            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+            <p style="font-size: 0.88rem; color: #334155; line-height: 1.5; margin-bottom: 8px;">
               <strong>Why This Failed:</strong> ${esc(p.rejection_reason)}
             </p>
-            <div style="font-size: 0.8rem; color: #94a3b8; display: flex; justify-content: space-between;">
+            <div style="font-size: 0.8rem; color: #64748b; display: flex; justify-content: space-between;">
               <span>Rejected By: <strong>${esc(p.rejected_by)}</strong></span>
               <div style="display: flex; gap: 8px;">
                 ${p.citations?.map(c => `
-                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #fca5a5; text-decoration: underline;">
+                  <a href="${safeUrl(c.source_url)}" target="_blank" rel="noopener noreferrer" style="color: #be123c; text-decoration: underline; font-weight: 500;">
                     [${esc(c.source_type)}] Evidence ↗
                   </a>
                 `).join('') || ''}
@@ -2438,8 +2468,8 @@ const app = {
     // Section 5: Open Items & Stale Decisions
     html += `
       <div style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #fbbf24; display: flex; align-items: center; gap: 8px;">
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 12px; color: #d97706; display: flex; align-items: center; gap: 8px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           4. Open Items & Stale Assumptions (${openItems.length})
         </h3>
         <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -2449,18 +2479,18 @@ const app = {
     } else {
       openItems.forEach(o => {
         html += `
-          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.04);">
+          <div class="timeline-card" style="margin-bottom: 0; border-left: 4px solid #d97706; background: #fffbeb;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-              <h4 style="font-size: 1.02rem; margin: 0; color: #fde68a;">
+              <h4 style="font-size: 1.02rem; margin: 0; color: #92400e;">
                 ⏳ ${esc(o.title)}
               </h4>
-              <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fde68a;">freshness: ${esc(o.freshness)}</span>
+              <span class="badge" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a;">freshness: ${esc(o.freshness)}</span>
             </div>
-            <p style="font-size: 0.88rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 8px;">
+            <p style="font-size: 0.88rem; color: #334155; line-height: 1.5; margin-bottom: 8px;">
               <strong>Context:</strong> ${esc(o.rationale)}
             </p>
             ${o.broken_assumptions && o.broken_assumptions.length > 0 ? `
-              <div style="font-size: 0.84rem; color: #ef4444; margin-bottom: 6px;">
+              <div style="font-size: 0.84rem; color: #b91c1c; margin-bottom: 6px;">
                 <strong>Broken Assumption:</strong> ${o.broken_assumptions.map(a => esc(a)).join('; ')}
               </div>
             ` : ''}
@@ -3046,32 +3076,32 @@ const app = {
 
       let html = `
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
-            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Overall Bus Factor</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#ef4444' : overall === 2 ? '#f59e0b' : '#1a8b66'}; margin-top: 4px;">${esc(overall)}</div>
-            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Min contributors required to maintain modules</div>
+          <div style="background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; padding: 20px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div style="font-size: 0.8rem; color: #475569; text-transform: uppercase; font-weight: 600;">Overall Bus Factor</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${overall <= 1 ? '#be123c' : overall === 2 ? '#d97706' : '#16a34a'}; margin-top: 4px;">${esc(overall)}</div>
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">Min contributors required to maintain modules</div>
           </div>
-          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
-            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">Modules Analyzed</div>
-            <div style="font-size: 2rem; font-weight: 700; color: #f3f4f6; margin-top: 4px;">${esc(modules.length)}</div>
-            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">High-level package domains in repo</div>
+          <div style="background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; padding: 20px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div style="font-size: 0.8rem; color: #475569; text-transform: uppercase; font-weight: 600;">Modules Analyzed</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #0f172a; margin-top: 4px;">${esc(modules.length)}</div>
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">High-level package domains in repo</div>
           </div>
-          <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; padding: 18px;">
-            <div style="font-size: 0.8rem; color: #9ca3af; text-transform: uppercase; font-weight: 600;">High Concentration Risk</div>
-            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#ef4444' : '#1a8b66'}; margin-top: 4px;">${esc(highRiskCount)}</div>
-            <div style="font-size: 0.78rem; color: #6b7280; margin-top: 4px;">Modules dependent on a single contributor</div>
+          <div style="background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; padding: 20px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div style="font-size: 0.8rem; color: #475569; text-transform: uppercase; font-weight: 600;">High Concentration Risk</div>
+            <div style="font-size: 2rem; font-weight: 700; color: ${highRiskCount > 0 ? '#be123c' : '#16a34a'}; margin-top: 4px;">${esc(highRiskCount)}</div>
+            <div style="font-size: 0.78rem; color: #64748b; margin-top: 4px;">Modules dependent on a single contributor</div>
           </div>
         </div>
 
-        <div style="background: #0f141e; border: 1px solid #1f2937; border-radius: 8px; overflow: hidden;">
-          <div style="padding: 16px 20px; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="font-size: 1rem; font-weight: 600; color: #f3f4f6; margin: 0;">Module Concentration Heat Map</h3>
-            <span style="font-size: 0.78rem; color: #9ca3af;">Ranked by concentration severity</span>
+        <div style="background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #ffffff;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a; margin: 0;">Module Concentration Heat Map</h3>
+            <span style="font-size: 0.78rem; color: #64748b;">Ranked by concentration severity</span>
           </div>
           <div style="overflow-x: auto;">
             <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
               <thead>
-                <tr style="border-bottom: 1px solid #1f2937; color: #9ca3af; background: #0b0f17;">
+                <tr style="border-bottom: 1px solid #dbe4ee; color: #475569; background: #f8fafc;">
                   <th style="padding: 12px 16px;">Module</th>
                   <th style="padding: 12px 16px;">Risk Level</th>
                   <th style="padding: 12px 16px;">Bus Factor</th>
@@ -3087,21 +3117,22 @@ const app = {
       if (modules.length === 0) {
         html += `
           <tr>
-            <td colspan="7" style="padding: 24px; text-align: center; color: #6b7280;">No important decisions recorded yet for this repository.</td>
+            <td colspan="7" style="padding: 24px; text-align: center; color: #64748b;">No important decisions recorded yet for this repository.</td>
           </tr>
         `;
       } else {
         modules.forEach(m => {
-          const badgeBg = m.risk_level === 'high' ? 'rgba(239, 68, 68, 0.15)' : m.risk_level === 'medium' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(26, 139, 102, 0.15)';
-          const badgeColor = m.risk_level === 'high' ? '#ef4444' : m.risk_level === 'medium' ? '#f59e0b' : '#1a8b66';
+          const badgeBg = m.risk_level === 'high' ? '#fff1f2' : m.risk_level === 'medium' ? '#fef3c7' : '#ecfdf5';
+          const badgeColor = m.risk_level === 'high' ? '#be123c' : m.risk_level === 'medium' ? '#d97706' : '#16a34a';
+          const badgeBorder = m.risk_level === 'high' ? '#fecdd3' : m.risk_level === 'medium' ? '#fde68a' : '#a7f3d0';
           const docPct = Math.round((m.documentation_coverage || 0) * 100);
           const topPct = Math.round((m.top_contributor_share || 0) * 100);
 
           html += `
-            <tr style="border-bottom: 1px solid #1f2937;">
-              <td style="padding: 14px 16px; font-weight: 600; color: #f9fafb; font-family: monospace;">${esc(m.module)}</td>
+            <tr style="border-bottom: 1px solid #e2e8f0;">
+              <td style="padding: 14px 16px; font-weight: 600; color: #0f172a; font-family: monospace;">${esc(m.module)}</td>
               <td style="padding: 14px 16px;">
-                <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: ${badgeBg}; color: ${badgeColor};">
+                <span style="display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; background: ${badgeBg}; color: ${badgeColor}; border: 1px solid ${badgeBorder};">
                   ${esc(m.risk_level)}
                 </span>
               </td>
@@ -3109,19 +3140,19 @@ const app = {
                 ${esc(m.bus_factor)}
               </td>
               <td style="padding: 14px 16px;">
-                <div style="font-weight: 500; color: #e5e7eb;">${esc(m.top_contributor)}</div>
-                <div style="font-size: 0.72rem; color: #9ca3af;">${esc(topPct)}% knowledge share</div>
+                <div style="font-weight: 600; color: #0f172a;">${esc(m.top_contributor)}</div>
+                <div style="font-size: 0.72rem; color: #64748b;">${esc(topPct)}% knowledge share</div>
               </td>
-              <td style="padding: 14px 16px; color: #cbd5e1;">${esc(m.important_decisions_count)}</td>
+              <td style="padding: 14px 16px; color: #334155; font-weight: 600;">${esc(m.important_decisions_count)}</td>
               <td style="padding: 14px 16px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
-                  <div style="flex: 1; height: 6px; background: #1f2937; border-radius: 3px; overflow: hidden; min-width: 60px;">
-                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#1a8b66' : '#f59e0b'};"></div>
+                  <div style="flex: 1; height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; min-width: 60px;">
+                    <div style="width: ${docPct}%; height: 100%; background: ${docPct >= 50 ? '#16a34a' : '#d97706'};"></div>
                   </div>
-                  <span style="font-size: 0.75rem; color: #9ca3af;">${docPct}%</span>
+                  <span style="font-size: 0.75rem; color: #64748b; font-weight: 600;">${docPct}%</span>
                 </div>
               </td>
-              <td style="padding: 14px 16px; font-size: 0.78rem; color: #9ca3af; max-width: 280px; line-height: 1.4;">
+              <td style="padding: 14px 16px; font-size: 0.78rem; color: #475569; max-width: 280px; line-height: 1.4;">
                 ${esc(m.onboarding_hint)}
               </td>
             </tr>

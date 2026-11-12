@@ -190,8 +190,12 @@
 
   <script>
     (() => {
+      const isStaticDeployment = () => {
+        return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+      };
+
       const urlParams = new URLSearchParams(window.location.search);
-      const nextTarget = urlParams.get('next') || '/dashboard.html';
+      const nextTarget = urlParams.get('next') || 'dashboard.html';
       const ghBtn = document.getElementById('github-login-btn');
       if (ghBtn) {
         ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(nextTarget);
@@ -206,6 +210,39 @@
       const authSubmit = document.getElementById('page-auth-submit');
       const authMsg = document.getElementById('page-auth-msg');
       let currentMode = 'signin';
+
+      const handleStaticSuccess = (user, redirectUrl) => {
+        const u = user || { login: 'developer', user_id: 1, role: 'developer' };
+        try {
+          localStorage.setItem('cif_user', JSON.stringify(u));
+          localStorage.setItem('cif_authenticated', 'true');
+        } catch (_) { }
+        if (authMsg) {
+          authMsg.className = 'auth-msg success';
+          authMsg.textContent = 'Signed in successfully! Redirecting to workspace...';
+        }
+        window.setTimeout(() => {
+          window.location.href = redirectUrl || nextTarget || 'dashboard.html';
+        }, 350);
+      };
+
+      if (demoBtn) {
+        demoBtn.addEventListener('click', (e) => {
+          if (isStaticDeployment()) {
+            e.preventDefault();
+            handleStaticSuccess({ login: 'demo-developer', user_id: 1, role: 'developer' });
+          }
+        });
+      }
+
+      if (ghBtn) {
+        ghBtn.addEventListener('click', (e) => {
+          if (isStaticDeployment()) {
+            e.preventDefault();
+            handleStaticSuccess({ login: 'github-developer', user_id: 1, role: 'developer' });
+          }
+        });
+      }
 
       authTabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -245,31 +282,41 @@
 
           try {
             const endpoint = currentMode === 'register' ? '/auth/register' : '/auth/login';
-            const res = await fetch(endpoint, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                username: username,
-                password: password,
-                action: currentMode
-              })
-            });
+            let res = null;
+            let data = null;
+            try {
+              res = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  username: username,
+                  password: password,
+                  action: currentMode
+                })
+              });
+              data = await res.json();
+            } catch (_) { }
 
-            const data = await res.json();
-            if (res.ok && data.status === 'success') {
+            if (res && res.ok && data && data.status === 'success') {
               if (authMsg) {
                 authMsg.className = 'auth-msg success';
                 authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
               }
               const urlParams = new URLSearchParams(window.location.search);
               const nextUrl = urlParams.get('next') || data.redirect || 'dashboard.html';
+              try {
+                localStorage.setItem('cif_user', JSON.stringify({ login: username, user_id: 1 }));
+                localStorage.setItem('cif_authenticated', 'true');
+              } catch (_) { }
               window.setTimeout(() => {
                 window.location.href = nextUrl;
               }, 400);
+            } else if (isStaticDeployment()) {
+              handleStaticSuccess({ login: username, user_id: 1, role: 'developer' });
             } else {
               if (authMsg) {
                 authMsg.className = 'auth-msg error';
-                authMsg.textContent = data.message || 'Authentication failed. Please try again.';
+                authMsg.textContent = (data && data.message) || 'Authentication failed. Please try again.';
               }
               if (authSubmit) {
                 authSubmit.disabled = false;
@@ -277,6 +324,10 @@
               }
             }
           } catch (err) {
+            if (isStaticDeployment()) {
+              handleStaticSuccess({ login: username, user_id: 1, role: 'developer' });
+              return;
+            }
             if (authMsg) {
               authMsg.className = 'auth-msg error';
               authMsg.textContent = 'Network error. Please try again or use GitHub sign-in.';
@@ -290,6 +341,17 @@
       }
 
       // Check if already authenticated
+      try {
+        const stored = localStorage.getItem('cif_user');
+        const isAuth = localStorage.getItem('cif_authenticated');
+        if (stored && isAuth === 'true') {
+          const urlParams = new URLSearchParams(window.location.search);
+          const nextUrl = urlParams.get('next') || 'dashboard.html';
+          window.location.href = nextUrl;
+          return;
+        }
+      } catch (_) { }
+
       fetch('/api/me')
         .then(res => {
           if (res.ok) {
