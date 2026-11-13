@@ -2350,6 +2350,20 @@ const app = {
     const pitfalls = s.rejected_pitfalls || [];
     const openItems = s.open_stale_items || [];
 
+    if (activeDecs.length === 0 && evidenceList.length === 0 && pitfalls.length === 0) {
+      if (checklistCard) checklistCard.style.display = 'none';
+      container.innerHTML = `
+        <div class="placeholder-state" style="padding: 48px 24px; text-align: center; background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+          <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">No Decisions Available for Onboarding</div>
+          <div style="color: #64748b; font-size: 0.92rem; max-width: 520px; margin: 0 auto 16px; line-height: 1.5;">
+            ${esc(overview.summary || 'The active workspace has been cleared and contains no architectural decisions. Ingest a repository from the Workspace menu in the top bar to synthesize an onboarding path.')}
+          </div>
+          <button class="btn btn-primary" onclick="app.openAddRepoModal()">Add Repository to Ingest</button>
+        </div>
+      `;
+      return;
+    }
+
     let html = '';
 
     // Section 1: Overview Card
@@ -2649,9 +2663,16 @@ const app = {
           if (staticData.endpoints.timeline_all) staticData.endpoints.timeline_all.data = [];
           if (staticData.endpoints.artifacts_all) staticData.endpoints.artifacts_all.data = [];
           if (staticData.endpoints.graph_all) staticData.endpoints.graph_all.data = { nodes: [], links: [] };
+          staticData.endpoints.bus_factor = {
+            status: 'success',
+            overall_bus_factor: 0,
+            total_modules: 0,
+            modules: []
+          };
         }
         staticData.explains = {};
         staticData.evidences = {};
+        staticData.workspace_cleared = true;
         this.saveStoredState(staticData);
         return { status: 'success', message: 'Dashboard database cleared successfully. Ready for custom repository.' };
       }
@@ -2667,8 +2688,15 @@ const app = {
           staticData.endpoints.timeline_all = { status: 'success', data: [] };
           staticData.endpoints.artifacts_all = { status: 'success', data: [] };
           staticData.endpoints.graph_all = { status: 'success', data: { nodes: [], links: [] } };
+          staticData.endpoints.bus_factor = {
+            status: 'success',
+            overall_bus_factor: 0,
+            total_modules: 0,
+            modules: []
+          };
           staticData.explains = {};
           staticData.evidences = {};
+          staticData.workspace_cleared = false;
         }
 
         // Generate synthetic initial context from repository name if client-side mock
@@ -3016,15 +3044,50 @@ const app = {
     }
 
     if (path === '/api/bus-factor') {
+      const hasDecs = staticData.endpoints && staticData.endpoints.decisions_all && staticData.endpoints.decisions_all.data && staticData.endpoints.decisions_all.data.length > 0;
+      if (staticData.workspace_cleared || !hasDecs) {
+        return {
+          status: 'success',
+          overall_bus_factor: 0,
+          total_modules: 0,
+          modules: []
+        };
+      }
       return (staticData.endpoints && staticData.endpoints.bus_factor) || {
         status: 'success',
-        overall_bus_factor: 1,
+        overall_bus_factor: 0,
         total_modules: 0,
         modules: []
       };
     }
 
     if (path === '/api/onboarding') {
+      const hasDecs = staticData.endpoints && staticData.endpoints.decisions_all && staticData.endpoints.decisions_all.data && staticData.endpoints.decisions_all.data.length > 0;
+      if (staticData.workspace_cleared || !hasDecs) {
+        return {
+          status: 'success',
+          repo: '',
+          role: params.get('role') || 'developer',
+          module: params.get('module') || '',
+          files: [],
+          total_items: 0,
+          checklist: [],
+          sections: {
+            overview: {
+              title: 'Workspace Empty',
+              summary: 'No architectural decisions recorded in this workspace. Ingest or connect a repository from the Workspace menu in the top bar to generate curated onboarding context.',
+              module: 'none',
+              role: params.get('role') || 'developer',
+              affected_artifacts: [],
+              primary_architects: []
+            },
+            active_decisions: [],
+            architectural_evidence: [],
+            rejected_pitfalls: [],
+            open_stale_items: []
+          }
+        };
+      }
       const role = params.get('role') || 'developer';
       const mod = params.get('module') || 'thermal';
       const isThermal = mod.includes('thermal');
@@ -3096,8 +3159,21 @@ const app = {
         return;
       }
 
-      const overall = json.overall_bus_factor || 1;
       const modules = json.modules || [];
+      if (modules.length === 0) {
+        container.innerHTML = `
+          <div style="background: #ffffff; border: 1px solid #dbe4ee; border-radius: 8px; padding: 48px 24px; text-align: center; box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);">
+            <div style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 8px;">No Modules Analyzed</div>
+            <div style="color: #64748b; font-size: 0.92rem; max-width: 520px; margin: 0 auto 16px; line-height: 1.5;">
+              The active workspace contains no repository modules. Ingest a repository from the <strong>Workspace</strong> menu in the top bar to calculate contributor knowledge concentration and bus factor metrics.
+            </div>
+            <button class="btn btn-primary" onclick="app.openAddRepoModal()">Add Repository to Ingest</button>
+          </div>
+        `;
+        return;
+      }
+
+      const overall = json.overall_bus_factor || 1;
       const highRiskCount = modules.filter(m => m.risk_level === 'high').length;
 
       let html = `

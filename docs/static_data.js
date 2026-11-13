@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "620ff0e4f576e82518884d7711684e96d622aeb9a2c982e4fe63de5774b1c604",
+  "db_snapshot_sha256": "a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -325,8 +325,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
               ],
               "system_state": "accepted"
             },
@@ -337,8 +337,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_thermal_0004",
-                "evt_git_thermal_a1b2c3d4"
+                "evt_git_thermal_a1b2c3d4",
+                "evt_adr_thermal_0004"
               ],
               "system_state": "accepted"
             },
@@ -413,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '620ff0e4f576e82518884d7711684e96d622aeb9a2c982e4fe63de5774b1c604'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -424,8 +424,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_cache_0009",
-                  "evt_rev_cache_c201"
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
                 ],
                 "system_state": "accepted"
               },
@@ -436,8 +436,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_thermal_0004",
-                  "evt_git_thermal_a1b2c3d4"
+                  "evt_git_thermal_a1b2c3d4",
+                  "evt_adr_thermal_0004"
                 ],
                 "system_state": "accepted"
               },
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '620ff0e4f576e82518884d7711684e96d622aeb9a2c982e4fe63de5774b1c604'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {

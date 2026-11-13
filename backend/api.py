@@ -828,7 +828,15 @@ class APIHandler:
                     cursor = conn.cursor()
                     cursor.execute("SELECT DISTINCT repo FROM decisions LIMIT 1")
                     r = cursor.fetchone()
-                    repo = r["repo"] if r else "acme-ecommerce/payment-core"
+                    if not r:
+                        return {
+                            "status": "success",
+                            "repo": "",
+                            "overall_bus_factor": 0,
+                            "total_modules": 0,
+                            "modules": []
+                        }
+                    repo = r["repo"]
             from backend.engine.bus_factor import BusFactorEngine
             engine = BusFactorEngine(self.db)
             return engine.analyze_repository(repo)

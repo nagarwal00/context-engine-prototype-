@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "a527d928f7ea28edad3c3fa392f3a6d1271186ca437bea3a8bd2035abd61fe99",
+  "db_snapshot_sha256": "a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -325,8 +325,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
               ],
               "system_state": "accepted"
             },
@@ -413,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a527d928f7ea28edad3c3fa392f3a6d1271186ca437bea3a8bd2035abd61fe99'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -424,8 +424,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_cache_0009",
-                  "evt_rev_cache_c201"
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
                 ],
                 "system_state": "accepted"
               },
@@ -455,8 +455,8 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
-              "dec_cache_local_lru_proposed",
               "dec_thermal_pid_accepted",
+              "dec_cache_local_lru_proposed",
               "dec_cache_redis_accepted"
             ],
             "missed": [
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a527d928f7ea28edad3c3fa392f3a6d1271186ca437bea3a8bd2035abd61fe99'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a7103298d0b06656aa38c0ec8d5e24a51f5812ba9dae65630d3f2ee46dcb526a'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
@@ -4378,7 +4378,7 @@ window.__CIF_STATIC_DATA__ = {
             "history_id": "hist_rev_dec_cache_redis_01_1794214431301010000_54bb29",
             "notes": "Review confirmed: Verified by human reviewer",
             "reconstructed": 0,
-            "repo_full_name": null,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "accepted"
           },
           {
@@ -4389,7 +4389,7 @@ window.__CIF_STATIC_DATA__ = {
             "history_id": "hist_rev_dec_cache_redis_01_1794214457936904500_a426b8",
             "notes": "Review confirmed: Verified by anonymous demo tester",
             "reconstructed": 0,
-            "repo_full_name": null,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "accepted"
           },
           {
@@ -4400,7 +4400,7 @@ window.__CIF_STATIC_DATA__ = {
             "history_id": "hist_rev_dec_cache_redis_01_1794215477807462000_902bb6",
             "notes": "Review confirmed: Verified by human reviewer",
             "reconstructed": 0,
-            "repo_full_name": null,
+            "repo_full_name": "acme-eng/distributed-cache-service",
             "state": "accepted"
           }
         ]
