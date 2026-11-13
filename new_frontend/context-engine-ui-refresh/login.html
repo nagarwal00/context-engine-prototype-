@@ -131,7 +131,8 @@
       <h1>Account sign-in</h1>
       <p class="intro">Sign in with GitHub to access your repositories and synchronize context changes in real time.</p>
 
-      <a id="github-login-btn" class="provider-login-link" href="/auth/github/login?next=/dashboard.html">
+      <a id="github-login-btn" class="provider-login-link" href="/auth/github/login?next=/dashboard.html"
+        onclick="if(window.location.hostname.endsWith('github.io')||window.location.protocol==='file:'||!window.location.port){event.preventDefault();try{localStorage.setItem('cif_authenticated','true');localStorage.setItem('cif_user',JSON.stringify({login:'github-developer',user_id:1,role:'developer'}));}catch(_){}window.location.href=(new URLSearchParams(window.location.search).get('next')||'dashboard.html');}">
         <svg viewBox="0 0 16 16" fill="currentColor" style="width: 18px; height: 18px;">
           <path
             d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
@@ -169,7 +170,8 @@
         <div id="page-auth-msg" class="auth-msg hidden"></div>
       </form>
 
-      <a href="/auth/demo/login" class="demo-action-btn">
+      <a href="/auth/demo/login" class="demo-action-btn"
+        onclick="if(window.location.hostname.endsWith('github.io')||window.location.protocol==='file:'||!window.location.port){event.preventDefault();try{localStorage.setItem('cif_authenticated','true');localStorage.setItem('cif_user',JSON.stringify({login:'demo-developer',user_id:1,role:'developer'}));}catch(_){}window.location.href=(new URLSearchParams(window.location.search).get('next')||'dashboard.html');}">
         <svg viewBox="0 0 16 16" fill="currentColor" style="width: 14px; height: 14px;">
           <path
             d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.25 8.75l-4 2.5a.75.75 0 0 1-1.15-.65v-5.2a.75.75 0 0 1 1.15-.65l4 2.5a.75.75 0 0 1 0 1.5z" />
@@ -198,11 +200,19 @@
       const nextTarget = urlParams.get('next') || 'dashboard.html';
       const ghBtn = document.getElementById('github-login-btn');
       if (ghBtn) {
-        ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(nextTarget);
+        if (!isStaticDeployment()) {
+          ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(nextTarget);
+        } else {
+          ghBtn.href = 'javascript:void(0)';
+        }
       }
       const demoBtn = document.querySelector('.demo-action-btn');
       if (demoBtn) {
-        demoBtn.href = '/auth/demo/login?next=' + encodeURIComponent(nextTarget);
+        if (!isStaticDeployment()) {
+          demoBtn.href = '/auth/demo/login?next=' + encodeURIComponent(nextTarget);
+        } else {
+          demoBtn.href = 'javascript:void(0)';
+        }
       }
 
       const authTabs = document.querySelectorAll('.auth-tab');
@@ -302,7 +312,7 @@
                 authMsg.className = 'auth-msg success';
                 authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
               }
-              const urlParams = new URLSearchParams(window.location.search);
+              const urlParams = new URLSearchParams(window.locaon.;
               const nextUrl = urlParams.get('next') || data.redirect || 'dashboard.html';
               try {
                 localStorage.setItem('cif_user', JSON.stringify({ login: username, user_id: 1 }));

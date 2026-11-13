@@ -234,6 +234,21 @@ const app = {
     window.setTimeout(() => modalRepo.focus(), 0);
   },
 
+  handleGithubLoginClick(e) {
+    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+    if (isStatic) {
+      if (e) e.preventDefault();
+      try {
+        localStorage.setItem('cif_user', JSON.stringify({ login: 'github-developer', user_id: 1, role: 'developer' }));
+        localStorage.setItem('cif_authenticated', 'true');
+      } catch (_) { }
+      this.closeLoginModal();
+      window.location.reload();
+      return false;
+    }
+    return true;
+  },
+
   openLoginModal() {
     document.getElementById('github-login-modal').classList.remove('hidden');
   },

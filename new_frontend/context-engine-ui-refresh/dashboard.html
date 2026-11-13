@@ -762,6 +762,7 @@
         <p class="provider-login-intro">Sign in with GitHub to access your repositories and synchronize context changes
           in real time.</p>
         <a class="btn btn-primary provider-login-link" href="/auth/github/login?next=/dashboard.html"
+          onclick="return app.handleGithubLoginClick(event);"
           style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; font-weight: 600;">
           <svg class="icon-sm" viewBox="0 0 16 16" fill="currentColor" style="width: 16px; height: 16px;">
             <path

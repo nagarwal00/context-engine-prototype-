@@ -200,14 +200,22 @@
 
     const ghLink = loginModal ? loginModal.querySelector('.provider-login-link') : null;
     if (ghLink) {
-      const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
-      ghLink.href = '/auth/github/login?next=' + encodeURIComponent(nextParam);
+      if (isStaticDeployment()) {
+        ghLink.href = 'javascript:void(0)';
+      } else {
+        const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
+        ghLink.href = '/auth/github/login?next=' + encodeURIComponent(nextParam);
+      }
     }
 
     const demoLink = loginModal ? loginModal.querySelector('.demo-action-btn') : null;
     if (demoLink) {
-      const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
-      demoLink.href = '/auth/demo/login?next=' + encodeURIComponent(nextParam);
+      if (isStaticDeployment()) {
+        demoLink.href = 'javascript:void(0)';
+      } else {
+        const nextParam = pendingRedirectUrl.startsWith('/') ? pendingRedirectUrl : '/' + pendingRedirectUrl;
+        demoLink.href = '/auth/demo/login?next=' + encodeURIComponent(nextParam);
+      }
     }
 
     if (loginModal) {
