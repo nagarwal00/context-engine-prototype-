@@ -236,10 +236,10 @@
     });
   }
 
-  // Intercept all feature and workspace links if not authenticated (except on static deployment)
-  document.querySelectorAll('a[href^="dashboard.html"]').forEach(link => {
+  // Intercept all feature and workspace links if not authenticated
+  document.querySelectorAll('a[href*="dashboard.html"]').forEach(link => {
     link.addEventListener('click', (e) => {
-      if (!isAuthenticated && !isStaticDeployment()) {
+      if (!isAuthenticated) {
         e.preventDefault();
         openLoginModal(link.getAttribute('href'));
       }
@@ -266,7 +266,7 @@
     btn.addEventListener('click', (e) => {
       if (isStaticDeployment()) {
         e.preventDefault();
-        handleStaticSuccess({ login: 'demo-developer', user_id: 1, role: 'developer' });
+        handleStaticSuccess({ login: 'demo-developer', user_id: 1, role: 'developer' }, pendingRedirectUrl);
       }
     });
   });
@@ -275,7 +275,7 @@
     btn.addEventListener('click', (e) => {
       if (isStaticDeployment()) {
         e.preventDefault();
-        handleStaticSuccess({ login: 'github-developer', user_id: 1, role: 'developer' });
+        handleStaticSuccess({ login: 'github-developer', user_id: 1, role: 'developer' }, pendingRedirectUrl);
       }
     });
   });

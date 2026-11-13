@@ -302,7 +302,7 @@
                 authMsg.className = 'auth-msg success';
                 authMsg.textContent = data.message || 'Success! Redirecting to workspace...';
               }
-              const urlParams = new URLSearchParams(window.location.search);
+              const urlParams = new URLSearchParams(window.locaon.;
               const nextUrl = urlParams.get('next') || data.redirect || 'dashboard.html';
               try {
                 localStorage.setItem('cif_user', JSON.stringify({ login: username, user_id: 1 }));

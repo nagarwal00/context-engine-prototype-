@@ -366,6 +366,17 @@ const app = {
     }
   },
 
+  logout() {
+    try {
+      localStorage.removeItem('cif_user');
+      localStorage.removeItem('cif_authenticated');
+    } catch (_) { }
+    try {
+      fetch('/auth/logout', { method: 'POST' }).catch(() => { });
+    } catch (_) { }
+    window.location.href = 'index.html';
+  },
+
   closeAddRepoModal() {
     document.getElementById('add-repo-modal').classList.add('hidden');
   },

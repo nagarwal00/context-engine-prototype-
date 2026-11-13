@@ -13,17 +13,29 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <script>
     (function () {
-      if (!window.location.hostname.endsWith('github.io')) {
+      var isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+      var redirectTarget = 'login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
+
+      if (isStatic) {
+        var isAuth = false;
+        try {
+          isAuth = localStorage.getItem('cif_authenticated') === 'true';
+        } catch (_) { }
+        if (!isAuth) {
+          window.location.replace(redirectTarget);
+        }
+      } else {
         fetch('/api/me')
           .then(function (res) {
             if (!res.ok) {
-              window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash));
+              window.location.replace(redirectTarget);
             }
           })
           .catch(function () {
-            window.location.replace('login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash));
+            window.location.replace(redirectTarget);
           });
       }
     })();
@@ -36,11 +48,7 @@
     <header class="app-header">
       <div class="header-left">
         <div class="brand-logo">
-          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3" />
-            <path
-              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-          </svg>
+          <img src="assets/logo.png" alt="Context Intelligence" class="brand-icon brand-logo-img" />
           <div class="brand-text">
             <span class="brand-title">Context Intelligence</span>
             <span class="brand-subtitle">Living Decision History</span>
@@ -76,6 +84,15 @@
                   d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.1h-2.6v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6.4v-2.6h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5v-.1H15v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1V14h-.1a1.7 1.7 0 0 0-1.5 1Z" />
               </svg>
               Login with GitHub
+            </button>
+            <button class="btn btn-secondary btn-sm" type="button" onclick="app.logout()" style="margin-top: 4px;"
+              title="Log out and return to home">
+              <svg class="icon-sm" viewBox="0 0 16 16" fill="none" width="14" height="14" stroke="currentColor"
+                stroke-width="1.5">
+                <path d="M6 2H3.5A1.5 1.5 0 0 0 2 3.5v9A1.5 1.5 0 0 0 3.5 14H6M10.5 11.5 14 8m0 0-3.5-3.5M14 8H5.5"
+                  stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              Sign out
             </button>
             <div class="auth-token-box workspace-repo-field">
               <label for="workspace-repo-url">Repository URL</label>
@@ -204,13 +221,6 @@
             </a>
           </details>
         </nav>
-
-        <div class="sidebar-footer">
-          <div class="scope-notice">
-            <span class="scope-tag">17-Week Capstone</span>
-            <p>Evaluating multi-source reasoning, code-level provenance, and drift detection.</p>
-          </div>
-        </div>
       </aside>
 
       <!-- Main Surface Container -->
@@ -559,15 +569,15 @@
           <!-- Interactive Onboarding Checklist Card -->
           <div id="onboarding-checklist-card" class="timeline-card" style="margin-bottom: 24px; display: none;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px;">
-                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#1a8b66" stroke-width="2">
+              <h3 style="font-size: 1.1rem; margin: 0; display: flex; align-items: center; gap: 8px; color: #0f172a;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="#be123c" stroke-width="2">
                   <polyline points="9 11 12 14 22 4" />
                   <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                 </svg>
                 Onboarding Reading Checklist
               </h3>
               <div id="onboarding-progress-badge" class="badge"
-                style="background: rgba(26, 139, 102, 0.15); color: #1a8b66; font-weight: 600;">
+                style="background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; font-weight: 600;">
                 0 / 0 completed
               </div>
             </div>
@@ -692,31 +702,31 @@
           parse Python AST functions, extract architectural decisions, and build the Temporal Context Graph.
         </p>
         <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+          <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Repository (owner/repo or URL):
           </label>
           <input type="text" id="ingest-repo-input"
             placeholder="e.g. pallets/flask or https://github.com/my-org/my-project"
-            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+            style="width: 100%; padding: 9px 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="margin-bottom: 14px;">
-          <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px; font-weight: 500;">
+          <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">
             GitHub Access Token (optional — needed for private repositories or higher API limits):
           </label>
           <input type="password" id="ingest-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (optional)"
-            style="width: 100%; padding: 9px 12px; background: #0b0f17; border: 1px solid #334155; color: #fff; border-radius: 6px; font-family: monospace;">
+            style="width: 100%; padding: 9px 12px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 6px; font-family: monospace;">
         </div>
         <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 16px;">
           <label
-            style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cbd5e1; cursor: pointer;">
-            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #2c508b;">
+            style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #334155; cursor: pointer;">
+            <input type="checkbox" id="ingest-clear-checkbox" checked style="accent-color: #be123c;">
             Start with Empty Dashboard (Wipe pilot sample data)
           </label>
         </div>
 
         <!-- Live Progress Status Log -->
         <div id="ingest-progress-box" class="hidden"
-          style="background: #090d14; border: 1px solid #19212e; border-radius: 6px; padding: 12px; margin-top: 12px;">
+          style="background: #f8fafc; border: 1px solid #dbe4ee; border-radius: 6px; padding: 12px; margin-top: 12px;">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <div class="spinner-sm" id="ingest-spinner"></div>
             <span id="ingest-status-title" style="font-size: 0.86rem; font-weight: 600; color: #2b6e8c;">Ingesting
@@ -764,28 +774,42 @@
           session.
         </p>
 
-        <div style="display: flex; align-items: center; text-align: center; margin: 16px 0 12px; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">
+        <div
+          style="display: flex; align-items: center; text-align: center; margin: 16px 0 12px; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">
           <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
           <span style="padding: 0 10px;">or login / register with account</span>
           <span style="flex: 1; border-bottom: 1px solid var(--border-subtle, #332b30);"></span>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 12px;">
-          <button type="button" id="dash-auth-tab-signin" class="btn btn-sm btn-secondary active" onclick="app.setDashboardAuthMode('signin')">Sign In</button>
-          <button type="button" id="dash-auth-tab-register" class="btn btn-sm btn-secondary" onclick="app.setDashboardAuthMode('register')">Register</button>
+        <div
+          style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 8px; margin-bottom: 12px;">
+          <button type="button" id="dash-auth-tab-signin" class="btn btn-sm btn-secondary active"
+            onclick="app.setDashboardAuthMode('signin')">Sign In</button>
+          <button type="button" id="dash-auth-tab-register" class="btn btn-sm btn-secondary"
+            onclick="app.setDashboardAuthMode('register')">Register</button>
         </div>
 
         <form id="dash-auth-form" onsubmit="app.submitDashboardAuth(event)">
           <div style="margin-bottom: 10px; text-align: left;">
-            <label for="dash-auth-username" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Username or Email</label>
-            <input type="text" id="dash-auth-username" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="e.g. developer" required autocomplete="username" />
+            <label for="dash-auth-username"
+              style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Username or
+              Email</label>
+            <input type="text" id="dash-auth-username" class="auth-input-field"
+              style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;"
+              placeholder="e.g. developer" required autocomplete="username" />
           </div>
           <div style="margin-bottom: 12px; text-align: left;">
-            <label for="dash-auth-password" style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Password</label>
-            <input type="password" id="dash-auth-password" class="auth-input-field" style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;" placeholder="••••••••" required autocomplete="current-password" />
+            <label for="dash-auth-password"
+              style="display: block; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px;">Password</label>
+            <input type="password" id="dash-auth-password" class="auth-input-field"
+              style="width: 100%; height: 36px; padding: 0 10px; background: rgba(0,0,0,0.4); border: 1px solid var(--border-subtle); border-radius: 6px; color: #fff;"
+              placeholder="••••••••" required autocomplete="current-password" />
           </div>
-          <button type="submit" id="dash-auth-submit-btn" class="btn btn-primary" style="width: 100%; min-height: 38px;">Sign in</button>
-          <div id="dash-auth-msg" style="display: none; font-size: 0.8rem; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center;"></div>
+          <button type="submit" id="dash-auth-submit-btn" class="btn btn-primary"
+            style="width: 100%; min-height: 38px;">Sign in</button>
+          <div id="dash-auth-msg"
+            style="display: none; font-size: 0.8rem; padding: 8px; border-radius: 6px; margin-top: 10px; text-align: center;">
+          </div>
         </form>
       </div>
     </div>
