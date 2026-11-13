@@ -29,6 +29,8 @@ from backend.auth.sessions import create_session
 
 class TestRepoDelete(unittest.TestCase):
     def setUp(self):
+        self._orig_dev_mode = os.environ.get("CIF_DEV_MODE")
+        os.environ["CIF_DEV_MODE"] = "0"
         self.tmp_dir = tempfile.TemporaryDirectory()
         self.db_path = os.path.join(self.tmp_dir.name, "delete_test.db")
         self.db = Database(self.db_path)
@@ -125,6 +127,10 @@ class TestRepoDelete(unittest.TestCase):
         self.db.upsert_event(ev_bob)
 
     def tearDown(self):
+        if self._orig_dev_mode is not None:
+            os.environ["CIF_DEV_MODE"] = self._orig_dev_mode
+        else:
+            os.environ.pop("CIF_DEV_MODE", None)
         self.tmp_dir.cleanup()
 
     def test_delete_unauthenticated_returns_401(self):
