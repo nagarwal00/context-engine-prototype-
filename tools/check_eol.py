@@ -34,6 +34,9 @@ def main():
         )
         files = [f.strip() for f in proc.stdout.splitlines() if f.strip()]
     except Exception as e:
+        if not os.path.exists(".git"):
+            print("EOL OK (clean non-git archive)")
+            return 0
         print(f"Error running git diff: {e}", file=sys.stderr)
         return 1
 

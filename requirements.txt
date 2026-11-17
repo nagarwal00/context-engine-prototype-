@@ -1,0 +1,12 @@
+# Context Intelligence Framework (CIF)
+# ==============================================================================
+# CIF is built with ZERO mandatory external pip dependencies!
+# All core capabilities (database, web server, AST parsing, graph algorithms,
+# ingestion adapters, drift detection, and automated verification) run entirely
+# on the Python 3.11 / 3.12 Standard Library (sqlite3, http.server, urllib, ast, json).
+# ==============================================================================
+
+# Optional Dependencies (Only required for advanced enterprise features):
+# ------------------------------------------------------------------------------
+# cryptography>=41.0.0   # Optional: Only needed for minting GitHub App RS256 JWT tokens (Rule R1)
+# certifi>=2024.2.2      # Optional: Fallback SSL root certificates for older Python installations
