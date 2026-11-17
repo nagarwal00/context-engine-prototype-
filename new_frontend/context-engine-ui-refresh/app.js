@@ -2799,98 +2799,6 @@ const app = {
           staticData.workspace_cleared = false;
         }
 
-        // 1. Verified commits for BreathWise Innovation Hackathon repository
-        const breathwiseCommits = [
-          {
-            sha: "aba67341e9b27670731f41dfaaeb88e0b497b71f",
-            author: "Dhruv Gupta",
-            date: "2026-11-12T18:53:22Z",
-            message: "fix(cache): refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h",
-            files: ["backend/cache.py", "data/cache_snapshots.json"],
-            scope: "cache"
-          },
-          {
-            sha: "2b04d45c6130b1bc8dfd962057929424c1074472",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:47:19Z",
-            message: "fix(ci): upgrade node version to 22 in pages deployment workflow",
-            files: [".github/workflows/deploy.yml", "package.json"],
-            scope: "ci"
-          },
-          {
-            sha: "e67a9905c316ba8d06b6b797825bcf68cf387a64",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:45:05Z",
-            message: "feat(deploy): configure GitHub Pages deployment workflow, SPA routing, and live Render API connection",
-            files: ["vite.config.js", "src/services/api.js", ".github/workflows/deploy.yml"],
-            scope: "deploy"
-          },
-          {
-            sha: "902c7f5beee64998ee6225a0a383d47ad9b26066",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:17:04Z",
-            message: "feat(pages): implement personalized plan optimization, proof methodology, and cache optimizations",
-            files: ["src/pages/PlanPage.jsx", "src/utils/optimizer.js"],
-            scope: "pages"
-          },
-          {
-            sha: "867b31b3beae17c76747f48b111162464bc166c3",
-            author: "Dhruv Gupta",
-            date: "2026-11-12T18:17:04Z",
-            message: "feat(visuals): add scientific graphics for atmospheric inversion, lung deposition, and zoom modal",
-            files: ["src/components/VisualsModal.jsx", "src/assets/atmospheric_inversion.svg"],
-            scope: "visuals"
-          },
-          {
-            sha: "3bf64a2f8669e46a1f815f949c86fcabf00a40d5",
-            author: "Dhruv Gupta",
-            date: "2026-11-12T18:17:04Z",
-            message: "feat(ui): implement forecast charts, location selectors, and interactive search",
-            files: ["src/components/ForecastChart.jsx", "src/components/LocationSearch.jsx"],
-            scope: "ui"
-          },
-          {
-            sha: "914aa123b7b3be15cbeae11264b192837bc21160",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:17:04Z",
-            message: "feat(frontend): set up Vite React app, design system, typography, and API layer",
-            files: ["package.json", "src/App.jsx", "src/index.css"],
-            scope: "frontend"
-          },
-          {
-            sha: "648afcc9b158022a843be7c918ef9392e921d7b1",
-            author: "Dhruv Gupta",
-            date: "2026-11-12T18:16:56Z",
-            message: "feat(api): develop FastAPI endpoints, recommendation engine, and exposure modeling",
-            files: ["backend/main.py", "backend/routes/recommendations.py"],
-            scope: "api"
-          },
-          {
-            sha: "ca42b96e1b782b13c77be8374a2b901509187311",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:16:56Z",
-            message: "feat(ml): build air quality prediction models, baseline comparisons, and backtesting",
-            files: ["models/predictor.py", "models/backtest.py"],
-            scope: "ml"
-          },
-          {
-            sha: "49ee8e29a992bc931f0e816a67f1b29a8a726119",
-            author: "Nistha Agarwal",
-            date: "2026-11-12T18:16:56Z",
-            message: "feat(backend): implement data ingestion, Open-Meteo client, and cleaning pipelines",
-            files: ["backend/ingestion/meteo_client.py", "backend/pipeline.py"],
-            scope: "backend"
-          },
-          {
-            sha: "e65e6b361bb592ef674a28be177b9012a67bc410",
-            author: "Dhruv Gupta",
-            date: "2026-11-12T18:16:55Z",
-            message: "chore: initial repository scaffolding, documentation, and project configuration",
-            files: ["README.md", ".gitignore", "requirements.txt"],
-            scope: "scaffolding"
-          }
-        ];
-
         let fetchedCommits = [];
         let fetchedTree = [];
 
@@ -2961,27 +2869,11 @@ const app = {
               scope: scope
             };
           });
-        } else if (repoName.toLowerCase().includes('breathwise')) {
-          commitsList = breathwiseCommits;
         } else {
-          commitsList = [
-            {
-              sha: 'c101a01b2c3d4e5f',
-              author: 'lead-maintainer',
-              date: new Date().toISOString(),
-              message: `feat(core): initialize modular pipeline architecture for ${repoName}`,
-              files: ['src/core.py', 'README.md'],
-              scope: 'core'
-            },
-            {
-              sha: 'c102a02b3c4d5e6f',
-              author: 'core-developer',
-              date: new Date(Date.now() - 86400000).toISOString(),
-              message: `feat(telemetry): implement structured telemetry and error monitoring`,
-              files: ['src/utils.py', 'src/telemetry.py'],
-              scope: 'telemetry'
-            }
-          ];
+          return {
+            status: 'error',
+            message: `Unable to fetch commits for repository '${repoName}' from GitHub REST API. Ensure the repository name is valid and public, or provide a GitHub Personal Access Token.`
+          };
         }
 
         const formatTitle = (msg) => {

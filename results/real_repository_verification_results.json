@@ -1,0 +1,77 @@
+[
+  {
+    "repo": "nagarwal00/breathwise-innovation-hackathon",
+    "language": "TypeScript",
+    "stars": 0,
+    "default_branch": "main",
+    "commits_ingested": 11,
+    "issues_ingested": 0,
+    "prs_ingested": 0,
+    "entities_created": 25,
+    "decisions_extracted": 11,
+    "edges_created": 234,
+    "overall_bus_factor": 1,
+    "sample_decision": "Refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h",
+    "sample_evidence_url": "https://github.com/nagarwal00/breathwise-innovation-hackathon/commit/aba67341e9b27670731f41dfaaeb88e0b497b71f",
+    "limitations": [
+      "Repository does not contain formal ADR markdown files; architectural intent extracted via commit diffs & PR discussions.",
+      "No active or historical pull requests retrieved within query bounds."
+    ]
+  },
+  {
+    "repo": "octocat/Hello-World",
+    "language": "Multi-language",
+    "stars": 3966,
+    "default_branch": "master",
+    "commits_ingested": 3,
+    "issues_ingested": 6,
+    "prs_ingested": 9,
+    "entities_created": 1,
+    "decisions_extracted": 5,
+    "edges_created": 10,
+    "overall_bus_factor": 1,
+    "sample_decision": "PR #11750: Add GitHub collaboration notes",
+    "sample_evidence_url": "https://github.com/octocat/Hello-World/pull/11750",
+    "limitations": [
+      "Repository does not contain formal ADR markdown files; architectural intent extracted via commit diffs & PR discussions.",
+      "Insufficient cross-module commit diversity for multi-module bus factor."
+    ]
+  },
+  {
+    "repo": "pallets/click",
+    "language": "Python",
+    "stars": 17828,
+    "default_branch": "main",
+    "commits_ingested": 25,
+    "issues_ingested": 5,
+    "prs_ingested": 10,
+    "entities_created": 25,
+    "decisions_extracted": 14,
+    "edges_created": 70,
+    "overall_bus_factor": 1,
+    "sample_decision": "#3922: [rejected AI] PowerShell completion breaks when a completion value contai",
+    "sample_evidence_url": "https://github.com/pallets/click/issues/3922",
+    "limitations": [
+      "Repository does not contain formal ADR markdown files; architectural intent extracted via commit diffs & PR discussions."
+    ]
+  },
+  {
+    "repo": "nagarwal00/context-engine-prototype-",
+    "language": "Python",
+    "stars": 0,
+    "default_branch": "main",
+    "commits_ingested": 25,
+    "issues_ingested": 0,
+    "prs_ingested": 0,
+    "entities_created": 25,
+    "decisions_extracted": 21,
+    "edges_created": 132,
+    "overall_bus_factor": 1,
+    "sample_decision": "Add independent university external examiner audit report",
+    "sample_evidence_url": "https://github.com/nagarwal00/context-engine-prototype-/commit/340a8bd55a21ce4bd80df0f962a914455da5cf16",
+    "limitations": [
+      "Repository does not contain formal ADR markdown files; architectural intent extracted via commit diffs & PR discussions.",
+      "No active or historical pull requests retrieved within query bounds."
+    ]
+  }
+]
