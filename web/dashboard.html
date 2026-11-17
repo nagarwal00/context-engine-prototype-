@@ -76,7 +76,10 @@
           </summary>
           <div class="workspace-menu-panel">
             <div class="workspace-menu-heading">Workspace</div>
-            <button class="btn btn-secondary btn-sm workspace-login-button" type="button"
+            <div id="workspace-user-badge" style="display: none; padding: 6px 10px; margin-bottom: 8px; background: #f1f5f9; border-radius: 6px; font-size: 0.82rem; color: #334155;">
+              Signed in as <strong id="workspace-user-name">developer</strong>
+            </div>
+            <button id="workspace-login-btn" class="btn btn-secondary btn-sm workspace-login-button" type="button"
               onclick="app.openLoginModal()">
               <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
@@ -85,7 +88,7 @@
               </svg>
               Login with GitHub
             </button>
-            <button class="btn btn-secondary btn-sm" type="button" onclick="app.logout()" style="margin-top: 4px;"
+            <button id="workspace-signout-btn" class="btn btn-secondary btn-sm" type="button" onclick="app.logout()" style="margin-top: 4px; display: none;"
               title="Log out and return to home">
               <svg class="icon-sm" viewBox="0 0 16 16" fill="none" width="14" height="14" stroke="currentColor"
                 stroke-width="1.5">

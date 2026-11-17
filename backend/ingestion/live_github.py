@@ -108,15 +108,29 @@ class LiveGitHubIngestor:
             return 500, {"error": str(e)}
 
     def parse_repo_identifier(self, raw_input: str) -> str:
-        """Parses 'https://github.com/owner/repo' or 'owner/repo' into canonical 'owner/repo'."""
+        """Parses 'https://github.com/owner/repo', 'git@github.com:owner/repo.git', or 'owner/repo' into canonical 'owner/repo'."""
+        if not raw_input or not isinstance(raw_input, str):
+            raise ValueError("Repository identifier cannot be empty.")
         cleaned = raw_input.strip().split("#")[0].split("?")[0].rstrip("/")
-        if "github.com/" in cleaned:
-            parts = cleaned.split("github.com/")[-1].split("/")
-            if len(parts) >= 2:
-                return f"{parts[0]}/{parts[1].replace('.git', '')}".strip()
+        # Handle SSH git@github.com:owner/repo(.git)
+        if cleaned.startswith("git@github.com:"):
+            cleaned = cleaned[len("git@github.com:"):]
+        elif "github.com/" in cleaned:
+            cleaned = cleaned.split("github.com/")[-1]
+        elif cleaned.startswith("github.com:"):
+            cleaned = cleaned.split("github.com:")[-1]
+
+        cleaned = cleaned.lstrip("/")
         parts = [p.strip() for p in cleaned.split("/") if p.strip()]
-        if len(parts) == 2:
-            return f"{parts[0]}/{parts[1]}".strip()
+        if len(parts) >= 2:
+            owner = parts[0]
+            repo = parts[1]
+            if repo.endswith(".git"):
+                repo = repo[:-4]
+            # Disallow invalid protocol tokens or empty pieces
+            if owner.lower() in ("http:", "https:", "git:", "ssh:") or not owner or not repo:
+                raise ValueError(f"Invalid repository format '{raw_input}'. Please use 'owner/repo' or GitHub URL.")
+            return f"{owner}/{repo}".strip()
         raise ValueError(f"Invalid repository format '{raw_input}'. Please use 'owner/repo' or GitHub URL.")
 
     def fetch_commits(self, repo: str, max_count: int = 25) -> Tuple[int, List[Dict[str, Any]], Optional[str]]:

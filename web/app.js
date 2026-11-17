@@ -31,10 +31,15 @@ const app = {
   cachedArtifacts: [],
 
   init() {
+    this.updateWorkspaceAuthUI();
     const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (!isLocalServer || (window.location.port && window.location.port !== '8080')) {
       this._serverOffline = true;
       this._updateModeBadge(false);
+    } else {
+      fetch('/api/stats')
+        .then(res => this._updateModeBadge(res.ok))
+        .catch(() => this._updateModeBadge(false));
     }
     this.bindGlobalEvents();
     this.refreshStats();
@@ -229,6 +234,8 @@ const app = {
   },
 
   openAddRepoModal() {
+    const wsMenu = document.getElementById('workspace-menu');
+    if (wsMenu) wsMenu.removeAttribute('open');
     document.getElementById('add-repo-modal').classList.remove('hidden');
     document.getElementById('ingest-progress-box').classList.add('hidden');
     document.getElementById('ingest-log-messages').innerHTML = '';
@@ -397,6 +404,58 @@ const app = {
     window.location.href = 'index.html';
   },
 
+  parseRepoSlug(raw) {
+    if (!raw || typeof raw !== 'string') return '';
+    let cleaned = raw.trim().split('#')[0].split('?')[0].replace(/\/+$/, '');
+    if (cleaned.startsWith('git@github.com:')) {
+      cleaned = cleaned.slice('git@github.com:'.length);
+    } else if (cleaned.includes('github.com/')) {
+      cleaned = cleaned.split('github.com/').pop();
+    } else if (cleaned.startsWith('github.com:')) {
+      cleaned = cleaned.split('github.com:').pop();
+    }
+    cleaned = cleaned.replace(/^\/+/, '');
+    const parts = cleaned.split('/').map(p => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      const owner = parts[0];
+      let repo = parts[1];
+      if (repo.endsWith('.git')) repo = repo.slice(0, -4);
+      if (['http:', 'https:', 'git:', 'ssh:'].includes(owner.toLowerCase()) || !owner || !repo) {
+        return '';
+      }
+      return `${owner}/${repo}`;
+    }
+    return '';
+  },
+
+  updateWorkspaceAuthUI() {
+    let user = null;
+    let isAuth = false;
+    try {
+      isAuth = localStorage.getItem('cif_authenticated') === 'true';
+      const uStr = localStorage.getItem('cif_user');
+      if (uStr) user = JSON.parse(uStr);
+    } catch (_) { }
+
+    const loginBtn = document.getElementById('workspace-login-btn');
+    const signoutBtn = document.getElementById('workspace-signout-btn');
+    const userBadge = document.getElementById('workspace-user-badge');
+    const userName = document.getElementById('workspace-user-name');
+
+    if (isAuth) {
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (signoutBtn) signoutBtn.style.display = 'inline-flex';
+      if (userBadge) {
+        userBadge.style.display = 'block';
+        if (userName) userName.textContent = user?.login || 'developer';
+      }
+    } else {
+      if (loginBtn) loginBtn.style.display = 'inline-flex';
+      if (signoutBtn) signoutBtn.style.display = 'none';
+      if (userBadge) userBadge.style.display = 'none';
+    }
+  },
+
   closeAddRepoModal() {
     document.getElementById('add-repo-modal').classList.add('hidden');
   },
@@ -427,6 +486,12 @@ const app = {
       return;
     }
 
+    const slug = this.parseRepoSlug(rawRepo);
+    if (!slug) {
+      alert(`Invalid repository format '${rawRepo}'. Please enter 'owner/repo' or a valid GitHub repository URL.`);
+      return;
+    }
+
     const progressBox = document.getElementById('ingest-progress-box');
     const logBox = document.getElementById('ingest-log-messages');
     const titleEl = document.getElementById('ingest-status-title');
@@ -445,7 +510,7 @@ const app = {
       logBox.scrollTop = logBox.scrollHeight;
     };
 
-    addLog(`Connecting to repository '${rawRepo}'...`);
+    addLog(`Connecting to repository '${slug}'...`);
     addLog(`Fetching commit logs, author identities, and code diffs...`);
 
     // Progress pulse timer while network request completes
@@ -463,7 +528,7 @@ const app = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          repo: rawRepo,
+          repo: slug,
           token: token || null,
           clear_existing: clearExisting,
           max_commits: 25,
@@ -486,7 +551,7 @@ const app = {
         setTimeout(async () => {
           this.closeAddRepoModal();
           await this.loadRepositoriesList();
-          this.switchRepo(stats.repo || rawRepo);
+          this.switchRepo(stats.repo || slug);
         }, 1200);
       } else {
         titleEl.textContent = 'Ingestion Error';
