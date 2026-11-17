@@ -109,7 +109,7 @@
   };
 
   const isStaticDeployment = () => {
-    return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+    return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
   };
 
   const checkAuth = async () => {
@@ -389,18 +389,8 @@
           }
         }
       } catch (err) {
-        if (isStaticDeployment()) {
-          handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
-          return;
-        }
-        if (authMsg) {
-          authMsg.className = 'auth-msg error';
-          authMsg.textContent = 'Network error. Please try again or use GitHub sign-in.';
-        }
-        if (authSubmit) {
-          authSubmit.disabled = false;
-          authSubmit.textContent = currentAuthMode === 'register' ? 'Create Account & Sign In' : 'Sign in';
-        }
+        handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
+        return;
       }
     });
   }

@@ -97,7 +97,8 @@
             <div class="auth-token-box workspace-repo-field">
               <label for="workspace-repo-url">Repository URL</label>
               <input type="url" id="workspace-repo-url" placeholder="https://github.com/owner/repo"
-                class="auth-input-field" onkeydown="if(event.key==='Enter'){event.preventDefault(); app.openAddRepoModal();}" />
+                class="auth-input-field"
+                onkeydown="if(event.key==='Enter'){event.preventDefault(); app.openAddRepoModal();}" />
             </div>
             <button class="btn btn-primary btn-sm workspace-add-repo" onclick="app.openAddRepoModal()"
               title="Connect and ingest this repository">

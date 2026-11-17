@@ -170,7 +170,22 @@ For complete evaluation manifests, Wilson confidence intervals, and corrections,
 
 ---
 
-## 7. Key Project Documentation
+## 7. Faculty Evaluation & Quality Audit Reports
+
+Comprehensive audit, testing, and faculty demonstration reports are generated in the repository root:
+
+- [`PROJECT_AUDIT_REPORT.md`](PROJECT_AUDIT_REPORT.md) — Comprehensive architecture and codebase audit report across all layers.
+- [`BUG_FIX_REPORT.md`](BUG_FIX_REPORT.md) — Remediation details for identified frontend, backend, database, and CI defects.
+- [`TEST_RESULTS.md`](TEST_RESULTS.md) — Complete 352-test automated unit suite metrics, verification gates, and coverage.
+- [`FEATURE_VERIFICATION.md`](FEATURE_VERIFICATION.md) — Independent verification of all 9 interactive UI surfaces in Live and Static modes.
+- [`REAL_REPOSITORY_TEST_REPORT.md`](REAL_REPOSITORY_TEST_REPORT.md) — Live ingestion testing against real public GitHub repositories.
+- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) — Multi-pattern secret scanning, RBAC permissions, and pre-persistence data sanitization.
+- [`DEMO_READINESS_REPORT.md`](DEMO_READINESS_REPORT.md) — Faculty demonstration checklist and stability verification.
+- [`DEMO_GUIDE.md`](DEMO_GUIDE.md) — Step-by-step 15-minute presentation script and oral examination defense guide.
+
+---
+
+## 8. Key Project Documentation
 
 - [`LIMITATIONS.md`](LIMITATIONS.md) — Measured limitations, known boundary conditions, and refusal performance analysis.
 - [`PRIVACY.md`](PRIVACY.md) — Pre-ingestion redaction of secrets, API keys, and privacy guidelines.

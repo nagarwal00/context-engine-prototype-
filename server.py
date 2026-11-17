@@ -237,9 +237,15 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             except (ValueError, TypeError):
                 content_len = 0
             if content_len > MAX_BODY_SIZE:
+                self.close_connection = True
+                try:
+                    self.rfile.read(min(content_len, 65536))
+                except Exception:
+                    pass
                 self._send_json(
                     {"status": "error", "message": "Payload too large: maximum body size is 1MB"},
-                    status=413
+                    status=413,
+                    extra_headers={"Connection": "close"}
                 )
                 return
 
@@ -323,9 +329,15 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
 
             # Body size limit: 1 MB
             if content_len > MAX_BODY_SIZE:
+                self.close_connection = True
+                try:
+                    self.rfile.read(min(content_len, 65536))
+                except Exception:
+                    pass
                 self._send_json(
                     {"status": "error", "message": "Payload too large: maximum body size is 1MB"},
-                    status=413
+                    status=413,
+                    extra_headers={"Connection": "close"}
                 )
                 return
 

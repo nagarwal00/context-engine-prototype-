@@ -3564,22 +3564,6 @@ const app = {
       if (repoKey && staticData.endpoints && staticData.endpoints[`onboarding_${repoKey}`]) {
         return staticData.endpoints[`onboarding_${repoKey}`];
       }
-          sections: {
-            overview: {
-              title: 'Workspace Empty',
-              summary: 'No architectural decisions recorded in this workspace. Ingest or connect a repository from the Workspace menu in the top bar to generate curated onboarding context.',
-              module: 'none',
-              role: params.get('role') || 'developer',
-              affected_artifacts: [],
-              primary_architects: []
-            },
-            active_decisions: [],
-            architectural_evidence: [],
-            rejected_pitfalls: [],
-            open_stale_items: []
-          }
-        };
-      }
       const role = params.get('role') || 'developer';
       const mod = params.get('module') || 'thermal';
       const isThermal = mod.includes('thermal');

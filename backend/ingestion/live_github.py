@@ -712,6 +712,12 @@ class LiveGitHubIngestor:
     def clear_database(self):
         """Wipes all database tables to give an empty canvas."""
         with self.db.get_connection() as conn:
+            conn.execute("DELETE FROM claim_evidence")
+            conn.execute("DELETE FROM decision_claims")
+            conn.execute("DELETE FROM decision_assumptions")
+            conn.execute("DELETE FROM guard_rules")
+            conn.execute("DELETE FROM finding_feedback")
+            conn.execute("DELETE FROM ambiguous_findings")
             conn.execute("DELETE FROM state_history")
             conn.execute("DELETE FROM edges")
             conn.execute("DELETE FROM decision_evidence")
