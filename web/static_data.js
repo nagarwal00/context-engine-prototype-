@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "a68d6300bbd0f37036d1193e6fa3231bdf04b87ed81374bddc3f02fac6ea54e9",
+  "db_snapshot_sha256": "aaf70878ccca3438404fc84136a79e1732a5b8ab7fcb26ae902ef469ba9aa76e",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -413,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a68d6300bbd0f37036d1193e6fa3231bdf04b87ed81374bddc3f02fac6ea54e9'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'aaf70878ccca3438404fc84136a79e1732a5b8ab7fcb26ae902ef469ba9aa76e'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -456,8 +456,8 @@ window.__CIF_STATIC_DATA__ = {
             "matched_gt_count": 3,
             "matched_system_ids": [
               "dec_thermal_pid_accepted",
-              "dec_cache_redis_accepted",
-              "dec_cache_local_lru_proposed"
+              "dec_cache_local_lru_proposed",
+              "dec_cache_redis_accepted"
             ],
             "missed": [
               {
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'a68d6300bbd0f37036d1193e6fa3231bdf04b87ed81374bddc3f02fac6ea54e9'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'aaf70878ccca3438404fc84136a79e1732a5b8ab7fcb26ae902ef469ba9aa76e'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {

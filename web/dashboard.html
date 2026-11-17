@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script>
     (function () {
-      var isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+      var isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
       var redirectTarget = 'login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
 
       if (isStatic) {
@@ -97,15 +97,14 @@
             <div class="auth-token-box workspace-repo-field">
               <label for="workspace-repo-url">Repository URL</label>
               <input type="url" id="workspace-repo-url" placeholder="https://github.com/owner/repo"
-                class="auth-input-field" />
+                class="auth-input-field" onkeydown="if(event.key==='Enter'){event.preventDefault(); app.openAddRepoModal();}" />
             </div>
             <button class="btn btn-primary btn-sm workspace-add-repo" onclick="app.openAddRepoModal()"
-              title="Enter an access token and connect this repository">
+              title="Connect and ingest this repository">
               <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="10" rx="2" />
-                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <path d="M12 5v14M5 12h14" />
               </svg>
-              Access Token
+              Ingest Repository
             </button>
             <div class="workspace-actions">
               <button class="btn btn-secondary btn-sm" onclick="app.emptyDashboard()"

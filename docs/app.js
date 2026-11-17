@@ -31,6 +31,11 @@ const app = {
   cachedArtifacts: [],
 
   init() {
+    const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalServer || (window.location.port && window.location.port !== '8080')) {
+      this._serverOffline = true;
+      this._updateModeBadge(false);
+    }
     this.bindGlobalEvents();
     this.refreshStats();
     this.loadRepositoriesList();
@@ -235,7 +240,7 @@ const app = {
   },
 
   handleGithubLoginClick(e) {
-    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
     if (isStatic) {
       if (e) e.preventDefault();
       try {
@@ -310,7 +315,7 @@ const app = {
       submitBtn.textContent = 'Please wait...';
     }
 
-    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port;
+    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
 
     const handleStaticAuth = () => {
       try {
@@ -2571,18 +2576,34 @@ const app = {
       options.headers['Authorization'] = 'Bearer ' + this.authToken;
     }
 
+    if (this._serverOffline) {
+      this._updateModeBadge(false);
+      return await this.clientMockApi(url, options);
+    }
+
     const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
     if (isLocalServer) {
       try {
         const controller = new AbortController();
-        const timeoutMs = options.timeoutMs || 45000;
+        const timeoutMs = options.timeoutMs || (this._serverChecked ? 10000 : 2500);
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         const res = await fetch(url, { ...options, signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
+          this._serverChecked = true;
+          this._serverOffline = false;
           this._updateModeBadge(true);
           return await res.json();
+        } else if (res.status === 404 || res.status === 405 || res.status >= 500) {
+          console.warn(`Local server returned HTTP ${res.status} for ${url}; switching to client-side engine.`);
+          this._serverChecked = true;
+          this._serverOffline = true;
+          this._updateModeBadge(false);
+          return await this.clientMockApi(url, options);
         } else {
+          this._serverChecked = true;
+          this._serverOffline = false;
+          this._updateModeBadge(true);
           let errData;
           try {
             errData = await res.json();
@@ -2595,11 +2616,15 @@ const app = {
           return errData;
         }
       } catch (e) {
-        console.warn('Backend server error or offline; falling back to client-side engine:', e.message);
+        console.warn('Backend server offline or unreachable; switching to client-side engine:', e.message);
+        this._serverChecked = true;
+        this._serverOffline = true;
         this._updateModeBadge(false);
+        return await this.clientMockApi(url, options);
       }
     } else {
       // GitHub Pages or non-local: always static
+      this._serverOffline = true;
       this._updateModeBadge(false);
     }
     return await this.clientMockApi(url, options);
