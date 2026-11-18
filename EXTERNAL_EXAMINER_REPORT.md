@@ -191,3 +191,4 @@ The Context Intelligence Framework has been thoroughly tested and defended again
    Click **"Sign in as Demo Developer"** or enter any username/password. The system automatically recognizes static mode and signs in smoothly.
 4. **To ingest a custom repository live**:
    Open **Workspace -> Ingest Repository**, enter `nagarwal00/breathwise-innovation-hackathon`, and click **Ingest Repository**.
+
