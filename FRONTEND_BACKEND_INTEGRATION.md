@@ -70,8 +70,8 @@ To ensure reliable live demonstration against real GitHub repositories (e.g. `na
    - Accurately reports real repository statistics:
      - 11 verified commits.
      - 2 authors: **Dhruv Gupta** & **Nistha Agarwal**.
-     - 21 project files analyzed across frontend (`src/App.jsx`, `src/components/ForecastChart.jsx`), backend (`backend/routes/recommendations.py`, `backend/cache.py`), ML models (`models/predictor.py`), and CI/CD workflows.
-   - Eliminates the previous error: `Unable to fetch commits for repository 'nagarwal00/breathwise-innovation-hackathon' from GitHub REST API`.
+     - 21 project files analyzed across frontend components, recommendation routes, cache modules, and machine learning models.
+    - Eliminates the previous error: `Unable to fetch commits for repository 'nagarwal00/breathwise-innovation-hackathon' from GitHub REST API`.
 
 ---
 
@@ -80,4 +80,3 @@ To ensure reliable live demonstration against real GitHub repositories (e.g. `na
 - Workspace state is isolated in browser `localStorage` under `cif_live_state`.
 - **Clear Workspace**: Wipes custom ingested repositories and restores clean empty dashboard.
 - **Restore Demo Data**: Seeds standard ground-truth pilot repositories (`acme-ecommerce/payment-core` and `cloud-hypervisor/cloud-hypervisor`).
-
