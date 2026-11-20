@@ -103,3 +103,4 @@ server {
 | `CIF_RATE_LIMIT_AUTH_MAX` | `10` | Request quota per minute for authentication endpoints. |
 | `CIF_RATE_LIMIT_INGEST_MAX` | `5` | Request quota per minute for ingestion endpoints. |
 | `CIF_RATE_LIMIT_EXPENSIVE_MAX`| `15` | Request quota per minute for heavy query/benchmark endpoints. |
+

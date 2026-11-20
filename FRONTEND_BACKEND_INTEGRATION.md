@@ -80,3 +80,4 @@ To ensure reliable live demonstration against real GitHub repositories (e.g. `na
 - Workspace state is isolated in browser `localStorage` under `cif_live_state`.
 - **Clear Workspace**: Wipes custom ingested repositories and restores clean empty dashboard.
 - **Restore Demo Data**: Seeds standard ground-truth pilot repositories (`acme-ecommerce/payment-core` and `cloud-hypervisor/cloud-hypervisor`).
+

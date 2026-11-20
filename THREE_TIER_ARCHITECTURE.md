@@ -124,3 +124,4 @@ The data layer is managed by `backend/db.py` utilizing SQLite 3 with strict rela
 3. **Transaction Safety**: Context managers (`with self.get_connection() as conn:`) ensure atomic commits and automatic rollback on unhandled exceptions.
 4. **Mechanical Evidence Invariant (Section 5.2)**: An architectural decision cannot enter the `accepted` state without at least one verified evidence link in `decision_evidence`. Attempting to persist an unevidenced accepted decision raises an `InvariantViolationError`.
 5. **Zero SQL Injection**: All queries utilize parameterized parameter substitution (`?`). Zero dynamic SQL string concatenation is permitted.
+

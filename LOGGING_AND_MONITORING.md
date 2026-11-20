@@ -58,3 +58,4 @@ The framework exposes a live observability endpoint at `/api/diagnostics` (alias
 - **Database Status**: Relational connectivity state, authoritative database file path, row counts for all core tables (`events`, `decisions`, `entities`, `edges`, `guard_rules`, `users`, `sessions`, `repos`).
 - **Rate Limiter Metrics**: Active sliding windows, total requests checked, total requests throttled, configured category quotas.
 - **Timestamp**: Current UTC ISO 8601 server timestamp.
+

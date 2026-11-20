@@ -195,3 +195,4 @@ Every API response includes rate limiting metadata:
 - **Role**: `ROLE_ADMIN`
 - **Payload**: `{"confirm": "context_intelligence.db"}`
 - **Description**: Clears all operational records for a clean-room demonstration.
+

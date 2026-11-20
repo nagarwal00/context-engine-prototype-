@@ -125,3 +125,4 @@ CREATE TABLE IF NOT EXISTS guard_rules (
 1. **Foreign Key Enforcement**: `PRAGMA foreign_keys = ON;` is executed on every connection checkout in `Database.get_connection()`.
 2. **Transaction Scoping**: Connection context manager wraps executions in `BEGIN IMMEDIATE` transactions, ensuring atomic writes and automatic rollback on runtime errors.
 3. **Structured Database Logging**: All connection checkouts, query transaction failures, and migration runs are logged to `logs/database.log`.
+

@@ -198,3 +198,4 @@ def get_logger(name: str = "cif") -> logging.Logger:
     if not _LOGGING_INITIALIZED:
         setup_logging()
     return logging.getLogger(name)
+
