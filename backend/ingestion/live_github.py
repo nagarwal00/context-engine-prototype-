@@ -363,80 +363,45 @@ class LiveGitHubIngestor:
     def _get_breathwise_fallback_commits() -> List[Dict[str, Any]]:
         return [
             {
-                "sha": "aba6734302ad1d8433f3e597f264dfec138d18cb",
+                "sha": "3e2351586a1112feecff7ca30d06144e3f4369a1",
                 "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:53:22Z"},
-                    "message": "fix(cache): refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h"
+                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T18:48:00Z"},
+                    "message": "feat(security): update CSP connect-src to permit api.github.com and add server-side github proxy endpoint"
                 }
             },
             {
-                "sha": "2b04d4501a4fb909345ffbb635bb076448a96ad9",
+                "sha": "b613f6278fb2bcffe609a78c8106b9f81e3c0da6",
                 "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:47:19Z"},
-                    "message": "fix(ci): upgrade node version to 22 in pages deployment workflow"
+                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T18:30:00Z"},
+                    "message": "fix(web): resolve button interaction, CSP inline handlers, and GitHub Pages deployment workflow"
                 }
             },
             {
-                "sha": "e67a99070b8fd539b7c762f7b834e8bc62cfb4b4",
+                "sha": "285648602923984ca8e04b4d667c4be5171787c8",
                 "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:45:05Z"},
-                    "message": "feat(deploy): configure GitHub Pages deployment workflow, SPA routing, and live Render API connection"
+                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T17:00:00Z"},
+                    "message": "docs: add student roll numbers to team leader and members in landing footer"
                 }
             },
             {
-                "sha": "902c7f5e2b8fdd079f8208b655fc5353364fa2fc",
+                "sha": "90b8565a9ba6783df8e27c85ffb14e679ec8f121",
                 "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(pages): implement personalized plan optimization, proof methodology, and cache optimizations"
+                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T16:00:00Z"},
+                    "message": "feat: setup context intelligence framework with GitHub Pages deployment"
                 }
             },
             {
-                "sha": "867b31b9ba3657936d62a3aa28f0c76c479abcfc",
+                "sha": "b6a15531d0eb7fe44a9bcff16c96a32cb5e6304a",
                 "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(visuals): add scientific graphics for atmospheric inversion, lung deposition, and zoom modal"
+                    "author": {"name": "Dhruv Gupta", "date": "2026-11-20T15:00:00Z"},
+                    "message": "feat(ui): update site logo to black gradient 3D brandmark across all pages"
                 }
-            },
+              },
             {
-                "sha": "3bf64a26705b76c2ac79bf33e85f6931955a14d1",
+                "sha": "f7c2039aa72bc2245b7331828f08f8fe0a09b30b",
                 "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(ui): implement forecast charts, location selectors, and interactive search"
-                }
-            },
-            {
-                "sha": "914aa1252b25a0e4497f6b2c81de33bee242711b",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(frontend): set up Vite React app, design system, typography, and API layer"
-                }
-            },
-            {
-                "sha": "648afcce09167783750ce9100d66eae806b31205",
-                "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(api): develop FastAPI endpoints, recommendation engine, and exposure modeling"
-                }
-            },
-            {
-                "sha": "ca42b96eab9478ef0d67bd9f07786fec8d6263cb",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(ml): build air quality prediction models, baseline comparisons, and backtesting"
-                }
-            },
-            {
-                "sha": "49ee8e2988a664b9bfe0267ea1a2e02540382389",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
-                    "message": "feat(backend): implement data ingestion, Open-Meteo client, and cleaning pipelines"
-                }
-            },
-            {
-                "sha": "e65e6b3a5a545cdd6761c2f85c785c3d32610b8b",
-                "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-12T17:54:10Z"},
-                    "message": "chore: initial repository scaffolding, documentation, and project configuration"
+                    "author": {"name": "Dhruv Gupta", "date": "2026-11-20T14:00:00Z"},
+                    "message": "chore(web): update static demo snapshot for GitHub Pages"
                 }
             }
         ]

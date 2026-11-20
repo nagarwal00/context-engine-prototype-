@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "9e7f7f0ba00ddc566c67c3668f5188e0adb9fb87cc7938eb9a94bbdc40ebc423",
+  "db_snapshot_sha256": "d125ef677f4158ef9695d47bc6b617553a56e0ddc7e3311a768f7e5f127a019b",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -383,8 +383,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_comm",
-                  "evt_issue_thermal_12_sarah"
+                  "evt_issue_thermal_12_sarah",
+                  "evt_issue_thermal_12_comm"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -405,15 +405,15 @@ window.__CIF_STATIC_DATA__ = {
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_comm",
-                "evt_issue_thermal_12_sarah"
+                "evt_issue_thermal_12_sarah",
+                "evt_issue_thermal_12_comm"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '9e7f7f0ba00ddc566c67c3668f5188e0adb9fb87cc7938eb9a94bbdc40ebc423'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'd125ef677f4158ef9695d47bc6b617553a56e0ddc7e3311a768f7e5f127a019b'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -455,15 +455,15 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
-              "dec_cache_redis_accepted",
+              "dec_thermal_pid_accepted",
               "dec_cache_local_lru_proposed",
-              "dec_thermal_pid_accepted"
+              "dec_cache_redis_accepted"
             ],
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_comm",
-                  "evt_issue_thermal_12_sarah"
+                  "evt_issue_thermal_12_sarah",
+                  "evt_issue_thermal_12_comm"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '9e7f7f0ba00ddc566c67c3668f5188e0adb9fb87cc7938eb9a94bbdc40ebc423'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is 'd125ef677f4158ef9695d47bc6b617553a56e0ddc7e3311a768f7e5f127a019b'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {
