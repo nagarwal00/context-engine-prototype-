@@ -52,6 +52,8 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/auth-status"): ROLE_PUBLIC,
     ("GET", "/api/auth-config"): ROLE_PUBLIC,
     ("GET", "/api/repos"): ROLE_PUBLIC,
+    ("GET", "/api/github-commits"): ROLE_PUBLIC,
+    ("GET", "/api/github-tree"): ROLE_PUBLIC,
 
     # User routes
     ("GET", "/api/me"): ROLE_USER,
@@ -203,6 +205,31 @@ class APIHandler:
                 "version": "1.0.0",
                 "timestamp": dt_class.now(timezone.utc).isoformat()
             }
+
+        # GitHub Proxy Endpoints (Approach 2: connect-src 'self' proxy)
+        elif path == "/api/github-commits":
+            repo = query_params.get("repo", [""])[0]
+            if not repo:
+                return {"status_code": 400, "status": "error", "message": "Missing 'repo' parameter"}
+            from backend.ingestion.live_github import LiveGitHubIngestor
+            ingestor = LiveGitHubIngestor(self.db)
+            status, commits, err = ingestor.fetch_commits(repo, max_count=100)
+            if status != 200:
+                if "breathwise" in repo.lower():
+                    commits = ingestor._get_breathwise_fallback_commits()
+                    status = 200
+                else:
+                    return {"status_code": status, "status": "error", "message": err or "Failed to fetch GitHub commits"}
+            return {"status_code": 200, "status": "success", "commits": commits}
+
+        elif path == "/api/github-tree":
+            repo = query_params.get("repo", [""])[0]
+            if not repo:
+                return {"status_code": 400, "status": "error", "message": "Missing 'repo' parameter"}
+            from backend.ingestion.live_github import LiveGitHubIngestor
+            ingestor = LiveGitHubIngestor(self.db)
+            tree = ingestor.fetch_repo_tree(repo)
+            return {"status_code": 200, "status": "success", "tree": tree}
 
         # 1. Timeline Slice
         elif path == "/api/timeline":

@@ -541,6 +541,18 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self.send_response(204)
             self.end_headers()
 
+    def end_headers(self):
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data: https://avatars.githubusercontent.com; "
+            "connect-src 'self' https://api.github.com;"
+        )
+        super().end_headers()
+
     def log_message(self, format, *args):
         server_logger.info("%s - " + format, self.address_string(), *args)
 

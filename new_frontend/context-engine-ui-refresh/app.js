@@ -2892,21 +2892,35 @@ const app = {
         let fetchedCommits = [];
         let fetchedTree = [];
 
-        // 2. Attempt live browser fetch from GitHub REST API
+        // 2. Attempt live fetch (backend proxy when online, direct GitHub REST API when on standalone GitHub Pages)
         if (typeof fetch === 'function' && !repoName.startsWith('demo_')) {
           const ghHeaders = { 'Accept': 'application/vnd.github.v3+json' };
           if (token) ghHeaders['Authorization'] = `token ${token}`;
 
           try {
-            const cRes = await fetch(`https://api.github.com/repos/${repoName}/commits?per_page=100`, { headers: ghHeaders });
-            if (cRes.ok) {
-              const cData = await cRes.json();
-              if (Array.isArray(cData) && cData.length > 0) {
-                fetchedCommits = cData;
+            if (!this._serverOffline) {
+              const pRes = await fetch(`/api/github-commits?repo=${encodeURIComponent(repoName)}`);
+              if (pRes.ok) {
+                const pData = await pRes.json();
+                if (pData && Array.isArray(pData.commits) && pData.commits.length > 0) {
+                  fetchedCommits = pData.commits;
+                }
               }
             }
-          } catch (e) {
-            console.warn('Live GitHub API commit fetch error:', e);
+          } catch (_) { }
+
+          if (fetchedCommits.length === 0) {
+            try {
+              const cRes = await fetch(`https://api.github.com/repos/${repoName}/commits?per_page=100`, { headers: ghHeaders });
+              if (cRes.ok) {
+                const cData = await cRes.json();
+                if (Array.isArray(cData) && cData.length > 0) {
+                  fetchedCommits = cData;
+                }
+              }
+            } catch (e) {
+              console.warn('Live GitHub API commit fetch error:', e);
+            }
           }
 
           try {
