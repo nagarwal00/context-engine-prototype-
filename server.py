@@ -497,7 +497,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
     def _send_json(self, data, status=200, extra_headers=None):
         try:
             req_id = getattr(self, "_request_id", None) or str(uuid.uuid4())
-            if isinstance(data, dict) and "request_id" not in data:
+            if isinstance(data, dict) and "request_id" not in data and not getattr(self, "path", "").startswith("/api/auth-config"):
                 data["request_id"] = req_id
 
             body = json.dumps(data, indent=2).encode("utf-8")

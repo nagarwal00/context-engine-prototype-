@@ -44,6 +44,8 @@ from server import ContextIntelligenceServer
 
 class TestAuthFlow(unittest.TestCase):
     def setUp(self):
+        from backend.security import get_rate_limiter
+        get_rate_limiter().reset()
         self.temp_dir = tempfile.mkdtemp()
         self.db_path = os.path.join(self.temp_dir, "test_auth.db")
         self.db = Database(self.db_path)

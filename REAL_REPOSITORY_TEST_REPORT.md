@@ -46,7 +46,7 @@ Every hardcoded assumption, fixed commit ID list, fake fallback array, and repos
 * **Sample Decisions Grounded in Real Commits**:
   1. *Refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h*
      - Author: Dhruv Gupta
-     - Provenance Link: `https://github.com/nagarwal00/breathwise-innovation-hackathon/commit/aba67341e9b27670731f41dfaaeb88e0b497b71f`
+     - Provenance Link: `https://github.com/nagarwal00/breathwise-innovation-hackathon/commit/aba6734302ad1d8433f3e597f264dfec138d18cb`
      - Affected Files: `backend/cache.py`, `data/cache_snapshots.json`
   2. *Configure GitHub Pages deployment workflow, SPA routing, and live Render API connection*
      - Author: Nistha Agarwal

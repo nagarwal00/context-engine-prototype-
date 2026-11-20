@@ -12,7 +12,7 @@
     "edges_created": 234,
     "overall_bus_factor": 1,
     "sample_decision": "Refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h",
-    "sample_evidence_url": "https://github.com/nagarwal00/breathwise-innovation-hackathon/commit/aba67341e9b27670731f41dfaaeb88e0b497b71f",
+    "sample_evidence_url": "https://github.com/nagarwal00/breathwise-innovation-hackathon/commit/aba6734302ad1d8433f3e597f264dfec138d18cb",
     "limitations": [
       "Repository does not contain formal ADR markdown files; architectural intent extracted via commit diffs & PR discussions.",
       "No active or historical pull requests retrieved within query bounds."

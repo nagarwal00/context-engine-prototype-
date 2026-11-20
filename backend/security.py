@@ -14,6 +14,7 @@ from typing import Dict, Tuple, Optional, Any, List
 from backend.db import Database
 from backend.auth.sessions import extract_session_token, get_session
 from backend.auth.repo_access import authorize_repo, resolve_repo_for_request
+from backend.rate_limiter import get_rate_limiter, reset_rate_limiter
 
 logger = logging.getLogger("cif.security")
 
