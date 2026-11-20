@@ -2986,8 +2986,6 @@ const app = {
                 }
               }
             ];
-          }
-        }
             fetchedTree = [
               { path: "backend/app/main.py" },
               { path: "backend/app/recs/advice.py" },
