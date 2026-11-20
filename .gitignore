@@ -19,6 +19,8 @@ whybench.db
 
 
 # Local environment & secret files (keep out of Git)
+logs/
+*.log
 env/
 venv/
 ENV/

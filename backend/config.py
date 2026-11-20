@@ -57,6 +57,15 @@ class Config:
         self._max_issues = self._parse_positive_int(env.get("CIF_MAX_ISSUES"), 1500)
         self._max_tarball_mb = self._parse_positive_int(env.get("CIF_MAX_TARBALL_MB"), 100)
 
+        # Rate Limiting configuration
+        rl_enabled = env.get("CIF_RATE_LIMIT_ENABLED", "true").strip().lower()
+        self._rate_limit_enabled = rl_enabled not in ("0", "false", "no", "off")
+        self._rate_limit_window = self._parse_positive_int(env.get("CIF_RATE_LIMIT_WINDOW"), 60)
+        self._rate_limit_auth_max = self._parse_positive_int(env.get("CIF_RATE_LIMIT_AUTH_MAX"), 10)
+        self._rate_limit_ingest_max = self._parse_positive_int(env.get("CIF_RATE_LIMIT_INGEST_MAX"), 5)
+        self._rate_limit_expensive_max = self._parse_positive_int(env.get("CIF_RATE_LIMIT_EXPENSIVE_MAX"), 15)
+        self._rate_limit_api_max = self._parse_positive_int(env.get("CIF_RATE_LIMIT_API_MAX"), 60)
+
     @staticmethod
     def _parse_positive_int(val: Optional[str], default: int) -> int:
         if val is None or not str(val).strip():
@@ -125,6 +134,24 @@ class Config:
     def get_max_tarball_mb(self) -> int:
         return self._max_tarball_mb
 
+    def is_rate_limit_enabled(self) -> bool:
+        return self._rate_limit_enabled
+
+    def get_rate_limit_window(self) -> int:
+        return self._rate_limit_window
+
+    def get_rate_limit_auth_max(self) -> int:
+        return self._rate_limit_auth_max
+
+    def get_rate_limit_ingest_max(self) -> int:
+        return self._rate_limit_ingest_max
+
+    def get_rate_limit_expensive_max(self) -> int:
+        return self._rate_limit_expensive_max
+
+    def get_rate_limit_api_max(self) -> int:
+        return self._rate_limit_api_max
+
     def is_login_enabled(self) -> bool:
         """
         Login is enabled only when minimum GitHub App credentials are configured:
@@ -165,6 +192,12 @@ class Config:
             "CIF_MAX_PRS": self._max_prs,
             "CIF_MAX_ISSUES": self._max_issues,
             "CIF_MAX_TARBALL_MB": self._max_tarball_mb,
+            "CIF_RATE_LIMIT_ENABLED": self._rate_limit_enabled,
+            "CIF_RATE_LIMIT_WINDOW": self._rate_limit_window,
+            "CIF_RATE_LIMIT_AUTH_MAX": self._rate_limit_auth_max,
+            "CIF_RATE_LIMIT_INGEST_MAX": self._rate_limit_ingest_max,
+            "CIF_RATE_LIMIT_EXPENSIVE_MAX": self._rate_limit_expensive_max,
+            "CIF_RATE_LIMIT_API_MAX": self._rate_limit_api_max,
             "login_enabled": self.is_login_enabled(),
         }
 

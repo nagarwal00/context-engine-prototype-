@@ -103,8 +103,8 @@ class TestAPIAuth(unittest.TestCase):
                     parsed = body
                 resp_headers = dict(e.headers)
                 return e.code, parsed, resp_headers
-            except (BrokenPipeError, ConnectionResetError, urllib.error.URLError) as e:
-                if len(data_bytes) > 1024 * 1024:
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, urllib.error.URLError) as e:
+                if req_body and len(req_body) > 1024 * 1024:
                     return 413, {"status": "error", "message": "Connection closed due to oversized payload"}, {}
                 if attempt == 0:
                     time.sleep(0.05)

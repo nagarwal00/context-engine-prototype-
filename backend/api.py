@@ -22,6 +22,10 @@ from backend.engine.drift_detector import DriftDetector
 import uuid
 from backend.evaluation.benchmark import BenchmarkRunner
 from backend.seed_data import populate_seed_data
+from backend.logging_config import get_logger
+
+api_logger = get_logger("cif.api")
+_SERVER_START_TIME = time.time()
 from backend.security import (
     ROLE_PUBLIC,
     ROLE_USER,
@@ -43,6 +47,8 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     # Public routes
     ("GET", "/healthz"): ROLE_PUBLIC,
     ("GET", "/api/healthz"): ROLE_PUBLIC,
+    ("GET", "/api/diagnostics"): ROLE_PUBLIC,
+    ("GET", "/api/system/status"): ROLE_PUBLIC,
     ("GET", "/api/auth-status"): ROLE_PUBLIC,
     ("GET", "/api/auth-config"): ROLE_PUBLIC,
     ("GET", "/api/repos"): ROLE_PUBLIC,
@@ -162,6 +168,41 @@ class APIHandler:
                 db_status = "error"
             mode = os.environ.get("CIF_MODE", "live")
             return {"status": "ok", "mode": mode, "db": db_status}
+
+        elif path in ("/api/diagnostics", "/api/system/status"):
+            from backend.rate_limiter import get_rate_limiter
+            rl_stats = get_rate_limiter().get_stats()
+            
+            db_status = "connected"
+            table_counts = {}
+            try:
+                with self.db.get_connection() as conn:
+                    cur = conn.cursor()
+                    for tbl in ["events", "decisions", "entities", "edges", "guard_rules", "users", "sessions", "repos"]:
+                        try:
+                            cur.execute(f"SELECT COUNT(*) FROM {tbl}")
+                            row = cur.fetchone()
+                            table_counts[tbl] = row[0] if row else 0
+                        except Exception:
+                            table_counts[tbl] = 0
+            except Exception as e:
+                db_status = f"error: {e}"
+
+            uptime = round(time.time() - _SERVER_START_TIME, 1)
+            return {
+                "status": "success",
+                "backend_status": "online",
+                "uptime_seconds": uptime,
+                "database": {
+                    "status": db_status,
+                    "path": self.db.db_path,
+                    "tables": table_counts,
+                    "authoritative": True
+                },
+                "rate_limiter": rl_stats,
+                "version": "1.0.0",
+                "timestamp": dt_class.now(timezone.utc).isoformat()
+            }
 
         # 1. Timeline Slice
         elif path == "/api/timeline":

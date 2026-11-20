@@ -12,6 +12,9 @@ from contextlib import contextmanager
 from typing import List, Dict, Any, Optional
 from backend.models import Event, Decision, Entity, Edge, Identity, GuardRule, DecisionClaim, ClaimEvidence
 from backend.migrations import run_migrations
+from backend.logging_config import get_logger
+
+logger = get_logger("cif.database")
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "context_intelligence.db")
 
@@ -28,6 +31,9 @@ class Database:
         try:
             with conn:
                 yield conn
+        except Exception as e:
+            logger.error(f"Database transaction failure on '{self.db_path}': {e}", exc_info=True)
+            raise
         finally:
             conn.close()
 

@@ -10,17 +10,26 @@ Environment variables (all optional):
   GITHUB_TOKEN    - Personal access token for GitHub API calls
 """
 import datetime
+import hashlib
 import http.server
 import json
 import os
 import re
 import sys
+import time
 import urllib.parse
+import uuid
 import zlib
 from backend.db import Database
 from backend.api import APIHandler
 from backend.seed_data import populate_seed_data
 from backend.security import get_cors_origin, MAX_BODY_SIZE
+from backend.logging_config import setup_logging, get_logger, set_request_id
+from backend.rate_limiter import get_rate_limiter
+
+setup_logging()
+server_logger = get_logger("cif.server")
+api_logger = get_logger("cif.api")
 
 def load_dotenv(dotenv_path: str = None) -> None:
     if dotenv_path is None:
@@ -65,6 +74,54 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_DIR, **kwargs)
 
+    def _init_request_context(self):
+        self._start_time = time.time()
+        self._request_id = self.headers.get("X-Request-ID") or str(uuid.uuid4())
+        set_request_id(self._request_id)
+
+    def _get_client_key(self) -> str:
+        auth_hdr = self.headers.get("Authorization", "")
+        if auth_hdr.lower().startswith("bearer "):
+            token = auth_hdr.split(" ", 1)[1].strip()
+            if token:
+                return f"user:{hashlib.sha256(token.encode('utf-8')).hexdigest()[:16]}"
+        cookie_hdr = self.headers.get("Cookie", "")
+        if "cif_session=" in cookie_hdr:
+            match = re.search(r"cif_session=([a-zA-Z0-9_\-\.]+)", cookie_hdr)
+            if match:
+                return f"user:{hashlib.sha256(match.group(1).encode('utf-8')).hexdigest()[:16]}"
+        client_ip = self.client_address[0] if hasattr(self, "client_address") else "127.0.0.1"
+        return f"ip:{client_ip}"
+
+    def _check_rate_limit(self, path: str) -> bool:
+        clean_path = path.split("?")[0].rstrip("/")
+        if not clean_path:
+            clean_path = "/"
+        if clean_path in ("/healthz", "/api/healthz", "/api/diagnostics", "/api/system/status"):
+            return True
+        if not (clean_path.startswith("/api/") or clean_path.startswith("/auth/")):
+            return True
+
+        category = get_rate_limiter().get_category_for_path(clean_path, method=self.command)
+        key = self._get_client_key()
+        allowed, retry_after, remaining, limit = get_rate_limiter().check_rate_limit(key, category=category)
+        if not allowed:
+            self._send_json({
+                "status": "error",
+                "error_code": "RATE_LIMIT_EXCEEDED",
+                "message": f"Rate limit exceeded for category '{category}'. Please wait {retry_after} seconds before retrying.",
+                "retry_after": retry_after,
+                "category": category,
+                "limit": limit
+            }, status=429, extra_headers={
+                "Retry-After": str(retry_after),
+                "X-RateLimit-Limit": str(limit),
+                "X-RateLimit-Remaining": "0",
+                "X-RateLimit-Reset": str(retry_after)
+            })
+            return False
+        return True
+
     def end_headers(self):
         parsed = urllib.parse.urlparse(self.path)
         if parsed.path.endswith(".html") or parsed.path.endswith(".css") or parsed.path.endswith(".js") or parsed.path in ("", "/"):
@@ -75,18 +132,27 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
 
     def _send_redirect(self, location: str, extra_headers: dict = None, status: int = 302):
         try:
+            req_id = getattr(self, "_request_id", None) or str(uuid.uuid4())
             self.send_response(status)
             self.send_header("Location", location)
+            self.send_header("X-Request-ID", req_id)
             if extra_headers:
                 for k, v in extra_headers.items():
                     if k.lower() != "location":
                         self.send_header(k, v)
             self.end_headers()
+            start_time = getattr(self, "_start_time", None)
+            latency_ms = round((time.time() - start_time) * 1000, 2) if start_time else 0.0
+            client_ip = self.client_address[0] if hasattr(self, "client_address") else "-"
+            api_logger.info(f"{self.command} {self.path} -> {status} ({latency_ms}ms) [client={client_ip}]")
         except (BrokenPipeError, ConnectionResetError):
             pass
 
     def do_GET(self):
+        self._init_request_context()
         parsed = urllib.parse.urlparse(self.path)
+        if not self._check_rate_limit(parsed.path):
+            return
         if parsed.path in ("/healthz", "/api/healthz"):
             res = self.server.api_handler.handle_get(parsed.path, {}, headers={})
             self._send_json(res, status=200)
@@ -216,7 +282,10 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
+        self._init_request_context()
         parsed = urllib.parse.urlparse(self.path)
+        if not self._check_rate_limit(parsed.path):
+            return
         params = urllib.parse.parse_qs(parsed.query)
         headers_dict = {k: v for k, v in self.headers.items()}
         client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
@@ -239,11 +308,16 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             if content_len > MAX_BODY_SIZE:
                 self.close_connection = True
                 try:
-                    self.rfile.read(min(content_len, 65536))
+                    remaining = content_len
+                    while remaining > 0:
+                        chunk = self.rfile.read(min(remaining, 65536))
+                        if not chunk:
+                            break
+                        remaining -= len(chunk)
                 except Exception:
                     pass
                 self._send_json(
-                    {"status": "error", "message": "Payload too large: maximum body size is 1MB"},
+                    {"status": "error", "error_code": "PAYLOAD_TOO_LARGE", "message": "Payload too large: maximum body size is 1MB"},
                     status=413,
                     extra_headers={"Connection": "close"}
                 )
@@ -331,11 +405,16 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             if content_len > MAX_BODY_SIZE:
                 self.close_connection = True
                 try:
-                    self.rfile.read(min(content_len, 65536))
+                    remaining = content_len
+                    while remaining > 0:
+                        chunk = self.rfile.read(min(remaining, 65536))
+                        if not chunk:
+                            break
+                        remaining -= len(chunk)
                 except Exception:
                     pass
                 self._send_json(
-                    {"status": "error", "message": "Payload too large: maximum body size is 1MB"},
+                    {"status": "error", "error_code": "PAYLOAD_TOO_LARGE", "message": "Payload too large: maximum body size is 1MB"},
                     status=413,
                     extra_headers={"Connection": "close"}
                 )
@@ -383,7 +462,10 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Endpoint not found")
 
     def do_DELETE(self):
+        self._init_request_context()
         parsed = urllib.parse.urlparse(self.path)
+        if not self._check_rate_limit(parsed.path):
+            return
         client_ip = self.client_address[0]
         headers_dict = {k: v for k, v in self.headers.items()}
 
@@ -414,10 +496,15 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
 
     def _send_json(self, data, status=200, extra_headers=None):
         try:
+            req_id = getattr(self, "_request_id", None) or str(uuid.uuid4())
+            if isinstance(data, dict) and "request_id" not in data:
+                data["request_id"] = req_id
+
             body = json.dumps(data, indent=2).encode("utf-8")
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
+            self.send_header("X-Request-ID", req_id)
 
             if extra_headers:
                 for k, v in extra_headers.items():
@@ -429,10 +516,15 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             if allowed_origin:
                 self.send_header("Access-Control-Allow-Origin", allowed_origin)
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event, X-Request-ID")
 
             self.end_headers()
             self.wfile.write(body)
+
+            start_time = getattr(self, "_start_time", None)
+            latency_ms = round((time.time() - start_time) * 1000, 2) if start_time else 0.0
+            client_ip = self.client_address[0] if hasattr(self, "client_address") else "-"
+            api_logger.info(f"{self.command} {self.path} -> {status} ({latency_ms}ms) [client={client_ip}]")
         except (BrokenPipeError, ConnectionResetError):
             pass
 
@@ -443,15 +535,14 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Access-Control-Allow-Origin", allowed_origin)
             self.send_header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Hub-Signature-256, X-GitHub-Event, X-Request-ID")
             self.end_headers()
         else:
             self.send_response(204)
             self.end_headers()
 
     def log_message(self, format, *args):
-        # Quiet standard output
-        pass
+        server_logger.info("%s - " + format, self.address_string(), *args)
 
 
 # Ensure stdout is utf-8 compatible on Windows

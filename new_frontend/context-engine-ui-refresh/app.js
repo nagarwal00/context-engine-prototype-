@@ -2675,6 +2675,11 @@ const app = {
           } catch (err) {
             errData = { status: 'error', message: `Server error HTTP ${res.status}` };
           }
+          if (res.status === 429) {
+            const retryAfter = errData.retry_after || parseInt(res.headers.get('Retry-After') || '60', 10);
+            this.showRateLimitBanner(retryAfter, options.triggerButton);
+            return errData;
+          }
           if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
             alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
           }
@@ -2708,6 +2713,60 @@ const app = {
       badge.classList.add('static');
       badge.textContent = '\u2b24 Static snapshot';
     }
+  },
+
+  showRateLimitBanner(retryAfter, triggerButton) {
+    let banner = document.getElementById('rate-limit-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'rate-limit-banner';
+      banner.style.position = 'fixed';
+      banner.style.top = '16px';
+      banner.style.left = '50%';
+      banner.style.transform = 'translateX(-50%)';
+      banner.style.zIndex = '9999';
+      banner.style.background = '#fee2e2';
+      banner.style.border = '1px solid #ef4444';
+      banner.style.color = '#991b1b';
+      banner.style.padding = '12px 24px';
+      banner.style.borderRadius = '8px';
+      banner.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+      banner.style.fontWeight = '600';
+      banner.style.display = 'flex';
+      banner.style.alignItems = 'center';
+      banner.style.gap = '12px';
+      document.body.appendChild(banner);
+    }
+    banner.style.display = 'flex';
+
+    let remaining = retryAfter || 60;
+    let originalButtonText = '';
+    if (triggerButton) {
+      triggerButton.disabled = true;
+      originalButtonText = triggerButton.textContent;
+    }
+
+    const updateText = () => {
+      banner.innerHTML = `<span>&#9888; <strong>Rate Limit Exceeded:</strong> Too many requests. Please wait <strong>${remaining}s</strong> before retrying.</span>`;
+      if (triggerButton) {
+        triggerButton.textContent = `Retrying in ${remaining}s...`;
+      }
+    };
+    updateText();
+
+    const interval = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(interval);
+        banner.style.display = 'none';
+        if (triggerButton) {
+          triggerButton.disabled = false;
+          triggerButton.textContent = originalButtonText;
+        }
+      } else {
+        updateText();
+      }
+    }, 1000);
   },
 
 
@@ -3255,7 +3314,7 @@ const app = {
           files: artifacts.slice(0, 3).map(a => a.canonical_path),
           total_items: Math.min(4, decisions.length),
           checklist: decisions.slice(0, 4).map((d, i) => ({
-            id: `chk_${repoKey}_${i+1}`,
+            id: `chk_${repoKey}_${i + 1}`,
             category: 'active_decision',
             title: `Study Decision: ${d.title}`,
             completed: false
