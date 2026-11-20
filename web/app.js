@@ -53,8 +53,10 @@ const app = {
   cachedArtifacts: [],
 
   init() {
-    this.updateWorkspaceAuthUI();
     const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    console.log('%c🚀 Context Intelligence Framework (CIF) v2.2 Initialized', 'color: #0284c7; font-weight: bold; font-size: 13px;');
+    console.log(`[CIF Engine] Mode: ${isLocalServer ? 'Live engine check' : 'Static snapshot (standalone GitHub Pages)'} | Status: Healthy`);
+    this.updateWorkspaceAuthUI();
     if (!isLocalServer || (window.location.port && window.location.port !== '8080')) {
       this._serverOffline = true;
       this._updateModeBadge(false);
@@ -185,6 +187,7 @@ const app = {
 
   navigate(surfaceId) {
     this.activeSurface = surfaceId;
+    console.log(`[CIF Navigation] Displaying surface: ${surfaceId}`);
     document.querySelectorAll('.nav-item').forEach(el => {
       el.classList.toggle('active', el.getAttribute('data-surface') === surfaceId);
     });
@@ -226,6 +229,7 @@ const app = {
 
   switchRepo(repo) {
     this.selectedRepo = repo;
+    console.log(`[CIF Repository] Switched repository: ${repo}`);
     const select = document.getElementById('repo-select');
     if (select && select.value !== repo) select.value = repo;
     this.refreshStats();
@@ -2831,6 +2835,7 @@ const app = {
     const artifact = params.get('artifact');
     const decision_id = params.get('decision_id');
     const method = (options.method || 'GET').toUpperCase();
+    console.log(`[CIF Presentation Tier] ${method} ${url}`);
 
     if (method === 'POST') {
       const body = options.body ? JSON.parse(options.body) : {};
