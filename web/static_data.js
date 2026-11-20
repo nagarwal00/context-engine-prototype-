@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "251df1d9ebf5f9d7e629d2c0dbfb2f7ca35006053628b51acfe0d3b4ae5368ce",
+  "db_snapshot_sha256": "8e1edcc0d28c865058b35aa3ec8a678b3e656c8a9c4b3b1521239de2f6f96b1d",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -337,8 +337,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_thermal_0004",
-                "evt_git_thermal_a1b2c3d4"
+                "evt_git_thermal_a1b2c3d4",
+                "evt_adr_thermal_0004"
               ],
               "system_state": "accepted"
             },
@@ -413,7 +413,7 @@ window.__CIF_STATIC_DATA__ = {
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '251df1d9ebf5f9d7e629d2c0dbfb2f7ca35006053628b51acfe0d3b4ae5368ce'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '8e1edcc0d28c865058b35aa3ec8a678b3e656c8a9c4b3b1521239de2f6f96b1d'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -436,8 +436,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Adopt Discrete PID Controller for Chamber Temperature Regulation",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_thermal_0004",
-                  "evt_git_thermal_a1b2c3d4"
+                  "evt_git_thermal_a1b2c3d4",
+                  "evt_adr_thermal_0004"
                 ],
                 "system_state": "accepted"
               },
@@ -455,9 +455,9 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
-              "dec_cache_local_lru_proposed",
+              "dec_thermal_pid_accepted",
               "dec_cache_redis_accepted",
-              "dec_thermal_pid_accepted"
+              "dec_cache_local_lru_proposed"
             ],
             "missed": [
               {
@@ -614,7 +614,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '251df1d9ebf5f9d7e629d2c0dbfb2f7ca35006053628b51acfe0d3b4ae5368ce'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '8e1edcc0d28c865058b35aa3ec8a678b3e656c8a9c4b3b1521239de2f6f96b1d'",
         "system_decisions_evaluated": 7,
         "unmatched_system_decisions_count": 4,
         "whybench_manifest": {

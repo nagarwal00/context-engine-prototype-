@@ -363,77 +363,77 @@ class LiveGitHubIngestor:
     def _get_breathwise_fallback_commits() -> List[Dict[str, Any]]:
         return [
             {
-                "sha": "aba67341e9b27670731f41dfaaeb88e0b497b71f",
+                "sha": "aba6734302ad1d8433f3e597f264dfec138d18cb",
                 "commit": {
                     "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:53:22Z"},
                     "message": "fix(cache): refresh 8-city real-time weather & AQ cache snapshots and increase TTL to 24h"
                 }
             },
             {
-                "sha": "2b04d45c6130b1bc8dfd962057929424c1074472",
+                "sha": "2b04d4501a4fb909345ffbb635bb076448a96ad9",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:47:19Z"},
                     "message": "fix(ci): upgrade node version to 22 in pages deployment workflow"
                 }
             },
             {
-                "sha": "e67a9905c316ba8d06b6b797825bcf68cf387a64",
+                "sha": "e67a99070b8fd539b7c762f7b834e8bc62cfb4b4",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:45:05Z"},
                     "message": "feat(deploy): configure GitHub Pages deployment workflow, SPA routing, and live Render API connection"
                 }
             },
             {
-                "sha": "902c7f5beee64998ee6225a0a383d47ad9b26066",
+                "sha": "902c7f5e2b8fdd079f8208b655fc5353364fa2fc",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(pages): implement personalized plan optimization, proof methodology, and cache optimizations"
                 }
             },
             {
-                "sha": "867b31b3beae17c76747f48b111162464bc166c3",
+                "sha": "867b31b9ba3657936d62a3aa28f0c76c479abcfc",
                 "commit": {
                     "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(visuals): add scientific graphics for atmospheric inversion, lung deposition, and zoom modal"
                 }
             },
             {
-                "sha": "3bf64a2f8669e46a1f815f949c86fcabf00a40d5",
+                "sha": "3bf64a26705b76c2ac79bf33e85f6931955a14d1",
                 "commit": {
                     "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(ui): implement forecast charts, location selectors, and interactive search"
                 }
             },
             {
-                "sha": "914aa123b7b3be15cbeae11264b192837bc21160",
+                "sha": "914aa1252b25a0e4497f6b2c81de33bee242711b",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(frontend): set up Vite React app, design system, typography, and API layer"
                 }
             },
             {
-                "sha": "648afcc9b158022a843be7c918ef9392e921d7b1",
+                "sha": "648afcce09167783750ce9100d66eae806b31205",
                 "commit": {
                     "author": {"name": "Dhruv Gupta", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(api): develop FastAPI endpoints, recommendation engine, and exposure modeling"
                 }
             },
             {
-                "sha": "ca42b96e1b782b13c77be8374a2b901509187311",
+                "sha": "ca42b96eab9478ef0d67bd9f07786fec8d6263cb",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(ml): build air quality prediction models, baseline comparisons, and backtesting"
                 }
             },
             {
-                "sha": "49ee8e29a992bc931f0e816a67f1b29a8a726119",
+                "sha": "49ee8e2988a664b9bfe0267ea1a2e02540382389",
                 "commit": {
                     "author": {"name": "Nistha Agarwal", "date": "2026-11-12T18:17:04Z"},
                     "message": "feat(backend): implement data ingestion, Open-Meteo client, and cleaning pipelines"
                 }
             },
             {
-                "sha": "e65e6b361bb592ef674a28be177b9012a67bc410",
+                "sha": "e65e6b3a5a545cdd6761c2f85c785c3d32610b8b",
                 "commit": {
                     "author": {"name": "Dhruv Gupta", "date": "2026-11-12T17:54:10Z"},
                     "message": "chore: initial repository scaffolding, documentation, and project configuration"

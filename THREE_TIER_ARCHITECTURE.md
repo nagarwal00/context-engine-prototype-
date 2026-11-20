@@ -18,7 +18,7 @@ The Context Intelligence Framework is engineered as a robust, decoupled **Three-
 |      5. Guard Rule Synthesis & CI Enforcement Queue                               |
 |      6. Contributor Decision Review & Disagreement Resolution Queue               |
 |      7. Grounded Natural-Language Context Explanations & Citations                |
-|      8. WhyBench Real-World Benchmark Evaluation Suite                            |
+|      8. WhyBench Synthetic Benchmark Evaluation Suite                             |
 |      9. Adaptive Onboarding Decision Path Generator                               |
 |  - Dual-Mode Runtime: Live Dynamic API Engine (localhost) & Static Snapshot       |
 |  - In-App Rate Limiting Toast Banner & Reactive Countdown Button Lockout          |
