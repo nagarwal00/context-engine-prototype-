@@ -79,11 +79,20 @@ def check_bind_safety(host: str) -> None:
     print(f"[SECURITY] Listening on public interface {host}. Use HTTPS and a firewall in production.")
 
 
-def _same_origin_ok(origin: str) -> bool:
-    """True when `origin` is this server's own origin or an explicitly allow-listed one."""
+def _same_origin_ok(origin: str, host_header: str = "") -> bool:
+    """True when `origin` is this server's own origin or an explicitly allow-listed one.
+
+    "Own origin" means either CIF_BASE_URL or the Host the request was actually sent to, so the
+    server works on any port without extra configuration. A cross-site page cannot make its
+    Origin equal the victim server's Host; DNS-rebinding (attacker domain pointed at 127.0.0.1)
+    is refused by the dev-mode Host check, and without dev mode such a page has no session cookie.
+    """
     from backend.auth.sessions import validate_csrf_origin
     from backend.config import get_config
     if validate_csrf_origin(origin, get_config().get_base_url()):
+        return True
+    netloc = urllib.parse.urlparse(origin).netloc.lower()
+    if host_header and netloc and netloc == host_header.strip().lower():
         return True
     return get_cors_origin(origin) is not None
 
@@ -152,7 +161,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 if not origin and self.headers.get("Referer"):
                     ref = urllib.parse.urlparse(self.headers.get("Referer"))
                     origin = f"{ref.scheme}://{ref.netloc}"
-                if origin and not _same_origin_ok(origin):
+                if origin and not _same_origin_ok(origin, self.headers.get("Host") or ""):
                     return self._reject(403, "CSRF_ORIGIN_MISMATCH",
                                         "Cross-site request refused: Origin does not match this server")
                 if not origin and "cif_session=" in (self.headers.get("Cookie") or ""):

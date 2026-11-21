@@ -7,6 +7,11 @@
 >
 > **Notice:** For presentation scripts, demo talk tracks, and examination coaching, see [`docs/process/PRESENTER_NOTES.md`](docs/process/PRESENTER_NOTES.md). For AI coding assistance disclosure and author responsibilities, see [`AI_ASSISTANCE.md`](AI_ASSISTANCE.md).
 
+> **Audit status (2026-11-21):** an independent re-verification found and fixed critical security and
+> data-integrity defects. Current, verified status and the demo script are in [`audit/`](audit/README.md);
+> older root-level reports contain outdated claims. Sign-in now requires a password (register on the
+> login page) or the *Demo Developer* button.
+
 ---
 
 ## 1. What is this project about?
@@ -84,7 +89,7 @@ Launch the HTTP server and API backend:
 python server.py
 ```
 Open your browser to:
-👉 **http://127.0.0.1:8080/**
+👉 **http://127.0.0.1:8080/** (any `PORT` works) and **Register** a user with a password of at least 8 characters.
 
 ### Step 3: Deploy to GitHub Pages (Static Snapshot)
 This repository is configured to deploy directly to GitHub Pages:

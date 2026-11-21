@@ -11,8 +11,10 @@ an examiner could find in minutes: anyone could log in as anyone (no password), 
 could wipe the database when dev mode is on, a user could read or change another user's
 private repository data by adding `repo=<demo repo>` to a request, the frontend silently
 invented commit history when the backend failed, and every `DELETE` request crashed.
-None of these were caught because the tests call the business layer directly and never go
-through the HTTP server.
+None of these were caught because almost all tests call the business layer directly. (Correction
+made during the audit: `test_auth_flow.py` does run an in-process HTTP server for the OAuth routes,
+but no test exercised `DELETE`, the username login routes, CSRF on non-cookie requests, or
+cross-repository object access.)
 
 ## 2. How the system actually works (beginner version)
 Think of CIF as three stacked boxes:
@@ -45,7 +47,8 @@ accepted decisions (**drift**). The central promise: *no decision without eviden
 | 9 | FE-01 | P1 | Frontend only works live on port 8080 |
 | 10 | ALG-01/02 | P1 | Extractor turns UI tweaks and "LGTM" comments into architectural decisions |
 
-Full list with reproduction steps: [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md) (5 P0, 18 P1, 11 P2, 5 P3).
+Full list with reproduction steps: [`KNOWN_ISSUES.md`](KNOWN_ISSUES.md). Fix status: [`CHANGELOG_FIXES.md`](CHANGELOG_FIXES.md);
+what remains: [`FINAL_PROJECT_STATUS.md`](FINAL_PROJECT_STATUS.md).
 
 ## 4. Correction plan (priority order)
 1. **Security P0s**: disable password-less login outside explicit local demo; same-origin check on

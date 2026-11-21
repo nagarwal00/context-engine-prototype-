@@ -3,7 +3,20 @@
 Audit date: 2026-11-21 · Branch: `audit-and-fixes` · Baseline commit: `a2a1839`
 
 Every finding below was **reproduced** (live HTTP request, browser run, or script) unless
-marked *(code review)*. Status column is updated as fixes land — see `CHANGELOG_FIXES.md`.
+marked *(code review)*.
+
+## Status summary (end of audit)
+| Status | IDs |
+|---|---|
+| **Fixed + regression-tested** | SEC-01..08, SEC-10..12, APP-01, APP-02, INT-01..04, DB-01, DB-02, FE-01, ALG-01..03, ALG-05, AUD-01, TOOL-01, TOOL-02, P3-01, P3-02 |
+| Fixed by documentation (behaviour kept on purpose) | SEC-09 (demo repos writable by signed-in users) |
+| Partially fixed | ARCH-01 (fabrication removed; static preview keeps simulated review buttons), ARCH-02 (login logic moved out of `server.py`; `api.py` still large), EVAL-02 (CIs reported in `audit/`; old docs not rewritten), DOC-01 |
+| Open | ARCH-03 (import cycle), EVAL-01 (precision labels keyed to DB file hash), ALG-04 (conflict vocabulary), FE-02 (three frontend copies — needs your decision), P3-03, P3-04, P3-05, job-runner graph edges (new, P2), `demo_sample_repo` broken submodule (new, P1 — needs your decision) |
+
+Findings added during the fix phase: INT-04 / ALG-05 (local ingest invented metadata; three
+different extractors), test-isolation bug (a test wrote to the real `whybench.db`), drift UI
+showed an empty decision title, guard-rule endpoints reported success for unknown rules,
+dashboard ingest mangled local paths, rate limit too low for normal dashboard use.
 
 Severity: **P0** critical security / data-loss / integrity · **P1** major functionality or
 reliability · **P2** moderate · **P3** minor.

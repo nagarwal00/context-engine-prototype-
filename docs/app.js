@@ -490,7 +490,10 @@ const app = {
       return;
     }
 
-    const slug = this.parseRepoSlug(rawRepo);
+    // A local folder path (absolute, relative, ~ or Windows drive) is sent unchanged: the backend
+    // ingests it with its real git history. Previously it was mangled into a GitHub slug.
+    const isLocalPath = /^(\/|\.{1,2}[\/\\]|~|[A-Za-z]:[\/\\])/.test(rawRepo);
+    const slug = isLocalPath ? rawRepo : this.parseRepoSlug(rawRepo);
     if (!slug) {
       alert(`Invalid repository format '${rawRepo}'. Please enter 'owner/repo' or a valid GitHub repository URL.`);
       return;

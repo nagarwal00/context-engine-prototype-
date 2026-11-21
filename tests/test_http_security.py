@@ -369,6 +369,38 @@ class HTTPRateLimitTests(unittest.TestCase):
             self.assertIn("Retry-After", h)
 
 
+class HTTPNonDefaultPortTests(unittest.TestCase):
+    """FE-01 follow-up: a server on a non-default port must work without CIF_BASE_URL tweaks."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = tempfile.TemporaryDirectory()
+        cls.db_path = os.path.join(cls.tmp.name, "port_test.db")
+        _build_db(cls.db_path)
+        # Deliberately stale base URL (the 8080 default) while listening on a random port.
+        cls.srv = _Server(cls.db_path, CIF_BASE_URL="http://127.0.0.1:8080")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.srv.stop()
+        cls.tmp.cleanup()
+
+    def test_same_origin_post_works_on_any_port(self):
+        st, body, h = self.srv.request("POST", "/auth/register",
+                                       {"username": "port_user", "password": "a-long-password"},
+                                       headers={"Origin": self.srv.origin})
+        self.assertEqual(st, 200, body)
+        st, body, _ = self.srv.request("POST", "/auth/logout",
+                                       headers={"Origin": self.srv.origin, "Cookie": _cookie(h)})
+        self.assertEqual(st, 200, body)
+
+    def test_foreign_origin_still_rejected(self):
+        st, body, _ = self.srv.request("POST", "/auth/register",
+                                       {"username": "port_user2", "password": "a-long-password"},
+                                       headers={"Origin": "https://evil.example"})
+        self.assertEqual(st, 403, body)
+
+
 class BindSafetyTests(unittest.TestCase):
     """SEC-06: the enforcing bind check must not be shadowed by a print-only duplicate."""
 
