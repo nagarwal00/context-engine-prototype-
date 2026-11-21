@@ -130,6 +130,8 @@ class TestRepoIsolation(unittest.TestCase):
         url = f"{self.base_url}{path}"
         body_bytes = json.dumps(data).encode("utf-8") if data is not None else None
         headers = {"Origin": self.base_url}
+        if body_bytes is not None:
+            headers["Content-Type"] = "application/json"  # as the real dashboard sends (SEC-02: 415 otherwise)
         if token:
             headers["Authorization"] = f"Bearer {token}"
             headers["Cookie"] = f"cif_session={token}"

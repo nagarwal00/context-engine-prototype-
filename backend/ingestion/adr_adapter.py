@@ -4,6 +4,7 @@ Parses Architectural Decision Records (Nygard template) and documentation files.
 """
 from typing import List, Dict, Any, Optional
 import re
+from backend.ingestion.urls import citation_url
 from backend.models import Event
 from backend.db import Database
 from backend.ingestion.identity import IdentityResolver
@@ -90,7 +91,7 @@ class ADRAdapter:
         author_canonical = self.identity_resolver.resolve(author_raw)
         parsed = self.parse_nygard_adr(raw_markdown)
         adr_id = file_path.replace("/", "_").replace(".md", "")
-        source_url = f"https://github.com/{repo}/blob/main/{file_path}"
+        source_url = citation_url(repo, "blob", file_path)
         event_id = f"evt_adr_{repo.replace('/', '_')}_{adr_id}"
 
         event = Event(
@@ -142,7 +143,7 @@ class ADRAdapter:
         timestamp: str
     ) -> Event:
         author_canonical = self.identity_resolver.resolve(author_raw)
-        source_url = f"https://github.com/{repo}/blob/main/{file_path}"
+        source_url = citation_url(repo, "blob", file_path)
         doc_id = file_path.replace("/", "_").replace(".md", "").replace(".txt", "")
         event_id = f"evt_doc_{repo.replace('/', '_')}_{doc_id}"
 

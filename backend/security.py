@@ -13,7 +13,7 @@ from typing import Dict, Tuple, Optional, Any, List
 
 from backend.db import Database
 from backend.auth.sessions import extract_session_token, get_session
-from backend.auth.repo_access import authorize_repo, resolve_repo_for_request
+from backend.auth.repo_access import authorize_repo, resolve_repo_for_request, RepoMismatchError
 from backend.rate_limiter import get_rate_limiter, reset_rate_limiter
 
 logger = logging.getLogger("cif.security")
@@ -183,13 +183,19 @@ def authorize(
             if bearer or raw_session:
                 return False, 403, "Invalid token or session"
             return False, 401, "Authentication required"
-        repo_name = resolve_repo_for_request(db, path or "", query_params, body_json)
+        try:
+            repo_name = resolve_repo_for_request(db, path or "", query_params, body_json)
+        except RepoMismatchError:
+            return False, 404, "The requested object does not exist in the given repository"
         if not repo_name:
             return False, 404, "Repository not found or could not be determined"
         return authorize_repo(db, user, repo_name, required_role)
 
     if required_role == ROLE_REPO_READ:
-        repo_name = resolve_repo_for_request(db, path or "", query_params, body_json)
+        try:
+            repo_name = resolve_repo_for_request(db, path or "", query_params, body_json)
+        except RepoMismatchError:
+            return False, 404, "The requested object does not exist in the given repository"
         if not repo_name:
             if not user and (bearer or raw_session):
                 return False, 403, "Invalid token or session"

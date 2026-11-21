@@ -5,6 +5,7 @@ Extracts parent links ('Closes #123') and ensures clickable source URLs.
 """
 from typing import List, Dict, Any, Optional
 import re
+from backend.ingestion.urls import citation_url
 from backend.models import Event
 from backend.db import Database
 from backend.ingestion.identity import IdentityResolver
@@ -33,7 +34,7 @@ class GitHubAdapter:
         artifacts_touched: Optional[List[str]] = None
     ) -> Event:
         author_canonical = self.identity_resolver.resolve(author_raw)
-        source_url = f"https://github.com/{repo}/issues/{issue_number}"
+        source_url = citation_url(repo, "issues", str(issue_number))
         event_id = f"evt_issue_{repo.replace('/', '_')}_{issue_number}"
 
         event = Event(
@@ -67,7 +68,7 @@ class GitHubAdapter:
         commit_shas: Optional[List[str]] = None
     ) -> Event:
         author_canonical = self.identity_resolver.resolve(author_raw)
-        source_url = f"https://github.com/{repo}/pull/{pr_number}"
+        source_url = citation_url(repo, "pull", str(pr_number))
         event_id = f"evt_pr_{repo.replace('/', '_')}_{pr_number}"
 
         closed_issues = self._extract_closed_issue_numbers(body)

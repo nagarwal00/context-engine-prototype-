@@ -102,6 +102,10 @@ class TestAuthFlow(unittest.TestCase):
         url = f"{self.base_url}{path}"
         body_bytes = json.dumps(data).encode("utf-8") if data is not None else None
         req = urllib.request.Request(url, data=body_bytes, method=method)
+        if body_bytes is not None:
+            # Mirror the real clients (extension, VS Code, dashboard), which all send JSON.
+            # Without this urllib labels the body form-encoded, which the server now refuses (415).
+            req.add_header("Content-Type", "application/json")
         if headers:
             for k, v in headers.items():
                 req.add_header(k, v)

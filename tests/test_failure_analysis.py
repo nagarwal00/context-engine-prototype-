@@ -114,7 +114,10 @@ class TestFailureAnalysis(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp_dir:
             tmp_json = os.path.join(tmp_dir, "dev_failure_analysis.json")
             tmp_md = os.path.join(tmp_dir, "dev_failure_analysis.md")
-            report = analyze_failures(split="dev", output_json=tmp_json, output_md=tmp_md)
+            # Use a private DB: the default path is the project's real whybench.db, and
+            # opening it through Database() applies pending migrations (test isolation).
+            tmp_db = os.path.join(tmp_dir, "whybench_test.db")
+            report = analyze_failures(split="dev", db_path=tmp_db, output_json=tmp_json, output_md=tmp_md)
             self.assertIn("category_totals", report)
             self.assertIn("repo_breakdown", report)
             self.assertIn("failures", report)

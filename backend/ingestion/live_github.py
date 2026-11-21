@@ -134,7 +134,10 @@ class LiveGitHubIngestor:
             # Disallow invalid protocol tokens or empty pieces
             if owner.lower() in ("http:", "https:", "git:", "ssh:") or not owner or not repo:
                 raise ValueError(f"Invalid repository format '{raw_input}'. Please use 'owner/repo' or GitHub URL.")
-            return f"{owner}/{repo}".strip()
+            slug = f"{owner}/{repo}".strip()
+            if not re.match(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9._-]{1,100}$", slug) or ".." in slug:
+                raise ValueError(f"Invalid repository format '{raw_input}'. Please use 'owner/repo' or GitHub URL.")
+            return slug
         raise ValueError(f"Invalid repository format '{raw_input}'. Please use 'owner/repo' or GitHub URL.")
 
     def fetch_commits(self, repo: str, max_count: int = 25) -> Tuple[int, List[Dict[str, Any]], Optional[str]]:
@@ -174,13 +177,87 @@ class LiveGitHubIngestor:
                     pass
         return None
 
+    # ------------------------------------------------------------------
+    # Local folder ingestion (audit fixes INT-04 / ALG-05)
+    #
+    # Previously this function stamped every issue file as issue #5 by "sarah_chen" on
+    # 2026-01-08 touching src/payment.py, every ADR as written by "alex_rodriguez", linked
+    # each ADR to every function in the repository, and used a second keyword extractor
+    # with substring triggers ("add" matched "address"). Metadata now comes from git when the
+    # folder is a git repository, otherwise it is reported as unknown; decisions are extracted
+    # by the same DecisionExtractor used for GitHub ingestion.
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _git(abs_path: str, *args: str) -> Optional[str]:
+        """Runs git inside abs_path only if that folder is itself a git repository.
+
+        (`git -C sub` without sub/.git would silently read the PARENT repository's history.)
+        """
+        if not os.path.exists(os.path.join(abs_path, ".git")):
+            return None
+        import subprocess
+        try:
+            res = subprocess.run(["git", "-C", abs_path, *args], capture_output=True,
+                                 text=True, timeout=60, encoding="utf-8", errors="replace")
+        except (OSError, subprocess.SubprocessError):
+            return None
+        return res.stdout if res.returncode == 0 else None
+
+    def _local_commits(self, abs_path: str, max_commits: int = 500) -> Tuple[List[Dict[str, Any]], str]:
+        """Returns (commits, source) where source is 'git' or 'commits.json' or 'none'."""
+        out = self._git(abs_path, "log", "--no-merges", f"-n{max_commits}", "--name-only",
+                        "--format=%x1e%H%x1f%an%x1f%aI%x1f%s%x1f%b%x1f")
+        if out is not None:
+            commits = []
+            for rec in out.split("\x1e"):
+                parts = rec.split("\x1f")
+                if len(parts) < 6:
+                    continue
+                sha, author, date, subject, body, files_blob = parts[:6]
+                files = [f.strip() for f in files_blob.strip().splitlines() if f.strip()]
+                message = subject if not body.strip() else f"{subject}\n\n{body.strip()}"
+                commits.append({"sha": sha, "author": author, "date": date, "message": message, "files": files})
+            return commits, "git"
+        fixture = os.path.join(abs_path, "commits.json")
+        if os.path.exists(fixture):
+            with open(fixture, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            commits = []
+            for c in data if isinstance(data, list) else []:
+                # A fixture entry must be complete; nothing is invented for missing fields.
+                if all(isinstance(c.get(k), str) and c.get(k).strip() for k in ("sha", "author", "date", "message")):
+                    commits.append({**c, "files": [f for f in c.get("files", []) if isinstance(f, str)]})
+            return commits, "commits.json"
+        return [], "none"
+
+    def _file_origin(self, abs_path: str, rel_path: str) -> Tuple[str, str]:
+        """(author, ISO timestamp) of the commit that added rel_path; ('unknown', mtime) without git."""
+        out = self._git(abs_path, "log", "--diff-filter=A", "--format=%an%x1f%aI", "--", rel_path)
+        if out and out.strip():
+            author, date = out.strip().splitlines()[-1].split("\x1f")[:2]
+            return author, date
+        import datetime as _dt
+        mtime = os.path.getmtime(os.path.join(abs_path, rel_path))
+        return "unknown", _dt.datetime.fromtimestamp(mtime, _dt.timezone.utc).replace(microsecond=0).isoformat()
+
+    @staticmethod
+    def _mentioned_files(text: str, known_files: List[str]) -> List[str]:
+        """Repository files whose path or file name is explicitly mentioned in text."""
+        low = text.lower()
+        hits = []
+        for path in known_files:
+            name = os.path.basename(path).lower()
+            if path.lower() in low or re.search(rf"(?<![\w/]){re.escape(name)}\b", low):
+                hits.append(path)
+        return hits
+
     def ingest_local_directory(self, local_path: str, clear_existing: bool = True) -> Dict[str, Any]:
-        """Ingests a local repository folder directly."""
+        """Ingests a local repository folder (git history if present, else commits.json fixture)."""
         abs_path = os.path.abspath(local_path)
         repo = f"local/{os.path.basename(abs_path)}"
 
         if clear_existing:
-            self.clear_database()
+            self.db.purge_repo(repo)  # audit fix DB-02 (was a global wipe)
 
         stats = {
             "repo": repo,
@@ -189,140 +266,89 @@ class LiveGitHubIngestor:
             "prs_ingested": 0,
             "entities_created": 0,
             "decisions_extracted": 0,
-            "edges_created": 0
+            "edges_created": 0,
         }
-
         ingested_events: List[Event] = []
-        files_encountered = []
 
-        # 1. Commits from commits.json or git log
-        commits_file = os.path.join(abs_path, "commits.json")
-        if os.path.exists(commits_file):
-            with open(commits_file, "r", encoding="utf-8") as f:
-                commits_data = json.load(f)
-            for c in commits_data:
-                ev = self.git_adapter.ingest_commit_record(
-                    repo=repo,
-                    commit_sha=c.get("sha", "c123456789"),
-                    author_raw=c.get("author", "developer"),
-                    timestamp=c.get("date", "2026-01-10T10:00:00Z"),
-                    message=c.get("message", "Commit update"),
-                    files_changed=c.get("files", ["src/payment.py"])
-                )
-                ingested_events.append(ev)
-                stats["commits_ingested"] += 1
-                files_encountered.extend(c.get("files", []))
+        # 1. Commits
+        commits, commit_source = self._local_commits(abs_path)
+        stats["commit_source"] = commit_source
+        for c in commits:
+            ev = self.git_adapter.ingest_commit_record(
+                repo=repo, commit_sha=c["sha"], author_raw=c["author"], timestamp=c["date"],
+                message=c["message"], files_changed=c.get("files", []))
+            ingested_events.append(ev)
+            stats["commits_ingested"] += 1
 
-        # 2. Issues from docs/issues/*.md
-        issues_dir = os.path.join(abs_path, "docs", "issues")
-        if os.path.exists(issues_dir):
-            for fname in os.listdir(issues_dir):
-                if fname.endswith(".md"):
-                    fpath = os.path.join(issues_dir, fname)
-                    with open(fpath, "r", encoding="utf-8") as f:
-                        text = f.read()
-                    ev = self.github_adapter.ingest_issue(
-                        repo=repo,
-                        issue_number=5,
-                        title=fname.replace(".md", "").replace("_", " "),
-                        body=text,
-                        author_raw="sarah_chen",
-                        created_at="2026-01-08T09:00:00Z",
-                        artifacts_touched=["src/payment.py"]
-                    )
-                    ingested_events.append(ev)
-                    stats["issues_ingested"] += 1
-
-        # 3. Python AST Entities
-        src_dir = os.path.join(abs_path, "src")
+        # 2. Source files -> file and function entities (Python AST)
         python_files = []
-        if os.path.exists(src_dir):
-            for root, _, files in os.walk(src_dir):
-                for f in files:
-                    if f.endswith(".py"):
-                        rel_p = os.path.relpath(os.path.join(root, f), abs_path).replace("\\", "/")
-                        python_files.append((rel_p, os.path.join(root, f)))
-
-        created_entities = []
+        for root, dirs, files in os.walk(abs_path):
+            dirs[:] = [d for d in dirs if not d.startswith(".") and d not in ("__pycache__", "node_modules", "venv")]
+            for f in files:
+                if f.endswith(".py"):
+                    full = os.path.join(root, f)
+                    python_files.append((os.path.relpath(full, abs_path).replace("\\", "/"), full))
+        python_files.sort()
+        known_files = [rel for rel, _ in python_files]
         for rel_p, full_p in python_files:
-            file_ent = self.entity_resolver.resolve_file_entity(repo, rel_p, f"Source module: {rel_p}")
-            created_entities.append(file_ent)
+            self.entity_resolver.resolve_file_entity(repo, rel_p, f"Source module: {rel_p}")
             stats["entities_created"] += 1
-
-            with open(full_p, "r", encoding="utf-8") as f:
+            with open(full_p, "r", encoding="utf-8", errors="replace") as f:
                 code_content = f.read()
-
-            fns = self.entity_resolver.parse_python_ast_functions(code_content, rel_p)
-            for fn in fns:
-                fn_ent = self.entity_resolver.resolve_function_entity(repo, rel_p, fn["name"], f"Function at line {fn['lineno']}")
-                created_entities.append(fn_ent)
+            for fn in self.entity_resolver.parse_python_ast_functions(code_content, rel_p):
+                self.entity_resolver.resolve_function_entity(repo, rel_p, fn["name"], f"Function at line {fn['lineno']}")
                 stats["entities_created"] += 1
 
-        # 4. ADRs
+        # 3. Issues from docs/issues/*.md (number parsed from the file name or "# Issue #N" heading)
+        issues_dir = os.path.join(abs_path, "docs", "issues")
+        if os.path.isdir(issues_dir):
+            for fname in sorted(os.listdir(issues_dir)):
+                if not fname.endswith(".md"):
+                    continue
+                rel = f"docs/issues/{fname}"
+                with open(os.path.join(issues_dir, fname), "r", encoding="utf-8") as f:
+                    text = f.read()
+                m = re.search(r"issue[_\- ]?#?(\d+)", fname, re.I) or re.search(r"^#\s*Issue\s*#(\d+)", text, re.I | re.M)
+                if not m:
+                    continue  # cannot identify the issue: skip rather than guess
+                heading = re.search(r"^#\s*(.+)$", text, re.M)
+                author, created = self._file_origin(abs_path, rel)
+                ev = self.github_adapter.ingest_issue(
+                    repo=repo, issue_number=int(m.group(1)),
+                    title=(re.sub(r"^Issue\s*#\d+:\s*", "", heading.group(1).strip(), flags=re.I)
+                           if heading else fname[:-3].replace("_", " ")),
+                    body=text, author_raw=author, created_at=created,
+                    artifacts_touched=self._mentioned_files(text, known_files))
+                ingested_events.append(ev)
+                stats["issues_ingested"] += 1
+
+        # 4. ADRs from docs/adr/*.md
+        adr_events: List[Event] = []
         adr_dir = os.path.join(abs_path, "docs", "adr")
+        if os.path.isdir(adr_dir):
+            for fname in sorted(os.listdir(adr_dir)):
+                if not fname.endswith(".md"):
+                    continue
+                rel = f"docs/adr/{fname}"
+                with open(os.path.join(adr_dir, fname), "r", encoding="utf-8") as f:
+                    adr_text = f.read()
+                author, created = self._file_origin(abs_path, rel)
+                adr_ev = self.adr_adapter.parse_adr_markdown(
+                    repo=repo, file_path=rel, markdown_content=adr_text, author=author, timestamp=created)
+                adr_ev.artifacts_touched = self._mentioned_files(adr_text, known_files)
+                self.db.upsert_event(adr_ev)  # persist the file links found above
+                adr_events.append(adr_ev)
+
+        # 5. Decision extraction: one extractor for every source (same as GitHub ingestion)
         extracted_decisions = []
-        target_entities = [e.canonical_path for e in created_entities]
-
-        if os.path.exists(adr_dir):
-            for fname in os.listdir(adr_dir):
-                if fname.endswith(".md"):
-                    fpath = os.path.join(adr_dir, fname)
-                    with open(fpath, "r", encoding="utf-8") as f:
-                        adr_text = f.read()
-                    adr_ev = self.adr_adapter.parse_adr_markdown(
-                        repo=repo,
-                        file_path=f"docs/adr/{fname}",
-                        markdown_content=adr_text,
-                        author="alex_rodriguez",
-                        timestamp="2026-01-15T14:30:00Z"
-                    )
-                    ingested_events.append(adr_ev)
-                    decs = self.extractor.extract_from_event_bundle(
-                        bundle_name=fname,
-                        events=[adr_ev],
-                        repo=repo,
-                        target_entities=target_entities
-                    )
-                    for d in decs:
-                        self.db.upsert_decision(d)
-                        extracted_decisions.append(d)
-                        stats["decisions_extracted"] += 1
-
-        # Dynamic decision extraction from commits & issues
-        for ev in ingested_events:
-            text = f"{ev.title} {ev.body}".lower()
-            decision_signals = ["feat", "fix", "refactor", "decided", "agreed", "switch", "replace", "breaking", "add", "implement", "chore", "perf", "init"]
-            has_signal = any(sig in text for sig in decision_signals)
-
-            if has_signal and ev.source_type != "adr":
-                clean_title = re.sub(r'^(feat|fix|chore|refactor|docs|perf|test)(\([^)]+\))?:\s*', '', ev.title, flags=re.I).strip()
-                if clean_title:
-                    clean_title = clean_title[0].upper() + clean_title[1:]
-                else:
-                    clean_title = f"Decision regarding {ev.artifacts_touched[0] if ev.artifacts_touched else 'architecture'}"
-
-                state = "accepted" if any(w in text for w in ("fix", "feat", "chore", "perf")) or ev.source_type == "git_commit" else "proposed"
-                rationale = ev.body.strip() if len(ev.body.strip()) > 20 else f"Architectural change recorded in {ev.source_type} #{ev.source_id} by {ev.author}."
-                dec_id = f"dec_{repo.replace('/', '_')}_{ev.source_type}_{str(ev.source_id).replace('/', '_').replace('.', '_')[-12:]}"
-                affected = ev.artifacts_touched if ev.artifacts_touched else target_entities[:2]
-
-                dec = Decision(
-                    decision_id=dec_id,
-                    title=clean_title[:80],
-                    state=state,
-                    made_by=ev.author,
-                    made_at=ev.timestamp,
-                    artifacts_affected=affected,
-                    alternatives_considered=[],
-                    rationale=rationale[:350],
-                    evidence_event_ids=[ev.event_id],
-                    confidence=0.90 if ev.source_type == "git_commit" else 0.80,
-                    review_status="auto_confirmed" if state == "accepted" else "pending_review",
-                    repo=repo
-                )
-                self.db.upsert_decision(dec)
-                extracted_decisions.append(dec)
+        for ev in adr_events + ingested_events:
+            for d in self.extractor.extract_from_event_bundle(
+                    bundle_name=ev.source_id, events=[ev], repo=repo,
+                    target_entities=ev.artifacts_touched or []):
+                self.db.upsert_decision(d)
+                extracted_decisions.append(d)
                 stats["decisions_extracted"] += 1
+        ingested_events.extend(adr_events)
 
         # 5. Connect Graph Edges
         for dec in extracted_decisions:
@@ -359,53 +385,6 @@ class LiveGitHubIngestor:
         """Alias for ingest_local_directory."""
         return self.ingest_local_directory(local_path, clear_existing=clear_existing)
 
-    @staticmethod
-    def _get_breathwise_fallback_commits() -> List[Dict[str, Any]]:
-        return [
-            {
-                "sha": "3e2351586a1112feecff7ca30d06144e3f4369a1",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T18:48:00Z"},
-                    "message": "feat(security): update CSP connect-src to permit api.github.com and add server-side github proxy endpoint"
-                }
-            },
-            {
-                "sha": "b613f6278fb2bcffe609a78c8106b9f81e3c0da6",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T18:30:00Z"},
-                    "message": "fix(web): resolve button interaction, CSP inline handlers, and GitHub Pages deployment workflow"
-                }
-            },
-            {
-                "sha": "285648602923984ca8e04b4d667c4be5171787c8",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T17:00:00Z"},
-                    "message": "docs: add student roll numbers to team leader and members in landing footer"
-                }
-            },
-            {
-                "sha": "90b8565a9ba6783df8e27c85ffb14e679ec8f121",
-                "commit": {
-                    "author": {"name": "Nistha Agarwal", "date": "2026-11-20T16:00:00Z"},
-                    "message": "feat: setup context intelligence framework with GitHub Pages deployment"
-                }
-            },
-            {
-                "sha": "b6a15531d0eb7fe44a9bcff16c96a32cb5e6304a",
-                "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-20T15:00:00Z"},
-                    "message": "feat(ui): update site logo to black gradient 3D brandmark across all pages"
-                }
-              },
-            {
-                "sha": "f7c2039aa72bc2245b7331828f08f8fe0a09b30b",
-                "commit": {
-                    "author": {"name": "Dhruv Gupta", "date": "2026-11-20T14:00:00Z"},
-                    "message": "chore(web): update static demo snapshot for GitHub Pages"
-                }
-            }
-        ]
-
     def ingest_custom_repository(
         self,
         raw_repo_input: str,
@@ -424,7 +403,9 @@ class LiveGitHubIngestor:
         repo = self.parse_repo_identifier(raw_repo_input)
 
         if clear_existing:
-            self.clear_database()
+            # Audit fix DB-02: re-ingest replaces THIS repository's data only. It used to call
+            # clear_database(), which deleted every user's repositories.
+            self.db.purge_repo(repo)
 
         stats = {
             "repo": repo,
@@ -438,10 +419,9 @@ class LiveGitHubIngestor:
 
         # Fetch & Ingest Commits
         fetch_status, raw_commits, err_msg = self.fetch_commits(repo, max_count=max_commits)
-        if (fetch_status == 403 or (fetch_status != 200 and not raw_commits)) and "breathwise" in repo.lower():
-            raw_commits = self._get_breathwise_fallback_commits()
-            fetch_status = 200
-        elif fetch_status == 404:
+        # Audit fix INT-02: a hard-coded commit list used to be substituted here for one
+        # particular repository when GitHub failed. Fabricated history must never be stored.
+        if fetch_status == 404:
             raise ValueError(f"GitHub repository '{repo}' was not found (404). Please verify that the repository exists and is public (or provide a valid Personal Access Token).")
         elif fetch_status == 403:
             # Never synthesize commits: fabricated history would be shown as real evidence.
@@ -701,7 +681,11 @@ class LiveGitHubIngestor:
         return stats
 
     def clear_database(self):
-        """Wipes all database tables to give an empty canvas."""
+        """Wipes ALL repositories' decision data (global, admin-only via POST /api/clear-db).
+
+        Users, sessions and repository registrations are kept. For a single repository use
+        Database.purge_repo().
+        """
         with self.db.get_connection() as conn:
             conn.execute("DELETE FROM claim_evidence")
             conn.execute("DELETE FROM decision_claims")

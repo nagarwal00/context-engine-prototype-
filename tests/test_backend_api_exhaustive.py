@@ -251,7 +251,10 @@ class TestBackendAPIExhaustive(unittest.TestCase):
         self.assertEqual(res.get("status"), "error")
 
     def test_17_malformed_json_post(self):
-        status, res = self._req("POST", "/api/drift-check", data="not a json string{{{", headers=self.admin_headers, expect_status=400)
+        # Declares JSON (as real clients do) but sends malformed JSON -> 400. A body without a JSON
+        # Content-Type is now refused earlier with 415 (audit fix SEC-02).
+        hdrs = dict(self.admin_headers, **{"Content-Type": "application/json"})
+        status, res = self._req("POST", "/api/drift-check", data="not a json string{{{", headers=hdrs, expect_status=400)
         self.assertEqual(res.get("status"), "error")
 
     # --- POST & MUTATION ENDPOINTS ---
