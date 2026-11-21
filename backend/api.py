@@ -1697,15 +1697,19 @@ class APIHandler:
             rule_id = body.get("rule_id")
             if not rule_id:
                 return {"status": "error", "message": "Missing 'rule_id'"}
-            success = self.db.update_guard_rule_status(rule_id, "active", approved_by="human_reviewer")
-            return {"status": "success", "rule_id": rule_id, "active": success}
+            success = self.db.update_guard_rule_status(rule_id, "active", approved_by=self._actor_for(headers, client_ip))
+            if not success:  # was reported as "success" even when nothing was updated
+                return {"status": "error", "status_code": 404, "message": f"Guard rule '{rule_id}' not found"}
+            return {"status": "success", "rule_id": rule_id, "active": True}
 
         elif path == "/api/guard-rules/disable":
             rule_id = body.get("rule_id")
             if not rule_id:
                 return {"status": "error", "message": "Missing 'rule_id'"}
-            success = self.db.update_guard_rule_status(rule_id, "disabled", approved_by="human_reviewer")
-            return {"status": "success", "rule_id": rule_id, "disabled": success}
+            success = self.db.update_guard_rule_status(rule_id, "disabled", approved_by=self._actor_for(headers, client_ip))
+            if not success:  # was reported as "success" even when nothing was updated
+                return {"status": "error", "status_code": 404, "message": f"Guard rule '{rule_id}' not found"}
+            return {"status": "success", "rule_id": rule_id, "disabled": True}
 
 
         # 2. Live Drift Check (Section 8.3 & Step 3.5 Rejected-Idea Guard)
