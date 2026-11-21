@@ -64,12 +64,15 @@ class ADRAdapter:
             content = "\n".join(buf).strip()
             if sec == "status":
                 status_lower = content.lower()
-                if "accept" in status_lower:
-                    data["status"] = "accepted"
-                elif "reject" in status_lower:
-                    data["status"] = "rejected"
-                elif "supersed" in status_lower:
+                # Order matters (audit fix ALG-03): "Superseded (previously accepted)" and
+                # "Not accepted" used to be parsed as accepted because "accept" was tested first.
+                if "supersed" in status_lower or "replaced by" in status_lower:
                     data["status"] = "superseded"
+                elif ("reject" in status_lower or "declined" in status_lower
+                      or re.search(r"\bnot\s+accepted\b", status_lower)):
+                    data["status"] = "rejected"
+                elif "accept" in status_lower:
+                    data["status"] = "accepted"
                 elif "deprecat" in status_lower:
                     data["status"] = "deprecated"
                 else:

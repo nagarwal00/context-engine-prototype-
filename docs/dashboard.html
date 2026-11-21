@@ -7,6 +7,7 @@
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://api.github.com;">
   <title>Context Intelligence Framework — Living Decision History</title>
+  <script src="cif-mode.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -16,7 +17,7 @@
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script>
     (function () {
-      var isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+      var isStatic = window.CIF_IS_STATIC();
       var redirectTarget = 'login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
 
       if (isStatic) {

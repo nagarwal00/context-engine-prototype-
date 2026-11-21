@@ -366,7 +366,7 @@
         }
       } catch (_) { }
 
-      fetch('/api/me')
+      if (!isStaticDeployment()) fetch('/api/me')  // no backend exists in the static snapshot
         .then(res => {
           if (res.ok) {
             const urlParams = new URLSearchParams(window.location.search);
