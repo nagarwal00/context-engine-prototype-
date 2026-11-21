@@ -34,7 +34,9 @@ class RateLimiter:
             "auth": self._parse_int(env.get("CIF_RATE_LIMIT_AUTH_MAX"), 10),
             "ingest": self._parse_int(env.get("CIF_RATE_LIMIT_INGEST_MAX"), 5),
             "expensive": self._parse_int(env.get("CIF_RATE_LIMIT_EXPENSIVE_MAX"), 15),
-            "api": self._parse_int(env.get("CIF_RATE_LIMIT_API_MAX"), 60),
+            # One dashboard load issues ~13 API calls; 60/min allowed only ~4 loads per minute,
+            # so switching the repository filter during a demo returned 429s (audit 2026-11-21).
+            "api": self._parse_int(env.get("CIF_RATE_LIMIT_API_MAX"), 300),
         }
 
         # In-memory storage: (category, key) -> list of timestamp floats
