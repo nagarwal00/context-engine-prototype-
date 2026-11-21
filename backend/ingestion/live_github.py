@@ -324,12 +324,15 @@ class LiveGitHubIngestor:
 
         # 4. ADRs from docs/adr/*.md
         adr_events: List[Event] = []
-        adr_dir = os.path.join(abs_path, "docs", "adr")
-        if os.path.isdir(adr_dir):
+        # Conventional ADR locations: adr-tools (doc/adr), common (docs/adr), MADR (docs/decisions).
+        adr_dirs = [d for d in ("docs/adr", "doc/adr", "docs/decisions", "docs/architecture/decisions")
+                    if os.path.isdir(os.path.join(abs_path, d))]
+        for adr_rel_dir in adr_dirs:
+            adr_dir = os.path.join(abs_path, adr_rel_dir)
             for fname in sorted(os.listdir(adr_dir)):
                 if not fname.endswith(".md"):
                     continue
-                rel = f"docs/adr/{fname}"
+                rel = f"{adr_rel_dir}/{fname}"
                 with open(os.path.join(adr_dir, fname), "r", encoding="utf-8") as f:
                     adr_text = f.read()
                 author, created = self._file_origin(abs_path, rel)

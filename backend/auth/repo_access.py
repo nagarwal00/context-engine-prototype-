@@ -2,7 +2,8 @@
 Identity-Based Authorization and Repository Scoping (Step 7.4)
 Implements:
 - authorize_repo(user, repo_full_name, need)
-  - demo repos: readable by everyone (anonymous included); no writes.
+  - demo repos: readable by everyone (anonymous included); review actions by any signed-in user
+    (shared sample data that can be restored with POST /api/reseed).
   - non-demo repos: requires verified repo_access row (15-min TTL for private, 1-hr for public).
   - stale rows re-verified via GET /repos/{owner}/{repo} with user's GitHub token.
   - repo_review requires verified permissions.push (or fallback to repo owner + repo_reviewers).
@@ -39,7 +40,8 @@ def authorize_repo(
 ) -> Tuple[bool, int, str]:
     """
     Authorizes caller access to repository repo_full_name for need in ('repo_read', 'repo_review'):
-    - Demo repos: readable by anyone (including anonymous); review/writes denied for non-admin.
+    - Demo repos: readable by anyone (including anonymous); review actions allowed for any signed-in
+      user (authorize() rejects anonymous callers before this point).
     - Private / Public repos: requires verified access row or active GitHub permission.
     - Stale permissions are re-verified with GitHub API using user's token.
     - If user has no valid token, returns 401 with needs_relogin.
