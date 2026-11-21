@@ -2045,14 +2045,22 @@ const app = {
     resultDisplay.classList.remove('hidden');
     resultDisplay.innerHTML = '<div class="loading-state">Running CI Drift Detection Pass...</div>';
 
-    const repo = diffText.includes('cache') ? 'acme-eng/distributed-cache-service' : 'acme-eng/thermal-control-system';
-    const file = diffText.includes('cache') ? 'src/cache/store.py' : 'src/thermal/control.py';
+    // Check the files named in the diff against the repository selected in the top bar.
+    // The built-in scenarios (src/thermal, src/cache, src/payments) and the unified
+    // view keep targeting the pilot demo repositories.
+    const diffFiles = [...diffText.matchAll(/^\+\+\+ b\/(\S+)/gm)].map(m => m[1]);
+    const demoRepo = diffText.includes('cache') ? 'acme-eng/distributed-cache-service' : 'acme-eng/thermal-control-system';
+    const demoFile = diffText.includes('cache') ? 'src/cache/store.py' : 'src/thermal/control.py';
+    const isPilotDiff = diffFiles.length === 0 ||
+      diffFiles.some(f => /^src\/(thermal|cache|payments)\//.test(f));
+    const repo = isPilotDiff ? demoRepo : (this.selectedRepo || demoRepo);
+    const files = diffFiles.length > 0 ? diffFiles : [demoFile];
 
     try {
       const json = await this.apiFetch('/api/drift-check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ repo, diff_text: diffText, files: [file] })
+        body: JSON.stringify({ repo, diff_text: diffText, files })
       });
 
       const errors = json.errors || (json.report && json.report.errors) || [];
