@@ -444,43 +444,12 @@ class LiveGitHubIngestor:
         elif fetch_status == 404:
             raise ValueError(f"GitHub repository '{repo}' was not found (404). Please verify that the repository exists and is public (or provide a valid Personal Access Token).")
         elif fetch_status == 403:
-            # Universal rate-limit resilience: synthesize grounded commits from repository slug
-            parts = repo.split('/')
-            owner = parts[0] if len(parts) > 0 else 'developer'
-            simple = parts[1] if len(parts) > 1 else parts[0]
-            clean_title = simple.replace('-', ' ').replace('_', ' ').title()
-            now_iso = datetime.now(timezone.utc).isoformat()
-            raw_commits = [
-                {
-                    "sha": "c1a001f01234567890abcdef01234567890abcde",
-                    "commit": {
-                        "author": {"name": owner, "date": now_iso},
-                        "message": f"feat(core): initialize {clean_title} core architecture and modular runtime framework"
-                    }
-                },
-                {
-                    "sha": "c2b002f01234567890abcdef01234567890abcde",
-                    "commit": {
-                        "author": {"name": owner, "date": now_iso},
-                        "message": f"feat(api): develop service integration endpoints, schema contracts, and data models"
-                    }
-                },
-                {
-                    "sha": "c3c003f01234567890abcdef01234567890abcde",
-                    "commit": {
-                        "author": {"name": "contributor", "date": now_iso},
-                        "message": f"perf(cache): optimize query execution, persistence layer, and latency profiles"
-                    }
-                },
-                {
-                    "sha": "c4d004f01234567890abcdef01234567890abcde",
-                    "commit": {
-                        "author": {"name": owner, "date": now_iso},
-                        "message": f"chore: establish CI/CD deployment automation, test suite, and repository scaffolding"
-                    }
-                }
-            ]
-            fetch_status = 200
+            # Never synthesize commits: fabricated history would be shown as real evidence.
+            raise ValueError(
+                f"GitHub refused the request for '{repo}' (HTTP 403): {err_msg}. "
+                "Unauthenticated access is limited to 60 requests per hour; set GITHUB_TOKEN "
+                "or paste a Personal Access Token in the ingest dialog, then try again."
+            )
         elif fetch_status != 200 and not raw_commits:
             raise ValueError(f"GitHub API error for repository '{repo}' (HTTP {fetch_status}): {err_msg}")
         elif not raw_commits:
