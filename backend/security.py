@@ -163,6 +163,11 @@ def authorize(
         return True, 200, "Authorized as admin"
 
     if required_role == ROLE_ADMIN:
+        # In dev mode an anonymous localhost caller is already admin (see
+        # authenticate_caller); a signed-in localhost user must not lose that,
+        # or the dashboard's Connect & Ingest fails after signing in.
+        if is_dev_mode(client_ip):
+            return True, 200, "Authorized (Dev Mode, local admin)"
         return False, 403, "Admin permission required"
 
     bearer = extract_bearer_token(headers)

@@ -122,6 +122,51 @@ class APIHandler:
         accessible = list_accessible_repos(self.db, user)
         return {r["repo_full_name"] for r in accessible}
 
+    def _register_ingested_repo(
+        self,
+        stats: Dict[str, Any],
+        headers: Optional[Dict[str, str]],
+        client_ip: str
+    ) -> None:
+        """Record a repository ingested via /api/ingest-repo in the repos table.
+
+        Repo listing, filtering and per-repo access checks all read the repos
+        table; without a row here an ingested repository is invisible in the
+        dashboard and its per-repo API calls return 404.
+        """
+        from backend.security import authenticate_caller
+        repo = stats.get("repo")
+        if not repo:
+            return
+        user, _ = authenticate_caller(self.db, headers or {}, client_ip)
+        visibility = "private" if repo.startswith("local/") else "public"
+        now_iso = dt_class.now(timezone.utc).isoformat()
+        with self.db.get_connection() as conn:
+            # Pseudo-users (dev-mode "dev_user", admin token) have no users row;
+            # record the owner only for real users to satisfy the foreign key.
+            added_by = None
+            if user and user.get("user_id"):
+                exists = conn.execute("SELECT 1 FROM users WHERE user_id = ?", (user["user_id"],)).fetchone()
+                added_by = user["user_id"] if exists else None
+            conn.execute("""
+            INSERT INTO repos (repo_full_name, visibility, added_by_user_id, added_at, last_synced_at, partial, stats_json)
+            VALUES (?, ?, ?, ?, ?, 0, ?)
+            ON CONFLICT(repo_full_name) DO UPDATE SET
+                last_synced_at = excluded.last_synced_at,
+                stats_json = excluded.stats_json,
+                added_by_user_id = COALESCE(repos.added_by_user_id, excluded.added_by_user_id);
+            """, (repo, visibility, added_by, now_iso, now_iso, json.dumps(stats)))
+            conn.commit()
+        # The user who ingested the repository may read and review it (approve
+        # guard rules, triage the review queue) without a GitHub permission check.
+        if added_by is not None:
+            from backend.auth.repo_access import add_repo_reviewer
+            with self.db.get_connection() as conn:
+                owner = conn.execute("SELECT added_by_user_id FROM repos WHERE repo_full_name = ?",
+                                     (repo,)).fetchone()["added_by_user_id"]
+            if owner == added_by:
+                add_repo_reviewer(self.db, added_by, repo, added_by)
+
     def check_authorization(
         self,
         method: str,
@@ -1688,6 +1733,7 @@ class APIHandler:
                     max_commits=max_commits,
                     max_issues=max_issues
                 )
+                self._register_ingested_repo(stats, headers, client_ip)
                 return {"status": "success", "message": f"Successfully ingested {stats['repo']}!", "data": stats}
             except Exception as e:
                 return {"status": "error", "message": str(e)}
