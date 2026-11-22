@@ -149,10 +149,16 @@ def validate_whybench_questions(file_path: str = None) -> bool:
     if os.path.exists(frozen_file):
         import hashlib
         with open(file_path, "rb") as f:
-            actual_q_hash = hashlib.sha256(f.read()).hexdigest()
+            raw = f.read()
+        # The freeze hash was recorded on a Windows checkout (CRLF line endings) while Git stores
+        # the file with LF (.gitattributes eol=lf). Accept the file if its CONTENT matches under
+        # either convention; any real change still fails. (Audit fix TOOL-01.)
+        lf = raw.replace(b"\r\n", b"\n")
+        candidates = {hashlib.sha256(v).hexdigest() for v in (raw, lf, lf.replace(b"\n", b"\r\n"))}
+        actual_q_hash = hashlib.sha256(raw).hexdigest()
         with open(frozen_file, "r", encoding="utf-8") as f:
             frozen_content = f.read()
-        if actual_q_hash not in frozen_content:
+        if not any(h in frozen_content for h in candidates):
             errors.append(f"questions.json SHA-256 ({actual_q_hash}) does not match frozen hash recorded in FROZEN.md!")
 
     total = len(questions)

@@ -217,6 +217,8 @@ class Database:
 
             # 12. Schema Migrations (Step 2.0)
             run_migrations(conn)
+            from backend.integrity import ensure_integrity_objects
+            ensure_integrity_objects(conn)  # audit fix DB-01 (idempotent)
 
     # --- Upsert & Query Methods ---
 
@@ -467,6 +469,16 @@ class Database:
                         f"Allowed transitions: {sorted(allowed_targets)}"
                     )
 
+            # For an existing decision, link the new evidence BEFORE updating its state:
+            # migration 008's trigger refuses to move a decision into a grounded state
+            # (tested/accepted/rejected/superseded) while it has no evidence rows.
+            new_evidence_ids = list(dict.fromkeys(decision.evidence_event_ids))
+            if existing_row is not None:
+                for eid in new_evidence_ids:
+                    cursor.execute(
+                        "INSERT OR IGNORE INTO decision_evidence (decision_id, event_id) VALUES (?, ?)",
+                        (decision.decision_id, eid))
+
             cursor.execute("""
             INSERT INTO decisions (
                 decision_id, title, state, made_by, made_at, rationale, confidence,
@@ -504,12 +516,18 @@ class Database:
                 decision.freshness
             ))
 
-            # Update decision_evidence links
-            cursor.execute("DELETE FROM decision_evidence WHERE decision_id = ?", (decision.decision_id,))
-            for eid in decision.evidence_event_ids:
+            # Update decision_evidence links: add new links, then drop links no longer cited.
+            for eid in new_evidence_ids:
                 cursor.execute("""
                 INSERT OR IGNORE INTO decision_evidence (decision_id, event_id) VALUES (?, ?)
                 """, (decision.decision_id, eid))
+            if new_evidence_ids:
+                placeholders = ",".join("?" for _ in new_evidence_ids)
+                cursor.execute(
+                    f"DELETE FROM decision_evidence WHERE decision_id = ? AND event_id NOT IN ({placeholders})",
+                    [decision.decision_id, *new_evidence_ids])
+            else:
+                cursor.execute("DELETE FROM decision_evidence WHERE decision_id = ?", (decision.decision_id,))
 
             # Invariant check at DB level (Section 13 / Step 2.1)
             cursor.execute("SELECT COUNT(*) as cnt FROM decision_evidence WHERE decision_id = ?", (decision.decision_id,))

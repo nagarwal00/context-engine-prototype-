@@ -59,15 +59,23 @@ def is_decision_candidate(event: Event) -> bool:
 
     return True
 
+# Rejection cues for PR review comments (audit fix ALG-02). A bare "rejects" used to be enough,
+# so "LGTM. The validator correctly rejects empty strings." became a REJECTED decision.
+# The comment must now reject a proposal / approach.
 REJECTION_PATTERNS = [
-    r"\breject(?:ed|s)?\b",
+    r"\b(?:we|i|team|maintainers?)\s+(?:have\s+|will\s+|must\s+|should\s+)?reject(?:ed)?\b",
+    r"\brejected\s+(?:because|due to|in favou?r of|as|since)\b",
+    r"\breject(?:ing)?\s+(?:this|the|that|a)\s+(?:approach|proposal|design|idea|change|option|pattern|pr|solution)\b",
     r"\bmust reject\b",
     r"\bcannot use\b",
     r"\bnot viable\b",
-    r"\babandoned\b"
+    r"\babandoned\b",
 ]
 
-AFFIRMATIVE_DECISION_PATTERNS = [
+APPROVAL_PATTERNS = [r"^\s*(?:lgtm|looks good|approved?|ship it|\+1)\b"]
+
+# Explicit decision phrasing: enough on its own.
+STRONG_DECISION_PATTERNS = [
     r"\bdecided to\b",
     r"\bwe should use\b",
     r"\bwe must use\b",
@@ -81,6 +89,12 @@ AFFIRMATIVE_DECISION_PATTERNS = [
     r"\badopt(?:ed|ing|s)?\b",
     r"\bmigrat(?:e|ed|ing|es|ion)\b",
     r"\bswitch(?:ed|ing|es)? to\b",
+]
+
+# Generic change verbs: only a decision signal when the text is also about architecture
+# (audit fix ALG-01: "feat: change login button color to blue" was an accepted
+# architectural decision with confidence 0.90).
+WEAK_DECISION_PATTERNS = [
     r"\bimplement(?:ed|ing|s)?\b",
     r"\benable(?:d|s|ing)?\b",
     r"\bintroduce(?:d|s|ing)?\b",
@@ -89,8 +103,47 @@ AFFIRMATIVE_DECISION_PATTERNS = [
     r"\bbatch(?:ed|ing|es)?\b",
     r"\bpinning\b",
     r"\bfeat(?:\([^\)]+\))?:",
-    r"\brefactor(?:\([^\)]+\))?:"
+    r"\brefactor(?:\([^\)]+\))?:",
 ]
+
+# Domain-independent software-architecture vocabulary (deliberately generic; no terms taken
+# from the benchmark or demo repositories).
+ARCHITECTURE_TERMS = re.compile(
+    r"\b(?:architect\w*|design|pattern|api|apis|endpoints?|protocols?|services?|microservices?|monolith\w*|"
+    r"databases?|db|sql|nosql|schemas?|migrations?|cach\w*|queues?|brokers?|events?|async\w*|"
+    r"threads?|concurren\w*|locks?|locking|transactions?|transactional|idempoten\w*|retr(?:y|ies)|"
+    r"backoff|timeouts?|rate[- ]limit\w*|circuit[- ]breakers?|storage|persist\w*|index\w*|shard\w*|"
+    r"replicat\w*|auth\w*|oauth|tokens?|encrypt\w*|security|frameworks?|librar(?:y|ies)|dependenc\w*|"
+    r"sdk|clients?|servers?|webhooks?|polling|grpc|rest|restful|graphql|websockets?|pipelines?|"
+    r"orchestrat\w*|deploy\w*|containers?|docker|kubernetes|config\w*|logging|monitoring|"
+    r"observability|performance|latency|throughput|scal\w*|algorithms?|interfaces?|modules?|layers?|"
+    r"adapters?|plugins?|decoupl\w*|abstraction\w*|compatib\w*|versioning|fallback|failover|"
+    r"consisten\w*|memory|cpu|parallel\w*|streaming|batching|serializ\w*|validation|isolation)\b",
+    re.IGNORECASE)
+
+# Kept for backward compatibility with code that imports the old name.
+AFFIRMATIVE_DECISION_PATTERNS = STRONG_DECISION_PATTERNS + WEAK_DECISION_PATTERNS
+
+
+def has_decision_signal(text: str) -> bool:
+    """Strong phrasing, or a generic change verb in an architectural context."""
+    if any(re.search(p, text, re.IGNORECASE) for p in STRONG_DECISION_PATTERNS):
+        return True
+    return (any(re.search(p, text, re.IGNORECASE) for p in WEAK_DECISION_PATTERNS)
+            and ARCHITECTURE_TERMS.search(text) is not None)
+
+
+def is_rejection_comment(title: str, body: str) -> bool:
+    """A review comment that rejects a proposal (approvals and incidental uses of 'reject' are not)."""
+    full = f"{title} {body}"
+    clean_title = re.sub(r"^Review on PR #\d+:\s*", "", title or "", flags=re.IGNORECASE).strip()
+    if clean_title.lower().startswith("reject"):
+        return True
+    if any(re.search(p, clean_title, re.IGNORECASE) or re.search(p, body or "", re.IGNORECASE)
+           for p in APPROVAL_PATTERNS):
+        # An approval may still quote a rejection explicitly ("LGTM, we rejected X because ...").
+        return any(re.search(p, full, re.IGNORECASE) for p in REJECTION_PATTERNS[:2])
+    return any(re.search(p, full, re.IGNORECASE) for p in REJECTION_PATTERNS)
 
 class DecisionExtractor:
     def __init__(self, db: Database):
@@ -165,12 +218,7 @@ class DecisionExtractor:
             full_text = f"{title} {body}"
 
             # 2. PR Review Comments with rejection cues -> Rejected decision
-            is_rejection = (
-                ev.source_type == "pr_review_comment" and (
-                    any(re.search(pat, full_text, re.IGNORECASE) for pat in REJECTION_PATTERNS) or
-                    title.lower().startswith("reject")
-                )
-            )
+            is_rejection = ev.source_type == "pr_review_comment" and is_rejection_comment(title, body)
             if is_rejection:
                 clean_title = re.sub(r"^Review on PR #\d+:\s*", "", title, flags=re.IGNORECASE).strip()
                 dec = Decision(
@@ -196,7 +244,7 @@ class DecisionExtractor:
 
             # 3. PRs and Git Commits with architectural implementation cues -> Accepted decision
             if ev.source_type in ("github_pr", "git_commit"):
-                has_signal = any(re.search(pat, full_text, re.IGNORECASE) for pat in AFFIRMATIVE_DECISION_PATTERNS)
+                has_signal = has_decision_signal(full_text)
                 if has_signal:
                     clean_title = re.sub(r"^(?:PR #\d+:\s*|feat(?:\([^\)]+\))?:\s*|refactor(?:\([^\)]+\))?:\s*)", "", title, flags=re.IGNORECASE).strip()
                     clean_title = re.sub(r"\s*\(Closes\s*#\d+\)$", "", clean_title, flags=re.IGNORECASE).strip() or title
@@ -234,7 +282,7 @@ class DecisionExtractor:
 
             # 4. GitHub Issues with explicit architectural proposal cues -> Proposed decision
             if ev.source_type == "github_issue":
-                has_signal = any(re.search(pat, full_text, re.IGNORECASE) for pat in AFFIRMATIVE_DECISION_PATTERNS)
+                has_signal = has_decision_signal(full_text)
                 if has_signal:
                     clean_title = re.sub(r"^Issue #\d+:\s*", "", title, flags=re.IGNORECASE).strip() or title
                     dec = Decision(

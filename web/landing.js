@@ -109,11 +109,11 @@
   };
 
   const isStaticDeployment = () => {
-    return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+    return window.CIF_IS_STATIC();
   };
 
   const checkAuth = async () => {
-    try {
+    if (isStaticDeployment()) try {  // browser flag is only meaningful in the static preview
       const stored = localStorage.getItem('cif_user');
       const isAuth = localStorage.getItem('cif_authenticated');
       if (stored && isAuth === 'true') {
@@ -389,8 +389,18 @@
           }
         }
       } catch (err) {
-        handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
-        return;
+        if (isStaticDeployment()) {
+          handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
+          return;
+        }
+        if (authMsg) {  // live mode: report the failure (audit INT-01)
+          authMsg.className = 'auth-msg error';
+          authMsg.textContent = 'Cannot reach the CIF server. Is server.py running?';
+        }
+        if (authSubmit) {
+          authSubmit.disabled = false;
+          authSubmit.textContent = currentAuthMode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+        }
       }
     });
   }

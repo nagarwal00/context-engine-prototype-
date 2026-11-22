@@ -67,7 +67,7 @@ def build_static(output_docs: bool = True):
     bm = api.handle_get("/api/benchmark", {})
     if isinstance(bm, dict) and "data" in bm and isinstance(bm["data"], dict):
         if "metrics" in bm["data"] and isinstance(bm["data"]["metrics"], dict):
-            bm["data"]["metrics"]["processing_latency_ms"] = 15.0
+            bm["data"]["metrics"]["processing_latency_ms"] = "not measured"  # a static file cannot measure latency (was a fixed 15.0)
     endpoints["benchmark"] = bm
 
     # 3. Bus Factor snapshots
@@ -157,6 +157,17 @@ def build_static(output_docs: bool = True):
                 if w_file.read_bytes() != d_file.read_bytes():
                     raise RuntimeError(f"Integrity check failed: mismatch between {w_file} and {d_file}")
         print("[OK] Verified static snapshot integrity: docs/ perfectly matches web/")
+
+        # Mark the Pages copy as a static build (audit fix FE-01). web/cif-mode.js says "live";
+        # only docs/cif-mode.js flips the flag, so the UI never guesses from the port number.
+        mode_src = (web_dir / "cif-mode.js").read_text(encoding="utf-8")
+        flagged = mode_src.replace("window.__CIF_STATIC_BUILD__ = window.__CIF_STATIC_BUILD__ || false;",
+                                   "window.__CIF_STATIC_BUILD__ = true; // written by tools/build_static.py")
+        if flagged == mode_src:
+            raise RuntimeError("cif-mode.js no longer contains the static-build flag line")
+        with open(docs_dir / "cif-mode.js", "w", encoding="utf-8", newline="\n") as f:
+            f.write(flagged)
+        print("[OK] Marked docs/cif-mode.js as a static (read-only) build")
 
 
 if __name__ == "__main__":

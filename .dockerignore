@@ -1,0 +1,16 @@
+# Audit fix SEC-08: never bake secrets or local data into the image.
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+logs/
+backups/
+__pycache__/
+*.pyc
+.git/
+.vscode/
+scratch/
+dist/
+new_frontend/
+*.docx

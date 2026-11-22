@@ -31,7 +31,7 @@ End-points are categorized dynamically by `RateLimiter.get_category_for_path(pat
 | `auth` | 60 seconds | 10 requests | `/auth/login`, `/auth/register`, `/auth/token/exchange`, `/auth/logout` |
 | `ingest` | 60 seconds | 5 requests | `/api/ingest`, `/api/ingest-repo`, `/api/purge-repo`, `/api/webhook/github` |
 | `expensive` | 60 seconds | 15 requests | `/api/reseed`, `/api/clear-db`, `/api/benchmark`, `/api/drift-check`, `/api/query` |
-| `api` | 60 seconds | 60 requests | `/api/repos`, `/api/timeline`, `/api/graph`, `/api/decisions`, `/api/bus-factor`, etc. |
+| `api` | 60 seconds | 300 requests | `/api/repos`, `/api/timeline`, `/api/graph`, `/api/decisions`, `/api/bus-factor`, etc. |
 
 *Exempt Endpoints*: `/healthz`, `/api/healthz`, `/api/diagnostics`, `/api/system/status`, and static assets (`.css`, `.js`, `.html`).
 
@@ -60,7 +60,7 @@ CIF_RATE_LIMIT_WINDOW=60
 CIF_RATE_LIMIT_AUTH_MAX=10
 CIF_RATE_LIMIT_INGEST_MAX=5
 CIF_RATE_LIMIT_EXPENSIVE_MAX=15
-CIF_RATE_LIMIT_API_MAX=60
+CIF_RATE_LIMIT_API_MAX=300   # raised from 60: one dashboard load makes ~13 calls
 ```
 
 ---

@@ -2,7 +2,8 @@
 Identity-Based Authorization and Repository Scoping (Step 7.4)
 Implements:
 - authorize_repo(user, repo_full_name, need)
-  - demo repos: readable by everyone (anonymous included); no writes.
+  - demo repos: readable by everyone (anonymous included); review actions by any signed-in user
+    (shared sample data that can be restored with POST /api/reseed).
   - non-demo repos: requires verified repo_access row (15-min TTL for private, 1-hr for public).
   - stale rows re-verified via GET /repos/{owner}/{repo} with user's GitHub token.
   - repo_review requires verified permissions.push (or fallback to repo owner + repo_reviewers).
@@ -39,7 +40,8 @@ def authorize_repo(
 ) -> Tuple[bool, int, str]:
     """
     Authorizes caller access to repository repo_full_name for need in ('repo_read', 'repo_review'):
-    - Demo repos: readable by anyone (including anonymous); review/writes denied for non-admin.
+    - Demo repos: readable by anyone (including anonymous); review actions allowed for any signed-in
+      user (authorize() rejects anonymous callers before this point).
     - Private / Public repos: requires verified access row or active GitHub permission.
     - Stale permissions are re-verified with GitHub API using user's token.
     - If user has no valid token, returns 401 with needs_relogin.
@@ -187,6 +189,71 @@ def authorize_repo(
     return False, 400, f"Unknown permission need: {need}"
 
 
+class RepoMismatchError(Exception):
+    """The object named in a request does not belong to the repository the caller named."""
+
+    def __init__(self, repo: Optional[str]):
+        super().__init__(repo)
+        self.repo = repo
+
+
+def _first(query_params: Dict[str, List[str]], body_json: Dict[str, Any], *keys: str) -> Optional[str]:
+    for key in keys:
+        val = query_params.get(key, [None])[0]
+        if val is None:
+            val = body_json.get(key)
+        if val is not None and str(val).strip():
+            return str(val).strip()
+    return None
+
+
+def _resolve_object_repos(
+    db: Database,
+    query_params: Dict[str, List[str]],
+    body_json: Dict[str, Any],
+    direct_repo: Optional[str],
+) -> set:
+    """Returns the set of repositories owning the objects named in the request (empty if none)."""
+    repos: set = set()
+    with db.get_connection() as conn:
+        dec_id = _first(query_params, body_json, "decision_id", "target_id")
+        if dec_id:
+            row = conn.execute("SELECT repo FROM decisions WHERE decision_id = ?", (dec_id,)).fetchone()
+            if row:
+                repos.add(row["repo"])
+        rule_id = _first(query_params, body_json, "rule_id")
+        if rule_id:
+            row = conn.execute(
+                "SELECT d.repo FROM guard_rules g JOIN decisions d ON g.decision_id = d.decision_id "
+                "WHERE g.rule_id = ?", (rule_id,)).fetchone()
+            if row:
+                repos.add(row["repo"])
+        finding_id = _first(query_params, body_json, "finding_id")
+        if finding_id:
+            row = conn.execute("SELECT repo FROM ambiguous_findings WHERE finding_id = ?",
+                               (finding_id,)).fetchone()
+            if row:
+                repos.add(row["repo"])
+        event_id = _first(query_params, body_json, "event_id")
+        if event_id:
+            row = conn.execute("SELECT repo FROM events WHERE event_id = ?", (event_id,)).fetchone()
+            if row:
+                repos.add(row["repo"])
+        art = _first(query_params, body_json, "artifact")
+        if art:
+            # Canonical paths are not unique across repositories ("src/main.py").
+            if direct_repo and conn.execute(
+                    "SELECT 1 FROM entities WHERE (canonical_path = ? OR entity_id = ?) AND repo = ?",
+                    (art, art, direct_repo)).fetchone():
+                repos.add(direct_repo)
+            else:
+                for row in conn.execute(
+                        "SELECT DISTINCT repo FROM entities WHERE canonical_path = ? OR entity_id = ?",
+                        (art, art)).fetchall():
+                    repos.add(row["repo"])
+    return repos
+
+
 def resolve_repo_for_request(
     db: Database,
     path: str,
@@ -195,8 +262,9 @@ def resolve_repo_for_request(
 ) -> Optional[str]:
     """
     Extracts or resolves repo_full_name for any API request:
-    1. Direct repo query parameter or JSON body field.
-    2. Resolution from decision_id / target_id.
+    1. Repository owning the object named by decision_id / target_id / rule_id / finding_id /
+       event_id / artifact. If an explicit repo is also given and differs -> RepoMismatchError.
+    2. Direct repo query parameter or JSON body field.
     3. Resolution from artifact / entity canonical path.
     4. Resolution from rule_id (guard_rules).
     5. Resolution from finding_id (ambiguous_findings).
@@ -205,58 +273,23 @@ def resolve_repo_for_request(
     query_params = query_params or {}
     body_json = body_json or {}
 
-    # 1. Direct parameter
     direct_repo = query_params.get("repo", [None])[0] or body_json.get("repo") or body_json.get("repo_full_name")
-    if direct_repo and str(direct_repo).strip():
-        return str(direct_repo).strip()
+    direct_repo = str(direct_repo).strip() if direct_repo and str(direct_repo).strip() else None
 
-    with db.get_connection() as conn:
-        # 2. Decision ID or target ID
-        dec_id = (
-            query_params.get("decision_id", [None])[0]
-            or body_json.get("decision_id")
-            or body_json.get("target_id")
-        )
-        if dec_id:
-            row = conn.execute("SELECT repo FROM decisions WHERE decision_id = ?", (dec_id,)).fetchone()
-            if row:
-                return row["repo"]
-
-        # 3. Artifact / entity
-        art = query_params.get("artifact", [None])[0] or body_json.get("artifact")
-        if art:
-            row = conn.execute(
-                "SELECT repo FROM entities WHERE canonical_path = ? OR entity_id = ?",
-                (art, art)
-            ).fetchone()
-            if row:
-                return row["repo"]
-
-        # 4. Guard Rule ID
-        rule_id = body_json.get("rule_id") or query_params.get("rule_id", [None])[0]
-        if rule_id:
-            row = conn.execute("""
-            SELECT d.repo
-            FROM guard_rules g
-            JOIN decisions d ON g.decision_id = d.decision_id
-            WHERE g.rule_id = ?;
-            """, (rule_id,)).fetchone()
-            if row:
-                return row["repo"]
-
-        # 5. Finding ID
-        finding_id = body_json.get("finding_id") or query_params.get("finding_id", [None])[0]
-        if finding_id:
-            row = conn.execute("SELECT repo FROM ambiguous_findings WHERE finding_id = ?", (finding_id,)).fetchone()
-            if row:
-                return row["repo"]
-
-        # 6. Event ID
-        event_id = query_params.get("event_id", [None])[0] or body_json.get("event_id")
-        if event_id:
-            row = conn.execute("SELECT repo FROM events WHERE event_id = ?", (event_id,)).fetchone()
-            if row:
-                return row["repo"]
+    # Audit fix SEC-03: the repository is resolved from the OBJECT being read or modified.
+    # Previously an explicit `repo` won, so `?repo=<demo repo>&decision_id=<private decision>`
+    # was authorised against the demo repo while the handler acted on the private decision.
+    object_repos = _resolve_object_repos(db, query_params, body_json, direct_repo)
+    if object_repos:
+        if direct_repo is not None:
+            if direct_repo not in object_repos:
+                raise RepoMismatchError(direct_repo)
+            return direct_repo
+        if len(object_repos) > 1:
+            raise RepoMismatchError(None)  # ambiguous artifact path: caller must name the repo
+        return next(iter(object_repos))
+    if direct_repo:
+        return direct_repo
 
     # Endpoints that default to demo repo when no repo is supplied
     demo_defaults = (

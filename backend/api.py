@@ -52,8 +52,9 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("GET", "/api/auth-status"): ROLE_PUBLIC,
     ("GET", "/api/auth-config"): ROLE_PUBLIC,
     ("GET", "/api/repos"): ROLE_PUBLIC,
-    ("GET", "/api/github-commits"): ROLE_PUBLIC,
-    ("GET", "/api/github-tree"): ROLE_PUBLIC,
+    # GitHub proxy endpoints spend the server's GITHUB_TOKEN quota: signed-in users only (SEC-07).
+    ("GET", "/api/github-commits"): ROLE_USER,
+    ("GET", "/api/github-tree"): ROLE_USER,
 
     # User routes
     ("GET", "/api/me"): ROLE_USER,
@@ -121,6 +122,34 @@ class APIHandler:
             return None
         accessible = list_accessible_repos(self.db, user)
         return {r["repo_full_name"] for r in accessible}
+
+    def _actor_for(self, headers: Optional[Dict[str, str]], client_ip: str,
+                   body: Optional[Dict[str, Any]] = None) -> str:
+        """Audit-trail identity: verified 'user:<login>' / 'admin' / 'dev_user', optionally
+        followed by an unverified display name: "user:alice (as 'Alice Smith')"."""
+        user, is_admin = authenticate_caller(self.db, headers or {}, client_ip)
+        if user and not is_admin:
+            identity = f"user:{user['login']}"
+        elif user:
+            identity = user.get("login") or "admin"
+        else:
+            identity = "anonymous"
+        body = body or {}
+        label = str(body.get("reviewer") or body.get("reviewer_name") or body.get("display_name") or "").strip()
+        if label:
+            label = "".join(ch for ch in label if ch.isprintable())[:80]
+            return f"{identity} (as '{label}')"
+        return identity
+
+    def _caller_owns_job(self, job_id: str, headers: Optional[Dict[str, str]], client_ip: Optional[str] = None) -> bool:
+        user, is_admin = authenticate_caller(self.db, headers or {}, client_ip)
+        if is_admin:
+            return True
+        if not user:
+            return False
+        with self.db.get_connection() as conn:
+            row = conn.execute("SELECT requested_by FROM ingest_jobs WHERE job_id = ?", (job_id,)).fetchone()
+        return bool(row) and row["requested_by"] == user["user_id"]
 
     def _register_ingested_repo(
         self,
@@ -197,7 +226,27 @@ class APIHandler:
             body_json=body_json
         )
 
+    # List endpoints that return rows from every repository when no `repo` is given.
+    _REPO_SCOPED_LISTS = ("/api/decisions", "/api/timeline", "/api/artifacts", "/api/graph",
+                          "/api/decision-history")
+
     def handle_get(
+        self,
+        path: str,
+        query_params: Dict[str, List[str]],
+        headers: Optional[Dict[str, str]] = None
+    ) -> Dict[str, Any]:
+        res = self._handle_get(path, query_params, headers)
+        # Audit fix SEC-12: without a `repo` parameter these endpoints were authorised against the
+        # demo repository but returned rows from ALL repositories (including private ones).
+        if (path in self._REPO_SCOPED_LISTS and not query_params.get("repo", [None])[0]
+                and not query_params.get("decision_id", [None])[0] and isinstance(res, dict)):
+            allowed = self._get_accessible_repo_names(headers)
+            if allowed is not None:
+                res = _scope_to_repos(path, res, allowed)
+        return res
+
+    def _handle_get(
         self,
         path: str,
         query_params: Dict[str, List[str]],
@@ -236,41 +285,46 @@ class APIHandler:
                 db_status = f"error: {e}"
 
             uptime = round(time.time() - _SERVER_START_TIME, 1)
-            return {
+            public = {
                 "status": "success",
                 "backend_status": "online",
                 "uptime_seconds": uptime,
-                "database": {
-                    "status": db_status,
-                    "path": self.db.db_path,
-                    "tables": table_counts,
-                    "authoritative": True
-                },
-                "rate_limiter": rl_stats,
+                "database": {"status": "connected" if db_status == "connected" else "error"},
                 "version": "1.0.0",
                 "timestamp": dt_class.now(timezone.utc).isoformat()
             }
+            # Audit fix SEC-11: file paths, user/session counts and limiter internals are shown
+            # only to the administrator (CIF_ADMIN_TOKEN), not to anonymous callers.
+            from backend.security import authenticate_caller as _authenticate
+            # headers=None means an in-process caller (tests, tools); HTTP requests always pass a dict.
+            is_admin = headers is None or _authenticate(self.db, headers)[1]
+            if is_admin:
+                public["database"].update({"status": db_status, "path": self.db.db_path,
+                                           "tables": table_counts, "authoritative": True})
+                public["rate_limiter"] = rl_stats
+            return public
 
         # GitHub Proxy Endpoints (Approach 2: connect-src 'self' proxy)
         elif path == "/api/github-commits":
             repo = query_params.get("repo", [""])[0]
-            if not repo:
-                return {"status_code": 400, "status": "error", "message": "Missing 'repo' parameter"}
+            if not _valid_repo_slug(repo):
+                return {"status_code": 400, "status": "error", "error_code": "INVALID_REPO",
+                        "message": "Parameter 'repo' must look like 'owner/name'"}
             from backend.ingestion.live_github import LiveGitHubIngestor
             ingestor = LiveGitHubIngestor(self.db)
             status, commits, err = ingestor.fetch_commits(repo, max_count=100)
             if status != 200:
-                if "breathwise" in repo.lower():
-                    commits = ingestor._get_breathwise_fallback_commits()
-                    status = 200
-                else:
-                    return {"status_code": status, "status": "error", "message": err or "Failed to fetch GitHub commits"}
+                # Audit fix INT-02: no hard-coded fallback commits — report GitHub's real answer.
+                return {"status_code": status if 400 <= status < 600 else 502, "status": "error",
+                        "error_code": "GITHUB_UNAVAILABLE",
+                        "message": err or "Failed to fetch GitHub commits"}
             return {"status_code": 200, "status": "success", "commits": commits}
 
         elif path == "/api/github-tree":
             repo = query_params.get("repo", [""])[0]
-            if not repo:
-                return {"status_code": 400, "status": "error", "message": "Missing 'repo' parameter"}
+            if not _valid_repo_slug(repo):
+                return {"status_code": 400, "status": "error", "error_code": "INVALID_REPO",
+                        "message": "Parameter 'repo' must look like 'owner/name'"}
             from backend.ingestion.live_github import LiveGitHubIngestor
             ingestor = LiveGitHubIngestor(self.db)
             tree = ingestor.fetch_repo_tree(repo)
@@ -724,7 +778,8 @@ class APIHandler:
             from backend.ingestion.job_runner import IngestJobRunner
             runner = IngestJobRunner.get_instance(self.db)
             job = runner.get_job_status(job_id)
-            if not job:
+            if not job or not self._caller_owns_job(job_id, headers):
+                # Same answer for "missing" and "not yours", so job ids cannot be probed (SEC-10).
                 return {"status_code": 404, "status": "error", "message": f"Job '{job_id}' not found"}
             return {
                 "status_code": 200,
@@ -1376,13 +1431,10 @@ class APIHandler:
                 else:
                     reason = f"Human triage action: {action}"
 
-            # Record reviewer identity: token role + optional display name (Step 2.4)
-            token_role = get_authenticated_role(headers, client_ip)
-            display_name = (body.get("reviewer") or body.get("reviewer_name") or body.get("display_name") or "").strip()
-            if display_name:
-                actor = f"{token_role}:{display_name}"
-            else:
-                actor = body.get("actor") or token_role
+            # Audit fix AUD-01: the actor is the authenticated identity. It used to be a role name
+            # ("repo_review") or a client-supplied string, so the audit trail could be forged.
+            # An optional display name is kept, but only as an unverified label after the identity.
+            actor = self._actor_for(headers, client_ip, body)
 
             now_iso = dt_class.now(timezone.utc).isoformat()
 
@@ -1645,15 +1697,19 @@ class APIHandler:
             rule_id = body.get("rule_id")
             if not rule_id:
                 return {"status": "error", "message": "Missing 'rule_id'"}
-            success = self.db.update_guard_rule_status(rule_id, "active", approved_by="human_reviewer")
-            return {"status": "success", "rule_id": rule_id, "active": success}
+            success = self.db.update_guard_rule_status(rule_id, "active", approved_by=self._actor_for(headers, client_ip))
+            if not success:  # was reported as "success" even when nothing was updated
+                return {"status": "error", "status_code": 404, "message": f"Guard rule '{rule_id}' not found"}
+            return {"status": "success", "rule_id": rule_id, "active": True}
 
         elif path == "/api/guard-rules/disable":
             rule_id = body.get("rule_id")
             if not rule_id:
                 return {"status": "error", "message": "Missing 'rule_id'"}
-            success = self.db.update_guard_rule_status(rule_id, "disabled", approved_by="human_reviewer")
-            return {"status": "success", "rule_id": rule_id, "disabled": success}
+            success = self.db.update_guard_rule_status(rule_id, "disabled", approved_by=self._actor_for(headers, client_ip))
+            if not success:  # was reported as "success" even when nothing was updated
+                return {"status": "error", "status_code": 404, "message": f"Guard rule '{rule_id}' not found"}
+            return {"status": "success", "rule_id": rule_id, "disabled": True}
 
 
         # 2. Live Drift Check (Section 8.3 & Step 3.5 Rejected-Idea Guard)
@@ -1711,9 +1767,18 @@ class APIHandler:
         elif path == "/api/ingest-repo":
             repo_input = body.get("repo", "")
             token = body.get("token") or os.environ.get("GITHUB_TOKEN", None)
-            clear_first = body.get("clear_existing", False)
-            max_commits = int(body.get("max_commits", 25))
-            max_issues = int(body.get("max_issues", 15))
+            clear_first = bool(body.get("clear_existing", False))
+            if not isinstance(repo_input, str) or not repo_input.strip():
+                return {"status": "error", "status_code": 400, "message": "Missing required field: repo"}
+            try:
+                max_commits = int(body.get("max_commits", 25))
+                max_issues = int(body.get("max_issues", 15))
+            except (TypeError, ValueError):
+                return {"status": "error", "status_code": 400,
+                        "message": "max_commits and max_issues must be integers"}
+            if not (1 <= max_commits <= 500 and 0 <= max_issues <= 500):
+                return {"status": "error", "status_code": 400,
+                        "message": "max_commits must be 1-500 and max_issues 0-500"}
 
             if os.getenv("CIF_LOCAL_ONLY", "0").lower() in ("1", "true", "yes"):
                 # In local-only mode, only local directories are allowed
@@ -1735,8 +1800,13 @@ class APIHandler:
                 )
                 self._register_ingested_repo(stats, headers, client_ip)
                 return {"status": "success", "message": f"Successfully ingested {stats['repo']}!", "data": stats}
-            except Exception as e:
-                return {"status": "error", "message": str(e)}
+            except ValueError as e:
+                # Expected, user-facing problems (bad slug, repo not found, rate limited by GitHub).
+                return {"status": "error", "status_code": 400, "message": str(e)}
+            except Exception:
+                api_logger.exception("Ingestion of %r failed", repo_input)
+                return {"status": "error", "status_code": 502,
+                        "message": "Ingestion failed unexpectedly; see the server log for details"}
 
         # 5. Clear Database (Empty Canvas)
         elif path == "/api/clear-db":
@@ -1777,9 +1847,7 @@ class APIHandler:
             reason = (body.get("reason") or "").strip()
             pr_id = body.get("pr_id", "")
             decision_id = body.get("decision_id", "")
-            token_role = get_authenticated_role(headers, client_ip)
-            display_name = (body.get("reviewer") or body.get("reviewer_name") or body.get("display_name") or "").strip()
-            actor = f"{token_role}:{display_name}" if display_name else (body.get("actor") or token_role)
+            actor = self._actor_for(headers, client_ip, body)  # audit fix AUD-01
 
             if not finding_id or not action:
                 return {"status": "error", "status_code": 400, "message": "Missing required fields: finding_id, action"}
@@ -1875,6 +1943,8 @@ class APIHandler:
                 job_id = parts[2]
                 from backend.ingestion.job_runner import IngestJobRunner
                 runner = IngestJobRunner.get_instance(self.db)
+                if not self._caller_owns_job(job_id, headers, client_ip):  # audit fix SEC-10
+                    return {"status_code": 404, "status": "error", "message": f"Job '{job_id}' not found or cannot be cancelled"}
                 ok = runner.cancel_job(job_id)
                 if ok:
                     return {"status_code": 200, "status": "success", "message": f"Job '{job_id}' cancelled"}
@@ -2440,3 +2510,29 @@ class APIHandler:
             }
 
         return {"status": "error", "message": f"Endpoint not found: DELETE {path}", "status_code": 404}
+
+
+_REPO_SLUG_RE = __import__("re").compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})/[A-Za-z0-9._-]{1,100}$")
+
+
+def _valid_repo_slug(repo: Any) -> bool:
+    """GitHub 'owner/name' only — no path segments, query strings or '..' (SEC-07)."""
+    return isinstance(repo, str) and bool(_REPO_SLUG_RE.match(repo)) and ".." not in repo
+
+
+def _scope_to_repos(path: str, res: Dict[str, Any], allowed: Set[str]) -> Dict[str, Any]:
+    """Removes rows belonging to repositories outside `allowed` from a list response."""
+    data = res.get("data")
+    if path == "/api/graph" and isinstance(data, dict):
+        nodes = [n for n in data.get("nodes", []) if n.get("repo") in allowed]
+        keep = {n.get("id") for n in nodes}
+        links = [l for l in data.get("links", [])
+                 if (l.get("source") if not isinstance(l.get("source"), dict) else l["source"].get("id")) in keep
+                 and (l.get("target") if not isinstance(l.get("target"), dict) else l["target"].get("id")) in keep]
+        res["data"] = {**data, "nodes": nodes, "links": links}
+    elif path == "/api/decision-history" and isinstance(data, dict) and "audit_log" in data:
+        log = [h for h in data["audit_log"] if h.get("decision_repo") in allowed]
+        res["data"] = {**data, "audit_log": log, "total_count": len(log)}
+    elif isinstance(data, list):
+        res["data"] = [row for row in data if not isinstance(row, dict) or row.get("repo") in allowed]
+    return res

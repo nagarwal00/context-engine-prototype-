@@ -10,16 +10,14 @@ Environment variables (all optional):
   GITHUB_TOKEN    - Personal access token for GitHub API calls
 """
 import datetime
-import hashlib
+import hmac
 import http.server
 import json
 import os
-import re
 import sys
 import time
 import urllib.parse
 import uuid
-import zlib
 from backend.db import Database
 from backend.api import APIHandler
 from backend.seed_data import populate_seed_data
@@ -60,14 +58,43 @@ DB_PATH = os.environ.get("CIF_DB_PATH", _default_db)
 WEB_DIR = os.path.join(os.path.dirname(__file__), "web")
 
 
+LOOPBACK_HOSTS = ("127.0.0.1", "localhost", "::1")
+
+
 def check_bind_safety(host: str) -> None:
-    """Refuses to bind on non-loopback addresses unless CIF_ADMIN_TOKEN is configured."""
-    admin_token = os.environ.get("CIF_ADMIN_TOKEN", "").strip()
-    if host not in ("127.0.0.1", "localhost", "::1") and not admin_token:
+    """Refuses to expose a dev-mode server beyond loopback (audit fix SEC-06).
+
+    In dev mode every loopback caller is treated as an administrator. Behind a reverse proxy
+    or port-forward running on the same machine, *every* remote visitor would appear to come
+    from 127.0.0.1 — so a dev-mode server must never listen on a public interface.
+    (Previously a second, print-only definition of this function silently replaced this check.)
+    """
+    if host in LOOPBACK_HOSTS:
+        return
+    if os.environ.get("CIF_DEV_MODE", "0").strip() == "1":
         raise SystemExit(
-            f"Security Error: Refusing to bind on '{host}' without CIF_ADMIN_TOKEN configured. "
-            "Set CIF_ADMIN_TOKEN or bind to 127.0.0.1."
+            f"Security Error: refusing to bind on '{host}' while CIF_DEV_MODE=1. "
+            "Dev mode grants admin rights to loopback callers; bind to 127.0.0.1 or disable dev mode."
         )
+    print(f"[SECURITY] Listening on public interface {host}. Use HTTPS and a firewall in production.")
+
+
+def _same_origin_ok(origin: str, host_header: str = "") -> bool:
+    """True when `origin` is this server's own origin or an explicitly allow-listed one.
+
+    "Own origin" means either CIF_BASE_URL or the Host the request was actually sent to, so the
+    server works on any port without extra configuration. A cross-site page cannot make its
+    Origin equal the victim server's Host; DNS-rebinding (attacker domain pointed at 127.0.0.1)
+    is refused by the dev-mode Host check, and without dev mode such a page has no session cookie.
+    """
+    from backend.auth.sessions import validate_csrf_origin
+    from backend.config import get_config
+    if validate_csrf_origin(origin, get_config().get_base_url()):
+        return True
+    netloc = urllib.parse.urlparse(origin).netloc.lower()
+    if host_header and netloc and netloc == host_header.strip().lower():
+        return True
+    return get_cors_origin(origin) is not None
 
 
 class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
@@ -80,18 +107,77 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         set_request_id(self._request_id)
 
     def _get_client_key(self) -> str:
-        auth_hdr = self.headers.get("Authorization", "")
-        if auth_hdr.lower().startswith("bearer "):
-            token = auth_hdr.split(" ", 1)[1].strip()
-            if token:
-                return f"user:{hashlib.sha256(token.encode('utf-8')).hexdigest()[:16]}"
-        cookie_hdr = self.headers.get("Cookie", "")
-        if "cif_session=" in cookie_hdr:
-            match = re.search(r"cif_session=([a-zA-Z0-9_\-\.]+)", cookie_hdr)
-            if match:
-                return f"user:{hashlib.sha256(match.group(1).encode('utf-8')).hexdigest()[:16]}"
+        """Rate-limit bucket key (audit fix SEC-05).
+
+        A per-user bucket is used only when the presented credential is a *valid* session or
+        the admin token. Previously any string in the Authorization header or cookie got its
+        own bucket, so rotating fake tokens bypassed the limit entirely.
+        """
         client_ip = self.client_address[0] if hasattr(self, "client_address") else "127.0.0.1"
+        try:
+            from backend.auth.sessions import extract_session_token, get_session
+            headers_dict = {k: v for k, v in self.headers.items()}
+            token, _ = extract_session_token(headers_dict)
+            if token:
+                admin_token = os.environ.get("CIF_ADMIN_TOKEN", "").strip()
+                if admin_token and hmac.compare_digest(token.encode(), admin_token.encode()):
+                    return "user:admin"
+                session = get_session(self.server.api_handler.db, token)
+                if session:
+                    return f"user:{session['user_id']}"
+        except Exception:
+            server_logger.exception("Rate-limit key lookup failed; falling back to client IP")
         return f"ip:{client_ip}"
+
+    def _reject(self, status: int, error_code: str, message: str) -> bool:
+        self._send_json({"status": "error", "error_code": error_code, "message": message}, status=status)
+        return False
+
+    def _guard_request(self, parsed_path: str) -> bool:
+        """Host / CSRF / content-type checks for /api and /auth requests (audit fix SEC-02).
+
+        1. DNS-rebinding: in dev mode loopback callers are admins, so the Host header must be a
+           loopback name too (an attacker domain re-pointed at 127.0.0.1 is refused).
+        2. CSRF: a state-changing request authenticated *ambiently* (session cookie or dev-mode
+           IP) must come from this site. Requests carrying an Authorization header cannot be
+           forged cross-site without a CORS preflight, which this server never grants to
+           unknown origins, so they are exempt.
+        3. A non-empty POST body must be declared application/json, which turns every cross-site
+           write into a preflighted request (closes the text/plain "simple request" vector).
+        """
+        if not (parsed_path.startswith("/api/") or parsed_path.startswith("/auth/")):
+            return True
+        if os.environ.get("CIF_DEV_MODE", "0").strip() == "1":
+            host = (self.headers.get("Host") or "").strip().lower()
+            hostname = host.rsplit(":", 1)[0] if not host.startswith("[") else host.split("]")[0] + "]"
+            if hostname not in ("127.0.0.1", "localhost", "[::1]", "::1"):
+                return self._reject(403, "HOST_NOT_ALLOWED",
+                                    "Dev mode only accepts requests addressed to localhost")
+        if self.command in ("POST", "PUT", "PATCH", "DELETE"):
+            if parsed_path == "/api/webhook/github":
+                return True  # authenticated by HMAC signature, not ambient credentials
+            if not self.headers.get("Authorization"):
+                origin = self.headers.get("Origin")
+                if not origin and self.headers.get("Referer"):
+                    ref = urllib.parse.urlparse(self.headers.get("Referer"))
+                    origin = f"{ref.scheme}://{ref.netloc}"
+                if origin and not _same_origin_ok(origin, self.headers.get("Host") or ""):
+                    return self._reject(403, "CSRF_ORIGIN_MISMATCH",
+                                        "Cross-site request refused: Origin does not match this server")
+                if not origin and "cif_session=" in (self.headers.get("Cookie") or ""):
+                    # Browsers always send Origin on fetch/form POSTs; a cookie without it is suspect.
+                    return self._reject(403, "CSRF_ORIGIN_MISSING",
+                                        "Cookie-authenticated requests must include an Origin header")
+            try:
+                content_len = int(self.headers.get("Content-Length", 0) or 0)
+            except ValueError:
+                content_len = 0
+            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            # (Bodies over the limit fall through to the 413 handler, which drains them.)
+            if self.command == "POST" and 0 < content_len <= MAX_BODY_SIZE and ctype != "application/json":
+                return self._reject(415, "UNSUPPORTED_MEDIA_TYPE",
+                                    "Request body must be JSON (Content-Type: application/json)")
+        return True
 
     def _check_rate_limit(self, path: str) -> bool:
         clean_path = path.split("?")[0].rstrip("/")
@@ -122,14 +208,6 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             return False
         return True
 
-    def end_headers(self):
-        parsed = urllib.parse.urlparse(self.path)
-        if parsed.path.endswith(".html") or parsed.path.endswith(".css") or parsed.path.endswith(".js") or parsed.path in ("", "/"):
-            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
-            self.send_header("Pragma", "no-cache")
-            self.send_header("Expires", "0")
-        super().end_headers()
-
     def _send_redirect(self, location: str, extra_headers: dict = None, status: int = 302):
         try:
             req_id = getattr(self, "_request_id", None) or str(uuid.uuid4())
@@ -148,10 +226,37 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
-    def do_GET(self):
+    def _safe_dispatch(self, handler):
+        """Runs a request handler; any unexpected exception becomes a JSON 500 (audit fix APP-02).
+
+        Previously an exception escaped into http.server, which closed the connection without a
+        status line, so the browser saw an empty reply and the frontend silently fell back to
+        mock data. The traceback is logged server-side only; the client gets the request id.
+        """
         self._init_request_context()
+        try:
+            handler()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+        except Exception:
+            server_logger.exception("Unhandled error while serving %s %s", self.command, self.path)
+            try:
+                self._send_json({
+                    "status": "error",
+                    "error_code": "INTERNAL_ERROR",
+                    "message": "Internal server error. Quote the request_id when reporting this problem.",
+                }, status=500)
+            except Exception:
+                pass
+
+    def do_GET(self):
+        self._safe_dispatch(self._handle_GET)
+
+    def _handle_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         if not self._check_rate_limit(parsed.path):
+            return
+        if not self._guard_request(parsed.path):
             return
         if parsed.path in ("/healthz", "/api/healthz"):
             res = self.server.api_handler.handle_get(parsed.path, {}, headers={})
@@ -204,7 +309,18 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif parsed.path == "/auth/demo/login":
-                next_path = params.get("next", ["/dashboard.html"])[0]
+                # Shared, password-less demo account (no admin rights). Can be switched off
+                # with CIF_DEMO_LOGIN=0. Audit fix SEC-04: `next` is validated so this endpoint
+                # can no longer be used as an open redirect to another site.
+                if os.environ.get("CIF_DEMO_LOGIN", "1").strip() == "0":
+                    self._send_json({"status": "error", "error_code": "DEMO_LOGIN_DISABLED",
+                                     "message": "Demo login is disabled on this server"}, status=403)
+                    return
+                from backend.auth.github_login import validate_next_path
+                try:
+                    next_path = validate_next_path(params.get("next", ["/dashboard.html"])[0])
+                except ValueError:
+                    next_path = "/dashboard.html"
                 now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
                 with self.server.api_handler.db.get_connection() as conn:
                     user_row = conn.execute("SELECT user_id FROM users WHERE login = 'demo-developer'").fetchone()
@@ -212,10 +328,13 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                         user_id = user_row["user_id"]
                         conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_str, user_id))
                     else:
+                        # Negative github_id: can never collide with a real GitHub account id.
+                        lowest = conn.execute("SELECT MIN(github_id) FROM users").fetchone()[0]
+                        demo_gh_id = min(int(lowest or 0), 0) - 1
                         cur = conn.execute("""
                         INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
-                        VALUES (?, ?, ?, ?, ?)
-                        """, (999999, "demo-developer", "https://avatars.githubusercontent.com/u/583231?v=4", now_str, now_str))
+                        VALUES (?, ?, '', ?, ?)
+                        """, (demo_gh_id, "demo-developer", now_str, now_str))
                         user_id = cur.lastrowid
                 from backend.auth.sessions import create_session, build_session_cookie
                 from backend.config import get_config
@@ -282,23 +401,20 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
-        self._init_request_context()
+        self._safe_dispatch(self._handle_POST)
+
+    def _handle_POST(self):
         parsed = urllib.parse.urlparse(self.path)
         if not self._check_rate_limit(parsed.path):
+            return
+        if not self._guard_request(parsed.path):
             return
         params = urllib.parse.parse_qs(parsed.query)
         headers_dict = {k: v for k, v in self.headers.items()}
         client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
 
-        # CSRF check: state-changing cookie requests must carry matching Origin
-        from backend.auth.sessions import extract_session_token, validate_csrf_origin
-        from backend.config import get_config
-        _, auth_type = extract_session_token(headers_dict)
-        if auth_type == "cookie":
-            origin = self.headers.get("Origin")
-            if not validate_csrf_origin(origin, get_config().get_base_url()):
-                self._send_json({"status": "error", "message": "CSRF check failed: Origin header mismatch"}, status=403)
-                return
+        # CSRF / content-type checks are done for every state-changing request in _guard_request.
+        from backend.auth.sessions import extract_session_token
 
         if parsed.path.startswith("/auth/"):
             try:
@@ -326,8 +442,14 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             raw_body = self.rfile.read(content_len) if content_len > 0 else b"{}"
             try:
                 body_json = json.loads(raw_body.decode("utf-8")) if raw_body else {}
-            except Exception:
-                body_json = {}
+            except (ValueError, UnicodeDecodeError):
+                self._send_json({"status": "error", "error_code": "INVALID_JSON",
+                                 "message": "Invalid JSON in request body"}, status=400)
+                return
+            if not isinstance(body_json, dict):
+                self._send_json({"status": "error", "error_code": "INVALID_JSON",
+                                 "message": "Invalid JSON: body must be an object"}, status=400)
+                return
 
             if parsed.path in ("/auth/extension/exchange", "/auth/token/exchange", "/api/auth/token/exchange"):
                 from backend.auth.sessions import exchange_extension_code
@@ -350,29 +472,25 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 return
 
             elif parsed.path in ("/auth/login", "/auth/register", "/api/auth/login", "/api/auth/register"):
-                username = (body_json.get("username") or body_json.get("login") or "").strip()
-                if not username:
-                    self._send_json({"status": "error", "message": "Username is required"}, status=400)
-                    return
-                if not re.match(r"^[a-zA-Z0-9_\-\.@+]+$", username):
-                    self._send_json({"status": "error", "message": "Invalid characters in username"}, status=400)
-                    return
-
-                is_register = parsed.path.endswith("/register") or body_json.get("action") == "register"
-                now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
-                with self.server.api_handler.db.get_connection() as conn:
-                    user_row = conn.execute("SELECT user_id, login FROM users WHERE login = ?", (username,)).fetchone()
-                    if user_row:
-                        user_id = user_row["user_id"]
-                        conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_str, user_id))
+                # Audit fix SEC-01: real username + password verification (backend/auth/local_accounts.py).
+                from backend.auth.local_accounts import (
+                    AccountError, authenticate_local_user, register_local_user)
+                username = body_json.get("username") or body_json.get("login")
+                password = body_json.get("password")
+                is_register = parsed.path.endswith("/register")
+                try:
+                    if is_register:
+                        account = register_local_user(self.server.api_handler.db, username, password)
                     else:
-                        synthetic_github_id = 100000 + (zlib.crc32(username.encode("utf-8")) % 8900000)
-                        avatar = f"https://avatars.githubusercontent.com/u/{synthetic_github_id}?v=4"
-                        cur = conn.execute("""
-                        INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
-                        VALUES (?, ?, ?, ?, ?)
-                        """, (synthetic_github_id, username, avatar, now_str, now_str))
-                        user_id = cur.lastrowid
+                        account = authenticate_local_user(self.server.api_handler.db, username, password)
+                except AccountError as err:
+                    if err.status == 401:
+                        server_logger.warning("Failed local sign-in attempt from %s", self.client_address[0])
+                    self._send_json({"status": "error", "error_code": "AUTH_FAILED" if err.status == 401
+                                     else "INVALID_ACCOUNT_REQUEST", "message": err.message}, status=err.status)
+                    return
+                user_id = account["user_id"]
+                username = account["login"]
 
                 from backend.auth.sessions import create_session, build_session_cookie
                 from backend.config import get_config
@@ -462,18 +580,19 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self.send_error(404, "Endpoint not found")
 
     def do_DELETE(self):
-        self._init_request_context()
+        self._safe_dispatch(self._handle_DELETE)
+
+    def _handle_DELETE(self):
         parsed = urllib.parse.urlparse(self.path)
         if not self._check_rate_limit(parsed.path):
+            return
+        if not self._guard_request(parsed.path):
             return
         client_ip = self.client_address[0]
         headers_dict = {k: v for k, v in self.headers.items()}
 
-        # Enforce CSRF Origin check if authenticated via cookie
-        csrf_ok, csrf_status, csrf_msg = enforce_csrf_for_cookie(headers_dict, parsed.path)
-        if not csrf_ok:
-            self._send_json({"status": "error", "message": csrf_msg}, status=csrf_status)
-            return
+        # Audit fix APP-01: this used to call an undefined `enforce_csrf_for_cookie`, so every
+        # DELETE raised NameError. The CSRF check now happens in _guard_request (above).
 
         ok, status_code, message = self.server.api_handler.check_authorization(
             "DELETE", parsed.path, headers_dict, client_ip
@@ -542,7 +661,13 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
     def end_headers(self):
+        # (Previously defined twice; the first definition with these cache headers was dead code.)
+        parsed = urllib.parse.urlparse(self.path)
+        if parsed.path.endswith((".html", ".css", ".js")) or parsed.path in ("", "/"):
+            self.send_header("Cache-Control", "no-cache, no-store, must-revalidate")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "same-origin")
         self.send_header(
             "Content-Security-Policy",
             "default-src 'self'; script-src 'self' 'unsafe-inline'; "
@@ -564,10 +689,6 @@ if hasattr(sys.stdout, "reconfigure"):
     except Exception:
         pass
 
-
-def check_bind_safety(bind_host: str) -> None:
-    if bind_host in ("0.0.0.0", "::"):
-        print(f"[SECURITY] Bound to public interface {bind_host}. Ensure firewall is active.")
 
 def run():
     print("=" * 70)

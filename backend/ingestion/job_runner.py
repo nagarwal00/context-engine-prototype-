@@ -560,29 +560,30 @@ class IngestJobRunner:
                 ORDER BY ts ASC;
                 """, (repo_full_name, repo_full_name)).fetchall()
 
+            # Audit fix ALG-05: this phase used its own substring keyword rules ("fix" matched
+            # "prefix"; every commit became an accepted decision). It now uses the same
+            # DecisionExtractor that ingest-repo and the WhyBench evaluation use, so the
+            # reported benchmark describes what users actually get.
             for ev_row in events_rows:
                 if self.is_cancelled(job_id):
                     return
-                text = f"{ev_row['title']} {ev_row['body']}".lower()
-                if any(w in text for w in ("feat", "fix", "refactor", "decid", "switch", "architect", "drop", "replace", "reopen")):
-                    dec_id = f"dec_{repo_full_name.replace('/', '_')}_{ev_row['event_id'][-8:]}"
-                    title_clean = ev_row["title"].replace("feat:", "").replace("fix:", "").strip()[:80]
-                    state = "accepted" if "feat" in text or "fix" in text or ev_row["source_type"] == "git_commit" else "proposed"
-
-                    dec = Decision(
-                        decision_id=dec_id,
-                        title=title_clean or f"Decision for {repo_full_name}",
-                        state=state,
-                        made_by=ev_row["author"],
-                        made_at=ev_row["ts"],
-                        artifacts_affected=json.loads(ev_row["artifacts_touched"]) if ev_row["artifacts_touched"] else [],
-                        alternatives_considered=[],
-                        rationale=sanitize_text(ev_row["body"][:300] or "Extracted from repository change history."),
-                        evidence_event_ids=[ev_row["event_id"]],
-                        confidence=0.85 if state == "accepted" else 0.75,
-                        review_status="auto_confirmed" if state == "accepted" else "pending_review",
-                        repo=repo_full_name
-                    )
+                event = Event(
+                    event_id=ev_row["event_id"],
+                    source_type=ev_row["source_type"],
+                    source_id=ev_row["source_id"],
+                    source_url=ev_row["source_url"],
+                    repo=ev_row["repo"],
+                    author=ev_row["author"],
+                    timestamp=ev_row["ts"],
+                    title=ev_row["title"] or "",
+                    body=ev_row["body"] or "",
+                    artifacts_touched=json.loads(ev_row["artifacts_touched"]) if ev_row["artifacts_touched"] else [],
+                    parent_event_ids=json.loads(ev_row["parent_event_ids"]) if ev_row["parent_event_ids"] else [],
+                    raw_metadata=json.loads(ev_row["raw_metadata"]) if ev_row["raw_metadata"] else {},
+                )
+                for dec in extractor.extract_from_event_bundle(
+                        bundle_name=event.source_id, events=[event], repo=repo_full_name,
+                        target_entities=event.artifacts_touched):
                     self.db.upsert_decision(dec)
                     progress["counts"]["decisions"] += 1
 

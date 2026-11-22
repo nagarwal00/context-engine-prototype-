@@ -5,6 +5,7 @@ and emits normalized Event records with validated source_url.
 """
 from typing import List, Dict, Any, Optional
 import re
+from backend.ingestion.urls import citation_url
 from backend.models import Event
 from backend.db import Database
 from backend.ingestion.identity import IdentityResolver
@@ -28,7 +29,7 @@ class GitAdapter:
         parent_shas: Optional[List[str]] = None
     ) -> Event:
         author_canonical = self.identity_resolver.resolve(author_raw)
-        source_url = f"https://github.com/{repo}/commit/{commit_sha}"
+        source_url = citation_url(repo, "commit", commit_sha)
 
         # Parse title from first line of commit message
         lines = message.strip().split("\n")

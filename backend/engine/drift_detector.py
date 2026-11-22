@@ -437,11 +437,20 @@ class DriftDetector:
 
         finding_id = f"finding_{rule_id[:12]}_{lineno}_{uuid.uuid4().hex[:6]}"
 
+        decision_title = None
+        try:
+            with self.db.get_connection() as conn:
+                row = conn.execute("SELECT title FROM decisions WHERE decision_id = ?", (decision_id,)).fetchone()
+                decision_title = row["title"] if row else None
+        except Exception:
+            decision_title = None
+
         return {
             "finding_id": finding_id,
             "status": "potential_violation",
             "rule_id": rule_id,
             "decision_id": decision_id,
+            "decision_title": decision_title,
             "file": filepath,
             "line_number": lineno,
             "line_numbers": [lineno],
