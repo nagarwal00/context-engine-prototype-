@@ -1,6 +1,7 @@
 """
 Database-level evidence invariant (audit fix DB-01, migration 008 / backend/integrity.py).
 """
+import contextlib
 import os
 import sqlite3
 import sys
@@ -18,17 +19,26 @@ from backend.seed_data import populate_seed_data
 class EvidenceInvariantTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
+        # Registered immediately so the folder is removed even if the rest of setUp fails.
+        self.addCleanup(self.tmp.cleanup)
         self.path = os.path.join(self.tmp.name, "integrity.db")
         self.db = Database(self.path)
         populate_seed_data(self.db)
 
-    def tearDown(self):
-        self.tmp.cleanup()
-
+    @contextlib.contextmanager
     def _conn(self):
-        conn = sqlite3.connect(self.path)
-        conn.execute("PRAGMA foreign_keys = ON")
-        return conn
+        """Open the test database and ALWAYS close it.
+
+        sqlite3's own `with conn:` only commits or rolls back — it never closes the connection.
+        The previous version returned a bare connection used as `with self._conn() as conn:`,
+        so every connection stayed open until garbage collection. On Windows an open SQLite file
+        cannot be deleted, so TemporaryDirectory.cleanup() failed in tearDown with
+        PermissionError [WinError 32], which tempfile then reported as NotADirectoryError
+        [WinError 267] on .../integrity.db (6 errors, one per test that used this helper).
+        """
+        with contextlib.closing(sqlite3.connect(self.path)) as conn, conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            yield conn
 
     def _single_evidence_accepted(self, conn):
         return conn.execute("""

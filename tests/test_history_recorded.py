@@ -7,6 +7,7 @@ Implements Step 2.3 of docs/process/ANTIGRAVITY_HANDOFF_V2.md:
 4. Database save_decision enforces valid transitions and records audit entries.
 5. Migration 002 is idempotent.
 """
+import contextlib
 import os
 import shutil
 import tempfile
@@ -228,7 +229,7 @@ class TestHistoryRecorded(unittest.TestCase):
     def test_migration_002_idempotency(self):
         """Applying migration 002 repeatedly is a safe no-op."""
         # Database already initialized migrations up to latest
-        with sqlite3.connect(self.db_path) as conn:
+        with contextlib.closing(sqlite3.connect(self.db_path)) as conn, conn:  # always closed (Windows can\'t delete open DB files)
             applied = migration_runner.run_migrations(conn)
             self.assertEqual(len(applied), 0)  # None pending
 
