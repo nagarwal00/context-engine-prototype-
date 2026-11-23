@@ -221,6 +221,22 @@ def _resolve_object_repos(
             row = conn.execute("SELECT repo FROM decisions WHERE decision_id = ?", (dec_id,)).fetchone()
             if row:
                 repos.add(row["repo"])
+        # Review-queue items act on edges (conflict / drift / supersession candidate) and ambiguous
+        # findings via `target_id`. Without this, those ids fell back to the demo repository and
+        # actions on another repository's edges or findings were authorized against the demo repo.
+        target_id = _first(query_params, body_json, "target_id", "edge_id")
+        if target_id:
+            row = conn.execute("SELECT from_id, from_type, to_id, to_type, repo_full_name FROM edges "
+                               "WHERE edge_id = ?", (target_id,)).fetchone()
+            if row:
+                repo = row["repo_full_name"] or Database.resolve_edge_repo(
+                    conn, row["from_id"], row["from_type"], row["to_id"], row["to_type"])
+                if repo:
+                    repos.add(repo)
+            row = conn.execute("SELECT repo FROM ambiguous_findings WHERE finding_id = ?", (target_id,)).fetchone()
+            if row and row["repo"]:
+                repos.add(row["repo"])
+
         rule_id = _first(query_params, body_json, "rule_id")
         if rule_id:
             row = conn.execute(

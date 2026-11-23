@@ -100,6 +100,11 @@ ROUTE_ROLES: Dict[Tuple[str, str], str] = {
     ("POST", "/api/webhook/github"): ROLE_PUBLIC,
 }
 
+# Item types produced by GET /api/review-queue and accepted by POST /api/review-action.
+_REVIEW_ITEM_TYPES = {"decision", "stale_decision", "conflict", "drift",
+                      "supersession_candidate", "possible_rejected_idea"}
+
+
 class APIHandler:
     def __init__(self, db: Database):
         self.db = db
@@ -453,7 +458,7 @@ class APIHandler:
                     cursor.execute(f"""
                     SELECT * FROM decisions
                     WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
-                      AND review_status NOT IN ('human_rejected', 'human_confirmed')
+                      AND review_status NOT IN ('human_rejected', 'human_confirmed', 'human_corrected', 'human_merged')
                       AND (repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND repo IN ({placeholders})))
                     ORDER BY confidence ASC
                     """, list(target_repos) + list(target_repos))
@@ -461,7 +466,7 @@ class APIHandler:
                     cursor.execute("""
                     SELECT * FROM decisions
                     WHERE (confidence < 0.90 OR review_status = 'pending_review' OR evidence_assessment IN ('weak', 'insufficient', 'contradicted'))
-                      AND review_status NOT IN ('human_rejected', 'human_confirmed')
+                      AND review_status NOT IN ('human_rejected', 'human_confirmed', 'human_corrected', 'human_merged')
                     ORDER BY confidence ASC
                     """)
                 for r in cursor.fetchall():
@@ -476,15 +481,16 @@ class APIHandler:
                     else:
                         d["queue_reason"] = f"Low extraction confidence ({round(d['confidence']*100)}%) or pending review"
                     d["item_type"] = "decision"
+                    d["target_id"] = d["decision_id"]  # the id POST /api/review-action expects
                     seen_decision_ids.add(d["decision_id"])
                     queue.append(d)
 
                 # Conflicts
                 if target_repos is not None:
                     placeholders = ",".join("?" for _ in target_repos)
-                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'conflicts_with' AND (repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND from_id IN (SELECT decision_id FROM decisions WHERE repo_full_name IN ({placeholders}))))", list(target_repos) + list(target_repos))
+                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'conflicts_with' AND edge_id NOT IN (SELECT finding_id FROM finding_feedback WHERE finding_type = 'conflict') AND (repo_full_name IN ({placeholders}) OR (repo_full_name IS NULL AND from_id IN (SELECT decision_id FROM decisions WHERE repo_full_name IN ({placeholders}))))", list(target_repos) + list(target_repos))
                 else:
-                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'conflicts_with'")
+                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'conflicts_with' AND edge_id NOT IN (SELECT finding_id FROM finding_feedback WHERE finding_type = 'conflict')")
                 for r in cursor.fetchall():
                     ed = dict(r)
                     cursor.execute("SELECT title, made_by FROM decisions WHERE decision_id = ?", (ed["from_id"],))
@@ -493,6 +499,7 @@ class APIHandler:
                     d2 = cursor.fetchone()
                     queue.append({
                         "item_type": "conflict",
+                        "target_id": ed["edge_id"],
                         "edge_id": ed["edge_id"],
                         "from_id": ed["from_id"],
                         "to_id": ed["to_id"],
@@ -506,9 +513,9 @@ class APIHandler:
                 # Drifts
                 if target_repos is not None:
                     placeholders = ",".join("?" for _ in target_repos)
-                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'drifts_from' AND repo_full_name IN ({placeholders})", list(target_repos))
+                    cursor.execute(f"SELECT * FROM edges WHERE edge_type = 'drifts_from' AND edge_id NOT IN (SELECT finding_id FROM finding_feedback WHERE finding_type = 'drift') AND repo_full_name IN ({placeholders})", list(target_repos))
                 else:
-                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'drifts_from'")
+                    cursor.execute("SELECT * FROM edges WHERE edge_type = 'drifts_from' AND edge_id NOT IN (SELECT finding_id FROM finding_feedback WHERE finding_type = 'drift')")
                 for r in cursor.fetchall():
                     ed = dict(r)
                     cursor.execute("SELECT canonical_path FROM entities WHERE entity_id = ?", (ed["from_id"],))
@@ -517,6 +524,7 @@ class APIHandler:
                     dec = cursor.fetchone()
                     queue.append({
                         "item_type": "drift",
+                        "target_id": ed["edge_id"],
                         "edge_id": ed["edge_id"],
                         "entity_id": ed["from_id"],
                         "decision_id": ed["to_id"],
@@ -541,6 +549,7 @@ class APIHandler:
                     d2 = cursor.fetchone()
                     queue.append({
                         "item_type": "supersession_candidate",
+                        "target_id": ed["edge_id"],
                         "edge_id": ed["edge_id"],
                         "from_id": ed["from_id"],
                         "to_id": ed["to_id"],
@@ -558,6 +567,7 @@ class APIHandler:
                 for af in pending_ambiguous:
                     queue.append({
                         "item_type": "possible_rejected_idea",
+                        "target_id": af["finding_id"],
                         "finding_id": af["finding_id"],
                         "decision_id": af["decision_id"],
                         "pr_id": af["pr_id"],
@@ -576,6 +586,7 @@ class APIHandler:
                 if target_repos is not None:
                     stale_items = [si for si in stale_items if si.get("repo") in target_repos or si.get("repo_full_name") in target_repos]
                 for si in stale_items:
+                    si["target_id"] = si.get("decision_id")
                     queue.append(si)
 
             return {"status": "success", "data": queue}
@@ -1438,6 +1449,15 @@ class APIHandler:
 
             now_iso = dt_class.now(timezone.utc).isoformat()
 
+            # Review-queue fix: an unknown item type used to fall through to a generic "success".
+            if item_type not in _REVIEW_ITEM_TYPES:
+                return {"status": "error", "status_code": 400,
+                        "message": f"Unknown item_type '{item_type}'. Expected one of: {', '.join(sorted(_REVIEW_ITEM_TYPES))}"}
+            # A stale decision is selected by its freshness; confirming it means "still valid", which
+            # is the existing 'revalidate' operation (setting review_status alone never cleared it).
+            if item_type == "stale_decision" and action == "confirm":
+                action = "revalidate"
+
             with self.db.get_connection() as conn:
                 cursor = conn.cursor()
 
@@ -1620,9 +1640,33 @@ class APIHandler:
                         }
 
                 elif item_type in ("conflict", "drift"):
-                    if action in ("confirm", "reject"):
+                    # Review-queue fix: previously both buttons deleted whatever edge id was sent and
+                    # reported success even when nothing matched (the dashboard sent a decision id for
+                    # drift items). Now: the edge must exist; Confirm keeps the edge (the conflict/drift
+                    # is real) and records the verdict; Reject removes it as a false positive and
+                    # records that. The queue hides edges that already carry a verdict.
+                    edge_type = "conflicts_with" if item_type == "conflict" else "drifts_from"
+                    cursor.execute("SELECT * FROM edges WHERE edge_id = ? AND edge_type = ?", (target_id, edge_type))
+                    edge_row = cursor.fetchone()
+                    if not edge_row:
+                        return {"status": "error", "status_code": 404,
+                                "message": f"No {item_type} item with id '{target_id}'"}
+                    if action == "confirm":
+                        verdict = "confirm"
+                    elif action in ("reject", "dismiss"):
+                        verdict = "dismiss"
                         cursor.execute("DELETE FROM edges WHERE edge_id = ?", (target_id,))
-                        conn.commit()
+                    else:
+                        return {"status": "error", "status_code": 400,
+                                "message": f"Action '{action}' is not supported for {item_type} items (use confirm or reject)"}
+                    decision_ref = edge_row["to_id"] if item_type == "drift" else edge_row["from_id"]
+                    cursor.execute("""
+                        INSERT INTO finding_feedback (feedback_id, finding_id, finding_type, action, reason, actor,
+                                                      pr_id, decision_id, created_at, repo_full_name)
+                        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)
+                    """, (f"fb_{item_type}_{uuid.uuid4().hex[:12]}", target_id, item_type, verdict, reason, actor,
+                          decision_ref, now_iso, edge_row["repo_full_name"]))
+                    conn.commit()
 
                 elif item_type == "supersession_candidate":
                     cursor.execute("""
@@ -1662,6 +1706,9 @@ class APIHandler:
                         elif action == "reject":
                             cursor.execute("DELETE FROM edges WHERE edge_id = ?", (edge["edge_id"],))
                             conn.commit()
+                        else:
+                            return {"status": "error", "status_code": 400,
+                                    "message": f"Action '{action}' is not supported for supersession candidates (use confirm or reject)"}
                     else:
                         return {
                             "status": "error",
@@ -1673,8 +1720,16 @@ class APIHandler:
                     f_id = target_id
                     cursor.execute("SELECT * FROM ambiguous_findings WHERE finding_id = ?", (f_id,))
                     af_row = cursor.fetchone()
-                    pr_id = af_row["pr_id"] if af_row else body.get("pr_id", "")
-                    dec_id = af_row["decision_id"] if af_row else body.get("decision_id", "")
+                    if not af_row:
+                        # Review-queue fix: the dashboard used to send the decision id here, and the
+                        # action was then recorded against a non-existent finding and reported as success.
+                        return {"status": "error", "status_code": 404,
+                                "message": f"No possible-rejected-idea finding with id '{f_id}'"}
+                    if action not in ("confirm", "accepted", "reject", "dismiss", "human_rejected", "reopen"):
+                        return {"status": "error", "status_code": 400,
+                                "message": f"Action '{action}' is not supported for possible-rejected-idea items (use confirm or reject)"}
+                    pr_id = af_row["pr_id"]
+                    dec_id = af_row["decision_id"]
                     if action in ("confirm", "accepted"):
                         res = self.rejected_idea_guard.confirm_finding(f_id, pr_id=pr_id, decision_id=dec_id, actor=actor, reason=reason)
                         return {"status": "success", "message": f"Confirmed finding '{f_id}'", "data": res, "actor": actor, "reason": reason}
