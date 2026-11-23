@@ -7,6 +7,7 @@ The label file records dataset_version, db_snapshot_sha256, repo, and decision_i
 and correct: null until a human fills it in.
 The benchmark refuses to use labels whose snapshot hash does not match the DB being evaluated.
 """
+import contextlib
 import os
 import sys
 import json
@@ -46,7 +47,7 @@ def make_precision_sample(
 
     import sqlite3
     db_abs = os.path.abspath(db_path)
-    with sqlite3.connect(f"file:{db_abs}?mode=ro", uri=True) as conn:
+    with contextlib.closing(sqlite3.connect(f"file:{db_abs}?mode=ro", uri=True)) as conn, conn:  # always closed (Windows can\'t delete open DB files)
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("""

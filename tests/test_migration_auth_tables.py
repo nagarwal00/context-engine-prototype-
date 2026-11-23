@@ -9,6 +9,7 @@ Verifies:
 - PRAGMA foreign_key_check reports 0 violations.
 - Migration runner is idempotent on second execution.
 """
+import contextlib
 import os
 import shutil
 import sqlite3
@@ -79,7 +80,7 @@ class TestMigrationAuthTables(unittest.TestCase):
 
         # Record counts before running migrations
         before_counts = {}
-        with sqlite3.connect(copy_path) as conn:
+        with contextlib.closing(sqlite3.connect(copy_path)) as conn, conn:  # always closed (Windows can\'t delete open DB files)
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             for tbl in ["decisions", "events", "entities", "edges"]:
@@ -87,7 +88,7 @@ class TestMigrationAuthTables(unittest.TestCase):
                 before_counts[tbl] = cnt
 
         # Run migration runner on the copy
-        with sqlite3.connect(copy_path) as conn:
+        with contextlib.closing(sqlite3.connect(copy_path)) as conn, conn:  # always closed (Windows can\'t delete open DB files)
             conn.row_factory = sqlite3.Row
             results = run_migrations(conn)
             cur = conn.cursor()
