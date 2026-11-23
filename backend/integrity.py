@@ -66,3 +66,54 @@ def ensure_integrity_objects(conn: sqlite3.Connection) -> bool:
 def ungrounded_decisions(conn: sqlite3.Connection) -> list:
     ensure_integrity_objects(conn)
     return [tuple(r) for r in conn.execute("SELECT decision_id, repo, state FROM v_ungrounded_decisions")]
+
+
+# ---------------------------------------------------------------------------------------------
+# state_history repository attribution (migration 009)
+#
+# Migration 007 added state_history.repo_full_name and backfilled it once. Rows inserted later
+# by lifecycle transitions, review actions, revalidation and backfill tools did not set it, so
+# every successful review action produced one unattributed history row. Instead of editing ~30
+# insert statements, an AFTER INSERT trigger copies the repository from the row's own decision.
+# A row whose decision is missing (only possible with foreign keys off) or has no repository is
+# left NULL: attribution is recovered from data, never invented.
+# ---------------------------------------------------------------------------------------------
+_DECISION_REPO_SQL = ("SELECT COALESCE(NULLIF(d.repo_full_name, ''), NULLIF(d.repo, '')) "
+                      "FROM decisions d WHERE d.decision_id = {ref}")
+
+
+def ensure_state_history_attribution(conn: sqlite3.Connection) -> bool:
+    """Creates the attribution trigger (idempotent). Returns False on a bare database."""
+    tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'")}
+    if not {"state_history", "decisions"} <= tables:
+        return False
+    cols = {r[1] for r in conn.execute("PRAGMA table_info(state_history)")}
+    if "repo_full_name" not in cols:
+        return False  # column is added by migration 007
+    conn.execute(f"""
+    CREATE TRIGGER IF NOT EXISTS trg_state_history_repo_attribution
+    AFTER INSERT ON state_history
+    WHEN NEW.repo_full_name IS NULL OR NEW.repo_full_name = ''
+    BEGIN
+        UPDATE state_history
+        SET repo_full_name = ({_DECISION_REPO_SQL.format(ref='NEW.decision_id')})
+        WHERE rowid = NEW.rowid;
+    END;
+    """)
+    return True
+
+
+def backfill_state_history_attribution(conn: sqlite3.Connection) -> dict:
+    """Fills missing repo_full_name from each row's own decision.
+
+    Returns {"recovered": n, "unrecoverable": m}. Only rows that are NULL/empty are touched.
+    """
+    if not ensure_state_history_attribution(conn):
+        return {"recovered": 0, "unrecoverable": 0}
+    missing = "(repo_full_name IS NULL OR repo_full_name = '')"
+    source = _DECISION_REPO_SQL.format(ref="state_history.decision_id")
+    cur = conn.execute(f"UPDATE state_history SET repo_full_name = ({source}) "
+                       f"WHERE {missing} AND ({source}) IS NOT NULL")
+    recovered = cur.rowcount
+    unrecoverable = conn.execute(f"SELECT COUNT(*) FROM state_history WHERE {missing}").fetchone()[0]
+    return {"recovered": recovered, "unrecoverable": unrecoverable}
