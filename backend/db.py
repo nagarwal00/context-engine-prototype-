@@ -219,6 +219,8 @@ class Database:
             run_migrations(conn)
             from backend.integrity import ensure_integrity_objects
             ensure_integrity_objects(conn)  # audit fix DB-01 (idempotent)
+            from backend.integrity import backfill_state_history_attribution
+            backfill_state_history_attribution(conn)  # trigger + repair of unattributed history (idempotent)
 
     # --- Upsert & Query Methods ---
 

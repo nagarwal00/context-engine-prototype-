@@ -35,7 +35,13 @@ class NoLeakedConnectionsTests(unittest.TestCase):
             [sys.executable, "-X", "dev", "-W", "always::ResourceWarning",
              "-m", "unittest", *PREVIOUSLY_LEAKING],
             cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=600)
-        self.assertEqual(proc.returncode, 0, proc.stderr[-3000:])
+        # Both checks stay strict. The first only reports more precisely: on Windows (2026-11-23) this
+        # test failed because a CHILD test failed (unattributed state_history rows), and the printed
+        # stderr tail was mistaken for a connection leak.
+        failing = [ln for ln in proc.stderr.splitlines() if ln.startswith(("FAIL:", "ERROR:"))]
+        self.assertEqual(proc.returncode, 0,
+                         "a test inside the checked modules failed (this is not a connection leak): "
+                         + ("; ".join(failing) or proc.stderr[-3000:]))
         leaks = proc.stderr.count("unclosed database")
         self.assertEqual(leaks, 0, f"{leaks} SQLite connection(s) left open:\n{proc.stderr[-3000:]}")
 

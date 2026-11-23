@@ -1832,7 +1832,11 @@ const app = {
           <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Candidate Decisions & Contradictions for Arbitration</h3>
           <div style="display: grid; gap: 12px;">
             ${items.map(item => {
-          const id = item.decision_id || item.edge_id;
+          // Review-queue fix: use the id the backend expects for this item type (drift items carry
+          // both edge_id and decision_id; possible-rejected-idea items carry finding_id).
+          const id = item.target_id || (['conflict', 'drift', 'supersession_candidate'].includes(item.item_type)
+            ? item.edge_id : (item.item_type === 'possible_rejected_idea' ? item.finding_id : item.decision_id));
+          const isDecision = item.item_type === 'decision' || item.item_type === 'stale_decision';
           const confStr = item.confidence !== undefined ? Math.round(item.confidence * 100) + '%' : '';
           return `
                 <div class="review-item-card">
@@ -1846,7 +1850,7 @@ const app = {
                   </div>
                   <div class="review-actions">
                     <button class="btn btn-primary btn-sm btn-queue-confirm" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Confirm</button>
-                    <button class="btn btn-secondary btn-sm btn-queue-correct" data-id="${esc(id)}" data-type="${esc(item.item_type)}" data-title="${esc(item.title)}">Correct</button>
+                    ${isDecision ? `<button class="btn btn-secondary btn-sm btn-queue-correct" data-id="${esc(id)}" data-type="${esc(item.item_type)}" data-title="${esc(item.title)}" data-state="${esc(item.state || '')}">Correct</button>` : ''}
                     <button class="btn btn-danger btn-sm btn-queue-reject" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Reject</button>
                   </div>
                 </div>
@@ -1859,9 +1863,9 @@ const app = {
       container.innerHTML = html;
       container.querySelectorAll('.btn-approve-rule').forEach(b => b.addEventListener('click', () => app.approveGuardRule(b.dataset.ruleId)));
       container.querySelectorAll('.btn-disable-rule').forEach(b => b.addEventListener('click', () => app.disableGuardRule(b.dataset.ruleId)));
-      container.querySelectorAll('.btn-queue-confirm').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('confirm', b.dataset.id, b.dataset.type)));
-      container.querySelectorAll('.btn-queue-correct').forEach(b => b.addEventListener('click', () => app.openCorrectModal(b.dataset.id, b.dataset.type, b.dataset.title)));
-      container.querySelectorAll('.btn-queue-reject').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('reject', b.dataset.id, b.dataset.type)));
+      container.querySelectorAll('.btn-queue-confirm').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('confirm', b.dataset.id, b.dataset.type, b)));
+      container.querySelectorAll('.btn-queue-correct').forEach(b => b.addEventListener('click', () => app.openCorrectModal(b.dataset.id, b.dataset.type, b.dataset.title, b.dataset.state)));
+      container.querySelectorAll('.btn-queue-reject').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('reject', b.dataset.id, b.dataset.type, b)));
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
@@ -1903,24 +1907,39 @@ const app = {
     }
   },
 
-  async triggerReviewAction(action, targetId, itemType) {
+  async triggerReviewAction(action, targetId, itemType, sourceButton) {
+    if (!targetId) {
+      alert('This queue item has no identifier; reload the Review Queue.');
+      return;
+    }
     if (!confirm(`Are you sure you want to ${action} this item?`)) return;
 
+    // Lock the item's buttons while the request is in flight (prevents double submits).
+    const card = sourceButton ? sourceButton.closest('.review-item-card') : null;
+    const buttons = card ? [...card.querySelectorAll('button')] : [];
+    buttons.forEach(b => { b.disabled = true; });
     try {
       const json = await this.apiFetch('/api/review-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, target_id: targetId, item_type: itemType })
       });
-      alert(json.message);
-      this.loadReviewQueue();
-      this.refreshStats();
+      if (json && json.status === 'success') {
+        alert(json.message || `Action '${action}' saved.`);
+        await this.loadReviewQueue();   // re-render from the database, never optimistically
+        this.refreshStats();
+      } else {
+        const code = json && json.http_status ? ` (HTTP ${json.http_status})` : '';
+        alert(`Action '${action}' was NOT saved${code}: ${(json && json.message) || 'unknown error'}`);
+        buttons.forEach(b => { b.disabled = false; });
+      }
     } catch (e) {
-      alert(`Action error: ${e.message}`);
+      alert(`Action '${action}' was NOT saved: ${e.message}`);
+      buttons.forEach(b => { b.disabled = false; });
     }
   },
 
-  openCorrectModal(targetId, itemType, title) {
+  openCorrectModal(targetId, itemType, title, currentState) {
     const modal = document.getElementById('review-modal');
     modal.classList.remove('hidden');
     document.getElementById('modal-title').textContent = `Correct Decision Record`;
@@ -1932,10 +1951,8 @@ const app = {
       <div style="margin-bottom: 14px;">
         <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">Corrected State:</label>
         <select id="modal-correct-state" style="width: 100%; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px;">
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-          <option value="superseded">Superseded</option>
-          <option value="proposed">Proposed</option>
+          ${[...new Set([currentState, 'accepted', 'rejected', 'superseded', 'proposed'].filter(Boolean))]
+            .map(st => `<option value="${esc(st)}"${st === currentState ? ' selected' : ''}>${esc(st.charAt(0).toUpperCase() + st.slice(1))}${st === currentState ? ' (current)' : ''}</option>`).join('')}
         </select>
       </div>
       <div>
@@ -1949,37 +1966,53 @@ const app = {
       <button class="btn btn-secondary btn-modal-cancel">Cancel</button>
       <button class="btn btn-primary btn-modal-save" data-target-id="${esc(targetId)}" data-item-type="${esc(itemType)}">Save Correction</button>
     `;
+    // Remember the original values so only real changes are sent.
+    this._correctOriginal = { title: title || '', state: currentState || '' };
     footer.querySelector('.btn-modal-cancel').addEventListener('click', () => app.closeReviewModal());
     footer.querySelector('.btn-modal-save').addEventListener('click', (e) => {
       const btn = e.currentTarget;
-      app.submitCorrection(btn.dataset.targetId, btn.dataset.itemType);
+      app.submitCorrection(btn.dataset.targetId, btn.dataset.itemType, btn);
     });
   },
 
-  async submitCorrection(targetId, itemType) {
-    const newTitle = document.getElementById('modal-correct-title').value;
+  async submitCorrection(targetId, itemType, saveButton) {
+    const original = this._correctOriginal || { title: '', state: '' };
+    const newTitle = document.getElementById('modal-correct-title').value.trim();
     const newState = document.getElementById('modal-correct-state').value;
-    const rationale = document.getElementById('modal-correct-rationale').value;
+    const notes = document.getElementById('modal-correct-rationale').value.trim();
 
+    if (!newTitle) {
+      alert('The title cannot be empty.');
+      return;
+    }
+    // Review-queue fix: the justification is the audit REASON. It used to be sent as `rationale`,
+    // which overwrote the decision's recorded rationale. Only changed fields are sent, so saving
+    // without touching the state no longer attempts a lifecycle transition.
+    const body = { action: 'correct', target_id: targetId, item_type: itemType };
+    if (newTitle !== original.title) body.title = newTitle;
+    if (newState && newState !== original.state) body.state = newState;
+    if (notes) body.reason = notes;
+
+    if (saveButton) saveButton.disabled = true;
     try {
       const json = await this.apiFetch('/api/review-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'correct',
-          target_id: targetId,
-          item_type: itemType,
-          title: newTitle,
-          state: newState,
-          rationale: rationale
-        })
+        body: JSON.stringify(body)
       });
-      alert(json.message);
-      this.closeReviewModal();
-      this.loadReviewQueue();
-      this.refreshStats();
+      if (json && json.status === 'success') {
+        alert(json.message || 'Correction saved.');
+        this.closeReviewModal();
+        await this.loadReviewQueue();
+        this.refreshStats();
+      } else {
+        const code = json && json.http_status ? ` (HTTP ${json.http_status})` : '';
+        alert(`Correction was NOT saved${code}: ${(json && json.message) || 'unknown error'}`);
+        if (saveButton) saveButton.disabled = false;
+      }
     } catch (e) {
-      alert(`Correction error: ${e.message}`);
+      alert(`Correction was NOT saved: ${e.message}`);
+      if (saveButton) saveButton.disabled = false;
     }
   },
 
