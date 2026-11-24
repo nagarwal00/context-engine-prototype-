@@ -80,6 +80,14 @@ def validate_next_path(next_path: Optional[str]) -> str:
     return cleaned
 
 
+def _auth_error(status: int, code: str, message: str) -> Tuple[int, str, Dict[str, str]]:
+    """Refusal with a machine-readable code (server.py turns it into a login-page message).
+
+    Never sets a cookie: a failed GitHub sign-in must not create any session.
+    """
+    return status, message, {"X-CIF-Auth-Error": code}
+
+
 def initiate_github_login(
     db: Database,
     next_path: Optional[str] = None,
@@ -96,36 +104,15 @@ def initiate_github_login(
     try:
         valid_next = validate_next_path(next_path)
     except ValueError as e:
-        return 400, str(e), {}
+        return _auth_error(400, "INVALID_NEXT", str(e))
 
     cfg = get_config()
     if not cfg.is_login_enabled():
-        client_norm = (client or "web").lower().strip()
-        if client_norm == "web":
-            # Seamless local development / demo login when GitHub App credentials are not configured
-            with db.get_connection() as conn:
-                user_row = conn.execute("SELECT user_id FROM users WHERE login = 'demo-developer'").fetchone()
-                now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
-                if user_row:
-                    user_id = user_row["user_id"]
-                    conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_str, user_id))
-                else:
-                    cur = conn.execute("""
-                    INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
-                    VALUES (?, ?, ?, ?, ?)
-                    """, (999999, "demo-developer", "https://avatars.githubusercontent.com/u/583231?v=4", now_str, now_str))
-                    user_id = cur.lastrowid
-
-            from backend.auth.sessions import create_session, build_session_cookie
-            raw_token, _ = create_session(db, user_id=user_id, client="web")
-            base_url = cfg.get_base_url()
-            cookie_hdr = build_session_cookie(raw_token, base_url)
-            headers = {
-                "Location": valid_next,
-                "Set-Cookie": cookie_hdr,
-            }
-            return 302, valid_next, headers
-        return 503, "GitHub login is not configured on this server", {}
+        # Previously a web client was silently signed in as "demo-developer" here, so "Continue with
+        # GitHub" appeared to work without GitHub. The demo account has its own explicit button.
+        return _auth_error(503, "GITHUB_NOT_CONFIGURED",
+                           "GitHub sign-in is not configured on this server: set GITHUB_CLIENT_ID and "
+                           "GITHUB_CLIENT_SECRET (or GITHUB_APP_CLIENT_ID / GITHUB_APP_CLIENT_SECRET) and restart.")
 
     client = (client or "web").lower().strip()
     if client == "extension":
@@ -149,8 +136,7 @@ def initiate_github_login(
         VALUES (?, ?, ?, ?, ?);
         """, (state_hash, created_at, valid_next, client, ext_id))
 
-    base_url = cfg.get_base_url()
-    redirect_uri = f"{base_url}/auth/github/callback"
+    redirect_uri = cfg.get_github_callback_url()
 
     params = {
         "client_id": cfg.get_github_client_id(),
@@ -183,11 +169,20 @@ def handle_github_callback(
 
     if error:
         error_desc = query_params.get("error_description", [error])[0]
-        logger.warning("GitHub OAuth returned error: %s", error_desc)
-        return 400, f"GitHub authentication error: {error_desc}", {}
+        logger.warning("GitHub OAuth returned error: %s", error)
+        if raw_state:  # consume the state so it cannot be replayed
+            with db.get_connection() as conn:
+                conn.execute("DELETE FROM oauth_states WHERE state_hash = ?", (hash_token(raw_state.strip()),))
+        if error == "access_denied":
+            return _auth_error(403, "ACCESS_DENIED", "GitHub sign-in was cancelled: access was not authorized.")
+        if error == "redirect_uri_mismatch":
+            return _auth_error(400, "CALLBACK_MISMATCH",
+                               f"GitHub rejected the callback URL. Register exactly {cfg.get_github_callback_url()} "
+                               "as the Authorization callback URL of your GitHub OAuth app.")
+        return _auth_error(400, "GITHUB_AUTH_ERROR", f"GitHub authentication error: {error_desc}")
 
     if not code or not raw_state:
-        return 400, "Missing required OAuth callback parameters (code, state)", {}
+        return _auth_error(400, "MISSING_PARAMETERS", "Missing required OAuth callback parameters (code, state)")
 
     state_hash = hash_token(raw_state.strip())
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -201,14 +196,14 @@ def handle_github_callback(
         """, (state_hash,)).fetchone()
 
         if not row:
-            return 400, "Invalid or already-used OAuth state", {}
+            return _auth_error(400, "INVALID_STATE", "Invalid or already-used OAuth state. Start the sign-in again.")
 
         # Delete immediately so it cannot be reused
         conn.execute("DELETE FROM oauth_states WHERE state_hash = ?", (state_hash,))
 
         created_at = parse_iso(row["created_at"])
         if (now - created_at).total_seconds() > 600.0:  # 10 minutes
-            return 400, "OAuth state expired (exceeded 10 minutes)", {}
+            return _auth_error(400, "STATE_EXPIRED", "The sign-in took longer than 10 minutes. Start it again.")
 
         next_path = row["next_path"] or "/repos"
         client = row["client"]
@@ -221,7 +216,7 @@ def handle_github_callback(
         "client_id": cfg.get_github_client_id(),
         "client_secret": cfg.get_github_client_secret(),
         "code": code,
-        "redirect_uri": f"{cfg.get_base_url()}/auth/github/callback",
+        "redirect_uri": cfg.get_github_callback_url(),
     }).encode("utf-8")
 
     req = urllib.request.Request(
@@ -239,34 +234,26 @@ def handle_github_callback(
     try:
         with urllib.request.urlopen(req, context=ctx, timeout=30) as resp:
             token_resp = json.loads(resp.read().decode("utf-8"))
-    except Exception as exc:
-        logger.warning("Failed to exchange OAuth code with GitHub: %s", exc)
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        logger.warning("GitHub token exchange failed (network): %s", type(exc).__name__)
+        return _auth_error(503, "GITHUB_UNAVAILABLE", "Could not reach GitHub to complete sign-in. Try again shortly.")
+    except ValueError:
+        return _auth_error(502, "TOKEN_EXCHANGE_FAILED", "GitHub returned an unreadable response during sign-in.")
 
-    # In local development or if GitHub exchange fails, provide seamless fallback
-    if not token_resp or "error" in token_resp or not token_resp.get("access_token"):
-        if cfg.is_dev_mode() or client == "web":
-            logger.info("GitHub OAuth token exchange failed or rejected; creating local dev session for web client")
-            now_iso = now.isoformat()
-            with db.get_connection() as conn:
-                user_row = conn.execute("SELECT user_id FROM users WHERE login = 'demo-developer'").fetchone()
-                if user_row:
-                    user_id = user_row["user_id"]
-                    conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now_iso, user_id))
-                else:
-                    cur = conn.execute("""
-                    INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at)
-                    VALUES (?, ?, ?, ?, ?)
-                    """, (999999, "demo-developer", "https://avatars.githubusercontent.com/u/583231?v=4", now_iso, now_iso))
-                    user_id = cur.lastrowid
-            raw_session_token, _ = create_session(db, user_id, client=client)
-            base_url = cfg.get_base_url()
-            cookie_str = f"cif_session={raw_session_token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800"
-            if base_url.lower().startswith("https://"):
-                cookie_str += "; Secure"
-            redirect_target = f"{base_url}{next_path}" if next_path.startswith("/") else next_path
-            return 302, redirect_target, {"Location": redirect_target, "Set-Cookie": cookie_str}
-        err_msg = token_resp.get('error_description', token_resp.get('error', 'Failed to exchange authorization code')) if token_resp else "Failed to exchange authorization code with GitHub"
-        return 502, err_msg, {}
+    # Previously any failure here signed a web user in as "demo-developer". Now: no session, clear reason.
+    if not isinstance(token_resp, dict) or token_resp.get("error") or not token_resp.get("access_token"):
+        gh_error = token_resp.get("error", "") if isinstance(token_resp, dict) else ""
+        logger.warning("GitHub token exchange rejected: %s", gh_error or "no access_token")
+        if gh_error == "bad_verification_code":
+            return _auth_error(400, "INVALID_CODE", "The GitHub authorization code is invalid or has expired. Sign in again.")
+        if gh_error == "redirect_uri_mismatch":
+            return _auth_error(400, "CALLBACK_MISMATCH",
+                               f"GitHub rejected the callback URL. Register exactly {cfg.get_github_callback_url()} "
+                               "as the Authorization callback URL of your GitHub OAuth app.")
+        if gh_error == "incorrect_client_credentials":
+            return _auth_error(502, "INVALID_APP_CREDENTIALS",
+                               "GitHub rejected this server's client ID or client secret. Check the OAuth app credentials.")
+        return _auth_error(502, "TOKEN_EXCHANGE_FAILED", f"GitHub sign-in failed ({gh_error or 'no access token returned'}).")
 
     access_token = token_resp.get("access_token")
     refresh_token = token_resp.get("refresh_token")
@@ -286,15 +273,16 @@ def handle_github_callback(
         with urllib.request.urlopen(user_req, context=ctx, timeout=30) as resp:
             user_data = json.loads(resp.read().decode("utf-8"))
     except Exception as exc:
-        logger.warning("Failed to fetch user profile from GitHub: %s; falling back to demo session", exc)
-        user_data = {"id": 999999, "login": "github-user", "avatar_url": "https://avatars.githubusercontent.com/u/583231?v=4"}
+        # Previously an invented user ("github-user", id 999999) was signed in here.
+        logger.warning("Failed to fetch user profile from GitHub: %s", type(exc).__name__)
+        return _auth_error(502, "PROFILE_FAILED", "Signed in at GitHub, but your GitHub profile could not be read. Try again.")
 
-    github_id = user_data.get("id")
-    login = user_data.get("login")
-    avatar_url = user_data.get("avatar_url", "")
+    github_id = user_data.get("id") if isinstance(user_data, dict) else None
+    login = user_data.get("login") if isinstance(user_data, dict) else None
+    avatar_url = user_data.get("avatar_url", "") if isinstance(user_data, dict) else ""
 
     if not github_id or not login:
-        return 502, "Incomplete user profile from GitHub", {}
+        return _auth_error(502, "PROFILE_FAILED", "GitHub returned an incomplete user profile.")
 
     # 4. Upsert user in database
     now_iso = now.isoformat()
@@ -315,7 +303,11 @@ def handle_github_callback(
     store_user_github_tokens(db, user_id, access_token, refresh_token, expires_in)
 
     # 6. Create CIF session
-    raw_session_token, _ = create_session(db, user_id, client=client)
+    try:
+        raw_session_token, _ = create_session(db, user_id, client=client)
+    except Exception:
+        logger.exception("Could not create a session after GitHub sign-in")
+        return _auth_error(500, "SESSION_FAILED", "Signed in at GitHub, but the session could not be created.")
 
     # 7. Response delivery
     base_url = cfg.get_base_url()

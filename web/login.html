@@ -142,8 +142,8 @@
       </a>
 
       <p class="provider-login-note">
-        If GitHub App credentials are not configured, this will automatically sign you in with a local development
-        session.
+        Requires GitHub sign-in to be configured on this server. Without it, use the account form or the
+          Demo Developer button.
       </p>
 
       <div class="auth-divider">
@@ -202,7 +202,10 @@
       const ghBtn = document.getElementById('github-login-btn');
       if (ghBtn) {
         if (!isStaticDeployment()) {
-          ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(nextTarget);
+          // The server only accepts same-site paths starting with '/' (open-redirect protection);
+          // the default 'dashboard.html' had no slash, so this button was always refused (HTTP 400).
+          const ghNext = nextTarget.startsWith('/') ? nextTarget : '/' + nextTarget;
+          ghBtn.href = '/auth/github/login?next=' + encodeURIComponent(ghNext);
         } else {
           ghBtn.href = 'javascript:void(0)';
         }
@@ -220,6 +223,27 @@
       const authForm = document.getElementById('page-auth-form');
       const authSubmit = document.getElementById('page-auth-submit');
       const authMsg = document.getElementById('page-auth-msg');
+
+      // GitHub sign-in failures return here as ?auth_error=CODE (set by the server); show the reason in
+      // the existing message box. Codes only — no server text is reflected into the page.
+      const authErrorMessages = {
+        GITHUB_NOT_CONFIGURED: 'GitHub sign-in is not configured on this server yet. Use the account form or the Demo Developer button.',
+        ACCESS_DENIED: 'GitHub sign-in was cancelled.',
+        INVALID_STATE: 'That GitHub sign-in link is no longer valid. Please try again.',
+        STATE_EXPIRED: 'The GitHub sign-in took too long. Please try again.',
+        INVALID_CODE: 'GitHub rejected the sign-in code (it may have expired). Please try again.',
+        CALLBACK_MISMATCH: "The server's callback URL does not match the GitHub OAuth app settings. Ask the administrator to fix the Authorization callback URL.",
+        INVALID_APP_CREDENTIALS: "GitHub rejected this server's OAuth credentials (client ID / secret).",
+        GITHUB_UNAVAILABLE: 'Could not reach GitHub. Check your connection and try again.',
+        PROFILE_FAILED: 'Your GitHub profile could not be read. Please try again.',
+        SESSION_FAILED: 'Signed in at GitHub, but the session could not be created. Please try again.',
+        INVALID_NEXT: 'The sign-in link was invalid. Please start again from this page.'
+      };
+      const authErrorCode = new URLSearchParams(window.location.search).get('auth_error');
+      if (authErrorCode && authMsg) {
+        authMsg.className = 'auth-msg error';
+        authMsg.textContent = authErrorMessages[authErrorCode] || 'GitHub sign-in failed. Please try again.';
+      }
       let currentMode = 'signin';
 
       const handleStaticSuccess = (user, redirectUrl) => {
