@@ -7,6 +7,7 @@
   <meta http-equiv="Content-Security-Policy"
     content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://api.github.com;">
   <title>Context Intelligence Framework — Living Decision History</title>
+  <script src="cif-mode.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -16,7 +17,7 @@
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script>
     (function () {
-      var isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+      var isStatic = window.CIF_IS_STATIC();
       var redirectTarget = 'login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search + window.location.hash);
 
       if (isStatic) {
@@ -68,9 +69,9 @@
       </div>
 
       <div class="header-right">
-        <!-- Phase 8.3: Live engine / Static snapshot mode badge -->
-        <span class="mode-badge static" id="engine-mode-badge"
-          title="Live engine: API calls succeed. Static snapshot: using client ledger.">⬤ Static snapshot</span>
+        <!-- Phase 8.3: Live engine mode badge -->
+        <span class="mode-badge live" id="engine-mode-badge"
+          title="Live engine: Connected to CIF Engine.">⬤ Live Engine</span>
         <details class="workspace-menu" id="workspace-menu">
           <summary aria-label="Workspace controls">Workspace <span class="workspace-chevron" aria-hidden="true">⌄</span>
           </summary>
@@ -707,7 +708,7 @@
         </p>
         <div style="margin-bottom: 14px;">
           <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">
-            GitHub Repository (owner/repo or URL):
+            GitHub repository (owner/repo or URL) or local folder path:
           </label>
           <input type="text" id="ingest-repo-input"
             placeholder="e.g. pallets/flask or https://github.com/my-org/my-project"

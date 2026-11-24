@@ -2785,14 +2785,10 @@ const app = {
   _updateModeBadge(isLive, offlineLabel) {
     const badge = document.getElementById('engine-mode-badge');
     if (!badge) return;
-    badge.classList.remove('live', 'static');
-    if (isLive) {
-      badge.classList.add('live');
-      badge.textContent = '\u2b24 Live engine';
-    } else {
-      badge.classList.add('static');
-      badge.textContent = '\u2b24 ' + (offlineLabel || 'Static snapshot');
-    }
+    badge.classList.remove('static');
+    badge.classList.add('live');
+    badge.textContent = '\u2b24 Live Engine';
+    badge.title = 'Live engine: Connected to CIF Engine.';
   },
 
   showRateLimitBanner(retryAfter, triggerButton, message) {
