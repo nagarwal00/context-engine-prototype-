@@ -54,3 +54,8 @@ desktop.ini
 # Temporary files & release builds
 scratch/
 dist/
+*.bundle
+*.zip
+test-results.txt
+*_backup.*
+
