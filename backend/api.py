@@ -220,6 +220,12 @@ class APIHandler:
             elif method.upper() == "DELETE" and path.startswith("/api/repos/"):
                 required_role = ROLE_USER
             else:
+                # The path exists but not for this method (e.g. opening POST /api/ingest-repo in the
+                # browser's address bar sends GET): that is 405, not "endpoint not found".
+                allowed = sorted({m for (m, p) in ROUTE_ROLES if p == path})
+                if allowed:
+                    return False, 405, (f"Method {method.upper()} is not allowed for {path}. "
+                                        f"Use {', '.join(allowed)}.")
                 return False, 404, f"Endpoint not found: {method.upper()} {path}"
         return authorize(
             headers,
@@ -1844,8 +1850,8 @@ class APIHandler:
                         "message": "Network ingestion disabled in local-only mode (CIF_LOCAL_ONLY=1). Only local directory paths can be ingested."
                     }
 
+            from backend.ingestion.live_github import LiveGitHubIngestor, GitHubIngestError, GitHubTLSError
             try:
-                from backend.ingestion.live_github import LiveGitHubIngestor
                 ingestor = LiveGitHubIngestor(self.db, token=token)
                 stats = ingestor.ingest_custom_repository(
                     raw_repo_input=repo_input,
@@ -1854,14 +1860,30 @@ class APIHandler:
                     max_issues=max_issues
                 )
                 self._register_ingested_repo(stats, headers, client_ip)
-                return {"status": "success", "message": f"Successfully ingested {stats['repo']}!", "data": stats}
+                api_logger.info("Ingested %s: %s commits, %s decisions, partial=%s, github_requests=%s",
+                                stats.get("repo"), stats.get("commits_ingested"), stats.get("decisions_extracted"),
+                                stats.get("partial"), stats.get("github_requests"))
+                note = " (partial: see warnings)" if stats.get("partial") else ""
+                return {"status": "success", "message": f"Successfully ingested {stats['repo']}!{note}", "data": stats}
+            # Every failure used to be reported as HTTP 400 ("your request was malformed"), so a
+            # GitHub rate limit or a missing repository looked like a frontend bug. Each case now
+            # carries its real status and a machine-readable error_code.
+            except GitHubIngestError as e:
+                api_logger.warning("Ingestion of %r refused: %s %s", repo_input, e.status_code, e.error_code)
+                res = {"status": "error", "status_code": e.status_code, "error_code": e.error_code, "message": str(e)}
+                if e.retry_after:
+                    res["retry_after"] = e.retry_after
+                return res
+            except GitHubTLSError as e:
+                return {"status": "error", "status_code": 502, "error_code": "GITHUB_TLS_ERROR", "message": str(e)}
+            except RuntimeError as e:  # CIF_LOCAL_ONLY blocks network access
+                return {"status": "error", "status_code": 403, "error_code": "NETWORK_DISABLED", "message": str(e)}
             except ValueError as e:
-                # Expected, user-facing problems (bad slug, repo not found, rate limited by GitHub).
-                return {"status": "error", "status_code": 400, "message": str(e)}
+                return {"status": "error", "status_code": 400, "error_code": "INVALID_REQUEST", "message": str(e)}
             except Exception:
                 api_logger.exception("Ingestion of %r failed", repo_input)
-                return {"status": "error", "status_code": 502,
-                        "message": "Ingestion failed unexpectedly; see the server log for details"}
+                return {"status": "error", "status_code": 500, "error_code": "INGESTION_FAILED",
+                        "message": "Ingestion failed while processing the repository; see the server log (request id below)."}
 
         # 5. Clear Database (Empty Canvas)
         elif path == "/api/clear-db":

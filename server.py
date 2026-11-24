@@ -226,6 +226,17 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
+    def _send_route_refusal(self, status_code: int, message: str, path: str) -> None:
+        """Authorization/routing refusal; a 405 also names the allowed methods (Allow header)."""
+        extra = None
+        body = {"status": "error", "message": message}
+        if status_code == 405:
+            from backend.api import ROUTE_ROLES
+            allowed = sorted({m for (m, p) in ROUTE_ROLES if p == path})
+            extra = {"Allow": ", ".join(allowed)}
+            body["error_code"] = "METHOD_NOT_ALLOWED"
+        self._send_json(body, status=status_code, extra_headers=extra)
+
     def _safe_dispatch(self, handler):
         """Runs a request handler; any unexpected exception becomes a JSON 500 (audit fix APP-02).
 
@@ -390,7 +401,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 "GET", parsed.path, headers_dict, client_ip, query_params=params
             )
             if not ok:
-                self._send_json({"status": "error", "message": message}, status=status_code)
+                self._send_route_refusal(status_code, message, parsed.path)
                 return
 
             res = self.server.api_handler.handle_get(parsed.path, params, headers=headers_dict)
@@ -568,7 +579,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 "POST", parsed.path, headers_dict, client_ip, query_params=params, body_json=body_json
             )
             if not ok:
-                self._send_json({"status": "error", "message": message}, status=status_code)
+                self._send_route_refusal(status_code, message, parsed.path)
                 return
 
             res = self.server.api_handler.handle_post(
@@ -598,7 +609,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             "DELETE", parsed.path, headers_dict, client_ip
         )
         if not ok:
-            self._send_json({"status": "error", "message": message}, status=status_code)
+            self._send_route_refusal(status_code, message, parsed.path)
             return
 
         res = self.server.api_handler.handle_delete(
