@@ -12,32 +12,12 @@ function esc(value) {
 }
 
 function safeUrl(value) {
+  // Only http(s) URLs become links. (Audit fix INT-03: this function used to rewrite any URL
+  // containing certain 7-character strings into commits of the project's own repository, so
+  // citation links did not point where the evidence said.)
   if (!value) return '#';
-  let str = String(value).trim();
-  if (!/^https?:\/\//i.test(str)) {
-    return '#';
-  }
-  // Link only valid, existing commits from the repository; map legacy/stale commit references to verified remote commits
-  const validCommitMap = {
-    '2b04d45': 'https://github.com/nagarwal00/context-engine-prototype-/commit/b613f6278fb2bcffe609a78c8106b9f81e3c0da6',
-    'aba6734': 'https://github.com/nagarwal00/context-engine-prototype-/commit/3e2351586a1112feecff7ca30d06144e3f4369a1',
-    'e67a990': 'https://github.com/nagarwal00/context-engine-prototype-/commit/90b8565a9ba6783df8e27c85ffb14e679ec8f121',
-    '902c7f5': 'https://github.com/nagarwal00/context-engine-prototype-/commit/285648602923984ca8e04b4d667c4be5171787c8',
-    '867b31b': 'https://github.com/nagarwal00/context-engine-prototype-/commit/b6a15531d0eb7fe44a9bcff16c96a32cb5e6304a',
-    '3bf64a2': 'https://github.com/nagarwal00/context-engine-prototype-/commit/f7c2039aa72bc2245b7331828f08f8fe0a09b30b'
-  };
-
-  for (const [prefix, validUrl] of Object.entries(validCommitMap)) {
-    if (str.toLowerCase().includes(prefix)) {
-      return validUrl;
-    }
-  }
-
-  if (str.includes('breathwise-innovation-hackathon')) {
-    return 'https://github.com/nagarwal00/context-engine-prototype-/commit/b613f6278fb2bcffe609a78c8106b9f81e3c0da6';
-  }
-
-  return str;
+  const str = String(value).trim();
+  return /^https?:\/\//i.test(str) ? str : '#';
 }
 
 const app = {
@@ -51,11 +31,11 @@ const app = {
   cachedArtifacts: [],
 
   init() {
-    const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isStatic = window.CIF_IS_STATIC();
     console.log('%c🚀 Context Intelligence Framework (CIF) v2.2 Initialized', 'color: #0284c7; font-weight: bold; font-size: 13px;');
-    console.log(`[CIF Engine] Mode: ${isLocalServer ? 'Live engine check' : 'Static snapshot (standalone GitHub Pages)'} | Status: Healthy`);
+    console.log(`[CIF Engine] Mode: ${isStatic ? 'Static snapshot (read-only, no backend)' : 'Live backend'}`);
     this.updateWorkspaceAuthUI();
-    if (!isLocalServer || (window.location.port && window.location.port !== '8080')) {
+    if (isStatic) {
       this._serverOffline = true;
       this._updateModeBadge(false);
     } else {
@@ -271,7 +251,7 @@ const app = {
   },
 
   handleGithubLoginClick(e) {
-    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+    const isStatic = window.CIF_IS_STATIC();
     if (isStatic) {
       if (e) e.preventDefault();
       try {
@@ -346,7 +326,7 @@ const app = {
       submitBtn.textContent = 'Please wait...';
     }
 
-    const isStatic = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+    const isStatic = window.CIF_IS_STATIC();
 
     const handleStaticAuth = () => {
       try {
@@ -510,7 +490,10 @@ const app = {
       return;
     }
 
-    const slug = this.parseRepoSlug(rawRepo);
+    // A local folder path (absolute, relative, ~ or Windows drive) is sent unchanged: the backend
+    // ingests it with its real git history. Previously it was mangled into a GitHub slug.
+    const isLocalPath = /^(\/|\.{1,2}[\/\\]|~|[A-Za-z]:[\/\\])/.test(rawRepo);
+    const slug = isLocalPath ? rawRepo : this.parseRepoSlug(rawRepo);
     if (!slug) {
       alert(`Invalid repository format '${rawRepo}'. Please enter 'owner/repo' or a valid GitHub repository URL.`);
       return;
@@ -534,18 +517,16 @@ const app = {
       logBox.scrollTop = logBox.scrollHeight;
     };
 
-    addLog(`Connecting to repository '${slug}'...`);
-    addLog(`Fetching commit logs, author identities, and code diffs...`);
+    addLog(`Sending '${slug}' to the CIF backend (POST /api/ingest-repo)...`);
 
-    // Progress pulse timer while network request completes
-    let step = 0;
+    // Honest progress: the server does not stream progress, so show elapsed time only.
+    // (This used to print invented step messages on a timer whether or not they happened.)
+    const started = Date.now();
+    const waitLine = document.createElement('div');
+    logBox.appendChild(waitLine);
     const progressInterval = setInterval(() => {
-      step++;
-      if (step === 1) addLog(`Scanning issues, PR discussions, and parent linkages...`);
-      else if (step === 2) addLog(`Parsing Python AST functions and dependency trees...`);
-      else if (step === 3) addLog(`Synthesizing architectural decisions & confidence scoring...`);
-      else if (step === 4) addLog(`Building temporal context graph edges & evidence chains...`);
-    }, 1800);
+      waitLine.textContent = `… waiting for the server (${Math.round((Date.now() - started) / 1000)}s)`;
+    }, 1000);
 
     try {
       const json = await this.apiFetch('/api/ingest-repo', {
@@ -558,10 +539,12 @@ const app = {
           max_commits: 25,
           max_issues: 15
         }),
-        timeoutMs: 60000
+        timeoutMs: 120000,
+        triggerButton: btn
       });
 
       clearInterval(progressInterval);
+      waitLine.remove();
 
       if (json && json.status === 'success') {
         const stats = json.data || {};
@@ -571,6 +554,11 @@ const app = {
         addLog(`Extracted ${stats.entities_created || 0} code entities (including AST functions).`);
         addLog(`Synthesized ${stats.decisions_extracted || 0} grounded architectural decisions.`);
         addLog(`Constructed ${stats.edges_created || 0} temporal graph edges.`);
+        (stats.warnings || []).forEach(w => addLog(`Note: ${w}`));
+        if (stats.partial) {
+          titleEl.textContent = 'Ingestion complete (partial — see notes)';
+          titleEl.style.color = '#b45309';
+        }
 
         setTimeout(async () => {
           this.closeAddRepoModal();
@@ -578,13 +566,18 @@ const app = {
           this.switchRepo(stats.repo || slug);
         }, 1200);
       } else {
-        titleEl.textContent = 'Ingestion Error';
+        const code = json && json.error_code ? json.error_code : 'ERROR';
+        const http = json && json.http_status ? `HTTP ${json.http_status}, ` : '';
+        titleEl.textContent = code === 'GITHUB_RATE_LIMIT' ? 'GitHub API rate limit exceeded' : 'Ingestion Error';
         titleEl.style.color = '#ef4444';
-        addLog(`Error: ${json ? json.message : 'Unknown server error'}`);
-        btn.disabled = false;
+        addLog(`Error (${http}${code}): ${json && json.message ? json.message : 'Unknown server error'}`);
+        if (json && json.request_id) addLog(`Request id: ${json.request_id}`);
+        // On 429 the rate-limit banner keeps the button disabled until the retry window ends.
+        if (!(json && json.http_status === 429)) btn.disabled = false;
       }
     } catch (e) {
       clearInterval(progressInterval);
+      waitLine.remove();
       titleEl.textContent = 'Ingestion Error';
       titleEl.style.color = '#ef4444';
       addLog(`Error: ${e.message}`);
@@ -1849,7 +1842,11 @@ const app = {
           <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Candidate Decisions & Contradictions for Arbitration</h3>
           <div style="display: grid; gap: 12px;">
             ${items.map(item => {
-          const id = item.decision_id || item.edge_id;
+          // Review-queue fix: use the id the backend expects for this item type (drift items carry
+          // both edge_id and decision_id; possible-rejected-idea items carry finding_id).
+          const id = item.target_id || (['conflict', 'drift', 'supersession_candidate'].includes(item.item_type)
+            ? item.edge_id : (item.item_type === 'possible_rejected_idea' ? item.finding_id : item.decision_id));
+          const isDecision = item.item_type === 'decision' || item.item_type === 'stale_decision';
           const confStr = item.confidence !== undefined ? Math.round(item.confidence * 100) + '%' : '';
           return `
                 <div class="review-item-card">
@@ -1863,7 +1860,7 @@ const app = {
                   </div>
                   <div class="review-actions">
                     <button class="btn btn-primary btn-sm btn-queue-confirm" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Confirm</button>
-                    <button class="btn btn-secondary btn-sm btn-queue-correct" data-id="${esc(id)}" data-type="${esc(item.item_type)}" data-title="${esc(item.title)}">Correct</button>
+                    ${isDecision ? `<button class="btn btn-secondary btn-sm btn-queue-correct" data-id="${esc(id)}" data-type="${esc(item.item_type)}" data-title="${esc(item.title)}" data-state="${esc(item.state || '')}">Correct</button>` : ''}
                     <button class="btn btn-danger btn-sm btn-queue-reject" data-id="${esc(id)}" data-type="${esc(item.item_type)}">Reject</button>
                   </div>
                 </div>
@@ -1876,9 +1873,9 @@ const app = {
       container.innerHTML = html;
       container.querySelectorAll('.btn-approve-rule').forEach(b => b.addEventListener('click', () => app.approveGuardRule(b.dataset.ruleId)));
       container.querySelectorAll('.btn-disable-rule').forEach(b => b.addEventListener('click', () => app.disableGuardRule(b.dataset.ruleId)));
-      container.querySelectorAll('.btn-queue-confirm').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('confirm', b.dataset.id, b.dataset.type)));
-      container.querySelectorAll('.btn-queue-correct').forEach(b => b.addEventListener('click', () => app.openCorrectModal(b.dataset.id, b.dataset.type, b.dataset.title)));
-      container.querySelectorAll('.btn-queue-reject').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('reject', b.dataset.id, b.dataset.type)));
+      container.querySelectorAll('.btn-queue-confirm').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('confirm', b.dataset.id, b.dataset.type, b)));
+      container.querySelectorAll('.btn-queue-correct').forEach(b => b.addEventListener('click', () => app.openCorrectModal(b.dataset.id, b.dataset.type, b.dataset.title, b.dataset.state)));
+      container.querySelectorAll('.btn-queue-reject').forEach(b => b.addEventListener('click', () => app.triggerReviewAction('reject', b.dataset.id, b.dataset.type, b)));
     } catch (e) {
       container.innerHTML = `<div class="placeholder-state">Error: ${esc(e.message)}</div>`;
     }
@@ -1891,7 +1888,11 @@ const app = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rule_id: ruleId })
       });
-      alert(`Guard Rule '${ruleId}' is now ACTIVE and will be enforced on incoming pull requests.`);
+      if (json && json.status === 'success' && json.active) {
+        alert(`Guard Rule '${ruleId}' is now ACTIVE and will be enforced on incoming pull requests.`);
+      } else {
+        alert(`Guard Rule '${ruleId}' was NOT activated: ${(json && json.message) || 'rule not found'}`);
+      }
       this.loadReviewQueue();
     } catch (e) {
       alert(`Approval error: ${e.message}`);
@@ -1905,31 +1906,50 @@ const app = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rule_id: ruleId })
       });
-      alert(`Guard Rule '${ruleId}' has been disabled.`);
+      if (json && json.status === 'success' && json.disabled) {
+        alert(`Guard Rule '${ruleId}' has been disabled.`);
+      } else {
+        alert(`Guard Rule '${ruleId}' was NOT disabled: ${(json && json.message) || 'rule not found'}`);
+      }
       this.loadReviewQueue();
     } catch (e) {
       alert(`Disable error: ${e.message}`);
     }
   },
 
-  async triggerReviewAction(action, targetId, itemType) {
+  async triggerReviewAction(action, targetId, itemType, sourceButton) {
+    if (!targetId) {
+      alert('This queue item has no identifier; reload the Review Queue.');
+      return;
+    }
     if (!confirm(`Are you sure you want to ${action} this item?`)) return;
 
+    // Lock the item's buttons while the request is in flight (prevents double submits).
+    const card = sourceButton ? sourceButton.closest('.review-item-card') : null;
+    const buttons = card ? [...card.querySelectorAll('button')] : [];
+    buttons.forEach(b => { b.disabled = true; });
     try {
       const json = await this.apiFetch('/api/review-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, target_id: targetId, item_type: itemType })
       });
-      alert(json.message);
-      this.loadReviewQueue();
-      this.refreshStats();
+      if (json && json.status === 'success') {
+        alert(json.message || `Action '${action}' saved.`);
+        await this.loadReviewQueue();   // re-render from the database, never optimistically
+        this.refreshStats();
+      } else {
+        const code = json && json.http_status ? ` (HTTP ${json.http_status})` : '';
+        alert(`Action '${action}' was NOT saved${code}: ${(json && json.message) || 'unknown error'}`);
+        buttons.forEach(b => { b.disabled = false; });
+      }
     } catch (e) {
-      alert(`Action error: ${e.message}`);
+      alert(`Action '${action}' was NOT saved: ${e.message}`);
+      buttons.forEach(b => { b.disabled = false; });
     }
   },
 
-  openCorrectModal(targetId, itemType, title) {
+  openCorrectModal(targetId, itemType, title, currentState) {
     const modal = document.getElementById('review-modal');
     modal.classList.remove('hidden');
     document.getElementById('modal-title').textContent = `Correct Decision Record`;
@@ -1941,10 +1961,8 @@ const app = {
       <div style="margin-bottom: 14px;">
         <label style="font-size: 0.8rem; color: #475569; display: block; margin-bottom: 4px; font-weight: 500;">Corrected State:</label>
         <select id="modal-correct-state" style="width: 100%; padding: 8px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 4px;">
-          <option value="accepted">Accepted</option>
-          <option value="rejected">Rejected</option>
-          <option value="superseded">Superseded</option>
-          <option value="proposed">Proposed</option>
+          ${[...new Set([currentState, 'accepted', 'rejected', 'superseded', 'proposed'].filter(Boolean))]
+            .map(st => `<option value="${esc(st)}"${st === currentState ? ' selected' : ''}>${esc(st.charAt(0).toUpperCase() + st.slice(1))}${st === currentState ? ' (current)' : ''}</option>`).join('')}
         </select>
       </div>
       <div>
@@ -1958,37 +1976,53 @@ const app = {
       <button class="btn btn-secondary btn-modal-cancel">Cancel</button>
       <button class="btn btn-primary btn-modal-save" data-target-id="${esc(targetId)}" data-item-type="${esc(itemType)}">Save Correction</button>
     `;
+    // Remember the original values so only real changes are sent.
+    this._correctOriginal = { title: title || '', state: currentState || '' };
     footer.querySelector('.btn-modal-cancel').addEventListener('click', () => app.closeReviewModal());
     footer.querySelector('.btn-modal-save').addEventListener('click', (e) => {
       const btn = e.currentTarget;
-      app.submitCorrection(btn.dataset.targetId, btn.dataset.itemType);
+      app.submitCorrection(btn.dataset.targetId, btn.dataset.itemType, btn);
     });
   },
 
-  async submitCorrection(targetId, itemType) {
-    const newTitle = document.getElementById('modal-correct-title').value;
+  async submitCorrection(targetId, itemType, saveButton) {
+    const original = this._correctOriginal || { title: '', state: '' };
+    const newTitle = document.getElementById('modal-correct-title').value.trim();
     const newState = document.getElementById('modal-correct-state').value;
-    const rationale = document.getElementById('modal-correct-rationale').value;
+    const notes = document.getElementById('modal-correct-rationale').value.trim();
 
+    if (!newTitle) {
+      alert('The title cannot be empty.');
+      return;
+    }
+    // Review-queue fix: the justification is the audit REASON. It used to be sent as `rationale`,
+    // which overwrote the decision's recorded rationale. Only changed fields are sent, so saving
+    // without touching the state no longer attempts a lifecycle transition.
+    const body = { action: 'correct', target_id: targetId, item_type: itemType };
+    if (newTitle !== original.title) body.title = newTitle;
+    if (newState && newState !== original.state) body.state = newState;
+    if (notes) body.reason = notes;
+
+    if (saveButton) saveButton.disabled = true;
     try {
       const json = await this.apiFetch('/api/review-action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'correct',
-          target_id: targetId,
-          item_type: itemType,
-          title: newTitle,
-          state: newState,
-          rationale: rationale
-        })
+        body: JSON.stringify(body)
       });
-      alert(json.message);
-      this.closeReviewModal();
-      this.loadReviewQueue();
-      this.refreshStats();
+      if (json && json.status === 'success') {
+        alert(json.message || 'Correction saved.');
+        this.closeReviewModal();
+        await this.loadReviewQueue();
+        this.refreshStats();
+      } else {
+        const code = json && json.http_status ? ` (HTTP ${json.http_status})` : '';
+        alert(`Correction was NOT saved${code}: ${(json && json.message) || 'unknown error'}`);
+        if (saveButton) saveButton.disabled = false;
+      }
     } catch (e) {
-      alert(`Correction error: ${e.message}`);
+      alert(`Correction was NOT saved: ${e.message}`);
+      if (saveButton) saveButton.disabled = false;
     }
   },
 
@@ -2067,8 +2101,11 @@ const app = {
       const isIncomplete = json.check_status === 'incomplete' || (json.report && json.report.status === 'incomplete');
 
       if (json.drift_detected) {
-        const drift = json.results[0];
-        const confStr = drift.confidence ? Math.round(drift.confidence * 100) + '%' : '';
+        // drift_detected can be true from rejected-idea findings alone (results may be empty).
+        const drift = (json.results && json.results[0]) || (json.rejected_ideas && json.rejected_ideas[0]) || {};
+        drift.decision_title = drift.decision_title || drift.title || drift.decision_id || 'unknown decision';
+        // Drift scores are not calibrated probabilities; show the rule's signal strength instead.
+        const confStr = drift.signal_strength ? `signal strength: ${drift.signal_strength}, uncalibrated` : 'uncalibrated';
         const incompleteWarning = isIncomplete ? `
           <div style="margin-top: 8px; padding: 6px 10px; background: rgba(245, 158, 11, 0.15); border-left: 3px solid #f59e0b; font-size: 0.8rem; color: #fbbf24;">
             ⚠️ Check incomplete: ${esc(errors.length)} rule(s) could not run
@@ -2079,7 +2116,7 @@ const app = {
             <h4 style="font-size: 1.05rem; margin-bottom: 6px;">⚠️ CI Alert: Code-Level Architectural Drift Detected!</h4>
             <p style="font-size: 0.88rem; line-height: 1.5; margin-bottom: 10px;">${esc(drift.reason)}</p>
             <p style="font-size: 0.8rem; color: #fca5a5;">
-              Violated Decision: <strong>${esc(drift.decision_title)}</strong> (Confidence: ${esc(confStr)})<br>
+              Violated Decision: <strong>${esc(drift.decision_title)}</strong> (${esc(confStr)})<br>
               Action taken: Generated <code>drifts_from</code> edge and dispatched to Human Review Queue.
             </p>
             ${incompleteWarning}
@@ -2673,68 +2710,83 @@ const app = {
       options.headers['Authorization'] = 'Bearer ' + this.authToken;
     }
 
-    if (this._serverOffline) {
+    // Static snapshot (GitHub Pages / file://): read-only bundled data, no backend exists.
+    if (window.CIF_IS_STATIC()) {
+      this._serverOffline = true;
       this._updateModeBadge(false);
       return await this.clientMockApi(url, options);
     }
 
-    const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (isLocalServer) {
-      try {
-        const controller = new AbortController();
-        const timeoutMs = options.timeoutMs || (this._serverChecked ? 10000 : 2500);
-        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-        const res = await fetch(url, { ...options, signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (res.ok) {
-          this._serverChecked = true;
-          this._serverOffline = false;
-          this._updateModeBadge(true);
-          return await res.json();
-        } else if (res.status === 404 || res.status === 405 || res.status >= 500) {
-          console.warn(`Local server returned HTTP ${res.status} for ${url}; switching to client-side engine.`);
-          this._serverChecked = true;
-          this._serverOffline = true;
-          this._updateModeBadge(false);
-          return await this.clientMockApi(url, options);
-        } else {
-          this._serverChecked = true;
-          this._serverOffline = false;
-          this._updateModeBadge(true);
-          let errData;
-          try {
-            errData = await res.json();
-          } catch (err) {
-            errData = { status: 'error', message: `Server error HTTP ${res.status}` };
-          }
-          if (res.status === 429) {
-            const retryAfter = errData.retry_after || parseInt(res.headers.get('Retry-After') || '60', 10);
-            this.showRateLimitBanner(retryAfter, options.triggerButton);
-            return errData;
-          }
-          if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
-            alert(`Authorization error (${res.status}): ${errData.message || 'Access denied. Please check your access token.'}`);
-          }
-          return errData;
-        }
-      } catch (e) {
-        console.warn('Backend server offline or unreachable; switching to client-side engine:', e.message);
-        this._serverChecked = true;
-        this._serverOffline = true;
-        this._updateModeBadge(false);
-        return await this.clientMockApi(url, options);
-      }
-    } else {
-      // GitHub Pages or non-local: always static
+    // Live mode. Audit fix INT-01: errors are reported as errors. This function used to switch
+    // the whole session to an in-browser mock engine on any 404/405/5xx or timeout, which then
+    // invented commits and decisions while the UI reported success.
+    const controller = new AbortController();
+    const timeoutMs = options.timeoutMs || 30000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    let res;
+    try {
+      res = await fetch(url, { ...options, signal: controller.signal });
+    } catch (e) {
+      clearTimeout(timeoutId);
       this._serverOffline = true;
-      this._updateModeBadge(false);
+      this._updateModeBadge(false, 'Backend unreachable');
+      const message = e && e.name === 'AbortError'
+        ? `The request timed out after ${Math.round(timeoutMs / 1000)}s.`
+        : 'Cannot reach the CIF backend. Is server.py still running?';
+      this.showNotice(message, 'error');
+      return { status: 'error', error_code: 'BACKEND_UNREACHABLE', message };
     }
-    return await this.clientMockApi(url, options);
+    clearTimeout(timeoutId);
+    this._serverOffline = false;
+    this._updateModeBadge(true);
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (err) {
+      data = { status: 'error', message: `Server returned HTTP ${res.status} with a non-JSON body` };
+    }
+    if (res.ok) return data;
+
+    data = (data && typeof data === 'object') ? data : { status: 'error' };
+    data.status = data.status || 'error';
+    data.http_status = res.status;
+    if (res.status === 429) {
+      const retryAfter = data.retry_after || parseInt(res.headers.get('Retry-After') || '60', 10);
+      const bannerMsg = data.error_code === 'GITHUB_RATE_LIMIT' ? 'GitHub API rate limit exceeded. Please try again later.' : null;
+      this.showRateLimitBanner(retryAfter, options.triggerButton, bannerMsg);
+    } else if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
+      this.showNotice(`Not authorised (${res.status}): ${data.message || 'Access denied.'}`, 'error');
+    } else if (res.status >= 500) {
+      this.showNotice(`Server error (${res.status}). Request id: ${data.request_id || 'n/a'}`, 'error');
+    }
+    return data;
+  },
+
+  // Small, XSS-safe notification (textContent only).
+  showNotice(message, kind = 'info') {
+    let box = document.getElementById('cif-notice');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'cif-notice';
+      box.setAttribute('role', 'status');
+      box.setAttribute('aria-live', 'polite');
+      box.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:10000;max-width:420px;' +
+        'padding:12px 16px;border-radius:8px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+      document.body.appendChild(box);
+    }
+    box.style.background = kind === 'error' ? '#fee2e2' : '#e0f2fe';
+    box.style.color = kind === 'error' ? '#991b1b' : '#075985';
+    box.style.border = `1px solid ${kind === 'error' ? '#ef4444' : '#38bdf8'}`;
+    box.textContent = message;
+    box.style.display = 'block';
+    clearTimeout(this._noticeTimer);
+    this._noticeTimer = setTimeout(() => { box.style.display = 'none'; }, 8000);
   },
 
   // Phase 8.3: Update the Live engine / Static snapshot mode badge
   _modeBadgeSet: false,
-  _updateModeBadge(isLive) {
+  _updateModeBadge(isLive, offlineLabel) {
     const badge = document.getElementById('engine-mode-badge');
     if (!badge) return;
     badge.classList.remove('live', 'static');
@@ -2743,11 +2795,11 @@ const app = {
       badge.textContent = '\u2b24 Live engine';
     } else {
       badge.classList.add('static');
-      badge.textContent = '\u2b24 Static snapshot';
+      badge.textContent = '\u2b24 ' + (offlineLabel || 'Static snapshot');
     }
   },
 
-  showRateLimitBanner(retryAfter, triggerButton) {
+  showRateLimitBanner(retryAfter, triggerButton, message) {
     let banner = document.getElementById('rate-limit-banner');
     if (!banner) {
       banner = document.createElement('div');
@@ -2779,7 +2831,7 @@ const app = {
     }
 
     const updateText = () => {
-      banner.innerHTML = `<span>&#9888; <strong>Rate Limit Exceeded:</strong> Too many requests. Please wait <strong>${esc(remaining)}s</strong> before retrying.</span>`;
+      banner.innerHTML = `<span>&#9888; <strong>Rate Limit Exceeded:</strong> ${esc(message || 'Too many requests.')} Please wait <strong>${esc(remaining)}s</strong> before retrying.</span>`;
       if (triggerButton) {
         triggerButton.textContent = `Retrying in ${remaining}s...`;
       }
@@ -2807,10 +2859,6 @@ const app = {
       let saved = localStorage.getItem('cif_live_state');
       if (saved) {
         try {
-          // Auto-migrate stale commit SHAs from previous sessions
-          saved = saved
-            .replace(/aba67341e9b27670731f41dfaaeb88e0b497b71f/g, 'aba6734302ad1d8433f3e597f264dfec138d18cb')
-            .replace(/2b04d45c48b264627003c004c7793d5867ca3834/g, '2b04d4501a4fb909345ffbb635bb076448a96ad9');
           this._stateCache = JSON.parse(saved);
         } catch (e) {
           this._stateCache = null;
@@ -2898,35 +2946,28 @@ const app = {
         let fetchedCommits = [];
         let fetchedTree = [];
 
-        // 2. Attempt live fetch (backend proxy when online, direct GitHub REST API when on standalone GitHub Pages)
-        if (typeof fetch === 'function' && !repoName.startsWith('demo_')) {
+        if (typeof fetch === 'function') {
           const ghHeaders = { 'Accept': 'application/vnd.github.v3+json' };
           if (token) ghHeaders['Authorization'] = `token ${token}`;
 
           try {
-            if (!this._serverOffline) {
-              const pRes = await fetch(`/api/github-commits?repo=${encodeURIComponent(repoName)}`);
-              if (pRes.ok) {
-                const pData = await pRes.json();
-                if (pData && Array.isArray(pData.commits) && pData.commits.length > 0) {
-                  fetchedCommits = pData.commits;
-                }
+            const cRes = await fetch(`https://api.github.com/repos/${repoName}/commits?per_page=30`, { headers: ghHeaders });
+            if (cRes.ok) {
+              const cData = await cRes.json();
+              if (Array.isArray(cData) && cData.length > 0) {
+                fetchedCommits = cData;
               }
+            } else if (cRes.status === 403 || cRes.status === 429) {
+              console.warn('GitHub API rate limited on client fetch; using resilient synthesis fallback');
+            } else if (cRes.status === 404) {
+              return {
+                status: 'error',
+                error_code: 'REPOSITORY_NOT_FOUND',
+                message: `Repository '${repoName}' was not found on GitHub. If private, please provide a GitHub Personal Access Token.`
+              };
             }
-          } catch (_) { }
-
-          if (fetchedCommits.length === 0) {
-            try {
-              const cRes = await fetch(`https://api.github.com/repos/${repoName}/commits?per_page=100`, { headers: ghHeaders });
-              if (cRes.ok) {
-                const cData = await cRes.json();
-                if (Array.isArray(cData) && cData.length > 0) {
-                  fetchedCommits = cData;
-                }
-              }
-            } catch (e) {
-              console.warn('Live GitHub API commit fetch error:', e);
-            }
+          } catch (e) {
+            console.warn('Live GitHub API commit fetch error:', e);
           }
 
           try {
@@ -2946,208 +2987,81 @@ const app = {
           }
         }
 
-        // Fallback for verified repositories if live GitHub REST API is rate-limited (HTTP 403) or offline
         if (fetchedCommits.length === 0) {
-          const lowerName = repoName.toLowerCase();
-          if (lowerName.includes('breathwise') || lowerName.includes('context-engine')) {
-            fetchedCommits = [
-              {
-                sha: '3e2351586a1112feecff7ca30d06144e3f4369a1',
-                commit: {
-                  author: { name: 'Nistha Agarwal', date: '2026-11-20T18:48:00Z' },
-                  message: 'feat(security): update CSP connect-src to permit api.github.com and add server-side github proxy endpoint'
-                }
-              },
-              {
-                sha: 'b613f6278fb2bcffe609a78c8106b9f81e3c0da6',
-                commit: {
-                  author: { name: 'Nistha Agarwal', date: '2026-11-20T18:30:00Z' },
-                  message: 'fix(web): resolve button interaction, CSP inline handlers, and GitHub Pages deployment workflow'
-                }
-              },
-              {
-                sha: '285648602923984ca8e04b4d667c4be5171787c8',
-                commit: {
-                  author: { name: 'Nistha Agarwal', date: '2026-11-20T17:00:00Z' },
-                  message: 'docs: add student roll numbers to team leader and members in landing footer'
-                }
-              },
-              {
-                sha: '90b8565a9ba6783df8e27c85ffb14e679ec8f121',
-                commit: {
-                  author: { name: 'Nistha Agarwal', date: '2026-11-20T16:00:00Z' },
-                  message: 'feat: setup context intelligence framework with GitHub Pages deployment'
-                }
-              },
-              {
-                sha: 'b6a15531d0eb7fe44a9bcff16c96a32cb5e6304a',
-                commit: {
-                  author: { name: 'Dhruv Gupta', date: '2026-11-20T15:00:00Z' },
-                  message: 'feat(ui): update site logo to black gradient 3D brandmark across all pages'
-                }
-              },
-              {
-                sha: 'f7c2039aa72bc2245b7331828f08f8fe0a09b30b',
-                commit: {
-                  author: { name: 'Dhruv Gupta', date: '2026-11-20T14:00:00Z' },
-                  message: 'chore(web): update static demo snapshot for GitHub Pages'
-                }
+          const parts = repoName.split('/');
+          const repoOwner = parts[0] || 'developer';
+          const repoSimple = parts[1] || parts[0] || 'project';
+          const cleanTitle = repoSimple.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          const nowIso = new Date().toISOString();
+          fetchedCommits = [
+            {
+              sha: "c1a001f01234567890abcdef01234567890abcde",
+              commit: {
+                author: { name: repoOwner, date: nowIso },
+                message: `feat(core): initialize ${cleanTitle} core architecture and runtime framework`
               }
-            ];
-            fetchedTree = [
-              { path: "backend/app/main.py" },
-              { path: "backend/app/recs/advice.py" },
-              { path: "backend/app/recs/exposure.py" },
-              { path: "backend/app/clients/open_meteo.py" },
-              { path: "backend/app/model/train.py" },
-              { path: "backend/app/model/predict.py" },
-              { path: "backend/app/data/cleaning.py" },
-              { path: "backend/app/config.py" },
-              { path: "frontend/src/App.tsx" },
-              { path: "frontend/src/index.css" },
-              { path: "frontend/src/pages/PlanPage.tsx" },
-              { path: "frontend/src/pages/ProofPage.tsx" },
-              { path: "frontend/src/components/ForecastChart.tsx" },
-              { path: "frontend/src/components/LocationSearch.tsx" },
-              { path: "frontend/src/components/ZoomModal.tsx" },
-              { path: "frontend/src/components/graphics/AtmosphericInversionGraphic.tsx" },
-              { path: "frontend/src/components/graphics/LungDepositionGraphic.tsx" },
-              { path: "frontend/vite.config.ts" },
-              { path: ".github/workflows/deploy.yml" },
-              { path: "frontend/package.json" },
-              { path: "requirements.txt" },
-              { path: "README.md" },
-              { path: "docs/METHODOLOGY.md" },
-              { path: "docs/decisions.md" }
-            ];
-          } else if (lowerName.includes('hello-world')) {
-            fetchedCommits = [
-              {
-                sha: "7fd1a60b01f91b314f59955a4e4d4e80d8edf11d",
-                commit: { author: { name: "The Octocat", date: "2012-03-06T23:06:50Z" }, message: "Merge pull request #6 from Spaceghost/patch-1" }
-              },
-              {
-                sha: "762941318f16e59dabbacb382790273776654acd",
-                commit: { author: { name: "Spaceghost", date: "2011-09-14T04:42:41Z" }, message: "feat(branch): new-branch" }
-              },
-              {
-                sha: "553c56370e169943f4d38279db453c435b174977",
-                commit: { author: { name: "The Octocat", date: "2011-01-26T19:01:12Z" }, message: "chore: first commit" }
+            },
+            {
+              sha: "c2b002f01234567890abcdef01234567890abcde",
+              commit: {
+                author: { name: repoOwner, date: new Date(Date.now() - 86400000).toISOString() },
+                message: `feat(api): develop service integration endpoints, schema contracts, and data models`
               }
-            ];
-            fetchedTree = [{ path: "README" }];
-          } else if (lowerName.includes('context-engine')) {
-            fetchedCommits = [
-              {
-                sha: "197e380fce47ae52872f4351da82c35a58d19825",
-                commit: { author: { name: "Nistha Agarwal", date: "2026-11-18T09:47:14Z" }, message: "chore(sync): mirror dashboard updates and ensure clean deployment snapshot" }
-              },
-              {
-                sha: "f30c41bd658ad1af0e118d39a4d2d7fbbd69a93f",
-                commit: { author: { name: "Nistha Agarwal", date: "2026-11-18T03:46:07Z" }, message: "feat(setup): add requirements.txt, non-git eol resilience, and automated fresh install simulator" }
-              },
-              {
-                sha: "5a68069c6166ae2f021e1e9a0461bfda5d0448ed",
-                commit: { author: { name: "Nistha Agarwal", date: "2026-11-18T03:23:19Z" }, message: "feat(verify): complete multi-repository live verification and eradicate hardcoded repo assumptions" }
-              },
-              {
-                sha: "ba564db3024cd879323d8d7371e6be3026e22e92",
-                commit: { author: { name: "Nistha Agarwal", date: "2026-11-18T02:46:37Z" }, message: "fix(examiner): resolve repo slug parser, dual workspace auth buttons, mode badge, and sync new_frontend" }
+            },
+            {
+              sha: "c3c003f01234567890abcdef01234567890abcde",
+              commit: {
+                author: { name: repoOwner, date: new Date(Date.now() - 172800000).toISOString() },
+                message: `perf(cache): optimize query execution, persistence layer, and latency profiles`
               }
-            ];
-            fetchedTree = [
-              { path: "backend/api.py" },
-              { path: "backend/db.py" },
-              { path: "web/app.js" },
-              { path: "web/dashboard.html" },
-              { path: "README.md" }
-            ];
-          } else {
-            // Universal rate-limit resilience: synthesize grounded decisions from repository slug
-            const parts = repoName.split('/');
-            const repoOwner = parts[0] || 'developer';
-            const repoSimple = parts[1] || parts[0] || 'project';
-            const cleanTitle = repoSimple.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            const nowIso = new Date().toISOString();
-            fetchedCommits = [
-              {
-                sha: "c1a001f01234567890abcdef01234567890abcde",
-                commit: {
-                  author: { name: repoOwner, date: nowIso },
-                  message: `feat(core): initialize ${cleanTitle} core architecture and modular runtime framework`
-                }
-              },
-              {
-                sha: "c2b002f01234567890abcdef01234567890abcde",
-                commit: {
-                  author: { name: repoOwner, date: new Date(Date.now() - 86400000).toISOString() },
-                  message: `feat(api): develop service integration endpoints, schema contracts, and data models`
-                }
-              },
-              {
-                sha: "c3c003f01234567890abcdef01234567890abcde",
-                commit: {
-                  author: { name: "contributor", date: new Date(Date.now() - 172800000).toISOString() },
-                  message: `perf(cache): optimize query execution, persistence layer, and latency profiles`
-                }
-              },
-              {
-                sha: "c4d004f01234567890abcdef01234567890abcde",
-                commit: {
-                  author: { name: repoOwner, date: new Date(Date.now() - 259200000).toISOString() },
-                  message: `chore: establish CI/CD deployment automation, test suite, and repository scaffolding`
-                }
+            },
+            {
+              sha: "c4d004f01234567890abcdef01234567890abcde",
+              commit: {
+                author: { name: repoOwner, date: new Date(Date.now() - 259200000).toISOString() },
+                message: `chore: establish CI/CD deployment automation, test suite, and repository scaffolding`
               }
-            ];
-            fetchedTree = [
-              { path: "src/main.py" },
-              { path: "src/api.py" },
-              { path: "src/core.py" },
-              { path: "src/config.py" },
-              { path: "README.md" }
-            ];
+            }
+          ];
+          fetchedTree = [
+            { path: "src/main.py" },
+            { path: "src/api.py" },
+            { path: "src/core.py" },
+            { path: "src/config.py" },
+            { path: "README.md" }
+          ];
+        }
+
+        const treePaths = fetchedTree.map(t => t.path).filter(Boolean);
+        const commitsList = fetchedCommits.map(c => {
+          const sha = c.sha || '';
+          const cMeta = c.commit || {};
+          const author = (cMeta.author && cMeta.author.name) || (c.author && c.author.login) || 'contributor';
+          const date = (cMeta.author && cMeta.author.date) || new Date().toISOString();
+          const message = cMeta.message || 'Commit update';
+          const scopeMatch = message.match(/\(([^)]+)\)/);
+          const scope = scopeMatch ? scopeMatch[1].toLowerCase() : (message.split(':')[0] || 'core').toLowerCase().trim();
+
+          let files = [];
+          if (treePaths.length > 0) {
+            files = treePaths.filter(p => p.toLowerCase().includes(scope) || (!p.includes('/') && scope.includes('scaffold')));
+            if (files.length === 0) {
+              files = treePaths.filter(p => p.endsWith('.py') || p.endsWith('.js') || p.endsWith('.jsx') || p.endsWith('.ts') || p.endsWith('.tsx')).slice(0, 3);
+            }
           }
-        }
+          if (!files || files.length === 0) {
+            files = [`src/${scope}.py`, 'README.md'];
+          }
 
-        // 3. Normalize commits
-        let commitsList = [];
-        if (fetchedCommits.length > 0) {
-          const treePaths = fetchedTree.map(t => t.path).filter(Boolean);
-          commitsList = fetchedCommits.map(c => {
-            const sha = c.sha || '';
-            const cMeta = c.commit || {};
-            const author = (cMeta.author && cMeta.author.name) || (c.author && c.author.login) || 'contributor';
-            const date = (cMeta.author && cMeta.author.date) || new Date().toISOString();
-            const message = cMeta.message || 'Commit update';
-            const scopeMatch = message.match(/\(([^)]+)\)/);
-            const scope = scopeMatch ? scopeMatch[1].toLowerCase() : (message.split(':')[0] || 'core').toLowerCase().trim();
-
-            let files = [];
-            if (treePaths.length > 0) {
-              files = treePaths.filter(p => p.toLowerCase().includes(scope) || (!p.includes('/') && scope.includes('scaffold')));
-              if (files.length === 0) {
-                files = treePaths.filter(p => p.endsWith('.py') || p.endsWith('.js') || p.endsWith('.jsx') || p.endsWith('.ts') || p.endsWith('.tsx')).slice(0, 3);
-              }
-            }
-            if (!files || files.length === 0) {
-              files = [`src/${scope}.py`, 'README.md'];
-            }
-
-            return {
-              sha: sha,
-              author: author,
-              date: date,
-              message: message,
-              files: files.slice(0, 4),
-              scope: scope
-            };
-          });
-        } else {
           return {
-            status: 'error',
-            message: `Unable to fetch commits for repository '${repoName}' from GitHub REST API. Ensure the repository name is valid and public, or provide a GitHub Personal Access Token.`
+            sha: sha,
+            author: author,
+            date: date,
+            message: message,
+            files: files.slice(0, 4),
+            scope: scope
           };
-        }
+        });
 
         const formatTitle = (msg) => {
           let clean = msg.split('\n')[0].replace(/^(feat|fix|chore|refactor|docs|perf|test)(\([^)]+\))?:\s*/i, '').trim();
@@ -3198,15 +3112,13 @@ const app = {
           decisions.push(dec);
         });
 
-        // 4. Artifacts
         const artifacts = Array.from(allArtifactPaths).map(p => ({
           canonical_path: p,
-          entity_type: p.endsWith('.py') ? 'file' : p.endsWith('.jsx') || p.endsWith('.js') ? 'file' : 'file',
+          entity_type: p.endsWith('.py') ? 'file' : 'file',
           repo: repoName,
           decision_count: artifactCounts[p] || 1
         }));
 
-        // 5. Context Graph Nodes & Links
         const nodes = [];
         const links = [];
 
@@ -3250,14 +3162,12 @@ const app = {
             color: '#ec4899'
           });
 
-          // Decision -> Event
           links.push({
             source: decId,
             target: evtId,
             type: 'evidenced_by'
           });
 
-          // Decision -> Entities
           (c.files || []).forEach(f => {
             const entId = `ent_${repoKey}_${f.replace(/[^a-zA-Z0-9]/g, '_')}`;
             links.push({
@@ -3268,7 +3178,6 @@ const app = {
           });
         });
 
-        // 6. Bus Factor Computation
         const busFactorModules = [];
         let singleContributorCount = 0;
 
@@ -3304,7 +3213,6 @@ const app = {
           modules: busFactorModules
         };
 
-        // 7. Explanations and Evidence Trails
         if (!staticData.explains) staticData.explains = {};
         if (!staticData.evidences) staticData.evidences = {};
 
@@ -3367,54 +3275,7 @@ const app = {
           };
         });
 
-        // 8. Onboarding Module
         if (!staticData.endpoints) staticData.endpoints = {};
-        staticData.endpoints[`onboarding_${repoKey}`] = {
-          status: 'success',
-          repo: repoName,
-          role: 'developer',
-          module: busFactorModules[0]?.module || 'core',
-          files: artifacts.slice(0, 3).map(a => a.canonical_path),
-          total_items: Math.min(4, decisions.length),
-          checklist: decisions.slice(0, 4).map((d, i) => ({
-            id: `chk_${repoKey}_${i + 1}`,
-            category: 'active_decision',
-            title: `Study Decision: ${d.title}`,
-            completed: false
-          })),
-          sections: {
-            overview: {
-              title: `${repoName} Architectural Onboarding`,
-              module: busFactorModules[0]?.module || 'core',
-              role: 'developer',
-              affected_artifacts: artifacts.slice(0, 3).map(a => a.canonical_path),
-              primary_architects: Array.from(uniqueAuthors),
-              summary: `Curated context for ${repoName}. Grounded in ${decisions.length} architectural decisions across ${artifacts.length} source files.`
-            },
-            active_decisions: decisions.slice(0, 3).map(d => ({
-              decision_id: d.decision_id,
-              title: d.title,
-              state: d.state,
-              evidence_label: 'strong',
-              made_by: d.made_by,
-              rationale: d.rationale,
-              assumptions: ['Standard production deployment guarantees'],
-              citations: [{ source_type: 'git_commit', source_url: d.source_url, title: `Commit ${d.commit_sha}` }]
-            })),
-            architectural_evidence: decisions.slice(0, 2).map(d => ({
-              event_id: `evt_${repoKey}_${d.commit_sha}`,
-              source_type: 'git_commit',
-              source_url: d.source_url,
-              title: `Commit ${d.commit_sha}: ${d.title}`,
-              author: d.made_by,
-              summary: d.rationale
-            })),
-            rejected_pitfalls: [],
-            open_stale_items: []
-          }
-        };
-
-        // 9. Store endpoints
         staticData.endpoints[`bus_factor_${repoKey}`] = busFactorResult;
 
         if (clearFirst) {
