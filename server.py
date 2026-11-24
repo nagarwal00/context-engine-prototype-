@@ -226,6 +226,27 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
+    def _send_github_auth_failure(self, status: int, message: str, extra_h: dict) -> None:
+        """A failed GitHub sign-in. Browsers return to the login page, which shows the reason in its
+        existing message box; API clients (and tests) get the JSON error with the real status."""
+        code = (extra_h or {}).get("X-CIF-Auth-Error", "AUTH_FAILED")
+        server_logger.warning("GitHub sign-in failed: %s (%s)", code, status)
+        if "text/html" in (self.headers.get("Accept") or ""):
+            self._send_redirect("/login.html?auth_error=" + urllib.parse.quote(code), status=302)
+        else:
+            self._send_json({"status": "error", "error_code": code, "message": message}, status=status)
+
+    def _send_route_refusal(self, status_code: int, message: str, path: str) -> None:
+        """Authorization/routing refusal; a 405 also names the allowed methods (Allow header)."""
+        extra = None
+        body = {"status": "error", "message": message}
+        if status_code == 405:
+            from backend.api import ROUTE_ROLES
+            allowed = sorted({m for (m, p) in ROUTE_ROLES if p == path})
+            extra = {"Allow": ", ".join(allowed)}
+            body["error_code"] = "METHOD_NOT_ALLOWED"
+        self._send_json(body, status=status_code, extra_headers=extra)
+
     def _safe_dispatch(self, handler):
         """Runs a request handler; any unexpected exception becomes a JSON 500 (audit fix APP-02).
 
@@ -294,7 +315,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 if status == 302:
                     self._send_redirect(loc, extra_headers=extra_h)
                 else:
-                    self._send_json({"status": "error", "message": loc}, status=status)
+                    self._send_github_auth_failure(status, loc, extra_h)
                 return
 
             elif parsed.path == "/auth/github/callback":
@@ -305,7 +326,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 if status == 302:
                     self._send_redirect(target, extra_headers=extra_h)
                 else:
-                    self._send_json({"status": "error", "message": target}, status=status)
+                    self._send_github_auth_failure(status, target, extra_h)
                 return
 
             elif parsed.path == "/auth/demo/login":
@@ -390,7 +411,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 "GET", parsed.path, headers_dict, client_ip, query_params=params
             )
             if not ok:
-                self._send_json({"status": "error", "message": message}, status=status_code)
+                self._send_route_refusal(status_code, message, parsed.path)
                 return
 
             res = self.server.api_handler.handle_get(parsed.path, params, headers=headers_dict)
@@ -568,7 +589,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
                 "POST", parsed.path, headers_dict, client_ip, query_params=params, body_json=body_json
             )
             if not ok:
-                self._send_json({"status": "error", "message": message}, status=status_code)
+                self._send_route_refusal(status_code, message, parsed.path)
                 return
 
             res = self.server.api_handler.handle_post(
@@ -598,7 +619,7 @@ class ContextIntelligenceServer(http.server.SimpleHTTPRequestHandler):
             "DELETE", parsed.path, headers_dict, client_ip
         )
         if not ok:
-            self._send_json({"status": "error", "message": message}, status=status_code)
+            self._send_route_refusal(status_code, message, parsed.path)
             return
 
         res = self.server.api_handler.handle_delete(

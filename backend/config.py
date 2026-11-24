@@ -32,8 +32,16 @@ class Config:
             except ValueError:
                 self._app_id = None
 
-        self._client_id = env.get("GITHUB_APP_CLIENT_ID", "").strip()
-        self._client_secret = env.get("GITHUB_APP_CLIENT_SECRET", "").strip()
+        # GitHub sign-in credentials. GITHUB_APP_* (original names) take priority; GITHUB_CLIENT_ID /
+        # GITHUB_CLIENT_SECRET are accepted as the conventional OAuth App names.
+        self._client_id = (env.get("GITHUB_APP_CLIENT_ID", "").strip()
+                           or env.get("GITHUB_CLIENT_ID", "").strip())
+        self._client_secret = (env.get("GITHUB_APP_CLIENT_SECRET", "").strip()
+                               or env.get("GITHUB_CLIENT_SECRET", "").strip())
+        # Optional explicit callback URL; must end with /auth/github/callback (the route this server
+        # serves). Otherwise it is derived from CIF_BASE_URL.
+        callback = env.get("GITHUB_CALLBACK_URL", "").strip().rstrip("/")
+        self._callback_url = callback if callback.endswith("/auth/github/callback") else ""
         self._private_key_path = env.get("GITHUB_APP_PRIVATE_KEY_PATH", "").strip() or None
         self._token_enc_key = env.get("CIF_TOKEN_ENC_KEY", "").strip() or None
 
@@ -95,6 +103,10 @@ class Config:
 
     def get_github_client_secret(self) -> str:
         return self._client_secret
+
+    def get_github_callback_url(self) -> str:
+        """The redirect_uri sent to GitHub; must equal the OAuth app's registered callback URL."""
+        return self._callback_url or f"{self._base_url}/auth/github/callback"
 
     def get_github_private_key_path(self) -> Optional[str]:
         return self._private_key_path

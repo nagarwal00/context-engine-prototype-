@@ -517,18 +517,16 @@ const app = {
       logBox.scrollTop = logBox.scrollHeight;
     };
 
-    addLog(`Connecting to repository '${slug}'...`);
-    addLog(`Fetching commit logs, author identities, and code diffs...`);
+    addLog(`Sending '${slug}' to the CIF backend (POST /api/ingest-repo)...`);
 
-    // Progress pulse timer while network request completes
-    let step = 0;
+    // Honest progress: the server does not stream progress, so show elapsed time only.
+    // (This used to print invented step messages on a timer whether or not they happened.)
+    const started = Date.now();
+    const waitLine = document.createElement('div');
+    logBox.appendChild(waitLine);
     const progressInterval = setInterval(() => {
-      step++;
-      if (step === 1) addLog(`Scanning issues, PR discussions, and parent linkages...`);
-      else if (step === 2) addLog(`Parsing Python AST functions and dependency trees...`);
-      else if (step === 3) addLog(`Synthesizing architectural decisions & confidence scoring...`);
-      else if (step === 4) addLog(`Building temporal context graph edges & evidence chains...`);
-    }, 1800);
+      waitLine.textContent = `… waiting for the server (${Math.round((Date.now() - started) / 1000)}s)`;
+    }, 1000);
 
     try {
       const json = await this.apiFetch('/api/ingest-repo', {
@@ -541,10 +539,12 @@ const app = {
           max_commits: 25,
           max_issues: 15
         }),
-        timeoutMs: 60000
+        timeoutMs: 120000,
+        triggerButton: btn
       });
 
       clearInterval(progressInterval);
+      waitLine.remove();
 
       if (json && json.status === 'success') {
         const stats = json.data || {};
@@ -554,6 +554,11 @@ const app = {
         addLog(`Extracted ${stats.entities_created || 0} code entities (including AST functions).`);
         addLog(`Synthesized ${stats.decisions_extracted || 0} grounded architectural decisions.`);
         addLog(`Constructed ${stats.edges_created || 0} temporal graph edges.`);
+        (stats.warnings || []).forEach(w => addLog(`Note: ${w}`));
+        if (stats.partial) {
+          titleEl.textContent = 'Ingestion complete (partial — see notes)';
+          titleEl.style.color = '#b45309';
+        }
 
         setTimeout(async () => {
           this.closeAddRepoModal();
@@ -561,13 +566,18 @@ const app = {
           this.switchRepo(stats.repo || slug);
         }, 1200);
       } else {
-        titleEl.textContent = 'Ingestion Error';
+        const code = json && json.error_code ? json.error_code : 'ERROR';
+        const http = json && json.http_status ? `HTTP ${json.http_status}, ` : '';
+        titleEl.textContent = code === 'GITHUB_RATE_LIMIT' ? 'GitHub API rate limit exceeded' : 'Ingestion Error';
         titleEl.style.color = '#ef4444';
-        addLog(`Error: ${json ? json.message : 'Unknown server error'}`);
-        btn.disabled = false;
+        addLog(`Error (${http}${code}): ${json && json.message ? json.message : 'Unknown server error'}`);
+        if (json && json.request_id) addLog(`Request id: ${json.request_id}`);
+        // On 429 the rate-limit banner keeps the button disabled until the retry window ends.
+        if (!(json && json.http_status === 429)) btn.disabled = false;
       }
     } catch (e) {
       clearInterval(progressInterval);
+      waitLine.remove();
       titleEl.textContent = 'Ingestion Error';
       titleEl.style.color = '#ef4444';
       addLog(`Error: ${e.message}`);
@@ -2743,7 +2753,8 @@ const app = {
     data.http_status = res.status;
     if (res.status === 429) {
       const retryAfter = data.retry_after || parseInt(res.headers.get('Retry-After') || '60', 10);
-      this.showRateLimitBanner(retryAfter, options.triggerButton);
+      const bannerMsg = data.error_code === 'GITHUB_RATE_LIMIT' ? 'GitHub API rate limit exceeded. Please try again later.' : null;
+      this.showRateLimitBanner(retryAfter, options.triggerButton, bannerMsg);
     } else if ((res.status === 401 || res.status === 403) && !options.silentAuthError) {
       this.showNotice(`Not authorised (${res.status}): ${data.message || 'Access denied.'}`, 'error');
     } else if (res.status >= 500) {
@@ -2788,7 +2799,7 @@ const app = {
     }
   },
 
-  showRateLimitBanner(retryAfter, triggerButton) {
+  showRateLimitBanner(retryAfter, triggerButton, message) {
     let banner = document.getElementById('rate-limit-banner');
     if (!banner) {
       banner = document.createElement('div');
@@ -2820,7 +2831,7 @@ const app = {
     }
 
     const updateText = () => {
-      banner.innerHTML = `<span>&#9888; <strong>Rate Limit Exceeded:</strong> Too many requests. Please wait <strong>${esc(remaining)}s</strong> before retrying.</span>`;
+      banner.innerHTML = `<span>&#9888; <strong>Rate Limit Exceeded:</strong> ${esc(message || 'Too many requests.')} Please wait <strong>${esc(remaining)}s</strong> before retrying.</span>`;
       if (triggerButton) {
         triggerButton.textContent = `Retrying in ${remaining}s...`;
       }
