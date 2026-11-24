@@ -1,7 +1,7 @@
 // Auto-generated static dataset for GitHub Pages deployment
 window.__CIF_STATIC_DATA__ = {
   "database": "context_intelligence.db",
-  "db_snapshot_sha256": "41007640f1f564ddbf93104e989ccb6b9af8554df8955dc99bee495928d2d209",
+  "db_snapshot_sha256": "687ebb7eee82580bf348ae1f5ff8ca0ce901e76e1ccf2167666c4309c97df993",
   "endpoints": {
     "artifacts_all": {
       "data": [
@@ -3577,8 +3577,8 @@ window.__CIF_STATIC_DATA__ = {
               "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
               "overlap_count": 2,
               "shared_events": [
-                "evt_adr_cache_0009",
-                "evt_rev_cache_c201"
+                "evt_rev_cache_c201",
+                "evt_adr_cache_0009"
               ],
               "system_state": "accepted"
             },
@@ -3635,8 +3635,8 @@ window.__CIF_STATIC_DATA__ = {
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -3657,15 +3657,15 @@ window.__CIF_STATIC_DATA__ = {
           "missed": [
             {
               "expected_evidence": [
-                "evt_issue_thermal_12_sarah",
-                "evt_issue_thermal_12_comm"
+                "evt_issue_thermal_12_comm",
+                "evt_issue_thermal_12_sarah"
               ],
               "gt_id": "PILOT_GT_TH_02",
               "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
             }
           ],
           "overcounting_detected": false,
-          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '41007640f1f564ddbf93104e989ccb6b9af8554df8955dc99bee495928d2d209'",
+          "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '687ebb7eee82580bf348ae1f5ff8ca0ce901e76e1ccf2167666c4309c97df993'",
           "strict": {
             "correct_state_count": 2,
             "found": [
@@ -3676,8 +3676,8 @@ window.__CIF_STATIC_DATA__ = {
                 "gt_title": "Migrate from In-Memory LRU to Distributed Redis Cluster",
                 "overlap_count": 2,
                 "shared_events": [
-                  "evt_adr_cache_0009",
-                  "evt_rev_cache_c201"
+                  "evt_rev_cache_c201",
+                  "evt_adr_cache_0009"
                 ],
                 "system_state": "accepted"
               },
@@ -3707,15 +3707,15 @@ window.__CIF_STATIC_DATA__ = {
             ],
             "matched_gt_count": 3,
             "matched_system_ids": [
+              "dec_cache_local_lru_proposed",
               "dec_cache_redis_accepted",
-              "dec_thermal_pid_accepted",
-              "dec_cache_local_lru_proposed"
+              "dec_thermal_pid_accepted"
             ],
             "missed": [
               {
                 "expected_evidence": [
-                  "evt_issue_thermal_12_sarah",
-                  "evt_issue_thermal_12_comm"
+                  "evt_issue_thermal_12_comm",
+                  "evt_issue_thermal_12_sarah"
                 ],
                 "gt_id": "PILOT_GT_TH_02",
                 "gt_title": "Reject Simple Deadband Hysteresis for Thermal Control"
@@ -4334,7 +4334,7 @@ window.__CIF_STATIC_DATA__ = {
           "unsupported_claim_rate": 100.0,
           "url_format_ok": 100.0
         },
-        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '41007640f1f564ddbf93104e989ccb6b9af8554df8955dc99bee495928d2d209'",
+        "precision_reason": "snapshot hash mismatch: labels generated from 'def40ab257f7784709179e5f1e52d2815586c3f4e282fdb4e906e006f08ffeee', current DB hash is '687ebb7eee82580bf348ae1f5ff8ca0ce901e76e1ccf2167666c4309c97df993'",
         "system_decisions_evaluated": 33,
         "unmatched_system_decisions_count": 30,
         "whybench_manifest": {

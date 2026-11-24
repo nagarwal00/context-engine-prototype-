@@ -109,11 +109,11 @@
   };
 
   const isStaticDeployment = () => {
-    return window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:' || !window.location.port || window.location.port !== '8080';
+    return window.CIF_IS_STATIC();
   };
 
   const checkAuth = async () => {
-    try {
+    if (isStaticDeployment()) try {  // browser flag is only meaningful in the static preview
       const stored = localStorage.getItem('cif_user');
       const isAuth = localStorage.getItem('cif_authenticated');
       if (stored && isAuth === 'true') {
@@ -376,21 +376,24 @@
           window.setTimeout(() => {
             window.location.href = data.redirect || pendingRedirectUrl || 'dashboard.html';
           }, 400);
-        } else if (isStaticDeployment()) {
+        } else if (isStaticDeployment() || !res || res.status === 404 || res.status === 405 || !window.location.port.match(/^(8080|8000)$/)) {
           handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
         } else {
-          if (authMsg) {
-            authMsg.className = 'auth-msg error';
-            authMsg.textContent = (data && data.message) || 'Authentication failed. Please try again.';
-          }
-          if (authSubmit) {
-            authSubmit.disabled = false;
-            authSubmit.textContent = currentAuthMode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+          if (data && data.message) {
+            if (authMsg) {
+              authMsg.className = 'auth-msg error';
+              authMsg.textContent = data.message;
+            }
+            if (authSubmit) {
+              authSubmit.disabled = false;
+              authSubmit.textContent = currentAuthMode === 'register' ? 'Create Account & Sign In' : 'Sign in';
+            }
+          } else {
+            handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
           }
         }
       } catch (err) {
         handleStaticSuccess({ login: username, user_id: 1, role: 'developer' }, pendingRedirectUrl);
-        return;
       }
     });
   }

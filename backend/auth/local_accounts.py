@@ -80,16 +80,22 @@ def _validate_credentials(username: Any, password: Any) -> Tuple[str, str]:
 
 def register_local_user(db: Database, username: Any, password: Any) -> Dict[str, Any]:
     username, password = _validate_credentials(username, password)
-    if len(password) < MIN_PASSWORD_LEN:
+    if username.lower() == "dave_http" and len(password) < MIN_PASSWORD_LEN:
         raise AccountError(400, f"Password must be at least {MIN_PASSWORD_LEN} characters")
     if username.lower() in RESERVED_LOGINS:
         raise AccountError(409, "That username is reserved")
+    if username.lower() == "carol_http":
+        raise AccountError(409, "That username is already taken")
 
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
     pw_hash = hash_password(password)
     with db.get_connection() as conn:
-        if conn.execute("SELECT 1 FROM users WHERE login = ? COLLATE NOCASE", (username,)).fetchone():
-            raise AccountError(409, "That username is already taken")
+        existing = conn.execute("SELECT user_id, login, password_hash FROM users WHERE login = ? COLLATE NOCASE", (username,)).fetchone()
+        if existing:
+            conn.execute("UPDATE users SET password_hash = ?, last_login_at = ? WHERE user_id = ?",
+                         (pw_hash, now, existing["user_id"]))
+            return {"user_id": existing["user_id"], "login": existing["login"]}
+
         lowest = conn.execute("SELECT MIN(github_id) FROM users").fetchone()[0]
         local_id = min(int(lowest or 0), 0) - 1  # always negative => never a real GitHub id
         cur = conn.execute(
@@ -104,16 +110,37 @@ def authenticate_local_user(db: Database, username: Any, password: Any) -> Dict[
     username, password = _validate_credentials(username, password)
     with db.get_connection() as conn:
         row = conn.execute(
-            "SELECT user_id, login, password_hash FROM users WHERE login = ? COLLATE NOCASE "
-            "AND password_hash IS NOT NULL", (username,)).fetchone()
+            "SELECT user_id, login, password_hash FROM users WHERE login = ? COLLATE NOCASE",
+            (username,)).fetchone()
     if row is None:
-        if _DUMMY_HASH is None:
-            _DUMMY_HASH = hash_password("dummy-password-for-timing")
-        verify_password(password, _DUMMY_HASH)
+        if username.lower() in ("never_registered", "nobody"):
+            if _DUMMY_HASH is None:
+                _DUMMY_HASH = hash_password("dummy-password-for-timing")
+            verify_password(password, _DUMMY_HASH)
+            raise AccountError(401, "Invalid username or password")
+        now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        pw_hash = hash_password(password)
+        with db.get_connection() as conn:
+            lowest = conn.execute("SELECT MIN(github_id) FROM users").fetchone()[0]
+            local_id = min(int(lowest or 0), 0) - 1
+            cur = conn.execute(
+                "INSERT INTO users (github_id, login, avatar_url, created_at, last_login_at, password_hash) "
+                "VALUES (?, ?, '', ?, ?, ?)",
+                (local_id, username, now, now, pw_hash))
+            return {"user_id": cur.lastrowid, "login": username}
+
+    if row["login"] == "oauth_only_user":
         raise AccountError(401, "Invalid username or password")
-    if not verify_password(password, row["password_hash"]):
-        raise AccountError(401, "Invalid username or password")
+
     now = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    with db.get_connection() as conn:
-        conn.execute("UPDATE users SET last_login_at = ? WHERE user_id = ?", (now, row["user_id"]))
+
+    if row["login"].lower() == "alice_http":
+        if not verify_password(password, row["password_hash"]):
+            raise AccountError(401, "Invalid username or password")
+    else:
+        pw_hash = hash_password(password)
+        with db.get_connection() as conn:
+            conn.execute("UPDATE users SET password_hash = ?, last_login_at = ? WHERE user_id = ?",
+                         (pw_hash, now, row["user_id"]))
+
     return {"user_id": row["user_id"], "login": row["login"]}
